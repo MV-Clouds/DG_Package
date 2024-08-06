@@ -4,8 +4,8 @@ import deleteTemplate from '@salesforce/apex/HomePageController.deleteTemplate';
 import docGeniusImgs from "@salesforce/resourceUrl/homePageImgs";
 import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getTemplateList from '@salesforce/apex/HomePageController.getTemplateList';
-import templateObject from '@salesforce/schema/Template__c';
-import templateTypeFIELD from '@salesforce/schema/Template__c.Template_Type__c';
+import templateObject from '@salesforce/schema/MVDG__Template__c';
+import templateTypeFIELD from '@salesforce/schema/MVDG__Template__c.MVDG__Template_Type__c';
 import updateTemplate from '@salesforce/apex/HomePageController.updateTemplate';
 import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
 import {nameSpace,navigationComps} from 'c/globalProperties';
@@ -54,10 +54,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     hour12 = false;
 
     @track sortingFiledList = [
-        {label : 'Template Name', value : 'Template_Name__c'},
+        {label : 'Template Name', value : 'MVDG__Template_Name__c'},
         {label : 'Created Date', value : 'CreatedDate'},
         {label : 'Last Modified Date', value : 'LastModifiedDate'},
-        {label : 'Object Name', value : 'Object_API_Name__c'},
+        {label : 'Object Name', value : 'MVDG__Object_API_Name__c'},
     ];
     @track refrenceTimeList = [
         {label : 'THIS WEEK', value : 'THIS_WEEK'},
@@ -107,11 +107,11 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         return this.displayedTemplateList.length || this.isSpinner ? false : true;
     }
 
-    // Get Template__c Object Information...
+    // Get MVDG__Template__c Object Information...
     @wire(getObjectInfo, { objectApiName: templateObject })
     objectInfo;
 
-    // Get Picklist values form Template_Type__c FIELD from Template__c Object
+    // Get Picklist values form MVDG__Template_Type__c FIELD from MVDG__Template__c Object
     @wire(getPicklistValues, { recordTypeId: '$objectInfo.data.defaultRecordTypeId', fieldApiName: templateTypeFIELD })
     wiredTemplateTypeValues({ data }) {
         if (data) {
@@ -206,7 +206,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.isSpinner = true;
             getTemplateList()
             .then(result => {
-                // console.log('result : ', result);
+                console.log('result : ', result);
                 if(result.isSuccess === true){
                     if(result.returnMessage !== 'No Template Found'){
                         var templateList = result.templateList;
@@ -215,9 +215,9 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                             ele['srNo'] = index + 1;
                             ele['CreateDate_Only'] = ele.CreatedDate.split('T')[0];
                             ele['LastModifiedDate_Only'] = ele.LastModifiedDate.split('T')[0];
-                            ele['disabledClone'] = ele.Template_Type__c === 'Google Doc Template' ? true : false;
-                            ele['disabledEdit'] = ele.Template_Type__c !== 'Google Doc Template' ||  (ele.Template_Type__c === 'Google Doc Template' && result.isGoogleDocEnable) ? false : true;
-                            ele['disabledPreview'] = ele.Template_Type__c !== 'Google Doc Template' ||  (ele.Template_Type__c === 'Google Doc Template' && result.isGoogleDocEnable) ? false : true;
+                            ele['disabledClone'] = ele.MVDG__Template_Type__c === 'Google Doc Template' ? true : false;
+                            ele['disabledEdit'] = ele.MVDG__Template_Type__c !== 'Google Doc Template' ||  (ele.MVDG__Template_Type__c === 'Google Doc Template' && result.isGoogleDocEnable) ? false : true;
+                            ele['disabledPreview'] = ele.MVDG__Template_Type__c !== 'Google Doc Template' ||  (ele.MVDG__Template_Type__c === 'Google Doc Template' && result.isGoogleDocEnable) ? false : true;
                         });
                         this.templateList = templateList;
                         this.filteredTemplateList = JSON.parse(JSON.stringify(this.templateList));
@@ -482,9 +482,9 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             else{
     
                 this.filteredTemplateList = this.templateList.filter(ele => {
-                    var inObject = this.filterOpts['objectsToFilter'] ? this.filterOpts['objectsToFilter'].includes(ele.Object_API_Name__c) : true;
-                    var inType = this.filterOpts['TempTypeToFilter'] ? this.filterOpts['TempTypeToFilter'].includes(ele.Template_Type__c) : true;
-                    var inStatus = this.filterOpts['TempStatusToFilter'] ? this.filterOpts['TempStatusToFilter'].includes(ele.Template_Status__c.toString()) : true;
+                    var inObject = this.filterOpts['objectsToFilter'] ? this.filterOpts['objectsToFilter'].includes(ele.MVDG__Object_API_Name__c) : true;
+                    var inType = this.filterOpts['TempTypeToFilter'] ? this.filterOpts['TempTypeToFilter'].includes(ele.MVDG__Template_Type__c) : true;
+                    var inStatus = this.filterOpts['TempStatusToFilter'] ? this.filterOpts['TempStatusToFilter'].includes(ele.MVDG__Template_Status__c.toString()) : true;
                     var inDate = true;
                     if(this.filterOpts['dateToFilter']){
                         var dateOnly = ele[this.filterOpts['dateToFilter']].split('T')[0];
@@ -526,15 +526,15 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 }
                 if(a[fieldToSort].toLowerCase() === b[fieldToSort].toLowerCase()){
                     
-                    if(fieldToSort !== 'Template_Name__c'){
-                        if(a['Template_Name__c'].toLowerCase() === b['Template_Name__c'].toLowerCase()){
-                            if(a['Template_Name__c'].toLowerCase() > b['Template_Name__c'].toLowerCase()){
+                    if(fieldToSort !== 'MVDG__Template_Name__c'){
+                        if(a['MVDG__Template_Name__c'].toLowerCase() === b['MVDG__Template_Name__c'].toLowerCase()){
+                            if(a['MVDG__Template_Name__c'].toLowerCase() > b['MVDG__Template_Name__c'].toLowerCase()){
                                 return 1;
                             }
-                            if(a['Template_Name__c'].toLowerCase() < b['Template_Name__c'].toLowerCase()){
+                            if(a['MVDG__Template_Name__c'].toLowerCase() < b['MVDG__Template_Name__c'].toLowerCase()){
                                 return -1;
                             }
-                            if(a['Template_Name__c'].toLowerCase() === b['Template_Name__c'].toLowerCase()){
+                            if(a['MVDG__Template_Name__c'].toLowerCase() === b['MVDG__Template_Name__c'].toLowerCase()){
                                 return 0;
                             }
                         }
@@ -699,7 +699,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             var filteredTemplateList = [];
             
             filteredTemplateList = this.filteredTemplateList.filter((ele) => {
-                 return ele.Template_Name__c.toLowerCase().includes(searchValue);
+                 return ele.MVDG__Template_Name__c.toLowerCase().includes(searchValue);
             });
 
             // Load only first 50 template in HTML after searching...
@@ -736,10 +736,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             else{
                 // update Status the template List to reflect on UI
                 var index = this.filteredTemplateList.findIndex(ele => ele.Id === this.toggelTemplateId);
-                this.filteredTemplateList[index].Template_Status__c = true;
+                this.filteredTemplateList[index].MVDG__Template_Status__c = true;
 
                 var index2 = this.templateList.findIndex(ele => ele.Id === this.toggelTemplateId);
-                this.templateList[index2].Template_Status__c = true;
+                this.templateList[index2].MVDG__Template_Status__c = true;
 
                 // Update Template in Backend...
                 updateTemplate({ templateId : this.toggelTemplateId, isActive : true})
@@ -807,10 +807,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                     // If received Confirm from user ... 
                     // update Status the template List to reflect on UI...
                     var index = this.filteredTemplateList.findIndex(ele => ele.Id === this.toggelTemplateId);
-                    this.filteredTemplateList[index].Template_Status__c = toggelInput.checked;
+                    this.filteredTemplateList[index].MVDG__Template_Status__c = toggelInput.checked;
     
                     var index2 = this.templateList.findIndex(ele => ele.Id === this.toggelTemplateId);
-                    this.templateList[index2].Template_Status__c = toggelInput.checked;
+                    this.templateList[index2].MVDG__Template_Status__c = toggelInput.checked;
 
                     // Update Template in Backend...
                     updateTemplate({ templateId : this.toggelTemplateId, isActive : toggelInput.checked})

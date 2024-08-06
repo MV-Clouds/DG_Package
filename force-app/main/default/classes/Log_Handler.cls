@@ -21,7 +21,7 @@ public class Log_Handler {
             error.Class_Name__c = classname;
             error.Method_Name__c = methodname;
         
-            if(Schema.sObjectType.Exception_Logs__c.isCreateable()){
+            if(Schema.sObjectType.MVDG__Exception_Logs__c.isCreateable()){
                 insert error;
             }
             

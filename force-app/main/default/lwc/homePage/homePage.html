@@ -204,13 +204,13 @@
                     </div>
                     <div class="tempDetailSection">
                       <div class="tempName">
-                        <h1>{template.Template_Name__c}</h1>
+                        <h1>{template.MVDG__Template_Name__c}</h1>
                       </div>
                       <div class="tempDetailFields">
                         <div class="tempObj tempField">
                           <h5 class="fieldLable">Object Name</h5>
                           <h5>:</h5>
-                          <p class="fieldValue">{template.Object_API_Name__c}</p>
+                          <p class="fieldValue">{template.MVDG__Object_API_Name__c}</p>
                         </div>
                         <div class="tempField">
                           <h5 class="fieldLable">Created Date</h5>
@@ -221,15 +221,15 @@
                             minute="2-digit"></lightning-formatted-date-time>
                           </p>
                           <!-- <h5 class="fieldLable">Template Type:</h5>
-                          <p class="fieldValue">{template.Template_Type__c}</p> -->
+                          <p class="fieldValue">{template.MVDG__Template_Type__c}</p> -->
                         </div>
                         <div class="tempDecription tempField">
                           <h5 class="fieldLable">Description</h5>
                           <h5>:</h5>
-                          <template lwc:if={template.Description__c}>
-                            <div class="fieldValue" title={template.Description__c}>
-                              {template.Description__c}
-                              <!-- <div class="customToolTip top right">{template.Description__c}</div> -->
+                          <template lwc:if={template.MVDG__Description__c}>
+                            <div class="fieldValue" title={template.MVDG__Description__c}>
+                              {template.MVDG__Description__c}
+                              <!-- <div class="customToolTip top right">{template.MVDG__Description__c}</div> -->
                             </div>
                           </template>
                           <template lwc:else>
@@ -246,7 +246,7 @@
                     <div class="statusNversion" data-disable={template.disabledEdit}>
                       <div class="tempToggle">
                         <input class="checkBox checked" type="checkbox" data-status="checked" id={template.Id} data-id={template.Id} data-toggel={template.Id} 
-                              onchange={handleChangeStatus} style="display: none;" checked={template.Template_Status__c} disabled={template.disabledEdit}/>
+                              onchange={handleChangeStatus} style="display: none;" checked={template.MVDG__Template_Status__c} disabled={template.disabledEdit}/>
                         <label for={template.Id}> 
                           <div class="toggleDiv">
                             <div class="toggleBtnBg">
@@ -258,12 +258,12 @@
                           </div>
                         </label>
                       </div>
-                      <div class="tempVersion" title={template.Template_Type__c}>
-                        {template.Template_Type__c}
+                      <div class="tempVersion" title={template.MVDG__Template_Type__c}>
+                        {template.MVDG__Template_Type__c}
                       </div>
                     </div>
                     <div class="tempBtnSection">
-                        <button class="previewBtn" title="Preview Template" data-id={template.Id} data-type={template.Template_Type__c} data-objapi={template.Object_API_Name__c} onclick={handlePreviewTemplate} disabled={template.disabledPreview}>
+                        <button class="previewBtn" title="Preview Template" data-id={template.Id} data-type={template.MVDG__Template_Type__c} data-objapi={template.MVDG__Object_API_Name__c} onclick={handlePreviewTemplate} disabled={template.disabledPreview}>
                           <svg viewBox="0 0 32.00 32.00" transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)">
                             <g stroke-linecap="round" stroke-linejoin="round"></g>
                             <g>
@@ -275,12 +275,12 @@
                             </g>
                           </svg>
                         </button>
-                        <button class="editBtn" title="Edit Template" data-id={template.Id} data-type={template.Template_Type__c} data-objapi={template.Object_API_Name__c} onclick={handleEditClick} disabled={template.disabledEdit}>
+                        <button class="editBtn" title="Edit Template" data-id={template.Id} data-type={template.MVDG__Template_Type__c} data-objapi={template.MVDG__Object_API_Name__c} onclick={handleEditClick} disabled={template.disabledEdit}>
                           <svg  viewBox="0 0 24 24" fill="none" >
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M13.7318 4.72055L16.545 1.92087C17.8118 0.660237 18.4452 0.029921 19.2278 0.00133292C19.2765 -0.000444308 19.3252 -0.000444308 19.3738 0.00133292C20.1565 0.029921 20.7898 0.660237 22.0566 1.92087L22.0566 1.92088C23.3346 3.19269 23.9736 3.8286 24.0025 4.61657C24.0043 4.66553 24.0043 4.71453 24.0025 4.76349C23.9736 5.55146 23.3346 6.18737 22.0566 7.45919L19.3006 10.2018C16.9968 8.8806 15.0807 6.98788 13.7318 4.72055ZM12.2753 6.16999L2.16182 16.2346C1.7346 16.6598 1.52099 16.8723 1.38046 17.1339C1.23993 17.3954 1.18055 17.6909 1.0618 18.2818L0.064242 23.2454C-0.00259064 23.578 -0.036007 23.7443 0.0585132 23.839C0.15303 23.9337 0.319357 23.9006 0.652004 23.8344L0.652026 23.8343L0.652043 23.8343L5.65484 22.8386C6.24284 22.7216 6.53684 22.6631 6.79749 22.5241C7.05815 22.3852 7.27063 22.1737 7.69559 21.7508L17.8371 11.6583C15.5852 10.2711 13.6846 8.39055 12.2753 6.16999Z"/>
                           </svg>
                         </button>
-                        <button class="cloneBtn" title="Clone Template" data-id={template.Id} data-type={template.Template_Type__c} data-objapi={template.Object_API_Name__c} onclick={cloneTemp} disabled={template.disabledClone}>
+                        <button class="cloneBtn" title="Clone Template" data-id={template.Id} data-type={template.MVDG__Template_Type__c} data-objapi={template.MVDG__Object_API_Name__c} onclick={cloneTemp} disabled={template.disabledClone}>
                           <svg viewBox="0 0 23 24">
                             <rect x="0.5" y="0.5" width="14" height="17" rx="2.5" fill="white" stroke="#00AEFF"/>
                             <rect x="8.5" y="5.5" width="14" height="17" rx="2.5" fill="white" stroke="#00AEFF"/>
@@ -290,7 +290,7 @@
                             <path d="M11.2605 11.3333C11.598 11.3333 11.86 11.4373 12.2113 11.6402L17.6484 15.1589C17.9033 15.3339 18 15.5086 18 15.6643C18 15.825 17.9033 15.9997 17.6484 16.1746L12.2113 19.6598C11.8185 19.8819 11.6118 20 11.274 20C10.7986 20 10.4543 19.7354 10.4543 19.419L10.4543 17H10.2543C5.29951 17 2 13.7403 2 10.25C2.00009 9.96646 2.07514 7 2.44002 7C2.73669 7 2.73709 8.39738 3.71432 10.25C4.47383 11.6899 7.58757 13.6899 10.2543 13.6899H10.4543V11.8857C10.4543 11.5693 10.7986 11.3333 11.2605 11.3333Z" fill="#00AEFF"/>
                           </svg>
                         </button>
-                        <button class="deleteBtn" title="Delete Template"  data-id={template.Id} data-objapi={template.Object_API_Name__c} onclick={handleDeleteTemplate}>
+                        <button class="deleteBtn" title="Delete Template"  data-id={template.Id} data-objapi={template.MVDG__Object_API_Name__c} onclick={handleDeleteTemplate}>
                           <svg viewBox="0 0 12 16" fill="none">
                             <path d="M10.7523 5.84348C10.515 5.84348 10.3183 6.0401 10.3183 6.2774V13.8372C10.3183 14.5491 9.73525 15.1322 9.02335 15.1322H3.8366C3.1247 15.1322 2.54161 14.5491 2.54161 13.8372V6.2774C2.54161 6.0401 2.34499 5.84348 2.10769 5.84348C1.87039 5.84348 1.67377 6.0401 1.67377 6.2774V13.8372C1.67377 15.0305 2.64331 16 3.8366 16H9.02335C10.2166 16 11.1862 15.0305 11.1862 13.8372V6.2774C11.1862 6.0401 10.9963 5.84348 10.7523 5.84348Z"/>
                             <path d="M4.70446 13.8372V7.78936C4.70446 7.55206 4.50783 7.35544 4.27053 7.35544C4.03323 7.35544 3.83661 7.55206 3.83661 7.78936V13.8372C3.83661 14.0745 4.03323 14.2711 4.27053 14.2711C4.50783 14.2711 4.70446 14.0745 4.70446 13.8372Z"/>

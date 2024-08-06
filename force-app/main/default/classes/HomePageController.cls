@@ -100,7 +100,7 @@ public with sharing class HomePageController {
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
         List<Template__c> tempToUpdate = [SELECT ID, Name, Template_Status__c  FROM Template__c WHERE ID = : templateId WITH SECURITY_ENFORCED LIMIT 1];
         if(tempToUpdate.size() > 0){
-            // if (Schema.sObjectType.Template__c.fields.Template_Status__c.isUpdateable()) {
+            // if (Schema.sObjectType.MVDG__Template__c.fields.Template_Status__c.isUpdateable()) {
                 tempToUpdate[0].Template_Status__c = isActive;
                 update tempToUpdate[0];
             // }

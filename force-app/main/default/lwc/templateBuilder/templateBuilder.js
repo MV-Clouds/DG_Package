@@ -301,18 +301,18 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
 
                         // Collect Value in Single variable...
-                        result.template.Template_Data__r?.forEach(ele => {
-                            if(ele.Value_Type__c == 'Body Value'){
-                                this.bodyData += ele.Template_Value_Simple__c ? ele.Template_Value_Simple__c : '';
+                        result.template.MVDG__Template_Data__r?.forEach(ele => {
+                            if(ele.MVDG__Value_Type__c == 'Body Value'){
+                                this.bodyData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
                             }
-                            else if(ele.Value_Type__c == 'Header Value'){
-                                this.headerData = ele.Template_Value_Simple__c ? ele.Template_Value_Simple__c : '';
+                            else if(ele.MVDG__Value_Type__c == 'Header Value'){
+                                this.headerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
                             }
-                            else if(ele.Value_Type__c == 'Footer Value'){
-                                this.footerData = ele.Template_Value_Simple__c ? ele.Template_Value_Simple__c : '';
+                            else if(ele.MVDG__Value_Type__c == 'Footer Value'){
+                                this.footerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
                             }
-                            else if(ele.Value_Type__c == 'Watermark Value'){
-                                watermarkData += ele.Template_Value_Simple__c ? ele.Template_Value_Simple__c : '';
+                            else if(ele.MVDG__Value_Type__c == 'Watermark Value'){
+                                watermarkData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
                             }
                         });
                         
@@ -324,7 +324,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         watermarkData && watermarkData != '' && (this.watermark = JSON.parse(watermarkData));
                         this.setWatermarkPreview();
 
-                        delete this.templateRecord['Template_Data__r'];
+                        delete this.templateRecord['MVDG__Template_Data__r'];
 
                         this.resolvedPromise++
                     }
@@ -724,8 +724,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     ele.selected = ele.name == configName ? true : false;
                 })
 
-                this.pageConfigRecord.Page_Orientation__c = pageConfig == 'pageOrientation' ? value : this.pageConfigRecord.Page_Orientation__c;
-                this.pageConfigRecord.Page_Size__c = pageConfig == 'pageSize' ? value : this.pageConfigRecord.Page_Size__c;
+                this.pageConfigRecord.MVDG__Page_Orientation__c = pageConfig == 'pageOrientation' ? value : this.pageConfigRecord.MVDG__Page_Orientation__c;
+                this.pageConfigRecord.MVDG__Page_Size__c = pageConfig == 'pageSize' ? value : this.pageConfigRecord.MVDG__Page_Size__c;
 
             }
             else if(pageConfig == 'unitOptions'){
@@ -734,8 +734,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 });
                 this.pageConfigs['unit'] = value;
 
-                this.convertConfigValue(this.pageConfigRecord.Unit_of_Page_Configs__c, value);
-                this.pageConfigRecord.Unit_of_Page_Configs__c = value;
+                this.convertConfigValue(this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c, value);
+                this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c = value;
                 
             }
             else if(pageConfig == 'pageMargins'){
@@ -769,7 +769,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let pageMarginsLeft = this.pageConfigs['pageMargins'][2].value;
             let pageMarginsRight = this.pageConfigs['pageMargins'][3].value;
 
-            let k = unitMultiplier(this.pageConfigRecord.Unit_of_Page_Configs__c)* 1.3334;
+            let k = unitMultiplier(this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c)* 1.3334;
 
             // configName == 'top' 
             pageMarginsTop = pageMarginsTop ? pageMarginsTop : 0;
@@ -800,7 +800,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             (pageMarginsRight >= (this.currentPageWidth / k - pageMarginsLeft)) && (pageMarginsRight = (this.currentPageWidth /k - pageMarginsLeft));
             (this.pageConfigs['pageMargins'][3].value = pageMarginsRight);
     
-            this.pageConfigRecord.Page_Margin__c = pageMarginsTop+';'+pageMarginsBottom+';'+pageMarginsLeft+';'+pageMarginsRight;
+            this.pageConfigRecord.MVDG__Page_Margin__c = pageMarginsTop+';'+pageMarginsBottom+';'+pageMarginsLeft+';'+pageMarginsRight;
         } catch (error) {
             console.log('error in setPageMarginValue : ', error.stack);
         }
@@ -809,7 +809,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         // Set Header(top) and footer(bottom) editor margin in config variable...
     setHeaderFooterMargin(){
         try {
-            let k = unitMultiplier(this.pageConfigRecord.Unit_of_Page_Configs__c)* 1.3334;
+            let k = unitMultiplier(this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c)* 1.3334;
             let pageHeight = this.currentPageHeight / k;
 
             if(this.pageConfigs.header.marginTop > pageHeight * 0.4){
@@ -826,11 +826,11 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.pageConfigs.footer.marginBottom = 0;
             }
 
-            this.pageConfigRecord.Show_Header__c = this.pageConfigs.header.show;
-            this.pageConfigRecord.Header_margin_top__c = this.pageConfigs.header.marginTop;
+            this.pageConfigRecord.MVDG__Show_Header__c = this.pageConfigs.header.show;
+            this.pageConfigRecord.MVDG__Header_margin_top__c = this.pageConfigs.header.marginTop;
 
-            this.pageConfigRecord.Show_Footer__c = this.pageConfigs.footer.show;
-            this.pageConfigRecord.Footer_margin_bottom__c = this.pageConfigs.footer.marginBottom;
+            this.pageConfigRecord.MVDG__Show_Footer__c = this.pageConfigs.footer.show;
+            this.pageConfigRecord.MVDG__Footer_margin_bottom__c = this.pageConfigs.footer.marginBottom;
 
             this.setPageHeaderFooterMargin();
 
@@ -842,7 +842,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     // Set Header(top) and footer(bottom) editor margin in editor page...
     setPageHeaderFooterMargin(){
         const root = document.querySelector(':root');
-        let unit = this.pageConfigRecord.Unit_of_Page_Configs__c;
+        let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
 
         root.style.setProperty('--headerMarginsTop', `${this.pageConfigs.header.marginTop}${unit}`);
         root.style.setProperty('--footerMarginsBottom', `${this.pageConfigs.footer.marginBottom}${unit}`);
@@ -865,36 +865,36 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     // === ==== === Function to Set template page record's value in pageConfig variable to display in UI/Front-End.. === === ===
     setPageConfigVariable(){
         try {
-            this.pageConfigs['pageMargins'][0].value = this.pageConfigRecord.Page_Margin__c.split(';')[0];
-            this.pageConfigs['pageMargins'][1].value = this.pageConfigRecord.Page_Margin__c.split(';')[1];
-            this.pageConfigs['pageMargins'][2].value = this.pageConfigRecord.Page_Margin__c.split(';')[2];
-            this.pageConfigs['pageMargins'][3].value = this.pageConfigRecord.Page_Margin__c.split(';')[3];
+            this.pageConfigs['pageMargins'][0].value = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[0];
+            this.pageConfigs['pageMargins'][1].value = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[1];
+            this.pageConfigs['pageMargins'][2].value = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[2];
+            this.pageConfigs['pageMargins'][3].value = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[3];
 
             this.pageConfigs['pageOrientation'].forEach(ele => {
-                ele['selected'] = ele.value == this.pageConfigRecord.Page_Orientation__c ? true : false;
+                ele['selected'] = ele.value == this.pageConfigRecord.MVDG__Page_Orientation__c ? true : false;
             });
 
             this.pageConfigs['pageSize'].forEach(ele => {
-                ele['selected'] = ele.value == this.pageConfigRecord.Page_Size__c ? true : false;
+                ele['selected'] = ele.value == this.pageConfigRecord.MVDG__Page_Size__c ? true : false;
             });
 
             this.pageConfigs['unitOptions'].forEach(ele => {
-                ele['selected'] = ele.value == this.pageConfigRecord.Unit_of_Page_Configs__c ? true : false;
+                ele['selected'] = ele.value == this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c ? true : false;
             });
 
-            this.pageConfigs['unit'] = this.pageConfigRecord.Unit_of_Page_Configs__c;
+            this.pageConfigs['unit'] = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
 
             if(this.contentEditor && this.dataLoaded){
                 this.setEditorPageSize();
             }
 
-            this.pageConfigs.header.show = this.pageConfigRecord.Show_Header__c;
-            this.pageConfigs.header.marginTop = this.pageConfigRecord.Header_margin_top__c;
+            this.pageConfigs.header.show = this.pageConfigRecord.MVDG__Show_Header__c;
+            this.pageConfigs.header.marginTop = this.pageConfigRecord.MVDG__Header_margin_top__c;
 
-            this.pageConfigs.footer.show = this.pageConfigRecord.Show_Footer__c;
-            this.pageConfigs.footer.marginBottom = this.pageConfigRecord.Footer_margin_bottom__c;
+            this.pageConfigs.footer.show = this.pageConfigRecord.MVDG__Show_Footer__c;
+            this.pageConfigs.footer.marginBottom = this.pageConfigRecord.MVDG__Footer_margin_bottom__c;
 
-            this.pageConfigs.watermark.show = this.pageConfigRecord.Show_Watermark__c;
+            this.pageConfigs.watermark.show = this.pageConfigRecord.MVDG__Show_Watermark__c;
 
         } catch (error) {
             console.log('error in setPageConfigVariable : ', error.stack);
@@ -906,14 +906,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             const root = document.querySelector(':root');
 
-            let pageMarginsTop = this.pageConfigRecord.Page_Margin__c.split(';')[0];
-            let pageMarginsBottom = this.pageConfigRecord.Page_Margin__c.split(';')[1];
-            let pageMarginsLeft = this.pageConfigRecord.Page_Margin__c.split(';')[2];
-            let pageMarginsRight = this.pageConfigRecord.Page_Margin__c.split(';')[3];
+            let pageMarginsTop = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[0];
+            let pageMarginsBottom = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[1];
+            let pageMarginsLeft = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[2];
+            let pageMarginsRight = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[3];
 
-            let unit = this.pageConfigRecord.Unit_of_Page_Configs__c;
-            let pageSize = this.pageConfigRecord.Page_Size__c;
-            let orientation = this.pageConfigRecord.Page_Orientation__c;
+            let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
+            let pageSize = this.pageConfigRecord.MVDG__Page_Size__c;
+            let orientation = this.pageConfigRecord.MVDG__Page_Orientation__c;
 
             this.currentPageWidth = (orientation == 'portrait' ? pageFormats[pageSize][0] : pageFormats[pageSize][1]) * 1.3334;
             this.currentPageHeight = (orientation == 'portrait' ? pageFormats[pageSize][1] : pageFormats[pageSize][0]) * 1.3334;
@@ -969,12 +969,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     }
 
     setDummyPageSize(){
-        let pageMarginsTop = this.pageConfigRecord.Page_Margin__c.split(';')[0];
-        let pageMarginsBottom = this.pageConfigRecord.Page_Margin__c.split(';')[1];
-        let pageMarginsLeft = this.pageConfigRecord.Page_Margin__c.split(';')[2];
-        let pageMarginsRight = this.pageConfigRecord.Page_Margin__c.split(';')[3];
+        let pageMarginsTop = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[0];
+        let pageMarginsBottom = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[1];
+        let pageMarginsLeft = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[2];
+        let pageMarginsRight = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[3];
 
-        let unit = this.pageConfigRecord.Unit_of_Page_Configs__c;
+        let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
         let aspectRatio = this.currentPageWidth/this.currentPageHeight;
 
         const dummyPage = this.template.querySelector('.dummyPage');
@@ -1336,7 +1336,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     setWatermarkShowHideOpt(event){
         this.pageConfigs['watermark']['show'] = event.target.checked;
-        this.pageConfigRecord.Show_Watermark__c = event.target.checked;
+        this.pageConfigRecord.MVDG__Show_Watermark__c = event.target.checked;
     }
 
     setWatermarkPreview(){

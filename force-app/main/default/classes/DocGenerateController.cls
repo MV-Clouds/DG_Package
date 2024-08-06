@@ -101,16 +101,16 @@ global with sharing class DocGenerateController {
     public static void setTemplateDetails(List<String> getValueTypes, String templateID, String recordId){
         try {
 
-            if( Schema.sObjectType.Template__c.fields.Id.isAccessible() &&
-                Schema.sObjectType.Template__c.fields.Template_Name__c.isAccessible() && Schema.sObjectType.Template__c.fields.Signature_Size__c.isAccessible() &&
-                Schema.sObjectType.Template_Data__c.fields.Id.isAccessible() && Schema.sObjectType.Template_Data__c.fields.Template_Value_Simple__c.isAccessible() &&
-                Schema.sObjectType.Template_Data__c.fields.Value_Type__c.isAccessible() && 
-                Schema.sObjectType.Template_Page__c.fields.Id.isAccessible() &&  Schema.sObjectType.Template_Page__c.fields.Page_Margin__c.isAccessible() &&
-                Schema.sObjectType.Template_Page__c.fields.Page_Orientation__c.isAccessible() && Schema.sObjectType.Template_Page__c.fields.Page_Size__c.isAccessible() &&
-                Schema.sObjectType.Template_Page__c.fields.Unit_of_Page_Configs__c.isAccessible() && Schema.sObjectType.Template_Page__c.fields.Show_Header__c.isAccessible() &&
-                Schema.sObjectType.Template_Page__c.fields.Show_Footer__c.isAccessible() && Schema.sObjectType.Template_Page__c.fields.Show_Watermark__c.isAccessible() &&
-                Schema.sObjectType.Template_Page__c.fields.Header_margin_top__c.isAccessible() && Schema.sObjectType.Template_Page__c.fields.Footer_margin_bottom__c.isAccessible() &&
-                Schema.sObjectType.Template_Page__c.fields.Page_Number__c.isAccessible() && Schema.sObjectType.Template_Page__c.fields.Template__c.isAccessible())
+            if( Schema.sObjectType.MVDG__Template__c.fields.MVDG__Id.isAccessible() &&
+                Schema.sObjectType.MVDG__Template__c.fields.MVDG__Template_Name__c.isAccessible() && Schema.sObjectType.MVDG__Template__c.fields.MVDG__Signature_Size__c.isAccessible() &&
+                Schema.sObjectType.MVDG__Template_Data__c.fields.MVDG__Id.isAccessible() && Schema.sObjectType.MVDG__Template_Data__c.fields.MVDG__Template_Value_Simple__c.isAccessible() &&
+                Schema.sObjectType.MVDG__Template_Data__c.fields.MVDG__Value_Type__c.isAccessible() && 
+                Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Id.isAccessible() &&  Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Page_Margin__c.isAccessible() &&
+                Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Page_Orientation__c.isAccessible() && Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Page_Size__c.isAccessible() &&
+                Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Unit_of_Page_Configs__c.isAccessible() && Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Show_Header__c.isAccessible() &&
+                Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Show_Footer__c.isAccessible() && Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Show_Watermark__c.isAccessible() &&
+                Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Header_margin_top__c.isAccessible() && Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Footer_margin_bottom__c.isAccessible() &&
+                Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Page_Number__c.isAccessible() && Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Template__c.isAccessible())
             {
                 List<Template__c> temp = [SELECT Id, Template_Name__c, Signature_Size__c,
                                 (SELECT Id, Template_Value_Simple__c,Value_Type__c FROM Template_Data__r WHERE Value_Type__c IN: getValueTypes ORDER BY Order_No_Simple__c ASC),
