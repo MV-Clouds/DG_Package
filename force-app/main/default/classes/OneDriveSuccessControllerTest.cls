@@ -96,7 +96,7 @@ private class OneDriveSuccessControllerTest {
         Test.stopTest();
         
         System.assertNotEquals(null, result);
-        System.assert(result.getUrl().contains('lightning/n/User_Configuration'), 'URL should contain the User_Configuration page');
+        System.assert(result.getUrl().contains('lightning/n/MVDG__User_Configuration'), 'URL should contain the User_Configuration page');
     }
 
     @isTest
