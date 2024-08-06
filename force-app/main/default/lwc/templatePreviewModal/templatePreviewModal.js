@@ -189,14 +189,14 @@ export default class TemplatePreviewModal extends LightningElement {
     
                 var paraData = {
                     'templateId' : this.templateid,
-                    'Object_API_Name__c' : this.objectname,
+                    'MVDG__Object_API_Name__c' : this.objectname,
                     'recordId' : this.selectedRecordId,
                     'useMode' : 'preview',
                 }
                 var paraDataStringify = JSON.stringify(paraData);
     
                 // var newSRC = '/apex/DocPreviewPage?paraData=' + paraDataStringify;
-                var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
+                var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify;
     
                 if(newSRC !== previousSRC){
                     this.vfPageSRC = newSRC;
@@ -211,7 +211,7 @@ export default class TemplatePreviewModal extends LightningElement {
                     // }, 4000);
                 }
                 else{
-                    this.vfPageSRC = '/apex/DocGeneratePage';
+                    this.vfPageSRC = '/apex/MVDG__DocGeneratePage';
 
                     setTimeout( () => {
                         this.vfPageSRC = newSRC;
@@ -270,13 +270,13 @@ export default class TemplatePreviewModal extends LightningElement {
     //             'fileName' : 'TestDocx',
     //         }
     //         var paraDataStringify2 = JSON.stringify(paraData2);
-    //         var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify2;
+    //         var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify2;
 
     //         if(newSRC !== previousSRC){
     //             this.vfGeneratePageSRC = newSRC;
     //         }
     //         else{
-    //             this.vfGeneratePageSRC = '/apex/DocGeneratePage';
+    //             this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
     //             setTimeout(() => {
     //                 this.vfGeneratePageSRC = newSRC;
     //             }, 100)
