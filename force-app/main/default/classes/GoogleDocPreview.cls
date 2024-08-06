@@ -482,11 +482,11 @@ public with sharing class GoogleDocPreview {
         try {
             if(authProvider.SetupOwnerId == UserInfo.getOrganizationId()){
                 authProvider.SetupOwnerId = UserInfo.getOrganizationId();
-                if (Schema.sObjectType.AuthProviderSettings__c.isCreateable() && Schema.sObjectType.AuthProviderSettings__c.isUpdateable()) {
+                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isCreateable() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable()) {
                     upsert authProvider;
                 }
             } else {    
-                if (Schema.sObjectType.AuthProviderSettings__c.isUpdateable()) {
+                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable()) {
                     update authProvider;
                 }
             }
