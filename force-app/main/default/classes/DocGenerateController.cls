@@ -101,11 +101,11 @@ global with sharing class DocGenerateController {
     public static void setTemplateDetails(List<String> getValueTypes, String templateID, String recordId){
         try {
 
-            if( Schema.sObjectType.MVDG__Template__c.fields.MVDG__Id.isAccessible() &&
+            if( Schema.sObjectType.MVDG__Template__c.fields.Id.isAccessible() &&
                 Schema.sObjectType.MVDG__Template__c.fields.MVDG__Template_Name__c.isAccessible() && Schema.sObjectType.MVDG__Template__c.fields.MVDG__Signature_Size__c.isAccessible() &&
-                Schema.sObjectType.MVDG__Template_Data__c.fields.MVDG__Id.isAccessible() && Schema.sObjectType.MVDG__Template_Data__c.fields.MVDG__Template_Value_Simple__c.isAccessible() &&
+                Schema.sObjectType.MVDG__Template_Data__c.fields.Id.isAccessible() && Schema.sObjectType.MVDG__Template_Data__c.fields.MVDG__Template_Value_Simple__c.isAccessible() &&
                 Schema.sObjectType.MVDG__Template_Data__c.fields.MVDG__Value_Type__c.isAccessible() && 
-                Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Id.isAccessible() &&  Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Page_Margin__c.isAccessible() &&
+                Schema.sObjectType.MVDG__Template_Page__c.fields.Id.isAccessible() &&  Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Page_Margin__c.isAccessible() &&
                 Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Page_Orientation__c.isAccessible() && Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Page_Size__c.isAccessible() &&
                 Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Unit_of_Page_Configs__c.isAccessible() && Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Show_Header__c.isAccessible() &&
                 Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Show_Footer__c.isAccessible() && Schema.sObjectType.MVDG__Template_Page__c.fields.MVDG__Show_Watermark__c.isAccessible() &&
