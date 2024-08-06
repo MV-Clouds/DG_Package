@@ -67,9 +67,6 @@ c-key-mapping-container {
     left: 0px;
     margin-left: -0.75rem;
     z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background: rgba(0, 0, 0, 0.323);
     backdrop-filter: blur(3px);
 

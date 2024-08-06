@@ -202,7 +202,7 @@ public with sharing class KeyMappingController {
             customObj.add(getCreationDateMappings());
 
             MappingObjects userObject = new MappingObjects();
-            userObject.label = 'User Deatils';
+            userObject.label = 'User Details';
             userObject.name = 'creationUser';
             list<MappingFields> userObjFields = new list<MappingFields>();
             List<Schema.DescribeFieldResult> userObjFieldsSchema = getObjectFields('User');
@@ -216,7 +216,7 @@ public with sharing class KeyMappingController {
             customObj.add(userObject);
 
             MappingObjects organizationObject = new MappingObjects();
-            organizationObject.label = 'Organization Deatils';
+            organizationObject.label = 'Organization Details';
             organizationObject.name = 'organization';
             list<MappingFields> organization = new list<MappingFields>();
             List<Schema.DescribeFieldResult> organizationObjFieldsSchema = getObjectFields('Organization');

@@ -56,17 +56,21 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     connectedCallback() {
         try {
+            console.log('Connected Callback');
+            
             // Added for keyMappingContainer...
             // window.addEventListener("resize", this.resizeFunction());
             window.addEventListener("resize", this.resizeFunction);
             this.getAllRelatedData();
         } catch (error) {
-            console.log("Error connrectdCallBack==> ", error.stack);
+            console.log("Error connectedCallBack==> ", error.stack);
         }
     }
 
     renderedCallback() {
         try {
+            console.log("renderedCallback");
+
             this.template.host.style.setProperty("--background-image-url", `url(${new_template_bg})`);
             this.template.host.style.setProperty("--main-background-image-url", `url(${homePageImgs}/HomBg.png)`);
             if (this.initialRender && this.template.querySelector("c-key-mapping-container")) {
@@ -74,12 +78,14 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 this.initialRender = false;
             }
         } catch (error) {
-            console.error("renderedCallback", error);
+            console.error("Error in renderedCallback", error);
         }
     }
 
     getAllRelatedData() {
         try {
+            console.log('this.getAllRelatedData');
+            
             this.isSpinner = true;
             getAllData({ templateId: this.templateId, objectName: this.objectName })
                 .then((result) => {
@@ -115,9 +121,9 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     // Template Data
                     if (result.templateData) {
                         let templateData = JSON.parse(result.templateData);
-                        this.webViewLink = templateData.Google_Doc_WebViewLink__c;
-                        this.Google_Doc_Template_Id__c = templateData.Google_Doc_Template_Id__c;
-                        this.documentName = templateData.Google_Doc_Name__c;
+                        this.webViewLink = templateData.MVDG__Google_Doc_WebViewLink__c;
+                        this.Google_Doc_Template_Id__c = templateData.MVDG__Google_Doc_Template_Id__c;
+                        this.documentName = templateData.MVDG__Google_Doc_Name__c;
                     } else {
                         this.isSpinner = false;
                         if (this.profile == null && result.templateData == null && this.allTemplates == null) {
@@ -154,15 +160,19 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     };
 
     closePopup() {
+        console.log('this.closePopup');
+        
         this.showPopup = false;
     }
 
     openPopup() {
+        console.log('this.openPopup');
         this.showPopup = true;
     }
 
     handleTemplateClick(event) {
         try {
+            console.log('handleTemplateClick');
             let selected = this.template.querySelector(".selected");
             if (selected) {
                 selected.classList.remove("selected");
@@ -185,6 +195,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     refreshDocs() {
         try {
+            console.log('this.refreshDocs');
             this.isSpinner = true;
             this.getAllRelatedData();
         } catch (error) {
@@ -194,6 +205,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     next() {
         try {
+            console.log('this.next');
             this.webViewLink = this.selectedTemplate.webViewLink;
             this.Google_Doc_Template_Id__c = this.selectedTemplate.id;
             this.documentName = this.selectedTemplate.name;
@@ -207,12 +219,15 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     }
 
     cancel() {
+        console.log('this.cancel');
+        
         this.closePopup();
         this.navigateToComp("homePage", {});
     }
 
     setDateAndSize() {
         try {
+            console.log('this.setDateAndSize');
             this.allTemplates = this.allTemplates.map((template) => {
                 template.createdTime = template.createdTime.split("T")[0];
                 if (template.size < 1024) {
@@ -231,6 +246,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     handleSearch(event) {
         try {
+            console.log('handleSearch');
             if (this.templates) {
                 this.serachString = event.target.value;
                 if (this.serachString) {
@@ -248,6 +264,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     save() {
         try {
+            console.log('save');
             saveTemplateData({
                 templateId: this.templateId,
                 googleDocId: this.selectedTemplate.id,
@@ -270,6 +287,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     // -=-=- Used to navigate to the other Components -=-=-
     navigateToComp(componentName, paramToPass) {
         try {
+            console.log("navigateToComp : ", componentName, paramToPass);
             let nameSpace = "c";
             let cmpDef;
             if (paramToPass && Object.keys(paramToPass).length > 0) {
@@ -297,10 +315,12 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     }
 
     handlePreview() {
+        console.log('this.handlePreview');
         this.isPreview = true;
     }
 
     handleClose() {
+        console.log('this.handleClose');
         this.navigateToComp("homePage", {});
     }
 
@@ -321,6 +341,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     // }
 
     openGenChildTablePopup(event) {
+
         const childObjectTableBuilder = this.template.querySelector("c-child-object-table-builder");
         console.log("event==>", event);
         if (childObjectTableBuilder) {
@@ -338,6 +359,8 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     // ==== Toggle Tab Methods - START - ========
     activeTabName = "contentTab";
     activeTab(event) {
+        console.log('this.activeTab');
+        
         try {
             if (event) {
                 this.activeTabName = event.currentTarget.dataset.name;
@@ -391,8 +414,10 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     handleEditDetail(event) {
         try {
+            console.log('this.handleEditDetail');
+            
             const targetInput = event.currentTarget.dataset.name;
-            if (targetInput === "Template_Name__c") {
+            if (targetInput === "MVDG__Template_Name__c") {
                 const next = this.template.querySelector(".next");
                 if (!event.target.value) {
                     event.currentTarget.classList.add("error-border");
@@ -416,6 +441,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     editTemplateDetails() {
         try {
+            console.log('editTemplateDetails');
             this.isSpinner = true;
             this.loaderLabel = "Saving Your Data";
             editTemplate({ templateRecord: JSON.stringify(this.templateRecord) })
@@ -440,12 +466,13 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     cancelEditTemplate() {
         try {
+            console.log('cancelEditTemplate');
             this.isSpinner = true;
             console.log(this.previousTemplateData);
             console.log(this.templateRecord);
 
             this.template.querySelector(".next").removeAttribute("disabled");
-            this.template.querySelector(`lightning-input[data-name="Template_Name__c"]`).classList.remove("error-border");
+            this.template.querySelector(`lightning-input[data-name="MVDG__Template_Name__c"]`).classList.remove("error-border");
             this.activeTabName = "contentTab";
             this.setActiveTab();
         } catch (error) {
