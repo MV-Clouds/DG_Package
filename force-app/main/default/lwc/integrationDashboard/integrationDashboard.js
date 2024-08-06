@@ -181,12 +181,12 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
     renderedCallback() {
         
         if(this.awsuserdata){
-            console.log('inaws');
-            console.log('bucket'+this.awsbucket);
+            // console.log('inaws');
+            // console.log('bucket'+this.awsbucket);
                 if (this.template.querySelector('.hide-bucket') && this.awsbucket == 'Unknown') { // Check if all filters are rendered
-                    console.log('inawsbucket'+this.awsbucket);
+                    // console.log('inawsbucket'+this.awsbucket);
                     const awsbucket = this.template.querySelector('.hide-bucket');
-                    console.log('inawsbucket'+awsbucket);
+                    // console.log('inawsbucket'+awsbucket);
 
                     awsbucket.style.display = 'none';
                 }
@@ -212,7 +212,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
     loaded(){
         this.loadedResources++;
-        console.log(this.loadedResources);
+        // console.log(this.loadedResources);
         if(this.loadedResources >= 8){
             this.isSpinner = false;
         }
@@ -341,7 +341,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
     handleDragStart(event){
         const key = event.target.dataset.key;
         event.dataTransfer.setData('key', key);
-        console.log(key);
+        // console.log(key);
         this.template.querySelector('.dragbackground').style.opacity = '0.5';
         this.template.querySelector('.dropandstatus').style.opacity = '0.5';
 
@@ -353,12 +353,12 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
     handleNickname(event){
         this.nickname = event.target.value.trim();
-        console.log(this.nickname);
+        // console.log(this.nickname);
     }
 
 
     handledDrop(event){
-        console.log('handledDrop Invoked');
+        // console.log('handledDrop Invoked');
         this.template.querySelector('.dragbackground').style.opacity = '1';
         this.draggedkey = event.dataTransfer.getData('key');
         this.isSpinner = true;
@@ -403,19 +403,19 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
     handleClientId(event) {
         this.clientId = event.target.value.trim();
-        console.log(this.clientId);
+        // console.log(this.clientId);
     }
 
 
     handleClientSecret(event) {
         this.clientSecret = event.target.value.trim();
-        console.log(this.clientSecret);
+        // console.log(this.clientSecret);
     }
 
 
     handleBucket(event){
         this.bucket = event.target.value.trim();
-        console.log(this.bucket);
+        // console.log(this.bucket);
     }
 
 
@@ -460,9 +460,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
     copyToClipboard() {
         this.isSpinner = true;
-        console.log('Invoked clipboard');
+        // console.log('Invoked clipboard');
         var copyText = this.template.querySelector(".clipboard");
-        console.log(copyText);
+        // console.log(copyText);
         copyText.select();
         copyText.setSelectionRange(0, 99999); // For mobile devices
         navigator.clipboard.writeText(copyText.value);
@@ -473,18 +473,18 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
     handleGoogleAuthorization(){
         try{
             if (!this.authcode) {
-                console.log('All details are compulsory');
+                // console.log('All details are compulsory');
                 return;
             }
             else{
-                console.log('going for integration');
-                console.log(this.isOrg);
-                console.log(typeof(this.isOrg));
+                // console.log('going for integration');
+                // console.log(this.isOrg);
+                // console.log(typeof(this.isOrg));
                 authorizeGoogle({ authcode: this.authcode, isOrg: this.isOrg, clientId: this.clientId, clientSecret: this.clientSecret })
                 .then(result =>{
                     if(result === 'success'){
                         
-                        console.log('success');
+                        // console.log('success');
                         const messageContainer = this.template.querySelector('c-message-popup')
                         messageContainer.showMessageToast({
                             status: 'success',
@@ -497,7 +497,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                         this.isSpinner = false;
                     }
                     else{
-                        console.log('error');
+                        // console.log('error');
                         this.ispopup = false;
                         this.isSpinner = false;
                         const messageContainer = this.template.querySelector('c-message-popup')
@@ -519,7 +519,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
     
 
     handleAuthCode(event) {
-        console.log('inside parent');
+        // console.log('inside parent');
         if(!this.clientId || !this.clientSecret){
             console.log('both client id and secret are compulsary');
         }
@@ -538,7 +538,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
         if(this.namedCredential != ''){
             authorizeNamed({ named: this.namedCredential })
             .then(result =>{
-                console.log(result);
+                // console.log(result);
                 if(result === 'Success'){
                 const messageContainer = this.template.querySelector('c-message-popup')
                     messageContainer.showMessageToast({
@@ -571,7 +571,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             }
         })
         if (!this.clientId || !this.clientSecret || !this.bucket) {
-            console.log('All details are compulsory');
+            // console.log('All details are compulsory');
             return;
         }
         else{
@@ -610,9 +610,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
     unauthorize(event) {
         // this.invoke = event.target.dataset.key;
-        console.log(event.target.dataset.key);
+        // console.log(event.target.dataset.key);
         this.invoke = event.target.dataset.key;
-        console.log(this.invoke);
+        // console.log(this.invoke);
         const messageContainer = this.template.querySelector('c-message-popup')
                 messageContainer.showMessagePopup({
                         status: 'Warning',
@@ -624,13 +624,13 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
     }
 
     handleConfimation(event){
-        console.log(event.detail);
-        console.log(this.invoke);
+        // console.log(event.detail);
+        // console.log(this.invoke);
         if(event.detail == true && this.invoke =='google'){
             this.isSpinner = true;
             unauth()
             .then(result =>{
-                console.log(result);
+                // console.log(result);
                 if(result){
                     const messageContainer = this.template.querySelector('c-message-popup')
                     messageContainer.showMessageToast({
@@ -652,7 +652,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             this.isSpinner = true;
             orgunauth()
             .then(result =>{
-                console.log(result);
+                // console.log(result);
                 if(result){
                     const messageContainer = this.template.querySelector('c-message-popup')
                     messageContainer.showMessageToast({
@@ -661,7 +661,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                         message : 'Org Wide Google Drive Integration deleted Successfully',
                         duration : 5000
                     });
-                    console.log('inside');
+                    // console.log('inside');
                     this.isActiveOrgGoogleAuth = false;
                     this.checkingorggoogleauth();
                     
@@ -674,7 +674,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             this.isSpinner = true;
             awsunauth()
             .then(result =>{
-                console.log(result);
+                // console.log(result);
                 if(result){
                     const messageContainer = this.template.querySelector('c-message-popup')
                     messageContainer.showMessageToast({
@@ -683,7 +683,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                         message : 'Aws integration deleted successfully',
                         duration : 5000
                     });
-                    console.log('inside');
+                    // console.log('inside');
                     this.isActiveAwsAuth = false;
                     this.checkingawsauth();
                 }
@@ -695,7 +695,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             this.isSpinner = true;
             onedriveunauth()
             .then(result =>{
-                console.log(result);
+                // console.log(result);
                 if(result){
                     const messageContainer = this.template.querySelector('c-message-popup')
                     messageContainer.showMessageToast({
@@ -704,7 +704,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                         message : 'Onedrive integration deleted successfully',
                         duration : 5000
                     });
-                    console.log('inside');
+                    // console.log('inside');
                     this.isActiveOnedriveAuth = false;
                     this.checkingonedriveauth();
                 }
@@ -716,7 +716,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             this.isSpinner = true;
             dropboxunauth()
             .then(result =>{
-                console.log(result);
+                // console.log(result);
                 if(result){
                     const messageContainer = this.template.querySelector('c-message-popup')
                     messageContainer.showMessageToast({
@@ -725,7 +725,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                         message : 'dropbox integration deleted successfully',
                         duration : 5000
                     });
-                    console.log('inside');
+                    // console.log('inside');
                     this.isActiveDropboxAuth = false;
                     this.checkingdropboxauth();
                 }
@@ -747,11 +747,11 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             }
         })
         if (!this.clientId || !this.clientSecret) {
-            console.log('both client id and secret are compulsary');
+            // console.log('both client id and secret are compulsary');
             return;
         }
         else{
-        console.log('Going for authorization');
+        // console.log('Going for authorization');
         this.ispopup = false;
         this.isOneDrive = false;
         oneDriveAuthorization({clientId: this.clientId, clientSecret: this.clientSecret})
@@ -777,11 +777,11 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             }
         })
         if (!this.clientId || !this.clientSecret) {
-            console.log('both client id and secret are compulsary');
+            // console.log('both client id and secret are compulsary');
             return;
         }
         else{
-        console.log('Going for authorization');
+        // console.log('Going for authorization');
         this.ispopup = false;
         this.isDropBox = false;
         dropboxAuthorization({clientId: this.clientId, clientSecret: this.clientSecret})
@@ -820,7 +820,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
     handleAfterSave(event){
         this.isSpinner = true;
-        console.log('parent1');
+        // console.log('parent1');
         const { clientId, clientSecret, bucket, nickname, draggedkey, named, isOrg, authcode } = event.detail;
         if(!this.isGoogle){
         this.clientId = clientId;
@@ -832,27 +832,27 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
         this.namedCredential = named;
         this.authcode = authcode; 
         this.isOrg = isOrg;
-        console.log(isOrg);
-        console.log(this.isOrg);
+        // console.log(isOrg);
+        // console.log(this.isOrg);
         if(this.isAws){
-            console.log('1');
+            // console.log('1');
             this.handleAwsAuthorization();
             this.ispopup = false;
             this.isSpinner = false;
         } 
         else if(this.isGoogle){
-            console.log('2');
+            // console.log('2');
             this.handleGoogleAuthorization();
         } 
         else if(this.isDropBox){
-            console.log('3');
+            // console.log('3');
             this.handleDropboxAuthorization();
             this.ispopup = false;
             this.isSpinner = false;
 
         } 
         else if(this.isOneDrive){
-            console.log('4');
+            // console.log('4');
             this.handleOneDriveAuthorization();
             this.ispopup = false;
             this.isSpinner = false;

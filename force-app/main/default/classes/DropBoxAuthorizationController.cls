@@ -170,22 +170,22 @@ public with sharing class DropBoxAuthorizationController {
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/dropboxSuccessPage';
+            REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/dropboxSuccessPage';
+                REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/dropboxSuccessPage';
+                REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else {
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/dropboxSuccessPage';
+                REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }
             return REDIRECT_URI;
         } catch (Exception e) {

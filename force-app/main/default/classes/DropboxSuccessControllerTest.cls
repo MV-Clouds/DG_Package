@@ -107,7 +107,7 @@ public with sharing class DropboxSuccessControllerTest {
         Test.startTest();
         String referenceUrl = DropboxSuccessController.referenceUrl(testUrl);
         Test.stopTest();
-        System.assertEquals('.develop.lightning.force.com/lightning/n/User_Configuration', referenceUrl);
+        System.assertEquals('.develop.lightning.force.com/lightning/n/MVDG__User_Configuration', referenceUrl);
     }
     
     @isTest
@@ -117,7 +117,7 @@ public with sharing class DropboxSuccessControllerTest {
         Test.startTest();
         String referenceUrl = DropboxSuccessController.referenceUrl(testUrl);
         Test.stopTest();
-        System.assertEquals('.sandbox.lightning.force.com/lightning/n/User_Configuration', referenceUrl);
+        System.assertEquals('.sandbox.lightning.force.com/lightning/n/MVDG__User_Configuration', referenceUrl);
     }
     
     @isTest
@@ -127,7 +127,7 @@ public with sharing class DropboxSuccessControllerTest {
         Test.startTest();
         String referenceUrl = DropboxSuccessController.referenceUrl(testUrl);
         Test.stopTest();
-        System.assertEquals('.scratch.lightning.force.com/lightning/n/User_Configuration', referenceUrl);
+        System.assertEquals('.scratch.lightning.force.com/lightning/n/MVDG__User_Configuration', referenceUrl);
     }
     
     @isTest
@@ -137,7 +137,7 @@ public with sharing class DropboxSuccessControllerTest {
         Test.startTest();
         String referenceUrl = DropboxSuccessController.referenceUrl(testUrl);
         Test.stopTest();
-        System.assertEquals('.force.com/lightning/n/User_Configuration', referenceUrl);
+        System.assertEquals('.force.com/lightning/n/MVDG__User_Configuration', referenceUrl);
     }
 
      @isTest

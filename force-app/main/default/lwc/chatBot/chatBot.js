@@ -496,7 +496,7 @@ export default class ChatBot extends LightningElement {
 
 
     handleSendEmail() {
-        console.log('Chatbot mail invoked');
+        // console.log('Chatbot mail invoked');
         if(this.replyAddress == ''){
            const field = this.template.querySelector('.mail-body input');
            field.style.border = '1px solid red'; 
@@ -513,7 +513,7 @@ export default class ChatBot extends LightningElement {
         // console.log(this.toAddress);
         // console.log(fileNames);
         // console.log(fileContents);
-        console.log('Sending email');
+        // console.log('Sending email');
         sendEmailWithAttachment({ parameters: {
             toAddress: this.toAddress,
             replyTo: this.replyAddress,
@@ -584,6 +584,7 @@ export default class ChatBot extends LightningElement {
         // console.log('closing');
         this.rendered = false;
         this.popupOpen = false;
+        this.isFeedbackPopup = false;
         this.dispatchEvent(new CustomEvent('toggleclose', {
             detail: {
                 message: this.startchat

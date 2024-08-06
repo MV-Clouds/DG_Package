@@ -200,7 +200,6 @@ public with sharing class AwsAuthorizationController {
             Boolean status = uploadDocuments(bucket, clientId, clientSecret);
             if(status)
             {
-                // System.debug('before upsert');
                 upsert settings;
                 return 'Success';
             }
