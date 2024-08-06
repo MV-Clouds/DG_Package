@@ -17,7 +17,7 @@ public with sharing class TemplateBuilder_Controller {
                                                             FROM Template_Page__c 
                                                             WHERE Template__c =: temp[0].Id WITH SECURITY_ENFORCED ORDER BY Page_Number__c ASC  LIMIT 1];
 
-                    if(pageConfigs.size() == 0 && Schema.sObjectType.Template_Page__c.isCreateable()){
+                    if(pageConfigs.size() == 0 && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){
                         Template_Page__c page = new Template_Page__c();
                         page.Template__c = temp[0].Id;
                         page.Page_Number__c = 1;
@@ -91,7 +91,7 @@ public with sharing class TemplateBuilder_Controller {
 
             System.debug('templateValues : '+ templateValues);
 
-            if(temp.size() > 0 && Schema.sObjectType.Template__c.isUpdateable() && Schema.sObjectType.Template_Page__c.isUpdateable()){
+            if(temp.size() > 0 && Schema.sObjectType.MVDG__Template__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Page__c.isUpdateable()){
                 Template__c templateToUpdate = temp[0];
                 templateToUpdate.Template_Name__c = templateRecord.Template_Name__c;
                 templateToUpdate.Template_Status__c = templateRecord.Template_Status__c;
@@ -154,7 +154,7 @@ public with sharing class TemplateBuilder_Controller {
             List<Template_Data__c> recordToUpdate = new List<Template_Data__c>();
             List<Template_Data__c> recordToDelete = new List<Template_Data__c>();
 
-            if(batchedStoredRecords > 0 && Schema.sObjectType.Template_Data__c.isCreateable() && Schema.sObjectType.Template_Data__c.isUpdateable()){
+            if(batchedStoredRecords > 0 && Schema.sObjectType.MVDG__Template_Data__c.isCreateable() && Schema.sObjectType.MVDG__Template_Data__c.isUpdateable()){
                 
                 for(Integer i = startOrderNumber; i <= endOrderNumber; i++){
                     System.debug('i : '+ i);
@@ -181,7 +181,7 @@ public with sharing class TemplateBuilder_Controller {
                 update recordToUpdate;
                 insert recordToInsert;
             }
-            else if(Schema.sObjectType.Template_Data__c.isCreateable()){
+            else if(Schema.sObjectType.MVDG__Template_Data__c.isCreateable()){
                 for(integer i = startOrderNumber; i <= endOrderNumber; i++){
                     Template_Data__c dt = new Template_Data__c();
                     dt.Template__c = tempId;
@@ -197,7 +197,7 @@ public with sharing class TemplateBuilder_Controller {
             Integer totalStoredDataRecords = Database.countQuery('SELECT Count() FROM Template_Data__c WHERE Template__c =: tempId AND Value_Type__c =: valueType');
             System.debug('totalStoredDataRecords : '+ totalStoredDataRecords);
 
-            if(isLastBatch && endOrderNumber < totalStoredDataRecords && Schema.sObjectType.Template_Data__c.isDeletable()){
+            if(isLastBatch && endOrderNumber < totalStoredDataRecords && Schema.sObjectType.MVDG__Template_Data__c.isDeletable()){
                 // if it is last batch and endOrderNumber is lesser than totalStoredDataRecords...
                 // Delete additon template data record....
                 delete [SELECT Id, Order_No_Simple__c, Template_Value_Simple__c, Value_Type__c
