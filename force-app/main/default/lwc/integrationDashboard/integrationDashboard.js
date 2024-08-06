@@ -373,8 +373,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
         }
         else if(this.draggedkey == 'google'){
             // this.fetchgoogledredirecturi();
-            this.clientId = '343271900390-abl4tpo26o8ecaa0i57lrvpmgp2aon8j.apps.googleusercontent.com';
-            this.clientSecret = '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';
+            this.clientId='google';
+            this.clientSecret = 'google';
             this.isGoogle = true;
             this.ispopup = true;
         }
@@ -480,7 +480,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                 // console.log('going for integration');
                 // console.log(this.isOrg);
                 // console.log(typeof(this.isOrg));
-                authorizeGoogle({ authcode: this.authcode, isOrg: this.isOrg, clientId: this.clientId, clientSecret: this.clientSecret })
+                authorizeGoogle({ authcode: this.authcode, isOrg: this.isOrg})
                 .then(result =>{
                     if(result === 'success'){
                         
