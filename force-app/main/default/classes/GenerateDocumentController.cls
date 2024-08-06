@@ -368,7 +368,7 @@ public with sharing class GenerateDocumentController {
                 Email_Template__c = defaultData.emailTemplate
             );
 
-            if(Schema.sObjectType.MVDG__Template__c.isUpdateable() == false){
+            if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
                 update template;
             }
 
