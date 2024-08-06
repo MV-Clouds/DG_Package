@@ -80,13 +80,13 @@ public with sharing class GoogleDocTemplateEditorController {
             Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
             String newToken = (String) jsonResponse.get('access_token');
             if (newToken != null) {
-                if (Schema.sObjectType.AuthProviderSettings__c.fields.access_token__c.isUpdateable()) {
+                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.access_token__c.isUpdateable()) {
                     settings.access_token__c = newToken;
                 }
                 requestPending.setHeader('Authorization', 'Bearer ' + newToken);
                 Http httpPending = new Http();
                 HttpResponse responsePending = httpPending.send(requestPending);
-                if (Schema.sObjectType.AuthProviderSettings__c.isAccessible() && Schema.sObjectType.AuthProviderSettings__c.isUpdateable() && Schema.sObjectType.AuthProviderSettings__c.isCreateable()) {
+                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isAccessible() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable() && Schema.sObjectType.AuthProviderSettings__c.isCreateable()) {
                     upsert settings;
                 }
                 return responsePending;
@@ -152,7 +152,7 @@ public with sharing class GoogleDocTemplateEditorController {
             templateData.Template__c = templateId;
             templateData.Order_No_Simple__c = 1;
 
-            if (Schema.sObjectType.Template_Data__c.isAccessible() && Schema.sObjectType.Template_Data__c.isCreateable()) {
+            if (Schema.sObjectType.MVDG__Template_Data__c.isAccessible() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable()) {
                 insert templateData;
             }
         } catch (Exception e) {
@@ -178,7 +178,7 @@ public with sharing class GoogleDocTemplateEditorController {
     public static void editTemplate(String templateRecord) {
         try {
             Template__c template = (Template__c) JSON.deserialize(templateRecord, Template__c.class);
-            if (Schema.sObjectType.Template__c.isAccessible() && Schema.sObjectType.Template__c.isUpdateable()) {
+            if (Schema.sObjectType.MVDG__Template__c.isAccessible() && Schema.sObjectType.MVDG__Template__c.isUpdateable()) {
                 update template;
             } else {
                 System.debug('Error In editTemplate ==> Template__c is not accessible or updateable');
