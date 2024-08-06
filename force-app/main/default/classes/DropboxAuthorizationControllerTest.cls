@@ -55,7 +55,7 @@ public with sharing class DropboxAuthorizationControllerTest {
         Test.startTest();
         String redirectUrl = DropBoxAuthorizationController.redirect('Url:[delegate=https://testorg.develop.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://testorg--c.develop.vf.force.com/apex/dropboxSuccessPage', redirectUrl);
+        System.assertEquals('https://testorg--c.develop.vf.force.com/apex/MVDG__dropboxSuccessPage', redirectUrl);
 
     }
 
@@ -67,7 +67,7 @@ public with sharing class DropboxAuthorizationControllerTest {
         Test.startTest();
         String redirectUrl = DropBoxAuthorizationController.redirect('Url:[delegate=https://testorg.sandbox.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://testorg--c.sandbox.vf.force.com/apex/dropboxSuccessPage', redirectUrl);
+        System.assertEquals('https://testorg--c.sandbox.vf.force.com/apex/MVDG__dropboxSuccessPage', redirectUrl);
 
     }
 
@@ -78,7 +78,7 @@ public with sharing class DropboxAuthorizationControllerTest {
         Test.startTest();
         String redirectUrl = DropBoxAuthorizationController.redirect('Url:[delegate=https://testorg.scratch.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://testorg--c.scratch.vf.force.com/apex/dropboxSuccessPage', redirectUrl);
+        System.assertEquals('https://testorg--c.scratch.vf.force.com/apex/MVDG__dropboxSuccessPage', redirectUrl);
 
     }
 
@@ -89,7 +89,7 @@ public with sharing class DropboxAuthorizationControllerTest {
         Test.startTest();
         String redirectUrl = DropBoxAuthorizationController.redirect('Url:[delegate=https://testorg.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://testorg--c.vf.force.com/apex/dropboxSuccessPage', redirectUrl);
+        System.assertEquals('https://testorg--c.vf.force.com/apex/MVDG__dropboxSuccessPage', redirectUrl);
     }
 
      @isTest
