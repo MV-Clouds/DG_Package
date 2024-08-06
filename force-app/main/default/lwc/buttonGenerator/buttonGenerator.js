@@ -85,43 +85,6 @@ export default class ButtonGenerator extends LightningElement {
         }
     }
 
-    // fetchAllObjects(){
-    //     try{
-    //         getAllObjects()
-    //         .then((data) => {
-    //             // this.allObjects = data.slice().sort((a, b) => a.name.localeCompare(b.name)).map(obj => ({
-    //             //     label: obj.name,
-    //             //     value: obj.apiName,
-    //             // }));
-    //             this.allObjects = data.slice().sort((a, b) => a.label.localeCompare(b.label));
-    //             let objLabelList = [];
-    //             let updatedObject = [];
-
-    //             this.allObjects.forEach((obj) =>{
-    //                 if(this.alreadyCreatedObjects.includes(obj.value)){
-    //                     objLabelList.push(obj.label) 
-    //                 }else{
-    //                     updatedObject.push(obj);
-    //                 } 
-    //             })
-
-    //             this.allObjects = JSON.parse(JSON.stringify(updatedObject));
-    //             this.alreadyCreatedObjects = JSON.parse(JSON.stringify(objLabelList));
-
-    //             console.log('All Objects are now :::', this.allObjects);
-    //             console.log('Selected objects are now::: ', this.alreadyCreatedObjects);
-    //             this.showSpinner = false;
-    //         })
-    //         .catch((error) => {
-    //             this.showSpinner = false;
-    //             console.log('Error in getAllObjects', error.message);
-    //         })
-    //     }catch(e){
-    //         this.showSpinner = false;
-    //         console.log('Error in fetchAllObjects', e.message);
-    //     }
-    // }
-
     handleObjectSeparation(data){
         try {
             let objLabelList = [];
@@ -206,7 +169,7 @@ export default class ButtonGenerator extends LightningElement {
                 buttonData.objects = this.selectedLVObjects;
                 buttonData.buttonLabel = 'DG Generate CSV';
                 buttonData.buttonName = 'DG_Generate_CSV';
-                buttonData.buttonEndURL = '&c__isCSVOnly=true';
+                buttonData.buttonEndURL = '&MVDG__isCSVOnly=true';
             }
             else if(type === 'basicPrint'){
                 buttonData.objects  = this.selectedBPObjects;
@@ -249,7 +212,7 @@ export default class ButtonGenerator extends LightningElement {
                         label: "DG Generate Document",
                         optionsCreateFeedItem: false,
                         type: "LightningWebComponent",
-                        lightningWebComponent: "generateDocument"
+                        lightningWebComponent: "MVDG__generateDocument"
                     },
                     FullName: `${record}.DG_Generate_Document`
                 }));

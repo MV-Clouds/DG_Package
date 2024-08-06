@@ -236,7 +236,6 @@ public with sharing class GenerateDocumentController {
             }else{
                 sessionId = Page.UserSessionIdPage.getContent().toString();
             }
-            // sessionId = Page.UserSessionIdPage.getContent().toString();
         }catch(Exception e){
             System.debug('Error in getSessionId =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getSessionId');

@@ -296,6 +296,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.existingTemplateData = JSON.parse(JSON.stringify(data));
                 this.newTemplateData = JSON.parse(JSON.stringify(this.existingTemplateData));
                 this.resolvedPromise++;
+                console.log('Template Details ::', this.newTemplateData);
             })
             .catch(e => {
                 this.resolvedPromise++;
@@ -314,6 +315,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.allListViews = data.map(listView => ({ label: listView.Name, value: listView.Id }));
                 this.showListViewPopup = this.isNew && this.allListViews.length>0 ?  true : false;
                 this.resolvedPromise++;
+                console.log('All the List Views Are::', this.allListViews);
             })
             .catch(e => {
                 this.resolvedPromise++;
@@ -358,6 +360,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.setSelectionFields();
                     this.setFilterFields();
                     this.resolvedPromise++;
+                    console.log('All Related Objects Are ::', this.relatedObjects);
+                    console.log('All Fields Are ::', this.allRetrievedFields);
+                    
                 }
                 else{
                     this.resolvedPromise++;
@@ -401,6 +406,8 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.parseFilterString();
                 }
                 this.resolvedPromise++;
+                console.log('Template Fields Data::', this.separatedData);
+                
             })
             .catch(e => {
                 this.resolvedPromise++;
@@ -2235,13 +2242,13 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     //Basic Details Tab
 
     handleChangeStatus(event){
-        this.newTemplateData.Template_Status__c = event.target.checked;
+        this.newTemplateData.MVDG__Template_Status__c = event.target.checked;
         this.isBasicTabChanged = true;
         // console.log('template is set to' , event.target.checked);
     }
     handleTemplateNameChange(event){
         try{
-            this.newTemplateData.Template_Name__c = event.target.value;
+            this.newTemplateData.MVDG__Template_Name__c = event.target.value;
             this.isBasicTabChanged = true;
         }catch(e){
             console.log('Error in handleTemplateNameChange :: ' , e.stack);
@@ -2249,9 +2256,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     }
         
     handleDescriptionChange(event){
-        this.newTemplateData.Description__c = event.target.value;
+        this.newTemplateData.MVDG__Description__c = event.target.value;
         this.isBasicTabChanged = true;
-        // console.log('Description Updated to , ' , this.newTemplateData.Description__c);
+        // console.log('Description Updated to , ' , this.newTemplateData.MVDG__Description__c);
     }
 
     handleListViewChange(event){
@@ -2296,7 +2303,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     handleDetailsSave(){
         try {
             // console.log('this new template data : ' , this.newTemplateData);
-            if(!this.newTemplateData.Template_Name__c.trim()){
+            if(!this.newTemplateData.MVDG__Template_Name__c.trim()){
                 this.showToast('error', 'Oops! Missed to fill the data!', 'Please enter the valid name for the template.',5000);
                 return;
             }
@@ -2310,10 +2317,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     }
 
     handleCancelChanges(){
-        this.newTemplateData.Template_Name__c = this.existingTemplateData.Template_Name__c ;
-        this.newTemplateData.Template_Status__c =this.existingTemplateData.Template_Status__c;
-        this.newTemplateData.Description__c = this.existingTemplateData.Description__c;
-        this.selectedListView = this.existingTemplateData.List_View__c;
+        this.newTemplateData.MVDG__Template_Name__c = this.existingTemplateData.MVDG__Template_Name__c ;
+        this.newTemplateData.MVDG__Template_Status__c =this.existingTemplateData.MVDG__Template_Status__c;
+        this.newTemplateData.MVDG__Description__c = this.existingTemplateData.MVDG__Description__c;
+        this.selectedListView = this.existingTemplateData.MVDG__List_View__c;
         this.showBasicDetailTab = false;
         this.showEditTemplateTab = true;
         this.initialFilters = true;
@@ -2333,17 +2340,17 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 }
                 let templateData = {
                     templateId : this.newTemplateData.Id,
-                    templateName : this.newTemplateData.Template_Name__c,
-                    templateDescription : this.newTemplateData.Description__c,
-                    templateStatus : this.newTemplateData.Template_Status__c,
+                    templateName : this.newTemplateData.MVDG__Template_Name__c,
+                    templateDescription : this.newTemplateData.MVDG__Description__c,
+                    templateStatus : this.newTemplateData.MVDG__Template_Status__c,
                     listView : this.selectedListView
                 }
                 updateTemplate({templateInfo : templateData})
                 .then(() => {
-                    this.existingTemplateData.Template_Name__c = this.newTemplateData.Template_Name__c;
-                    this.existingTemplateData.Template_Status__c = this.newTemplateData.Template_Status__c;
-                    this.existingTemplateData.Description__c = this.newTemplateData.Description__c;
-                    this.existingTemplateData.List_View__c = this.selectedListView;
+                    this.existingTemplateData.MVDG__Template_Name__c = this.newTemplateData.MVDG__Template_Name__c;
+                    this.existingTemplateData.MVDG__Template_Status__c = this.newTemplateData.MVDG__Template_Status__c;
+                    this.existingTemplateData.MVDG__Description__c = this.newTemplateData.MVDG__Description__c;
+                    this.existingTemplateData.MVDG__List_View__c = this.selectedListView;
                     this.isBasicTabChanged = false;
                     this.showToast('success', 'Woohoo! Changes been saved!' , 'The template details been updated successfully.', 5000);
                 })
