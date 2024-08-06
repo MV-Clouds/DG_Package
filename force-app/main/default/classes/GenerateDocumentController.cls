@@ -131,10 +131,9 @@ public with sharing class GenerateDocumentController {
             cdl.ContentDocumentId = [Select Id, ContentDocumentId from ContentVersion WHERE Id=:contentVersionId WITH SECURITY_ENFORCED LIMIT 1].ContentDocumentId;
             cdl.LinkedEntityId = recordId;   
             cdl.Sharetype = 'V';
-            if(ContentDocumentLink.SObjectType.getDescribe().isCreateable() == false){
-                throw new AuraHandledException('You have no permission to insert this object ContentDocumentLink');
+            if(Schema.sObjectType.ContentDocumentLink.isCreateable()){
+                insert cdl;
             }
-            insert cdl;
         }catch (Exception e) {
             System.debug('Error in storeInFiles =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'storeInFiles');
@@ -165,10 +164,9 @@ public with sharing class GenerateDocumentController {
             }
             feed.RelatedRecordId = contentVersionId;
             feed.Body = body;
-            if(FeedItem.SObjectType.getDescribe().isCreateable() == false){
-                throw new AuraHandledException('You have no permission to insert this object FeedItem');
+            if(Schema.sObjectType.FeedItem.isCreateable()){
+                insert feed;
             }
-            insert feed;
         }catch (Exception e) {
             System.debug('Error in postToChatter =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'postToChatter');
@@ -236,7 +234,6 @@ public with sharing class GenerateDocumentController {
             }else{
                 sessionId = Page.UserSessionIdPage.getContent().toString();
             }
-            // sessionId = Page.UserSessionIdPage.getContent().toString();
         }catch(Exception e){
             System.debug('Error in getSessionId =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getSessionId');
@@ -371,10 +368,9 @@ public with sharing class GenerateDocumentController {
                 Email_Template__c = defaultData.emailTemplate
             );
 
-            if(Template__c.SObjectType.getDescribe().isUpdateable() == false){
-                throw new AuraHandledException('You have no permission to insert record to Template__c');
+            if(Schema.sObjectType.MVDG__Template__c.isUpdateable() == false){
+                update template;
             }
-            update template;
 
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'setDefaultOptions');

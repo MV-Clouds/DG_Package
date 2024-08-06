@@ -363,17 +363,17 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     get filterForActiveTemplates(){
         let filters = [
-            {field : 'Object_API_Name__c', operator : 'eq', value : this.objectApiName},
-            {field : 'Template_Status__c', operator : 'eq', value : true}
+            {field : 'MVDG__Object_API_Name__c', operator : 'eq', value : this.objectApiName},
+            {field : 'MVDG__Template_Status__c', operator : 'eq', value : true}
         ];
         if(this.isCSVOnly){
-            filters.push({field : 'Template_Type__c', operator : 'eq', value : 'CSV Template'});
+            filters.push({field : 'MVDG__Template_Type__c', operator : 'eq', value : 'CSV Template'});
         }
         return filters;
     }
 
     get updatedTemplates(){
-        let searchedTemplates = this.allTemplates.filter(t => t.Template_Name__c.toUpperCase().includes(this.templateSearchKey.toUpperCase()));
+        let searchedTemplates = this.allTemplates.filter(t => t.MVDG__Template_Name__c.toUpperCase().includes(this.templateSearchKey.toUpperCase()));
         this.noTemplateFound = searchedTemplates.length <1 ? true : false;
         if(!this.templateSearchKey){
             return this.allTemplates;
@@ -386,11 +386,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     get templateType(){
-        return !this.isCalledFromDefaults ? this.allTemplates.find(t => t.Id === this.selectedTemplate)?.Template_Type__c || 'CSV Template' : this.templateTypeFromParent;
+        return !this.isCalledFromDefaults ? this.allTemplates.find(t => t.Id === this.selectedTemplate)?.MVDG__Template_Type__c || 'CSV Template' : this.templateTypeFromParent;
     }
 
     get templateName(){
-        return this.allTemplates.find(t => t.Id === this.selectedTemplate)?.Template_Name__c || '';
+        return this.allTemplates.find(t => t.Id === this.selectedTemplate)?.MVDG__Template_Name__c || '';
     }
 
     get isCSVTemplate(){
@@ -422,11 +422,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             let isAutoGeneration = !window.location.href.includes(window.location.origin + '/lightning/action/quick/') && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
                 let urlParams = new URLSearchParams(window.location.search);
-                this.objectApiName = urlParams.get('c__objectApiName');
-                this.isCSVOnly = urlParams.get('c__isCSVOnly') === 'true' ? true : false;
-                this.isDefaultGenerate = urlParams.get('c__isDefaultGenerate') === 'true' ? true : false;
+                this.objectApiName = urlParams.get('MVDG__objectApiName');
+                this.isCSVOnly = urlParams.get('MVDG__isCSVOnly') === 'true' ? true : false;
+                this.isDefaultGenerate = urlParams.get('MVDG__isDefaultGenerate') === 'true' ? true : false;
                 this.template.host.classList.add('pou-up-view');
-                this.selectedTemplate = urlParams.get('c__templateIdToGenerate');
+                this.selectedTemplate = urlParams.get('MVDG__templateIdToGenerate');
             }
 
             Promise.resolve(this.objectApiName)
@@ -437,15 +437,18 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 ]);
             })
             .then(() => {
-                console.log('It should print after the data fetches..', window.location.href.includes('.DG_Document_Generate') || window.location.href.includes('.DG_Generate_CSV'));
+                console.log('It should print after the data fetches..');
                 if (this.calledFromWhere === "preview") {
+                    console.log('Going in the preview!');
                     this.handleCalledFromPreview();
                 } else if (this.calledFromWhere === 'defaults') {
+                    console.log('Going in the defaults');
                     this.handleCalledFromDefaults();
                 } else if(this.isCSVOnly || window.location.href.includes('.DG_Generate_Document')){
                     this.handleEmailTemplateSelect({detail:[]});
                     this.showSpinner = false;
                 } else if (isAutoGeneration) {
+                    console.log('Running auto Generate');
                     this.handleAutoGeneration();
                 }
             })
@@ -703,11 +706,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     setUpAllTemplates(templates){
         try {
             if(this.isCSVOnly){
-                templates = templates.filter(t => t.Template_Type__c==='CSV Template');
+                templates = templates.filter(t => t.MVDG__Template_Type__c==='CSV Template');
             }
             this.allTemplates = templates.map((temp, index) => {
                 const formattedDate = new Date(temp.LastModifiedDate).toLocaleDateString("en-US");
-                if (temp.Button_Api_Name__c && window.location.href.includes(temp.Button_Api_Name__c)) {
+                if (temp.MVDG__Button_Api_Name__c && window.location.href.includes(temp.MVDG__Button_Api_Name__c)) {
                     this.selectedTemplate = temp.Id;
                     this.handleAutoGeneration();
                 }
@@ -717,13 +720,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     index: +index + 1
                 };
             });
-            this.activeTemplates = this.allTemplates.filter(temp => temp.Template_Status__c === true);
+            this.activeTemplates = this.allTemplates.filter(temp => temp.MVDG__Template_Status__c === true);
             this.templateList =  this.activeTemplates.map((template) =>{
                 return {
-                    label:template.Template_Name__c, value:template.Id
+                    label:template.MVDG__Template_Name__c, value:template.Id
                 }
             });
-            console.log('Fetch All templates are done!');
+            console.log('Fetch All templates are done!::' , this.allTemplates);
         } catch (e) {
             console.log('Error in function setUpAllTemplates:::', e.message);
         }
@@ -735,6 +738,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.externalStorageOptions.find( o => o.name=== 'AWS').isDisabled = !integrations.isAWSIntegrated;
             this.externalStorageOptions.find( o => o.name=== 'Dropbox').isDisabled = !integrations.isDropBoxIntegrated;
             this.externalStorageOptions.find( o => o.name=== 'One Drive').isDisabled = !integrations.isOneDriveIntegrated;
+            console.log('Integration Status::' , this.externalStorageOptions);
         } catch (e) {
             console.log('Error in function setUpIntegrationStatus:::', e.message);
         }
@@ -763,7 +767,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         }
                     });
                     // this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
-                    console.log('Calling from the get email templates.');
+                    console.log('Calling from the get email templates ::', this.allEmailTemplates);
                     resolve();
                 })
                 .catch((e) =>{
@@ -1288,10 +1292,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         if (this.isAdditionalInfo) {
                             const thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                            thisTemplate.Description__c = thisTemplate.Description__c || 'No Description Available for this template';
-                            csvContent += ' , Name : ,"' + thisTemplate.Template_Name__c + '"\n'
-                                + ' , Description : ,"' + thisTemplate.Description__c + '"\n'
-                                + ' , Object Api Name : ,' + thisTemplate.Object_API_Name__c + '\n'
+                            thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || 'No Description Available for this template';
+                            csvContent += ' , Name : ,"' + thisTemplate.MVDG__Template_Name__c + '"\n'
+                                + ' , Description : ,"' + thisTemplate.MVDG__Description__c + '"\n'
+                                + ' , Object Api Name : ,' + thisTemplate.MVDG__Object_API_Name__c + '\n'
                                 + ' , CSV Creation Time : , ' + new Date().toLocaleString().replace(',', ' ') + '\n\n';
                         }
                         csvContent += fieldNames.join(',') + '\n';
@@ -1336,10 +1340,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         if (this.isAdditionalInfo) {
                             const thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                            thisTemplate.Description__c = thisTemplate.Description__c || 'No Description Available for this template';
-                            xlsContent += '<tr> <td> </td> <th> Name : </th><td> ' + thisTemplate.Template_Name__c + '</td></tr>'
-                                + '<tr> <td> </td> <th> Description : </th><td> ' + thisTemplate.Description__c + '</td></tr>'
-                                + '<tr> <td></td> <th> Object Api Name : </th><td> ' + thisTemplate.Object_API_Name__c + '</td></tr>'
+                            thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || 'No Description Available for this template';
+                            xlsContent += '<tr> <td> </td> <th> Name : </th><td> ' + thisTemplate.MVDG__Template_Name__c + '</td></tr>'
+                                + '<tr> <td> </td> <th> Description : </th><td> ' + thisTemplate.MVDG__Description__c + '</td></tr>'
+                                + '<tr> <td></td> <th> Object Api Name : </th><td> ' + thisTemplate.MVDG__Object_API_Name__c + '</td></tr>'
                                 + '<tr> <td> </td> <th> CSV Creation Time : </th><td> ' + new Date().toLocaleString().replace(',', ' ') + '</td></tr>' + '<tr></tr>';
                         }
                         xlsContent += '<tr> <th> ' + fieldNames.join('</th><th>') + '</th> </tr>';
@@ -1543,7 +1547,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.fetchedResults = [];
             if(!this.fileName){
                 let thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                this.fileName = thisTemplate.Template_Name__c;
+                this.fileName = thisTemplate.MVDG__Template_Name__c;
             }
             let element ;
             if(this.selectedExtension === '.csv'){
@@ -1713,14 +1717,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 'selectedFolder' : this.selectedFolder,
             }
             let paraDataStringify2 = JSON.stringify(paraData2);
-            let newSRC = '/apex/DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
+            let newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
 
             if(newSRC !== previousSRC){
                 this.vfGeneratePageSRC = newSRC;
                 this.simpleTemplate = true;
             }
             else{
-                this.vfGeneratePageSRC = '/apex/DocGeneratePage';
+                this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
                 this.vfGeneratePageSRC = newSRC;
                 this.simpleTemplate = true;
             }
@@ -2155,7 +2159,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             objects : objList,
                             buttonLabel: this.buttonLabel,
                             buttonName: this.buttonName ? this.buttonName : this.buttonLabel.replaceAll(" ", "_"),
-                            buttonEndURL: '&c__isDefaultGenerate=true&c__templateIdToGenerate='+this.templateIdFromParent
+                            buttonEndURL: '&MVDG__isDefaultGenerate=true&MVDG__templateIdToGenerate='+this.templateIdFromParent
                         }
                         console.log('Button Data:::', buttonData);
                         createListViewButtons({ bdw : buttonData})

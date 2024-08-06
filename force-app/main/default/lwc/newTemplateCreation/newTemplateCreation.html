@@ -2,14 +2,11 @@
     <template if:true={showModel}>
         <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
             <c-message-popup></c-message-popup>
-            <!-- <div class="spinner-div" if:true={doShowSpinner}>
-                <c-spinner></c-spinner>
-            </div> -->
             <c-document-loader display={doShowSpinner} ></c-document-loader>
 
             <div class="main-div">
                 <div class="image-div">
-                    <img class="image" onload={imageLoaded} src="/resource/new_template_image" alt="New Template Image">
+                    <img class="image" onload={imageLoaded} src="/resource/MVDG__new_template_image" alt="New Template Image">
                 </div>
                 <div class="form-div">
                     <div class="close-div" onclick={closeModel}>
@@ -25,19 +22,10 @@
                         <label>Template Name</label>
                     </div>
                     <div class="label-float">
-                        <!-- <textarea name="description" cols="20" rows="2" onkeyup={handleTemplateNameChange}></textarea> -->
                         <input type="text" class="t-description" maxlength="131072" placeholder="Template is about.." onkeyup={handleTemplateDescriptionChange}/>
                         <label>Template Description</label>
                     </div>
                     <div class="select-label-float">
-                        <!-- <label>Source Object</label>
-                        <select onchange={handleObjectChange} class="select-dropdown object-dd">
-                            <option value="">--Select Object--</option>
-                            <template for:each={objectNames} for:item="option">
-                                <option key={option.label} value={option.value}>{option.label}</option>
-                            </template>
-                        </select> -->
-                        <!-- <label>Source Object</label> -->
                         <c-custom-combobox
                         label="Source Object"
                         class="select-dropdown object-dd"
@@ -51,13 +39,6 @@
                         ></c-custom-combobox>
                     </div>
                     <div class="select-label-float">
-                        <!-- <label>Template Type</label> -->
-                        <!-- <select onchange={handleTypeChange} class="select-dropdown type-dd">
-                            <option value="">--Select Template Type--</option>
-                            <template for:each={templateTypes} for:item="option">
-                                <option key={option.label} value={option.value}>{option.label}</option>
-                            </template>
-                        </select> -->
                         <c-custom-combobox
                         class="select-dropdown type-dd"
                         label="Template Type"

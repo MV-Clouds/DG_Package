@@ -135,10 +135,10 @@ public static List<String> getQuickActionButtonObj(List<ObjectsWrapper> allObjec
             List<MetadataService.Metadata> webLinks = new List<MetadataService.Metadata>();
             for (String obj: bdw.objects) {
                 System.debug('BDW Wrapper :' + bdw);
-                String buttonURL = '/lightning/cmp/c__generateDocument?c__objectApiName='+ obj + bdw.buttonEndURL;
+                String buttonURL = '/lightning/cmp/MVDG__generateDocument?MVDG__objectApiName='+ obj + bdw.buttonEndURL;
                 String displayType = 'massActionButton';
                 if(bdw.buttonName == 'DG_Basic_Print'){
-                    buttonURL = '/apex/Dynamicpage?id={!'+ obj+'.Id}';
+                    buttonURL = '/apex/MVDG__Dynamicpage?id={!'+ obj+'.Id}';
                     displayType = 'button';
                 }
                 String buttonApiName = bdw.buttonName;

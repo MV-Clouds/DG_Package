@@ -64,20 +64,15 @@ li.info-topic {
 }
 
 .main-generate-document-div {
-    /* background:  white url(/resource/homePageImgs/HomBg.png) cover no-repeat center center; */
     border-radius: 0.5rem;
     text-align: center;
-    /* background-color: white; */
-    /* background-image: url(/resource/homePageImgs/HomBg.png); */
-    /* background-repeat: no-repeat; */
-    /* background-position: center; */
     user-select: none;
     height: var(--height-of-main-generate-document-div);
     display: flex;
     width: var(--width-of-main-generate-document-div);
     flex-direction: column;
     position: relative;
-    background: var(--background-of-main-generate-document-div, white url(/resource/homePageImgs/HomBg.png) no-repeat center center);
+    background: var(--background-of-main-generate-document-div, white url(/resource/MVDG__homePageImgs/HomBg.png) no-repeat center center);
     background-size: cover;
     backdrop-filter: blur(3px);
 }

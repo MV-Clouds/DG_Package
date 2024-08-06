@@ -73,13 +73,12 @@ public with sharing class NewTemplateCreationController {
             template.Template_Type__c = templateData.templateType;
             template.Template_Status__c = true;
     
-            if(Template__c.SObjectType.getDescribe().isCreateable() == false){
-                throw new AuraHandledException('You have no permission to insert this object Template__c');
+            if(Schema.sObjectType.MVDG__Template__c.isCreateable()){
+                insert template;
             }
-            insert template;
             templateId = template.Id;
 
-            if(templateData.templateType == 'Simple Template' && Schema.sObjectType.Template_Page__c.isCreateable()){
+            if(templateData.templateType == 'Simple Template' && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){
                 Template_Page__c page = new Template_Page__c();
                 page.Template__c = templateId;
                 page.Page_Number__c = 1;
@@ -113,8 +112,6 @@ public with sharing class NewTemplateCreationController {
         @AuraEnabled public String templateDescription { get; set; }
         @AuraEnabled public String sourceObject { get; set; }
         @AuraEnabled public String templateType { get; set; }
-        @AuraEnabled public Decimal columnValue { get; set; }
-        @AuraEnabled public Decimal rowValue { get; set; }
     }
     
 }

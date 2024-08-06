@@ -50,11 +50,6 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     }
 
     connectedCallback(){
-        console.log('Is Child ::', this.isPopup);
-        console.log('Type :::' , typeof this.isPopup);
-        // this.isPopup = this.isPopup == "true" ? true : false;
-        // console.log('After Is Child ::', this.isPopup);
-        // console.log('After Type :::' , typeof this.isPopup);
         this.getPreviewData();
     }
 
