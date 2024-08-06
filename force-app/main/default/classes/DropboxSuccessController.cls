@@ -79,22 +79,22 @@ public with sharing class DropboxSuccessController {
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/dropboxSuccessPage';
+            REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/dropboxSuccessPage';
+                REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/dropboxSuccessPage';
+                REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else {
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/dropboxSuccessPage';
+                REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }
             return REDIRECT_URI;
         } catch (Exception e) {
@@ -112,23 +112,23 @@ public with sharing class DropboxSuccessController {
         System.debug('System org url -->'+url);
         String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
         baseUrl = baseUrl.substringAfter('Url:[delegate=');
-        REFRENCEURL = baseUrl + '.develop.lightning.force.com/lightning/n/User_Configuration';
+        REFRENCEURL = baseUrl + '.develop.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }else if(url.contains('sandbox.my.salesforce.com')){
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REFRENCEURL = baseUrl + '.sandbox.lightning.force.com/lightning/n/User_Configuration';
+            REFRENCEURL = baseUrl + '.sandbox.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }
         else if(url.contains('scratch.my.salesforce.com')){
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REFRENCEURL = baseUrl + '.scratch.lightning.force.com/lightning/n/User_Configuration';
+            REFRENCEURL = baseUrl + '.scratch.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }else {
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REFRENCEURL = baseUrl + '.force.com/lightning/n/User_Configuration';
+            REFRENCEURL = baseUrl + '.force.com/lightning/n/MVDG__User_Configuration';
         }
         return REFRENCEURL;
         } catch (Exception e) {

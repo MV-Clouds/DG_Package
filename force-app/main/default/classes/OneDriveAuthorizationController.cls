@@ -140,22 +140,22 @@ public with sharing class OneDriveAuthorizationController {
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/oneDriveSuccessPage';
+            REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/oneDriveSuccessPage';
+                REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/oneDriveSuccessPage';
+                REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }else {
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/oneDriveSuccessPage';
+                REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }
             return REDIRECT_URI;
         } catch (Exception e) {
