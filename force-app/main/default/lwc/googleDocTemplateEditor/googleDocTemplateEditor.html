@@ -42,7 +42,7 @@
                                 </g>
                             </svg>
                         </div>
-                        <div class="templateNameText">{templateRecord.Template_Name__c}</div>
+                        <div class="templateNameText">{templateRecord.MVDG__Template_Name__c}</div>
                     </div>
                     <div class="activeTabBar" style="transform: translateX(31px); width: 177px"></div>
                 </div>
@@ -75,21 +75,21 @@
                                         <div class="previewTwise" lwc:if={showTempDetail}>
                                             <div class="previewField">
                                                 <div class="previewLabel">Template Name</div>
-                                                <lightning-input type="text" value={templateRecord.Template_Name__c} variant="label-hidden" data-name="Template_Name__c" onkeyup={handleEditDetail} max-length="255"></lightning-input>
+                                                <lightning-input type="text" value={templateRecord.MVDG__Template_Name__c} variant="label-hidden" data-name="MVDG__Template_Name__c" onkeyup={handleEditDetail} max-length="255"></lightning-input>
                                             </div>
                                         </div>
                                         <div class="previewTwise">
                                             <div class="previewField">
                                                 <div class="previewLabel">Description</div>
-                                                <lightning-textarea max-length="1000" data-name="Description__c" placeholder="Enter a description" onkeyup={handleEditDetail} value={templateRecord.Description__c} variant="label-hidden"></lightning-textarea>
+                                                <lightning-textarea max-length="1000" data-name="MVDG__Description__c" placeholder="Enter a description" onkeyup={handleEditDetail} value={templateRecord.MVDG__Description__c} variant="label-hidden"></lightning-textarea>
                                             </div>
                                         </div>
 
                                         <div class="editStatus">
                                             <span class="statusLabel">Status: </span>
                                             <div class="tempToggle">
-                                                    <input if:true={templateRecord.Template_Status__c} class="checkBox checked" type="checkbox" id={templateRecord.Id} data-name="Template_Status__c" onchange={handleEditDetail} style="display: none" />
-                                                    <input if:false={templateRecord.Template_Status__c} class="checkBox" type="checkbox" id={templateRecord.Id} data-name="Template_Status__c" onchange={handleEditDetail} style="display: none" checked />
+                                                    <input if:true={templateRecord.MVDG__Template_Status__c} class="checkBox checked" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" />
+                                                    <input if:false={templateRecord.MVDG__Template_Status__c} class="checkBox" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" checked />
                                                 <label for={templateRecord.Id}>
                                                     <div class="toggleDiv">
                                                         <div class="toggleBtnBg">
@@ -105,11 +105,11 @@
                                         <div class="previewTwise">
                                             <div class="previewField">
                                                 <div class="previewLabel">Source Object</div>
-                                                <lightning-input type="text" class="nonEditInput" value={templateRecord.Object_API_Name__c} variant="label-hidden" disabled="true"></lightning-input>
+                                                <lightning-input type="text" class="nonEditInput" value={templateRecord.MVDG__Object_API_Name__c} variant="label-hidden" disabled="true"></lightning-input>
                                             </div>
                                             <div class="previewField">
                                                 <div class="previewLabel">Template Type</div>
-                                                <lightning-input type="text" class="nonEditInput" value={templateRecord.Template_Type__c} variant="label-hidden" disabled="true"></lightning-input>
+                                                <lightning-input type="text" class="nonEditInput" value={templateRecord.MVDG__Template_Type__c} variant="label-hidden" disabled="true"></lightning-input>
                                             </div>
                                         </div>
                                         <div class="previewTwise">
@@ -167,7 +167,7 @@
                         template-type-from-parent="Google Doc Template" 
                         template-id-from-parent={templateId} 
                         object-name-from-parent={objectName} 
-                        template-name-from-parent={templateRecord.Template_Name__c}>
+                        template-name-from-parent={templateRecord.MVDG__Template_Name__c}>
                     </c-generate-document>
                 </div>
             </template>

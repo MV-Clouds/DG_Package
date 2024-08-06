@@ -115,9 +115,9 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     // Template Data
                     if (result.templateData) {
                         let templateData = JSON.parse(result.templateData);
-                        this.webViewLink = templateData.Google_Doc_WebViewLink__c;
-                        this.Google_Doc_Template_Id__c = templateData.Google_Doc_Template_Id__c;
-                        this.documentName = templateData.Google_Doc_Name__c;
+                        this.webViewLink = templateData.MVDG__Google_Doc_WebViewLink__c;
+                        this.Google_Doc_Template_Id__c = templateData.MVDG__Google_Doc_Template_Id__c;
+                        this.documentName = templateData.MVDG__Google_Doc_Name__c;
                     } else {
                         this.isSpinner = false;
                         if (this.profile == null && result.templateData == null && this.allTemplates == null) {
@@ -392,7 +392,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     handleEditDetail(event) {
         try {
             const targetInput = event.currentTarget.dataset.name;
-            if (targetInput === "Template_Name__c") {
+            if (targetInput === "MVDG__Template_Name__c") {
                 const next = this.template.querySelector(".next");
                 if (!event.target.value) {
                     event.currentTarget.classList.add("error-border");
@@ -445,7 +445,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             console.log(this.templateRecord);
 
             this.template.querySelector(".next").removeAttribute("disabled");
-            this.template.querySelector(`lightning-input[data-name="Template_Name__c"]`).classList.remove("error-border");
+            this.template.querySelector(`lightning-input[data-name="MVDG__Template_Name__c"]`).classList.remove("error-border");
             this.activeTabName = "contentTab";
             this.setActiveTab();
         } catch (error) {

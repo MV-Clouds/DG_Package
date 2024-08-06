@@ -51,8 +51,15 @@
             </svg>
         </button>
     </div>
-    <c-document-loader display={isSpinner} label={spinnerLabel} full-size="true"></c-document-loader>
     <c-message-popup></c-message-popup>
-    <c-generate-google-doc-file onchangespinnerlabel={handleSpinnerLabelUpdate} oncomplete={handleFileProcess}
-        oninternalerror={handleError}></c-generate-google-doc-file>
+    <c-document-loader 
+        display={isSpinner} 
+        label={spinnerLabel} 
+        full-size="true">
+    </c-document-loader>
+    <c-generate-google-doc-file 
+        onchangespinnerlabel={handleSpinnerLabelUpdate} 
+        oncomplete={handleFileProcess}
+        oninternalerror={handleError}>
+    </c-generate-google-doc-file>
 </template>
