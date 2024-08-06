@@ -30,7 +30,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('Url:[delegate=https://test.develop.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://test--c.develop.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
 
     }
 
@@ -39,7 +39,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('Url:[delegate=https://test.scratch.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://test--c.scratch.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
 
     }
 
@@ -48,7 +48,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('Url:[delegate=https://test.sandbox.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://test--c.sandbox.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
 
     }
 
@@ -57,7 +57,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('Url:[delegate=https://test.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://test--c.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
     }
     
     @isTest
