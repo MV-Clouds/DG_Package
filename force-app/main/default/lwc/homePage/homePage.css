@@ -32,7 +32,7 @@
 .outerDiv{
   height: 100%;
   overflow: auto;
-  background : transparent url('/resource/homePageImgs/MVDG__HomBg.png') 0% 0% round padding-box;
+  background : transparent url('/resource/MVDG__homePageImgs/HomBg.png') 0% 0% round padding-box;
   background-size: contain;
   background-repeat: round;
 }
