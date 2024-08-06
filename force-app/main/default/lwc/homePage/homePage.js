@@ -5,7 +5,7 @@ import docGeniusImgs from "@salesforce/resourceUrl/homePageImgs";
 import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getTemplateList from '@salesforce/apex/HomePageController.getTemplateList';
 import templateObject from '@salesforce/schema/Template__c';
-import templateTypeFIELD from '@salesforce/schema/Template__c.MVDG__Template_Type__c';
+import templateTypeFIELD from '@salesforce/schema/Template__c.Template_Type__c';
 import updateTemplate from '@salesforce/apex/HomePageController.updateTemplate';
 import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
 import {nameSpace,navigationComps} from 'c/globalProperties';
