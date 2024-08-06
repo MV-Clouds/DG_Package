@@ -7,8 +7,6 @@ public with sharing class NewTemplateCreationControllerTest {
         testObj.templateDescription = 'Test Description';
         testObj.sourceObject = 'Account';
         testObj.templateType = 'Simple Template';
-        testObj.columnValue = null;
-        testObj.rowValue = null;
         
         Test.startTest();
         
