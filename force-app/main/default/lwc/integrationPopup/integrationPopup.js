@@ -37,12 +37,12 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
         if(this.draggedkey == 'dropbox'){
             this.isDropbox = true;
             this.isRedirectUri = true;
-            // this.redirectText = 'Paste this in your Dropbox developer console\'s redirect uri section. For more details refer User Guide.';
+            this.redirectText = 'Paste this in your Dropbox developer console\'s redirect uri section. For more details refer User Guide.';
         }
         else if(this.draggedkey == 'onedrive'){
             this.isOneDrive = true;
             this.isRedirectUri = true;
-            // this.redirectText = 'Paste this in your Azure developer console\'s redirect uri section. For more details refer User Guide.';
+            this.redirectText = 'Paste this in your Azure developer console\'s redirect uri section. For more details refer User Guide.';
         }
         else if(this.draggedkey == 'aws'){
             this.isAws = true;
