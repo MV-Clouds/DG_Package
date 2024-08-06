@@ -1,0 +1,51 @@
+<template>
+    <!-- <p>{activeSectionsMessage}</p> -->
+
+    <lightning-accordion allow-multiple-sections-open
+                         onsectiontoggle={handleSectionToggle}
+                         active-section-name={activeSections}>
+        <lightning-accordion-section name="A" label="AWS Integration">
+            <div class="content">
+                <p>Step:1 Create a bucket or use existing bucket if any in your aws account and copy bucket name.</p>
+                <p style="color: rgb(245, 93, 93);">[ NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 ]</p>
+                <div class="img"><img src={aws1} alt="error"></div>
+                <div class="img"><img src={aws2} alt="error"></div>
+                <p>Step:2 Just paste bucket name here after drag and drop aws logo. </p>
+                <div class="img"><img src={aws3} alt="error"></div>
+                <div class="img"><img src={aws4} alt="error"></div>
+                <p>Step:3 Create a bucket or use existing bucket if any in your aws account and copy bucket name.</p>
+                <div class="img"><img src={aws5} alt="error"></div>
+                <div class="img"><img src={aws6} alt="error"></div>
+                <p>Step:4 Just paste bucket name here after drag and drop aws logo. </p>
+                <div class="img"><img src={aws7} alt="error"></div>
+                <p>Step: 5 Check whether the status is updated or not.</p>
+                <div class="img"><img src={aws8} alt="error"></div>
+                <p>If it is active means authorization is successful.</p>
+            </div>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="C" label="GoogleDrive Integration">
+            <p>Coming Soon</p>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="D" label="OneDrive Integration">
+            <p>Coming Soon</p>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="E" label="Dropbox Integration">
+            <p>Coming Soon</p>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="F" label="Google doc Template">
+            <p>Coming Soon</p>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="G" label="Simple Template">
+            <p>Coming Soon</p>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="H" label="Csv Template">
+            <p>Coming Soon</p>
+        </lightning-accordion-section>
+    </lightning-accordion>
+</template>

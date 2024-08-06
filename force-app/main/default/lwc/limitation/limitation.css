@@ -1,0 +1,19 @@
+.content .img{
+    display: flex;
+    justify-content: center;
+}
+
+.content img{
+    width: 80%;
+}
+
+.content{
+    font-size: 16px;
+    font-family: Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+
+}
+
+.content p{
+    background-color: white;
+    width: fit-content;
+}

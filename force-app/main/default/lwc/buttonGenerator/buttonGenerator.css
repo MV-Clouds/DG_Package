@@ -1,0 +1,118 @@
+.main-generator-div{
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 1.5rem;
+    gap: 1rem;
+}
+
+.title-div {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding-bottom: 0.5rem;
+    color: #00aeff;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #00aeff;
+    font-size: 1rem;
+}
+
+.single-btn-generator {
+    border-radius: 0.5rem;
+    padding: 1rem 1.5rem;
+    backdrop-filter: blur(2px);
+    box-shadow: 0 0 13px -1px lightgray;
+}
+
+.selection-creation-div{
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+}
+
+.object-select-div{
+    width: 100%;
+}
+
+.object-select-combobox{
+    --inputAreaBorderWidth: 1px;
+    --inputAreaBorderColor: black;
+    --inputOnFocusBorderColor: #00aeff;
+    --inputAreaBorderRadius: 0.5rem;
+    --inputOnFocusShadow: none;
+    --inputAreaHeight: 2.5rem;
+    --labelBackgroundColor: white;
+    --labelLeft: 0.938rem;
+    --labelPosition: absolute;
+    --labelTop: -7px;
+    --labelColor: #00AEFF;
+    --dropDownMaxHeight: 9rem;
+}
+
+.create-btn{
+    width: max-content;
+    min-width: 6rem;
+    height: 2.5rem;
+    border: none;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background: #00aeff;
+    border-radius: 6px;
+    padding-inline: 1rem;
+    transition: all linear 0.1s;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.disabled-btn{
+    background: lightgray;
+    pointer-events: none;
+}
+
+.create-btn:hover {
+    background: #0084c1;
+}
+
+/* .hr-div{
+    height: 2px;
+    width: 100%;
+    background-color: gray;
+    margin-block: 1rem 0.5rem;
+} */
+
+.single-btn-generator {
+    border-radius: 0.5rem;
+    padding: 1rem 1.5rem;
+    backdrop-filter: blur(2px);
+    box-shadow: 0 0 13px -1px lightgray;
+}
+
+.already-created-object-div {
+    display: flex;
+    gap: 0.5rem;
+    flex-grow: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 0.2rem;
+}
+
+.generated-object-div {
+    background: #d5ebff60;
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    min-height: 7rem;
+}
+
+.added-object {
+    color: white;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    background-color: #00aeff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    user-select: text;
+}

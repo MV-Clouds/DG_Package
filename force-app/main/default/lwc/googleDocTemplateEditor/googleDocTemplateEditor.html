@@ -1,0 +1,347 @@
+<template>
+    <div class="body">
+        <div class="sub_body">
+            <div class="tabSection">
+                <div class="tabSection_sub">
+                    <div class="homeBtn" onclick={cancel}>
+                        <svg viewBox="0 0 24 24">
+                            <g stroke-width="0"></g>
+                            <g stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g>
+                                <path d="M21.71,11.29l-9-9a1,1,0,0,0-1.42,0l-9,9a1,1,0,0,0,1.42,1.42l.29-.3V20.3A1.77,1.77,0,0,0,5.83,22H8.5a1,1,0,0,0,1-1V16.1a1,1,0,0,1,1-1h3a1,1,0,0,1,1,1V21a1,1,0,0,0,1,1h2.67A1.77,1.77,0,0,0,20,20.3V12.41l.29.3a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,11.29Z"></path>
+                            </g>
+                        </svg>
+                    </div>
+                    <div class="tab activeT" data-name="contentTab" onclick={activeTab}>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M1 2V5H3V4H5V9H3.5V11H8.5V9H7V4H9V5H11V2H1ZM21 3H14V5H20V19H4V14H2V20C2 20.5523 2.44772 21 3 21H21C21.5523 21 22 20.5523 22 20V4C22 3.44772 21.5523 3 21 3Z"></path>
+                        </svg>
+                        <div>Template Content</div>
+                    </div>
+                    <div class="tab" data-name="basicTab" onclick={activeTab}>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM19 20V4H5V20H19ZM7 6H11V10H7V6ZM7 12H17V14H7V12ZM7 16H17V18H7V16ZM13 7H17V9H13V7Z"></path>
+                        </svg>
+                        <div>Basic Details</div>
+                    </div>
+                    <div class="tab" data-name="defaultValues" onclick={activeTab}>
+                        <svg  viewBox="0 0 24 24" style="scale:1.3"><g clip-path="url(#clip0_32_51)" ><path fill-rule="evenodd" clip-rule="evenodd" d="M5 5C5 4.73478 5.10536 4.48043 5.29289 4.29289C5.48043 4.10536 5.73478 4 6 4H15C15.2652 4 15.5196 4.10536 15.7071 4.29289C15.8946 4.48043 16 4.73478 16 5V12.0275C16.341 12.0653 16.6765 12.142 17 12.256V5C17 4.46957 16.7893 3.96086 16.4142 3.58579C16.0391 3.21071 15.5304 3 15 3H6C5.46957 3 4.96086 3.21071 4.58579 3.58579C4.21071 3.96086 4 4.46957 4 5V17C4 17.5304 4.21071 18.0391 4.58579 18.4142C4.96086 18.7893 5.46957 19 6 19H11.758C11.5497 18.6888 11.3811 18.3529 11.256 18H6C5.73478 18 5.48043 17.8946 5.29289 17.7071C5.10536 17.5196 5 17.2652 5 17V5Z" fill="black" ></path><path fill-rule="evenodd" clip-rule="evenodd" d="M6 7C6 6.86739 6.05268 6.74021 6.14645 6.64645C6.24021 6.55268 6.36739 6.5 6.5 6.5H14.5C14.6326 6.5 14.7598 6.55268 14.8536 6.64645C14.9473 6.74021 15 6.86739 15 7C15 7.13261 14.9473 7.25979 14.8536 7.35355C14.7598 7.44732 14.6326 7.5 14.5 7.5H6.5C6.36739 7.5 6.24021 7.44732 6.14645 7.35355C6.05268 7.25979 6 7.13261 6 7ZM6 9.5C6 9.36739 6.05268 9.24021 6.14645 9.14645C6.24021 9.05268 6.36739 9 6.5 9H14.5C14.6326 9 14.7598 9.05268 14.8536 9.14645C14.9473 9.24021 15 9.36739 15 9.5C15 9.63261 14.9473 9.75979 14.8536 9.85355C14.7598 9.94732 14.6326 10 14.5 10H6.5C6.36739 10 6.24021 9.94732 6.14645 9.85355C6.05268 9.75979 6 9.63261 6 9.5ZM6.5 11.5C6.36739 11.5 6.24021 11.5527 6.14645 11.6464C6.05268 11.7402 6 11.8674 6 12C6 12.1326 6.05268 12.2598 6.14645 12.3536C6.24021 12.4473 6.36739 12.5 6.5 12.5H10.5C10.6326 12.5 10.7598 12.4473 10.8536 12.3536C10.9473 12.2598 11 12.1326 11 12C11 11.8674 10.9473 11.7402 10.8536 11.6464C10.7598 11.5527 10.6326 11.5 10.5 11.5H6.5ZM6 14.5C6 14.3674 6.05268 14.2402 6.14645 14.1464C6.24021 14.0527 6.36739 14 6.5 14H9C9.13261 14 9.25979 14.0527 9.35355 14.1464C9.44732 14.2402 9.5 14.3674 9.5 14.5C9.5 14.6326 9.44732 14.7598 9.35355 14.8536C9.25979 14.9473 9.13261 15 9 15H6.5C6.36739 15 6.24021 14.9473 6.14645 14.8536C6.05268 14.7598 6 14.6326 6 14.5ZM15.5 20C15.9596 20 16.4148 19.9095 16.8394 19.7336C17.264 19.5577 17.6499 19.2999 17.9749 18.9749C18.2999 18.6499 18.5577 18.264 18.7336 17.8394C18.9095 17.4148 19 16.9596 19 16.5C19 16.0404 18.9095 15.5852 18.7336 15.1606C18.5577 14.736 18.2999 14.3501 17.9749 14.0251C17.6499 13.7001 17.264 13.4423 16.8394 13.2664C16.4148 13.0905 15.9596 13 15.5 13C14.5717 13 13.6815 13.3687 13.0251 14.0251C12.3687 14.6815 12 15.5717 12 16.5C12 17.4283 12.3687 18.3185 13.0251 18.9749C13.6815 19.6313 14.5717 20 15.5 20ZM15.5 21C16.0909 21 16.6761 20.8836 17.2221 20.6575C17.768 20.4313 18.2641 20.0998 18.682 19.682C19.0998 19.2641 19.4313 18.768 19.6575 18.2221C19.8836 17.6761 20 17.0909 20 16.5C20 15.9091 19.8836 15.3239 19.6575 14.7779C19.4313 14.232 19.0998 13.7359 18.682 13.318C18.2641 12.9002 17.768 12.5687 17.2221 12.3425C16.6761 12.1164 16.0909 12 15.5 12C14.3065 12 13.1619 12.4741 12.318 13.318C11.4741 14.1619 11 15.3065 11 16.5C11 17.6935 11.4741 18.8381 12.318 19.682C13.1619 20.5259 14.3065 21 15.5 21Z" fill="black" ></path><path fill-rule="evenodd" clip-rule="evenodd" d="M17.4985 14.514C17.4048 14.4203 17.2776 14.3676 17.145 14.3676C17.0125 14.3676 16.8853 14.4203 16.7915 14.514L16.3965 14.909L17.103 15.6165L17.4985 15.221C17.5923 15.1272 17.6449 15.0001 17.6449 14.8675C17.6449 14.7349 17.5923 14.6078 17.4985 14.514ZM16.75 15.97L16.043 15.263L13.5085 17.7975V18.5045H14.2155L16.75 15.97Z" fill="black" ></path></g><defs ><clipPath  id="clip0_32_51-104"><rect width="24" height="24" fill="white" ></rect></clipPath></defs></svg>
+                        <div>Template Defaults</div>
+                    </div>
+
+                    <div class="templateName" onclick={activeTab} data-name="basicTab">
+                        <div class="recordSVG">
+                            <svg viewBox="0 0 1024 1024">
+                                <g stroke-width="0"></g>
+                                <g stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g>
+                                    <path d="M714 762.2h-98.2c-16.6 0-30 13.4-30 30s13.4 30 30 30H714c16.6 0 30-13.4 30-30s-13.4-30-30-30zM487.4 762.2H147.1c-16.6 0-30 13.4-30 30s13.4 30 30 30h340.3c16.6 0 30-13.4 30-30s-13.4-30-30-30z" fill="#33CC99"></path>
+                                    <path d="M838.253 130.023l65.548 65.548-57.982 57.983-65.549-65.549z" fill="#6be6ff"></path>
+                                    <path d="M743.7 955.9H195.8c-53.7 0-97.4-43.7-97.4-97.4V174.8c0-53.7 43.7-97.4 97.4-97.4H615c16.6 0 30 13.4 30 30s-13.4 30-30 30H195.8c-20.6 0-37.4 16.8-37.4 37.4v683.7c0 20.6 16.8 37.4 37.4 37.4h547.9c20.6 0 37.4-16.8 37.4-37.4v-395c0-16.6 13.4-30 30-30s30 13.4 30 30v395.1c0 53.6-43.7 97.3-97.4 97.3z" fill="#000000"></path>
+                                    <path d="M907.7 122.1l-39.2-39.2c-24-24-65.1-21.9-91.7 4.7L419.5 445 347 643.6l198.6-72.4L903 213.8c12.1-12.1 19.6-27.7 21.1-44 1.8-18.1-4.3-35.5-16.4-47.7zM512.6 519.3L447.5 543l23.7-65.1 264.7-264.7 40.9 41.7-264.2 264.4z m348-347.9l-41.3 41.3-40.9-41.7 40.9-40.9c3.1-3.1 6.2-3.9 7.6-3.9l37.6 37.6c-0.1 1.3-0.9 4.5-3.9 7.6z"></path>
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="templateNameText">{templateRecord.Template_Name__c}</div>
+                    </div>
+                    <div class="activeTabBar" style="transform: translateX(31px); width: 177px"></div>
+                </div>
+            </div>
+
+            <template lwc:if={webViewLink}>
+                <div class="main" if:true={showTemplateEditor}>
+                    <iframe src={webViewLink} onload={iframeLoaded}></iframe>
+                    <c-key-mapping-container 
+                        class="fieldMappingContainer desicionContainer" 
+                        data-name="fieldMappingContainer" 
+                        template-id={templateId} 
+                        object-name={objectName} 
+                        preview-button-label="Preview" 
+                        cancel-button-label="Close" 
+                        onpreview={handlePreview} 
+                        onclose={handleClose} 
+                        template-type="Google Doc Template" 
+                        onopengenchildtable={openGenChildTablePopup}>
+                    </c-key-mapping-container>
+                </div>
+
+                <div class="basicTab" if:true={showBasicDetails}>
+                    <div class="desicionContainer updateDeatilContainer">
+                        <div class="basicDetails">
+                            <div class="basicDetails_sub">
+                                <div class="templateDetails">
+                                    <div class="detailHeader">Template Basic Details</div>
+                                    <div class="detailEditSection">
+                                        <div class="previewTwise" lwc:if={showTempDetail}>
+                                            <div class="previewField">
+                                                <div class="previewLabel">Template Name</div>
+                                                <lightning-input type="text" value={templateRecord.Template_Name__c} variant="label-hidden" data-name="Template_Name__c" onkeyup={handleEditDetail} max-length="255"></lightning-input>
+                                            </div>
+                                        </div>
+                                        <div class="previewTwise">
+                                            <div class="previewField">
+                                                <div class="previewLabel">Description</div>
+                                                <lightning-textarea max-length="1000" data-name="Description__c" placeholder="Enter a description" onkeyup={handleEditDetail} value={templateRecord.Description__c} variant="label-hidden"></lightning-textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="editStatus">
+                                            <span class="statusLabel">Status: </span>
+                                            <div class="tempToggle">
+                                                    <input if:true={templateRecord.Template_Status__c} class="checkBox checked" type="checkbox" id={templateRecord.Id} data-name="Template_Status__c" onchange={handleEditDetail} style="display: none" />
+                                                    <input if:false={templateRecord.Template_Status__c} class="checkBox" type="checkbox" id={templateRecord.Id} data-name="Template_Status__c" onchange={handleEditDetail} style="display: none" checked />
+                                                <label for={templateRecord.Id}>
+                                                    <div class="toggleDiv">
+                                                        <div class="toggleBtnBg">
+                                                            <div class="StatusText">
+                                                                <span>Inactive</span>
+                                                                <span>Active</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="previewTwise">
+                                            <div class="previewField">
+                                                <div class="previewLabel">Source Object</div>
+                                                <lightning-input type="text" class="nonEditInput" value={templateRecord.Object_API_Name__c} variant="label-hidden" disabled="true"></lightning-input>
+                                            </div>
+                                            <div class="previewField">
+                                                <div class="previewLabel">Template Type</div>
+                                                <lightning-input type="text" class="nonEditInput" value={templateRecord.Template_Type__c} variant="label-hidden" disabled="true"></lightning-input>
+                                            </div>
+                                        </div>
+                                        <div class="previewTwise">
+                                            <div class="previewField">
+                                                <div class="previewLabel">Google Doc Id</div>
+                                                <lightning-input type="text" class="nonEditInput" value={Google_Doc_Template_Id__c} variant="label-hidden" disabled="true"></lightning-input>
+                                            </div>
+                                            <!-- <div class="previewField">
+                                                <div class="previewLabel">Google Doc Name</div>
+                                                <lightning-input type="text" class="nonEditInput" value={documentName} variant="label-hidden" disabled="true"></lightning-input>
+                                            </div> -->
+                                        </div>
+                                        <div class="previewTwise">
+                                            <div class="previewField">
+                                                <div class="previewLabel">Created Date and Time</div>
+                                                <lightning-input type="datetime" class="nonEditInput" value={templateRecord.CreatedDate} variant="label-hidden" disabled="true"></lightning-input>
+                                            </div>
+                                            <div class="previewField">
+                                                <div class="previewLabel">Last Modified Date and Time</div>
+                                                <lightning-input type="datetime" class="nonEditInput" value={templateRecord.LastModifiedDate} variant="label-hidden" disabled="true"></lightning-input>
+                                            </div>
+                                        </div>
+                                        <div class="previewTwise">
+                                            <div class="previewField">
+                                                <div class="previewLabel">Created By</div>
+                                                <lightning-input type="text" class="nonEditInput" value={templateRecord.CreatedBy.Name} variant="label-hidden" disabled="true"></lightning-input>
+                                            </div>
+                                            <div class="previewField">
+                                                <div class="previewLabel">Last Modified By</div>
+                                                <lightning-input type="text" class="nonEditInput" value={templateRecord.LastModifiedBy.Name} variant="label-hidden" disabled="true"></lightning-input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="buttonSection">
+                            <button type="button" class="button cancel" onclick={cancelEditTemplate}>
+                                <svg class="button-svg" fill="#FFFFFF" viewBox="0 0 520 520" lwc-1tsr6p0f0fe="">
+                                    <path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z" lwc-1tsr6p0f0fe=""></path></svg>
+                                Cancel
+                            </button>
+                            <button type="button" class="button next" onclick={editTemplateDetails}>
+                                <svg class="button-svg" viewBox="0 0 520 520" lwc-1tsr6p0f0fe="">
+                                    <path d="M371 40v136c0 10-8 19-19 19H139c-10 0-19-8-19-19V40H80a40 40 0 00-40 40v360a40 40 0 0040 40h360a40 40 0 0040-40V112l-72-72zm70 381c0 10-8 19-19 19H99c-10 0-19-8-19-19V254c0-10 8-19 19-19h323c10 0 19 8 19 19zM248 136c0 10 8 19 19 19h46c10 0 19-8 19-19V40h-83z" lwc-1tsr6p0f0fe="" fill="white"></path></svg>
+                                    Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="defaultValues" if:true={generateDocument}>
+                    <c-generate-document 
+                        object-api-name={objectName} 
+                        called-from-where="defaults" 
+                        template-type-from-parent="Google Doc Template" 
+                        template-id-from-parent={templateId} 
+                        object-name-from-parent={objectName} 
+                        template-name-from-parent={templateRecord.Template_Name__c}>
+                    </c-generate-document>
+                </div>
+            </template>
+        </div>
+
+        <div class="section" lwc:if={showPopup}>
+            <div class="main">
+                <div class="firstRow">
+                    <div class="title">Select Google Document</div>
+                    <div class="profile" lwc:if={profile}>
+                        <div class="userData">
+                            <div class="username">{profile.username}</div>
+                            <div class="email">{profile.email}</div>
+                        </div>
+                        <img src={profile.photolink} alt="" srcset="" class="profileIcon" />
+                    </div>
+                </div>
+                <div class="secondRow">
+                    <div class="seachContainer">
+                        <svg class="iconSection" viewBox="0 0 44 44" fill="none">
+                            <path d="M21 29C25.4183 29 29 25.4183 29 21C29 16.5817 25.4183 13 21 13C16.5817 13 13 16.5817 13 21C13 25.4183 16.5817 29 21 29Z" stroke="#ABB7C2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M31 31.0002L26.7 26.7002" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <input class="searchInput" placeholder="Search..." type="text" onkeyup={handleSearch} value={serachString} />
+                    </div>
+                    <div class="refresh-div" onclick={refreshDocs}>
+                        <svg class="refresh" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 3L15.6 3C15.2686 3 15 3.26863 15 3.6V3.6L15 9" stroke="#00AEFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M15.5 3.5C18.7983 4.80851 21 8.29825 21 12C21 16.8715 16.9706 21 12 21C7.02944 21 3 16.8715 3 12C3 8.73514 4.80989 5.52512 7.5 4" stroke="#00AEFF" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                </div>
+                <hr style="margin: 0 2%" />
+                <template if:true={templates}>
+                    <div class="documents" lwc:if={templates.length}>
+                        <template for:each={templates} for:item="template">
+                            <div class="docs-container hover-effect" key={template.id} data-id={template.id} onclick={handleTemplateClick}>
+                                <div class="docFirstRow">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 51" fill="none" class="small">
+                                        <path d="M3.5625 0C1.59499 0 0 1.55683 0 3.47727V47.5227C0 49.4432 1.59499 51 3.5625 51H34.4375C36.405 51 38 49.4432 38 47.5227V13.9091L23.75 0H3.5625Z" fill="#4E8DF5" />
+                                        <path d="M3.5625 51.0001C1.59499 51.0001 0 49.4433 0 47.5228V46.9433C0 48.8637 1.59499 50.4206 3.5625 50.4206H34.4375C36.405 50.4206 38 48.8637 38 46.9433V47.5228C38 49.4433 36.405 51.0001 34.4375 51.0001H3.5625Z" fill="#417EE9" />
+                                        <path d="M3.5625 0C1.59499 0 0 1.55683 0 3.47727V4.05682C0 2.13637 1.59499 0.579545 3.5625 0.579545H24.3438L23.75 0H3.5625Z" fill="#639AF6" />
+                                        <path d="M38.0001 25.7899V13.9092L35.9219 11.8808H25.9002C25.1068 11.8808 24.7094 12.8172 25.2705 13.3648L38.0001 25.7899Z" fill="url(#paint0_linear_1450_51)" />
+                                        <path d="M23.75 0L38 13.9091H27.3125C25.345 13.9091 23.75 12.3523 23.75 10.4318V0Z" fill="#A6C5FA" />
+                                        <path d="M28.5 25.5H9.5V27.8182H28.5V25.5Z" fill="white" />
+                                        <path d="M28.5 30.1364H9.5V32.4545H28.5V30.1364Z" fill="white" />
+                                        <path d="M9.5 34.7727H28.5V37.0909H9.5V34.7727Z" fill="white" />
+                                        <path d="M23.75 39.4091H9.5V41.7273H23.75V39.4091Z" fill="white" />
+                                        <defs>
+                                            <linearGradient id="paint0_linear_1450_51" x1="30.8751" y1="25.7899" x2="30.8751" y2="11.591" gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#4E8DF5" />
+                                                <stop offset="1" stop-color="#3D6ACD" />
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div class="docName">{template.name}</div>
+                                </div>
+                                <div class="docSecondRow">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 51" fill="none" class="big">
+                                        <path d="M3.5625 0C1.59499 0 0 1.55683 0 3.47727V47.5227C0 49.4432 1.59499 51 3.5625 51H34.4375C36.405 51 38 49.4432 38 47.5227V13.9091L23.75 0H3.5625Z" fill="#4E8DF5" />
+                                        <path d="M3.5625 51.0001C1.59499 51.0001 0 49.4433 0 47.5228V46.9433C0 48.8637 1.59499 50.4206 3.5625 50.4206H34.4375C36.405 50.4206 38 48.8637 38 46.9433V47.5228C38 49.4433 36.405 51.0001 34.4375 51.0001H3.5625Z" fill="#417EE9" />
+                                        <path d="M3.5625 0C1.59499 0 0 1.55683 0 3.47727V4.05682C0 2.13637 1.59499 0.579545 3.5625 0.579545H24.3438L23.75 0H3.5625Z" fill="#639AF6" />
+                                        <path d="M38.0001 25.7899V13.9092L35.9219 11.8808H25.9002C25.1068 11.8808 24.7094 12.8172 25.2705 13.3648L38.0001 25.7899Z" fill="url(#paint0_linear_1450_51)" />
+                                        <path d="M23.75 0L38 13.9091H27.3125C25.345 13.9091 23.75 12.3523 23.75 10.4318V0Z" fill="#A6C5FA" />
+                                        <path d="M28.5 25.5H9.5V27.8182H28.5V25.5Z" fill="white" />
+                                        <path d="M28.5 30.1364H9.5V32.4545H28.5V30.1364Z" fill="white" />
+                                        <path d="M9.5 34.7727H28.5V37.0909H9.5V34.7727Z" fill="white" />
+                                        <path d="M23.75 39.4091H9.5V41.7273H23.75V39.4091Z" fill="white" />
+                                        <defs>
+                                            <linearGradient x1="30.8751" y1="25.7899" x2="30.8751" y2="11.591" gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#4E8DF5" />
+                                                <stop offset="1" stop-color="#3D6ACD" />
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <div class="docThirdRow">
+                                    <div class="size">{template.size}</div>
+                                    <div class="date">Date: {template.createdTime}</div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <template if:false={templates.length}>
+                        <div class="emptySearch">
+                            <svg class="emptyIcon" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <ellipse opacity="0.1" cx="90" cy="174.6" rx="90" ry="5.4" fill="#00AEFF" />
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M43.2 45C43.2 39.0353 48.0353 34.2 54 34.2H104.324C104.678 34.2 105.031 34.2174 105.381 34.2518V58.4196C105.381 62.3961 108.604 65.6196 112.581 65.6196H135V110.38C133.26 110 131.454 109.8 129.6 109.8C115.682 109.8 104.4 121.082 104.4 135C104.4 139.12 105.389 143.009 107.142 146.443H54C48.0353 146.443 43.2 141.608 43.2 135.643V45ZM109.38 150.043H54C46.0471 150.043 39.6 143.596 39.6 135.643V45C39.6 37.0471 46.0471 30.6 54 30.6H104.324C108.143 30.6 111.806 32.1171 114.506 34.8176L134.382 54.6939C137.083 57.3944 138.6 61.0571 138.6 64.8762V65.4916L138.6 65.6196H138.6V111.455C148.073 115.078 154.8 124.253 154.8 135C154.8 148.918 143.518 160.2 129.6 160.2C121.321 160.2 113.974 156.208 109.38 150.043ZM59.9272 56.3272C60.6301 55.6242 61.7698 55.6242 62.4728 56.3272L68.85 62.7044L75.2272 56.3272C75.9301 55.6242 77.0698 55.6242 77.7728 56.3272C78.4757 57.0301 78.4757 58.1698 77.7728 58.8728L71.3956 65.25L77.7728 71.6272C78.4757 72.3301 78.4757 73.4698 77.7728 74.1728C77.0698 74.8757 75.9301 74.8757 75.2272 74.1728L68.85 67.7956L62.4728 74.1728C61.7698 74.8757 60.6301 74.8757 59.9272 74.1728C59.2242 73.4698 59.2242 72.3301 59.9272 71.6272L66.3044 65.25L59.9272 58.8728C59.2242 58.1698 59.2242 57.0301 59.9272 56.3272ZM59.4 90.9C59.4 88.4147 61.4147 86.4 63.9 86.4H90.9C93.3853 86.4 95.4 88.4147 95.4 90.9C95.4 93.3853 93.3853 95.4 90.9 95.4H63.9C61.4147 95.4 59.4 93.3853 59.4 90.9ZM63.9 90C63.4029 90 63 90.4029 63 90.9C63 91.397 63.4029 91.8 63.9 91.8H90.9C91.397 91.8 91.8 91.397 91.8 90.9C91.8 90.4029 91.397 90 90.9 90H63.9ZM63.9 100.8C61.4147 100.8 59.4 102.815 59.4 105.3C59.4 107.785 61.4147 109.8 63.9 109.8H114.3C116.785 109.8 118.8 107.785 118.8 105.3C118.8 102.815 116.785 100.8 114.3 100.8H63.9ZM63 105.3C63 104.803 63.4029 104.4 63.9 104.4H114.3C114.797 104.4 115.2 104.803 115.2 105.3C115.2 105.797 114.797 106.2 114.3 106.2H63.9C63.4029 106.2 63 105.797 63 105.3ZM144.147 45.4063C142.965 43.7288 140.837 43.0043 138.877 43.6125C135.81 44.5643 134.562 48.2303 136.411 50.8557L140.334 56.4241C141.55 58.1499 142.208 60.2066 142.22 62.3176L142.258 69.1606C142.273 71.778 144.405 73.8888 147.022 73.8773C149.643 73.8657 151.757 71.7312 151.744 69.1107L151.708 61.6782C151.69 58.0467 150.559 54.508 148.467 51.5392L144.147 45.4063ZM139.944 47.0507C140.412 46.9053 140.921 47.0785 141.204 47.4796L145.524 53.6126C147.192 55.9795 148.094 58.8007 148.108 61.696L148.144 69.1285C148.148 69.7601 147.638 70.2745 147.006 70.2773C146.375 70.2801 145.862 69.7714 145.858 69.1405L145.82 62.2975C145.804 59.451 144.917 56.6778 143.277 54.3508L139.354 48.7824C138.912 48.1547 139.211 47.2783 139.944 47.0507ZM108 135C108 123.071 117.671 113.4 129.6 113.4C141.529 113.4 151.2 123.071 151.2 135C151.2 146.929 141.529 156.6 129.6 156.6C117.671 156.6 108 146.929 108 135ZM125.1 123.3C125.1 120.815 127.115 118.8 129.6 118.8C132.085 118.8 134.1 120.815 134.1 123.3V134.1C134.1 136.585 132.085 138.6 129.6 138.6C127.115 138.6 125.1 136.585 125.1 134.1V123.3ZM129.6 122.4C129.103 122.4 128.7 122.803 128.7 123.3V134.1C128.7 134.597 129.103 135 129.6 135C130.097 135 130.5 134.597 130.5 134.1V123.3C130.5 122.803 130.097 122.4 129.6 122.4ZM129.6 151.2C127.115 151.2 125.1 149.185 125.1 146.7C125.1 144.215 127.115 142.2 129.6 142.2C132.085 142.2 134.1 144.215 134.1 146.7C134.1 149.185 132.085 151.2 129.6 151.2ZM128.7 146.7C128.7 147.197 129.103 147.6 129.6 147.6C130.097 147.6 130.5 147.197 130.5 146.7C130.5 146.203 130.097 145.8 129.6 145.8C129.103 145.8 128.7 146.203 128.7 146.7Z" fill="#00AEFF" />
+                            </svg>
+                            <div class="empty-text1">Search results not found...</div>
+                        </div>
+                    </template>
+                </template>
+
+                <template if:true={allTemplates}>
+                    <template if:false={allTemplates.length}>
+                        <div class="emptySearch">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="emptyIcon" viewBox="0 0 160 161" fill="none">
+                                <circle cx="80" cy="80" r="80" fill="#DFEAFD" />
+                                <path d="M63.2612 89H97.7382C100.644 89 102.999 86.6445 102.999 83.7388V40.7038L92.6149 31H63.2612C60.3555 31 58 33.3555 58 36.2612V83.7388C58 86.6445 60.3555 89 63.2612 89Z" fill="white" />
+                                <path d="M92.6157 31L103 40.7038H92.6157V31Z" fill="#00AEFF" />
+                                <path d="M95 44H66V45.6057H95V44ZM95 50.1309H66V51.7366H95V50.1309ZM95 56.2632H66V57.8689H95V56.2632ZM95 62.3941H66V64H95V62.3941Z" fill="#00AEFF" />
+                                <path d="M82.8385 86.6429L113.963 99.9338C116.636 101.075 119.818 99.875 121.072 97.2536L140.138 57.387L135.009 44.4025L108.462 33.0662C105.789 31.925 102.607 33.125 101.353 35.7464L80.2699 79.8304C79.0163 82.4518 80.1663 85.5018 82.8385 86.6429Z" fill="white" />
+                                <path d="M135.681 44.7047L140.654 57.6331L131.335 53.5217L135.681 44.7047Z" fill="#00AEFF" />
+                                <path d="M130.283 59.2559L104 47L103.321 48.4552L129.604 60.7111L130.283 59.2559ZM127.692 64.8124L101.409 52.5565L100.73 54.0117L127.013 66.2676L127.692 64.8124ZM125.1 70.3702L98.8173 58.1142L98.1388 59.5694L124.422 71.8254L125.1 70.3702ZM122.509 75.9267L96.2263 63.6707L95.5476 65.1262L121.831 77.3821L122.509 75.9267Z" fill="#00AEFF" />
+                                <path d="M46.1869 100.068L77.5475 86.3147C80.2085 85.1477 81.3193 82.0912 80.0286 79.4879L60.4088 39.9172L46.5362 35.1686L19.8183 46.8858C17.1572 48.0528 16.0464 51.1093 17.3371 53.7125L39.0315 97.4674C40.3223 100.071 43.5258 101.235 46.1869 100.068Z" fill="white" />
+                                <path d="M46.5366 35.1685L60.4092 39.9171L50.9483 44.0662L46.5366 35.1685Z" fill="#00AEFF" />
+                                <path d="M55.8878 46L30 59.0699L30.7236 60.5033L56.6114 47.4333L55.8878 46ZM58.6509 51.473L32.7631 64.5429L33.4868 65.9762L59.3746 52.9063L58.6509 51.473ZM61.4146 56.9471L35.5269 70.0171L36.2505 71.4504L62.1383 58.3805L61.4146 56.9471ZM64.1778 62.4201L38.29 75.49L39.0137 76.9236L64.9015 63.8536L64.1778 62.4201Z" fill="#00AEFF" />
+                                <g clip-path="url(#clip0_1521_442)">
+                                    <path d="M123.108 77.1611H37.9813C36.8329 77.1618 35.7317 77.5912 34.9196 78.3549C34.1075 79.1187 33.651 80.1543 33.6503 81.2344V154.69C33.651 155.77 34.1075 156.806 34.9196 157.57C35.7317 158.333 36.8329 158.763 37.9813 158.763H123.108C124.256 158.763 125.357 158.333 126.17 157.57C126.982 156.806 127.438 155.77 127.439 154.69V81.2344C127.438 80.1543 126.982 79.1185 126.17 78.3548C125.357 77.591 124.256 77.1617 123.108 77.1611Z" fill="white" />
+                                    <path d="M117.504 133.238H43.5862C41.1944 133.238 39.2551 131.414 39.2551 129.165V64.2627C39.2551 62.0133 41.1944 60.1895 43.5862 60.1895H117.504C119.896 60.1895 121.835 62.0133 121.835 64.2627V129.165C121.835 131.414 119.896 133.238 117.504 133.238Z" fill="#00AEFF" />
+                                    <path d="M40.6264 130.454V65.5524C40.6264 63.3029 42.5656 61.4791 44.9574 61.4791H118.875C119.72 61.4791 120.505 61.71 121.171 62.1033C120.405 60.955 119.051 60.1895 117.504 60.1895H43.5862C41.1944 60.1895 39.2551 62.0133 39.2551 64.2627V129.165C39.2551 130.62 40.0691 131.894 41.2901 132.614C40.8719 131.987 40.6264 131.249 40.6264 130.454V130.454Z" fill="url(#paint0_linear_1521_442)" />
+                                    <path d="M108.409 73.9022H52.6815V76.8891H108.409V73.9022ZM108.409 85.3069H52.6815V88.2938H108.409V85.3069ZM108.409 96.7142H52.6815V99.701H108.409V96.7142ZM108.409 108.119H52.6815V111.106H108.409V108.119Z" fill="white" />
+                                    <path d="M59.3224 98.4783L73.3259 111.649H59.3224V98.4783Z" fill="url(#paint1_linear_1521_442)" />
+                                    <path d="M127.439 112.735V82.4324L121.835 77.1611V112.735H127.439V112.735Z" fill="white" />
+                                    <path d="M134.004 115.476L127.966 155.676C127.664 157.686 125.835 159.179 123.677 159.179H37.4126C35.2547 159.179 33.4259 157.686 33.124 155.676L24.9641 101.356C24.596 98.9041 26.6194 96.7131 29.2527 96.7131H55.893C58.0509 96.7131 59.8797 98.2068 60.1816 100.216L61.2509 107.33C61.5528 109.339 63.3816 110.833 65.5395 110.833H129.716C132.349 110.833 134.372 113.024 134.004 115.476H134.004Z" fill="url(#paint2_linear_1521_442)" />
+                                    <path d="M112.61 141.248H48.4805C48.129 141.248 47.7896 141.128 47.5259 140.909C47.2622 140.691 47.0922 140.389 47.048 140.061L46.2456 134.087C46.2201 133.895 46.2381 133.701 46.2985 133.517C46.3588 133.333 46.46 133.163 46.5955 133.019C46.731 132.874 46.8976 132.759 47.0842 132.679C47.2709 132.6 47.4733 132.559 47.6781 132.559H113.412C113.617 132.559 113.819 132.6 114.006 132.679C114.193 132.759 114.359 132.874 114.495 133.019C114.63 133.163 114.731 133.333 114.792 133.517C114.852 133.701 114.87 133.895 114.845 134.087L114.042 140.061C113.998 140.389 113.828 140.691 113.564 140.909C113.301 141.128 112.961 141.248 112.61 141.248Z" fill="white" />
+                                </g>
+                                <defs>
+                                    <linearGradient x1="83.0846" y1="99.0978" x2="31.668" y2="44.4268" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="white" />
+                                    </linearGradient>
+                                    <linearGradient x1="68.5744" y1="113.762" x2="52.6851" y2="96.8675" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#C2CECE" stop-opacity="0" />
+                                        <stop offset="0.179" stop-color="#AFBCBC" stop-opacity="0.179" />
+                                        <stop offset="1" stop-color="#5B6A6A" />
+                                    </linearGradient>
+                                    <linearGradient x1="79.484" y1="96.7131" x2="79.484" y2="159.179" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#EEF0F4" />
+                                        <stop offset="0.927" stop-color="#00AEFF" />
+                                    </linearGradient>
+                                    <clipPath>
+                                        <rect width="109.126" height="102.632" fill="white" transform="translate(24.9207 58.3684)" />
+                                    </clipPath>
+                                </defs>
+                            </svg>
+
+                            <div class="empty-text1">No Document files yet...</div>
+                            <div class="empty-text2">Please upload documents in your Google Drive.</div>
+                        </div>
+                    </template>
+                </template>
+                <hr style="margin: 0 2%" />
+                <div class="footer">
+                    <button type="button" class="button cancel" onclick={cancel}>
+                        <svg class="button-svg" fill="#FFFFFF" viewBox="0 0 520 520" lwc-1tsr6p0f0fe="">
+                            <g lwc-1tsr6p0f0fe=""><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z" lwc-1tsr6p0f0fe=""></path></g></svg
+                        >Cancel
+                    </button>
+                    <button type="button" class="button next" onclick={next} disabled>
+                        <svg class="button-svg" viewBox="0 0 520 520" lwc-1tsr6p0f0fe="">
+                            <g lwc-1tsr6p0f0fe=""><path d="M371 40v136c0 10-8 19-19 19H139c-10 0-19-8-19-19V40H80a40 40 0 00-40 40v360a40 40 0 0040 40h360a40 40 0 0040-40V112l-72-72zm70 381c0 10-8 19-19 19H99c-10 0-19-8-19-19V254c0-10 8-19 19-19h323c10 0 19 8 19 19zM248 136c0 10 8 19 19 19h46c10 0 19-8 19-19V40h-83z" lwc-1tsr6p0f0fe="" fill="white"></path></g></svg
+                        >Next
+                    </button>
+                </div>
+            </div>
+        </div>
+        <c-document-loader 
+            display={isSpinner} 
+            fix-top="true" 
+            label={loaderLabel}>
+        </c-document-loader>
+        <c-message-popup 
+            onconfirmation={cancel}>
+        </c-message-popup>>
+        <c-template-preview-modal 
+            lwc:if={isPreview} 
+            templateid={templateId} 
+            objectname={objectName} 
+            objectlabel={objectlabel} 
+            onclosepreview={closeTemplatePreview} 
+            template-type="Google Doc Template">
+        </c-template-preview-modal>
+        <c-child-object-table-builder></c-child-object-table-builder>
+    </div>
+</template>

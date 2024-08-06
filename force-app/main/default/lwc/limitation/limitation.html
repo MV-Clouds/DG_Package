@@ -1,0 +1,37 @@
+<template>
+
+    <lightning-accordion allow-multiple-sections-open
+                         onsectiontoggle={handleSectionToggle}
+                         active-section-name={activeSections}>
+        <lightning-accordion-section name="A" label="Uploading file">
+            <div class="content">
+            <p>GoogleDrive</p>
+            <p>Currently there is limit of 38Mb for storing file.</p>
+            <br>
+            <p>OneDrive</p>
+            <p>Currently there is limit of 38Mb for storing file.</p>
+            <br>
+            <p>Dropbox</p>
+            <p>Currently there is limit of 38Mb for storing file.</p>
+            <br>
+            <p>AWS</p>
+            <p>Currently there is limit of 10Mb of file upload.</p>
+            <p>If you want to Increase it to 60Mb use Named credentials.</p>
+            </div>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="B" label="Generating document">
+            <div class="content">
+            <p>CSV/XLS File</p>
+            <p>Currently CSV file larger than 38Mb cannot be uploaded to any external storage it can only be downloaded.</p>
+            <p>PDF/DOCX File</p>
+            <p>It has limit of 20 Page and file larger than 38Mb cannot be upload to any external storage it can only be downloaded.</p>
+            </div>
+        </lightning-accordion-section>
+
+        <!-- <lightning-accordion-section name="C" label="Accordion Title C">
+            <p>This is the content area for section C.</p>
+            <p>Nulla ornare ipsum felis, vel aliquet dui blandit vel. Integer accumsan velit quis mauris pharetra, nec sollicitudin dui eleifend. Cras condimentum odio mi, nec ullamcorper arcu ullamcorper sed. Proin massa arcu, rutrum a ullamcorper nec, hendrerit in sem. Etiam tempus eros ut lorem tincidunt, id condimentum nulla molestie. Morbi hendrerit elit pretium, ultrices neque non, ullamcorper justo. Quisque vel nisi eget eros efficitur semper. Nulla pulvinar venenatis quam vitae efficitur. Nam facilisis sollicitudin quam ac imperdiet.</p>
+        </lightning-accordion-section> -->
+    </lightning-accordion> 
+</template>

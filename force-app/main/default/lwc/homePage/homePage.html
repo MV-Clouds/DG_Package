@@ -1,0 +1,356 @@
+<template>
+  <div class="mainDiv_Home" data-name="toastSelector" onload={intialRender} style={loadStyle}>
+    <div class="outerDiv">
+        <div class="contentSection">
+            <div class="upperSection">
+              <div if:false={isEmptyState} class="createNOption">
+                <div class="createSection" title="Create" onclick={toggleCreateNEwTemplate}>
+                  <div class="createTemplateBorder">
+                    <img class="createTemplateImg" src={createTemplateImg} />
+                  </div>
+                </div>
+                <div class="optionSection">
+                  <div class="optionBtn" title="Filters" onclick={toggleFilterOptions}>
+                    <template lwc:if={isDisplayOption}>
+                      <svg class="optionCloseBtn" viewBox="0 0 22 22" >
+                        <path stroke-width="2" fill-rule="evenodd" clip-rule="evenodd" d="M20.7334 2.5537C20.8179 2.46918 20.885 2.36885 20.9307 2.25843C20.9765 2.14801 21 2.02966 21 1.91013C21 1.79061 20.9765 1.67226 20.9307 1.56184C20.885 1.45142 20.8179 1.35109 20.7334 1.26657C20.6489 1.18206 20.5486 1.11502 20.4382 1.06928C20.3277 1.02354 20.2094 1 20.0899 1C19.9703 1 19.852 1.02354 19.7416 1.06928C19.6311 1.11502 19.5308 1.18206 19.4463 1.26657L11 9.71469L2.5537 1.26657C2.46918 1.18206 2.36885 1.11502 2.25843 1.06928C2.14801 1.02354 2.02966 1 1.91013 1C1.79061 1 1.67226 1.02354 1.56184 1.06928C1.45142 1.11502 1.35109 1.18206 1.26657 1.26657C1.18206 1.35109 1.11502 1.45142 1.06928 1.56184C1.02354 1.67226 1 1.79061 1 1.91013C1 2.02966 1.02354 2.14801 1.06928 2.25843C1.11502 2.36885 1.18206 2.46918 1.26657 2.5537L9.71469 11L1.26657 19.4463C1.09589 19.617 1 19.8485 1 20.0899C1 20.3312 1.09589 20.5627 1.26657 20.7334C1.43726 20.9041 1.66875 21 1.91013 21C2.15152 21 2.38301 20.9041 2.5537 20.7334L11 12.2853L19.4463 20.7334C19.617 20.9041 19.8485 21 20.0899 21C20.3312 21 20.5627 20.9041 20.7334 20.7334C20.9041 20.5627 21 20.3312 21 20.0899C21 19.8485 20.9041 19.617 20.7334 19.4463L12.2853 11L20.7334 2.5537Z"/>
+                      </svg>
+                    </template>
+                    <template lwc:else>
+                      <svg class="optionOpeneBtn" viewBox="0 0 50 50" fill="none"><path d="M43.7498 8.3335H29.1665"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.8333 8.3335H6.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M43.75 25H25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.6667 25H6.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M43.7502 41.6665H33.3335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 41.6665H6.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M29.1665 4.1665V12.4998" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.6665 20.8335V29.1668" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.3335 37.5V45.8333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </template>
+                  </div>
+                  <template lwc:if={dataLoaded}>
+                    <div class="optionContainer">
+                      <div class="optionContainer_Sub">
+                        <div class="sortOption">
+                          <div class="lableBox">
+                            <div class="lableText">Sort By</div>
+                          </div>
+                          <div class="sortSection">
+                            <div class="sortFieldDrop">
+                                <c-custom-combobox
+                                    label="Select Field To Sort"
+                                    options={sortingFiledList}
+                                    placeholder="Select Field To Sort"
+                                    onselect={onOptionSelect}
+                                    value={defaultFieldToSort}
+                                    multiselect="false"
+                                    searchable="false"
+                                    dropdown-position="right"
+                                    data-name="fieldToSort"
+                                ></c-custom-combobox>
+                            </div>
+                            <div class="asc_desc_section">
+                              <input type="radio" id="ascBtn" value="asc" onchange={setSortingOrder} data-value="asc" data-name="filterSortAS" name="sortas" style="display: none;" />
+                              <label for="ascBtn">
+                                <div class="asc_descBtn" title="Acceding">
+                                  <svg class="asc_desc_SVG" viewBox="0 0 32 32"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M30,11.67H29L25.71.71s0,0-.05-.08a.61.61,0,0,0-.09-.18c0-.06-.08-.1-.12-.15L25.31.19a.69.69,0,0,0-.19-.1L25,0h-.58l-.08,0a.69.69,0,0,0-.19.1.69.69,0,0,0-.13.11l-.13.15a1,1,0,0,0-.09.18s0,.05-.05.08l-3.28,11h-1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2h-.41l.9-3H26l.9,3H26.5a1,1,0,0,0,0,2H30a1,1,0,0,0,0-2Zm-5.91-5,.66-2.19.66,2.19Z"></path> <path d="M7.25,0a1,1,0,0,0-1,1V28.67l-3.56-3.4a1,1,0,0,0-1.42,0,1,1,0,0,0,0,1.41l5.25,5c0,.05.1.06.15.1a.86.86,0,0,0,.16.1.94.94,0,0,0,.76,0,1.51,1.51,0,0,0,.17-.1s.1-.06.14-.1l5.25-5a1,1,0,0,0,0-1.41,1,1,0,0,0-1.42,0l-3.56,3.4V1A1,1,0,0,0,7.25,0Z"></path> <path d="M30,28.33a1,1,0,0,0-1,1V30H21.75l9-10a1,1,0,0,0,.17-1.07,1,1,0,0,0-.91-.6H19.5a1,1,0,0,0-1,1V21a1,1,0,0,0,2,0v-.67h7.26l-9,10A1,1,0,0,0,19.5,32H30a1,1,0,0,0,1-1V29.33A1,1,0,0,0,30,28.33Z"></path> </g></svg>
+                                </div>
+                              </label>
+                              <input type="radio" id="descBtn" value="desc" onchange={setSortingOrder} data-value="desc" data-name="filterSortAS" name="sortas" style="display: none;" checked/>
+                              <label for="descBtn">
+                                <div class="asc_descBtn" title="Descending">
+                                  <svg class="asc_desc_SVG" viewBox="0 0 32 32" ><g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <path d="M30,29.88H29L25.71,18.93s0-.06-.05-.09a.76.76,0,0,0-.09-.18l-.12-.14-.14-.12-.19-.1-.08,0H25l-.2,0-.2,0h-.09l-.08,0-.19.1a.74.74,0,0,0-.13.12.64.64,0,0,0-.13.15.91.91,0,0,0-.09.17s0,.05-.05.09l-3.28,11h-1a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2h-.41l.9-3H26l.9,3H26.5a1,1,0,0,0,0,2H30a1,1,0,0,0,0-2Zm-5.91-5,.66-2.18.66,2.18Z"></path> <path d="M2.69,6.72,6.25,3.33V31a1,1,0,0,0,2,0V3.33l3.56,3.39A1,1,0,0,0,12.5,7a1,1,0,0,0,.73-.31,1,1,0,0,0,0-1.42L7.94.27A1.1,1.1,0,0,0,7.8.18a1.51,1.51,0,0,0-.17-.1,1,1,0,0,0-.76,0,.86.86,0,0,0-.16.1.75.75,0,0,0-.15.09l-5.25,5A1,1,0,1,0,2.69,6.72Z"></path> <path d="M30,10.12a1,1,0,0,0-1,1v.67H21.75l9-10A1,1,0,0,0,30.91.71,1,1,0,0,0,30,.12H19.5a1,1,0,0,0-1,1V2.79a1,1,0,0,0,2,0V2.12h7.26l-9,10a1,1,0,0,0-.17,1.07,1,1,0,0,0,.91.6H30a1,1,0,0,0,1-1V11.12A1,1,0,0,0,30,10.12Z"></path> </g></svg>
+                                </div>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="filertOptions">
+                          <div class="filertOptions_Sub">
+                            <div class="lableBox">
+                              <div class="lableText">Filter By</div>
+                            </div>
+                          </div>
+                          <div class="filertOptions_Sub2">
+                            <div class="objectFilterSection bottomBorder">
+                              <c-custom-combobox
+                                  label="Select the Object"
+                                  options={objectList}
+                                  placeholder="Select Objects to Filter..."
+                                  onselect={onOptionSelect}
+                                  multiselect="true"
+                                  searchable="true"
+                                  dropdown-position="right"
+                                  data-name="objectsToFilter"
+                              ></c-custom-combobox>
+                              <div class="objectPills">
+                                <template lwc:if={objPillToDisplay}>
+                                  <template for:each={objPillToDisplay} for:item="obj" for:index="index">
+                                    <div class="objPill" key={obj}>
+                                      <p class="objPillLabel">{obj.label}</p>
+                                      <svg width="15" height="15" onclick={removeSelectedObj} data-id="searchBox" data-value={obj.value} fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
+                                        <path d="M17.25 17.25 6.75 6.75"></path>
+                                        <path d="m17.25 6.75-10.5 10.5"></path>
+                                      </svg>
+                                    </div>
+                                  </template>
+                                </template>
+                                <template lwc:else>
+                                  <div class="objPillnone">Selected Objects list will display here...</div>
+                                </template>
+                              </div>
+                            </div>
+                            <div class="tempFilterSection bottomBorder">
+                              <label class="slds-form-element__label" style="width: 100%; padding: 0px; color:black;">Select Template Type</label>
+                              <template for:each={templateTypeList} for:item="temp" for:index="index">
+                                <lightning-input type="checkbox" label={temp.label} name="input1" key={temp.label}
+                                                  value={temp.value} data-name="TempTypeToFilter" data-index={index} onchange={onFilterCheckboxChange}></lightning-input>
+                              </template>
+                            </div>
+                            <div class="statusFilterSection bottomBorder">
+                              <label class="slds-form-element__label" style="width: 100%; padding: 0px; color:black;">Select Template Status</label>
+                              <div class="statusFilterInputs">
+                                <lightning-input type="checkbox" label="Active" name="tempStatus"
+                                                    value="true" data-name="TempStatusToFilter" onchange={onFilterCheckboxChange}></lightning-input>
+                                <lightning-input type="checkbox" label="Inactive" name="tempStatus"
+                                                    value="false" data-name="TempStatusToFilter" onchange={onFilterCheckboxChange}></lightning-input>
+                              </div>
+                            </div>
+                            <div class="dateFilterSection">
+                              <div class="dateSection">
+                                <div class="rangeSelection datafields">
+                                  <label class="slds-form-element__label" data-label="date" style="width: 100%; padding-left: 4px; color:black;">Select Date Field</label>
+                                  <c-custom-combobox
+                                      class="dateCombo"
+                                      options={filterDateTypeList}
+                                      placeholder="Select Date Field to Filter..."
+                                      onselect={onOptionSelect}
+                                      multiselect="false"
+                                      searchable="false"
+                                      dropdown-position="right"
+                                      required="false"
+                                      data-name="dateToFilter"
+                                  ></c-custom-combobox>
+                                </div>
+                                <div class="rangeSelection">
+                                  <label class="slds-form-element__label" data-label="fromDate" style="width: 100%; padding-left: 4px; color:black;">From</label>
+                                  <div class="fromTo">
+                                    <lightning-input type="date" data-name="fromDate" value={filterOpts.fromDate} variant="label-hidden" date-style="short" placeholder="From..." onchange={ChangeDates}></lightning-input>
+                                  </div>
+                                </div>
+                                <div class="rangeSelection">
+                                  <label class="slds-form-element__label" data-label="toDate" style="width: 100%; padding-left: 4px; color:black;">To</label>
+                                  <div class="fromTo">
+                                    <lightning-input type="date" data-name="toDate" value={filterOpts.toDate} variant="label-hidden" date-style="short" placeholder="To..." onchange={ChangeDates}></lightning-input>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="refrenceTimeSection">
+                                <template for:each={refrenceTimeList} for:item="refrenceTime" for:index="index">
+                                  <input type="radio" id={refrenceTime.value} data-value={refrenceTime.value} name="refrenceTime" data-name="refrenceTime" onchange={referencePillClick} style="display: none;" key={refrenceTime}/>
+                                  <label for={refrenceTime.value} key={refrenceTime}>
+                                    <div class="refrencePill">
+                                      {refrenceTime.label}
+                                    </div>
+                                  </label>
+                                </template>
+                                <template lwc:if={clearRangeDates}>
+                                  <div class="clear_refrencePills" onclick={clearSelectedDateAndRange}>
+                                    <svg viewBox="0 0 24 24">
+                                      <path d="m18.75 6.82-1.57-1.57L12 10.43 6.82 5.25 5.25 6.82 10.43 12l-5.18 5.18 1.57 1.57L12 13.57l5.18 5.18 1.57-1.57L13.57 12l5.18-5.18Z"></path>
+                                    </svg>
+                                  </div>
+                                </template>
+                              </div>
+                            </div>
+                            <div class="saveSection">
+                              <button title="Clear Filters" onclick={clearFilterOpts} disabled={enableFilterBtn}>
+                                <svg viewBox="0 0 520 520" ><g><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z"></path></g></svg>
+                                Clear
+                              </button>
+                              <button class="apply" title="Apply Filters" onclick={applyFilter} disabled={enableFilterBtn}>
+                                <svg viewBox="0 0 24 24" fill="none"><g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <path d="M5 14L9 17L18 6" stroke="#ffffff" stroke-width="2"></path> </g></svg>
+                                Apply
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+              <img class="upperSection_Logo" src={DocGeniusLogo} />
+              <div if:false={isEmptyState} class="searchSection searchSection_Variables">
+                <div class="seachContainer">
+                  <svg class="iconSection" viewBox="0 0 44 44" fill="none">
+                    <path d="M21 29C25.4183 29 29 25.4183 29 21C29 16.5817 25.4183 13 21 13C16.5817 13 13 16.5817 13 21C13 25.4183 16.5817 29 21 29Z" stroke="#ABB7C2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M31 31.0002L26.7 26.7002" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <input class="searchInput" placeholder="Search..." type="text" onkeyup={searchTemplates} />
+                </div>
+              </div>
+            </div>
+            <div class="templateListSection">
+                <div  lwc:if={isEmptyState} class="emptyStateDiv">
+                  <div class="emptyStateText">
+                    It's time to create your first Template
+                  </div>
+                  <img class="emptyStateImg" src={emptyStateImg} onloadeddata={emptyStateImgLoad} />
+                  <div class="Empty_CreateNewBtn" onclick={toggleCreateNEwTemplate}>
+                    <div class="empty_createNewIMg">
+                      <img class="createTemplateImg" src={createTemplateImg} />
+                    </div>
+                    <div class="Empty_createNewText">Click to Create the Template</div>
+                </div>
+                </div>
+              <div lwc:else class="template_Sub" onscroll={loadTemplates}>
+                <template for:each={displayedTemplateList} for:item="template" for:index="index">
+                  <div class="templateCardContainer" key={template.Id}>
+                    <div class="tempNumerSec" data-disable={template.disabledEdit}>
+                      {template.srNo}
+                    </div>
+                    <div class="tempDetailSection">
+                      <div class="tempName">
+                        <h1>{template.Template_Name__c}</h1>
+                      </div>
+                      <div class="tempDetailFields">
+                        <div class="tempObj tempField">
+                          <h5 class="fieldLable">Object Name</h5>
+                          <h5>:</h5>
+                          <p class="fieldValue">{template.Object_API_Name__c}</p>
+                        </div>
+                        <div class="tempField">
+                          <h5 class="fieldLable">Created Date</h5>
+                          <h5>:</h5>
+                          <!-- <p class="fieldValue">{template.CreateDate_Only}</p> -->
+                          <p class="fieldValue">
+                            <lightning-formatted-date-time value={template.CreatedDate} year="numeric" month="numeric" day="numeric" hour="2-digit"
+                            minute="2-digit"></lightning-formatted-date-time>
+                          </p>
+                          <!-- <h5 class="fieldLable">Template Type:</h5>
+                          <p class="fieldValue">{template.Template_Type__c}</p> -->
+                        </div>
+                        <div class="tempDecription tempField">
+                          <h5 class="fieldLable">Description</h5>
+                          <h5>:</h5>
+                          <template lwc:if={template.Description__c}>
+                            <div class="fieldValue" title={template.Description__c}>
+                              {template.Description__c}
+                              <!-- <div class="customToolTip top right">{template.Description__c}</div> -->
+                            </div>
+                          </template>
+                          <template lwc:else>
+                            <div class="fieldValue"> --- </div>
+                          </template>
+                        </div>
+                        <div class="tempField">
+                          <h5 class="fieldLable">Created By</h5>
+                          <h5>:</h5>
+                          <p class="fieldValue">{template.CreatedBy.Name}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="statusNversion" data-disable={template.disabledEdit}>
+                      <div class="tempToggle">
+                        <input class="checkBox checked" type="checkbox" data-status="checked" id={template.Id} data-id={template.Id} data-toggel={template.Id} 
+                              onchange={handleChangeStatus} style="display: none;" checked={template.Template_Status__c} disabled={template.disabledEdit}/>
+                        <label for={template.Id}> 
+                          <div class="toggleDiv">
+                            <div class="toggleBtnBg">
+                              <div class="StatusText">
+                                <span>Inactive</span>
+                                <span>Active</span>
+                              </div>
+                            </div>
+                          </div>
+                        </label>
+                      </div>
+                      <div class="tempVersion" title={template.Template_Type__c}>
+                        {template.Template_Type__c}
+                      </div>
+                    </div>
+                    <div class="tempBtnSection">
+                        <button class="previewBtn" title="Preview Template" data-id={template.Id} data-type={template.Template_Type__c} data-objapi={template.Object_API_Name__c} onclick={handlePreviewTemplate} disabled={template.disabledPreview}>
+                          <svg viewBox="0 0 32.00 32.00" transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)">
+                            <g stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g>
+                              <circle class="eye-circle" cx="22" cy="24" r="2"></circle>
+                              <path data-name="<inner path>" class="cls-1" style="fill: none;" d="M22,28a4,4,0,1,1,4-4A4.0039,4.0039,0,0,1,22,28Zm0-6a2,2,0,1,0,2,2A2.0027,2.0027,0,0,0,22,22Z"></path>
+                              <path class="eye" d="M29.7769,23.4785A8.64,8.64,0,0,0,22,18a8.64,8.64,0,0,0-7.7769,5.4785L14,24l.2231.5215A8.64,8.64,0,0,0,22,30a8.64,8.64,0,0,0,7.7769-5.4785L30,24ZM22,28a4,4,0,1,1,4-4A4.0045,4.0045,0,0,1,22,28Z"></path>
+                              <path d="M12,28H8V4h8v6a2.0058,2.0058,0,0,0,2,2h6v4h2V10a.9092.9092,0,0,0-.3-.7l-7-7A.9087.9087,0,0,0,18,2H8A2.0058,2.0058,0,0,0,6,4V28a2.0058,2.0058,0,0,0,2,2h4ZM18,4.4,23.6,10H18Z"></path>
+                              <rect data-name="<Transparent Rectangle>" class="cls-1" style="fill: none;" width="32" height="32"></rect>
+                            </g>
+                          </svg>
+                        </button>
+                        <button class="editBtn" title="Edit Template" data-id={template.Id} data-type={template.Template_Type__c} data-objapi={template.Object_API_Name__c} onclick={handleEditClick} disabled={template.disabledEdit}>
+                          <svg  viewBox="0 0 24 24" fill="none" >
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M13.7318 4.72055L16.545 1.92087C17.8118 0.660237 18.4452 0.029921 19.2278 0.00133292C19.2765 -0.000444308 19.3252 -0.000444308 19.3738 0.00133292C20.1565 0.029921 20.7898 0.660237 22.0566 1.92087L22.0566 1.92088C23.3346 3.19269 23.9736 3.8286 24.0025 4.61657C24.0043 4.66553 24.0043 4.71453 24.0025 4.76349C23.9736 5.55146 23.3346 6.18737 22.0566 7.45919L19.3006 10.2018C16.9968 8.8806 15.0807 6.98788 13.7318 4.72055ZM12.2753 6.16999L2.16182 16.2346C1.7346 16.6598 1.52099 16.8723 1.38046 17.1339C1.23993 17.3954 1.18055 17.6909 1.0618 18.2818L0.064242 23.2454C-0.00259064 23.578 -0.036007 23.7443 0.0585132 23.839C0.15303 23.9337 0.319357 23.9006 0.652004 23.8344L0.652026 23.8343L0.652043 23.8343L5.65484 22.8386C6.24284 22.7216 6.53684 22.6631 6.79749 22.5241C7.05815 22.3852 7.27063 22.1737 7.69559 21.7508L17.8371 11.6583C15.5852 10.2711 13.6846 8.39055 12.2753 6.16999Z"/>
+                          </svg>
+                        </button>
+                        <button class="cloneBtn" title="Clone Template" data-id={template.Id} data-type={template.Template_Type__c} data-objapi={template.Object_API_Name__c} onclick={cloneTemp} disabled={template.disabledClone}>
+                          <svg viewBox="0 0 23 24">
+                            <rect x="0.5" y="0.5" width="14" height="17" rx="2.5" fill="white" stroke="#00AEFF"/>
+                            <rect x="8.5" y="5.5" width="14" height="17" rx="2.5" fill="white" stroke="#00AEFF"/>
+                            <rect x="3" y="3" width="9" height="1" rx="0.5" fill="#00AEFF"/>
+                            <rect x="3" y="5" width="9" height="1" rx="0.5" fill="#00AEFF"/>
+                            <rect x="3" y="7" width="6" height="1" rx="0.5" fill="#00AEFF"/>
+                            <path d="M11.2605 11.3333C11.598 11.3333 11.86 11.4373 12.2113 11.6402L17.6484 15.1589C17.9033 15.3339 18 15.5086 18 15.6643C18 15.825 17.9033 15.9997 17.6484 16.1746L12.2113 19.6598C11.8185 19.8819 11.6118 20 11.274 20C10.7986 20 10.4543 19.7354 10.4543 19.419L10.4543 17H10.2543C5.29951 17 2 13.7403 2 10.25C2.00009 9.96646 2.07514 7 2.44002 7C2.73669 7 2.73709 8.39738 3.71432 10.25C4.47383 11.6899 7.58757 13.6899 10.2543 13.6899H10.4543V11.8857C10.4543 11.5693 10.7986 11.3333 11.2605 11.3333Z" fill="#00AEFF"/>
+                          </svg>
+                        </button>
+                        <button class="deleteBtn" title="Delete Template"  data-id={template.Id} data-objapi={template.Object_API_Name__c} onclick={handleDeleteTemplate}>
+                          <svg viewBox="0 0 12 16" fill="none">
+                            <path d="M10.7523 5.84348C10.515 5.84348 10.3183 6.0401 10.3183 6.2774V13.8372C10.3183 14.5491 9.73525 15.1322 9.02335 15.1322H3.8366C3.1247 15.1322 2.54161 14.5491 2.54161 13.8372V6.2774C2.54161 6.0401 2.34499 5.84348 2.10769 5.84348C1.87039 5.84348 1.67377 6.0401 1.67377 6.2774V13.8372C1.67377 15.0305 2.64331 16 3.8366 16H9.02335C10.2166 16 11.1862 15.0305 11.1862 13.8372V6.2774C11.1862 6.0401 10.9963 5.84348 10.7523 5.84348Z"/>
+                            <path d="M4.70446 13.8372V7.78936C4.70446 7.55206 4.50783 7.35544 4.27053 7.35544C4.03323 7.35544 3.83661 7.55206 3.83661 7.78936V13.8372C3.83661 14.0745 4.03323 14.2711 4.27053 14.2711C4.50783 14.2711 4.70446 14.0745 4.70446 13.8372Z"/>
+                            <path d="M6.86785 13.4817V7.43392C6.86785 7.19662 6.67123 7 6.43392 7C6.19662 7 6 7.19662 6 7.43392V13.4817C6 13.719 6.19662 13.9157 6.43392 13.9157C6.67801 13.9157 6.86785 13.719 6.86785 13.4817Z"/>
+                            <path d="M9.02336 13.8372V7.78936C9.02336 7.55206 8.82674 7.35544 8.58944 7.35544C8.35214 7.35544 8.15552 7.55206 8.15552 7.78936V13.8372C8.15552 14.0745 8.35214 14.2711 8.58944 14.2711C8.83352 14.2711 9.02336 14.0745 9.02336 13.8372Z"/>
+                            <path d="M11.9862 2.35853L11.776 1.5178C11.5997 0.826237 10.8946 0.399094 10.2031 0.575375L6.84693 1.4161L6.73844 0.982179C6.56216 0.290613 5.85704 -0.136531 5.16547 0.0397509C4.47391 0.216032 4.04676 0.921158 4.22305 1.61272L4.33153 2.04665L0.982179 2.88737C0.290613 3.06366 -0.136531 3.76878 0.0397509 4.46035L0.249933 5.30107C0.310953 5.5316 0.541475 5.67398 0.778777 5.61296L11.6811 2.88737C11.9048 2.82635 12.0472 2.58905 11.9862 2.35853ZM5.38243 0.880478C5.61296 0.826237 5.85026 0.961838 5.9045 1.19236L6.01298 1.62628L5.17225 1.83647L5.06377 1.40254C5.00953 1.17202 5.14513 0.934718 5.38243 0.880478ZM0.982179 4.66375L0.873698 4.24338C0.819457 4.01286 0.955058 3.77556 1.18558 3.72132L10.4065 1.4161C10.637 1.36186 10.8743 1.49746 10.9285 1.72798L11.037 2.14835L0.982179 4.66375Z"/>
+                          </svg>
+                        </button>
+                    </div>
+                  </div>
+                </template>
+                <div lwc:if={noResultFound} class="noSearchResult">
+                    <svg viewBox="0 0 280 300">
+                      <path d="M136.246 275.968C211.492 275.968 272.492 214.191 272.492 137.984C272.492 61.7776 211.492 0 136.246 0C60.9993 0 0 61.7776 0 137.984C0 214.191 60.9993 275.968 136.246 275.968Z" fill="#ECF3FE"/><path d="M229.852 33.5765C235.923 33.5765 240.844 28.5926 240.844 22.4446C240.844 16.2967 235.923 11.3127 229.852 11.3127C223.782 11.3127 218.86 16.2967 218.86 22.4446C218.86 28.5926 223.782 33.5765 229.852 33.5765Z" fill="#BACCE5"/><path d="M21.4778 69.983C26.9466 69.983 31.38 65.4931 31.38 59.9545C31.38 54.4159 26.9466 49.926 21.4778 49.926C16.009 49.926 11.5757 54.4159 11.5757 59.9545C11.5757 65.4931 16.009 69.983 21.4778 69.983Z" fill="#BACCE5"/><path d="M273.912 251.099C277.274 251.099 280 248.339 280 244.933C280 241.528 277.274 238.767 273.912 238.767C270.549 238.767 267.824 241.528 267.824 244.933C267.824 248.339 270.549 251.099 273.912 251.099Z" fill="#BACCE5"/><path d="M21.52 222.811C25.8127 222.811 29.2926 219.287 29.2926 214.939C29.2926 210.592 25.8127 207.068 21.52 207.068C17.2273 207.068 13.7474 210.592 13.7474 214.939C13.7474 219.287 17.2273 222.811 21.52 222.811Z" fill="#BACCE5"/><path d="M241.325 263.172H241.284L230.926 262.935C229.903 262.923 229.083 262.074 229.095 261.038C229.106 260.002 229.944 259.172 230.967 259.183H231.009L241.368 259.419C242.374 259.454 243.169 260.296 243.158 261.315C243.147 262.335 242.334 263.159 241.328 263.172H241.325ZM220.639 262.701H220.597L210.27 262.467C209.264 262.432 208.469 261.59 208.48 260.57C208.491 259.551 209.304 258.726 210.311 258.714H210.353L220.68 258.949C221.686 258.984 222.481 259.826 222.47 260.845C222.459 261.865 221.646 262.689 220.639 262.701ZM199.985 262.231H199.943L189.616 261.995C188.593 261.972 187.783 261.113 187.806 260.077C187.829 259.041 188.677 258.221 189.7 258.244L200.026 258.478C201.033 258.513 201.828 259.355 201.816 260.375C201.805 261.395 200.992 262.219 199.985 262.231ZM179.332 261.761H179.286L168.959 261.526C167.953 261.491 167.158 260.649 167.169 259.629C167.18 258.61 167.993 257.785 169 257.773H169.042L179.369 258.008C180.392 258.019 181.212 258.868 181.201 259.904C181.19 260.94 180.352 261.77 179.329 261.759L179.332 261.761ZM158.677 261.291H158.635L148.308 261.057C147.285 261.045 146.465 260.196 146.476 259.16C146.487 258.124 147.326 257.294 148.349 257.305H148.391L158.718 257.54C159.724 257.575 160.519 258.417 160.508 259.437C160.497 260.456 159.684 261.28 158.677 261.293V261.291ZM138.022 260.821H137.98L127.652 260.585C126.629 260.574 125.809 259.724 125.82 258.689C125.831 257.653 126.67 256.822 127.693 256.834H127.735L138.063 257.069C139.086 257.081 139.906 257.93 139.894 258.966C139.883 260.002 139.045 260.832 138.022 260.821ZM117.367 260.352H117.325L106.998 260.117C105.992 260.082 105.197 259.24 105.208 258.22C105.219 257.201 106.032 256.377 107.039 256.364H107.081L117.408 256.599C118.414 256.634 119.209 257.476 119.198 258.496C119.187 259.515 118.374 260.339 117.367 260.352ZM250.955 259.962C250.161 259.963 249.455 259.451 249.199 258.69C248.944 257.929 249.195 257.087 249.825 256.598C252.25 254.714 253.976 252.057 254.725 249.056C254.873 248.392 255.364 247.861 256.009 247.669C256.653 247.476 257.35 247.652 257.83 248.129C258.31 248.605 258.498 249.307 258.321 249.964C257.368 253.786 255.17 257.172 252.083 259.573C251.76 259.825 251.363 259.962 250.955 259.962ZM96.7205 259.881H96.6783L93.9032 259.818C91.0648 259.752 88.2871 258.973 85.8193 257.551C85.227 257.228 84.854 256.605 84.8449 255.924C84.8358 255.242 85.192 254.61 85.7755 254.271C86.3591 253.931 87.0783 253.939 87.6545 254.291C89.5861 255.405 91.7607 256.015 93.9828 256.068L96.7579 256.13C97.7643 256.165 98.5591 257.007 98.5479 258.026C98.5368 259.046 97.7237 259.87 96.7169 259.882L96.7205 259.881ZM80.0701 250.071C79.3147 250.071 78.6351 249.606 78.352 248.897C77.5295 246.84 77.1079 244.641 77.1105 242.421C77.1105 242.29 77.1105 242.159 77.1105 242.029L77.2034 237.837C77.227 236.818 78.0491 236.005 79.0554 236.004H79.0977C80.1202 236.028 80.9304 236.886 80.9075 237.922L80.8146 242.112C80.8146 242.214 80.8146 242.318 80.8146 242.421C80.81 244.158 81.1378 245.88 81.7798 247.491C81.9645 247.952 81.9604 248.469 81.7685 248.927C81.5766 249.386 81.2126 249.748 80.7567 249.935C80.5357 250.026 80.2991 250.072 80.0605 250.071H80.0701ZM257.131 240.964H257.089C256.066 240.94 255.256 240.082 255.279 239.046L255.512 228.587C255.535 227.569 256.357 226.755 257.363 226.754H257.405C258.427 226.778 259.238 227.636 259.215 228.672L258.983 239.13C258.96 240.153 258.132 240.969 257.121 240.964H257.131ZM79.2919 229.297H79.2497C78.7585 229.286 78.2917 229.078 77.9523 228.718C77.6129 228.358 77.4285 227.876 77.4399 227.379L77.6715 216.92C77.6945 215.901 78.5163 215.088 79.5224 215.087H79.5646C80.5873 215.111 81.3973 215.97 81.3744 217.006L81.1428 227.464C81.1191 228.487 80.2919 229.301 79.2823 229.297H79.2919ZM257.596 220.047H257.553C256.531 220.024 255.721 219.165 255.744 218.13L255.975 207.671C255.999 206.652 256.821 205.839 257.827 205.838H257.87C258.361 205.85 258.827 206.058 259.167 206.418C259.506 206.778 259.691 207.259 259.679 207.757L259.448 218.215C259.424 219.236 258.599 220.05 257.591 220.047H257.596ZM79.7456 208.38H79.7034C78.6809 208.357 77.8706 207.498 77.8935 206.463L78.1264 196.004C78.1493 194.986 78.9711 194.172 79.9772 194.171H80.0195C81.0422 194.195 81.8522 195.054 81.8293 196.09L81.5964 206.548C81.5728 207.567 80.7512 208.38 79.7456 208.38ZM258.049 199.125H258.007C257.516 199.114 257.049 198.905 256.71 198.546C256.37 198.186 256.186 197.704 256.197 197.207L256.429 186.748C256.452 185.729 257.274 184.915 258.28 184.915H258.322C259.344 184.938 260.155 185.797 260.132 186.832L259.9 197.291C259.877 198.31 259.056 199.124 258.049 199.125ZM80.2113 187.458H80.1679C79.1452 187.434 78.3351 186.575 78.3581 185.54L78.5897 175.081C78.6133 174.062 79.4347 173.249 80.4406 173.248H80.484C81.5065 173.271 82.3167 174.13 82.2938 175.165L82.0621 185.624C82.0412 186.644 81.219 187.461 80.2113 187.462V187.458ZM258.514 178.208H258.472C257.449 178.184 256.639 177.325 256.662 176.289L256.895 165.831C256.918 164.812 257.739 163.998 258.745 163.998H258.788C259.81 164.022 260.62 164.881 260.597 165.916L260.365 176.375C260.344 177.395 259.521 178.211 258.514 178.212V178.208ZM80.6746 166.544H80.6324C79.61 166.52 78.8003 165.661 78.8226 164.626L79.0554 154.167C79.0784 153.149 79.9002 152.335 80.9063 152.334H80.9485C81.9712 152.359 82.7812 153.217 82.7583 154.253L82.5255 164.712C82.5025 165.73 81.6807 166.544 80.6746 166.544ZM258.978 157.294H258.935C257.913 157.27 257.103 156.412 257.125 155.377L257.357 144.917C257.38 143.899 258.202 143.085 259.208 143.084H259.251C260.273 143.108 261.083 143.966 261.061 145.002L260.829 155.461C260.806 156.48 259.984 157.293 258.978 157.294ZM81.1392 145.627H81.0969C80.0747 145.603 79.2648 144.745 79.2871 143.71L79.5188 133.25C79.5423 132.231 80.3645 131.418 81.3708 131.417H81.413C82.4355 131.441 83.2458 132.299 83.2228 133.335L82.9912 143.794C82.9682 144.813 82.1457 145.627 81.1392 145.627ZM259.442 136.376H259.401C258.378 136.352 257.568 135.493 257.591 134.457L257.824 123.999C257.847 122.963 258.694 122.142 259.717 122.165C260.74 122.189 261.551 123.047 261.528 124.083L261.295 134.542C261.273 135.562 260.449 136.377 259.442 136.376ZM81.6025 124.709H81.5554C81.0642 124.698 80.5975 124.489 80.258 124.129C79.9186 123.77 79.7343 123.288 79.7456 122.79L79.9772 112.332C80.0002 111.296 80.8481 110.475 81.8709 110.498C82.8938 110.522 83.7043 111.38 83.6813 112.416L83.4497 122.875C83.4268 123.892 82.6074 124.706 81.6025 124.709ZM259.906 115.459H259.864C258.841 115.435 258.031 114.577 258.054 113.542L258.286 103.083C258.309 102.064 259.131 101.25 260.138 101.25H260.18C260.671 101.261 261.138 101.47 261.477 101.829C261.817 102.189 262.001 102.671 261.99 103.168L261.758 113.627C261.735 114.646 260.912 115.459 259.906 115.459ZM82.067 103.792H82.0248C81.0023 103.768 80.192 102.91 80.2149 101.874L80.4466 91.4158C80.4817 90.3887 81.3258 89.5812 82.3404 89.6043C83.3549 89.6273 84.1624 90.4725 84.1519 91.5001L83.919 101.959C83.8961 102.978 83.0736 103.792 82.067 103.792ZM260.366 94.5403H260.324C259.832 94.5291 259.366 94.3207 259.026 93.9608C258.687 93.601 258.502 93.1194 258.514 92.6219L258.745 82.1633C258.768 81.1274 259.616 80.3065 260.639 80.3297C261.662 80.353 262.473 81.2117 262.45 82.2476L262.218 92.7062C262.195 93.7256 261.373 94.5399 260.366 94.5403ZM82.5279 82.8732H82.4844C81.4618 82.8492 80.6517 81.9905 80.6746 80.9548L80.9063 70.4962C80.9299 69.4778 81.7513 68.6643 82.7571 68.6633H82.8006C83.823 68.6866 84.6333 69.545 84.6104 70.5805L84.3787 81.0391C84.3558 82.0566 83.5364 82.8702 82.5315 82.8732H82.5279ZM260.83 73.6231H260.788C259.765 73.5991 258.955 72.7404 258.978 71.7047L259.21 61.2461C259.245 60.219 260.089 59.4114 261.104 59.4345C262.118 59.4576 262.926 60.3027 262.915 61.3304L262.682 71.789C262.66 72.8072 261.84 73.6214 260.834 73.6231H260.83ZM82.9912 61.956H82.949C81.9265 61.9327 81.1162 61.0744 81.1392 60.0388L81.372 49.5802C81.395 48.5443 82.2428 47.7234 83.2657 47.7467C84.2886 47.77 85.0991 48.6286 85.0761 49.6645L84.8432 60.1231C84.8203 61.1409 84 61.9543 82.9948 61.956H82.9912ZM261.294 52.7059H261.251C260.229 52.6819 259.419 51.824 259.442 50.7887L259.535 46.6146C259.535 46.5131 259.535 46.4093 259.535 46.3054C259.537 44.5629 259.205 42.8365 258.557 41.2221C258.289 40.597 258.377 39.8737 258.786 39.3327C259.195 38.7916 259.862 38.5178 260.528 38.6174C261.193 38.7169 261.754 39.1742 261.991 39.812C262.818 41.8742 263.242 44.0795 263.24 46.3054C263.24 46.4362 263.24 46.5657 263.24 46.6964L263.147 50.873C263.123 51.891 262.303 52.7042 261.297 52.7059H261.294ZM83.831 41.0767C83.6788 41.0766 83.5273 41.0577 83.3797 41.0205C82.3873 40.7682 81.7846 39.7492 82.0332 38.744C82.9896 34.9223 85.1907 31.5389 88.2807 29.1408C88.8059 28.7331 89.5061 28.6401 90.1174 28.8969C90.7287 29.1537 91.1582 29.7213 91.2443 30.3858C91.3303 31.0504 91.0598 31.7109 90.5345 32.1187C88.1083 34.0006 86.3791 36.6559 85.6263 39.6556C85.4212 40.4892 84.6828 41.0748 83.8346 41.0767H83.831ZM253.592 34.6725C253.272 34.6734 252.957 34.5891 252.679 34.4282C250.75 33.3201 248.58 32.7127 246.363 32.66L243.573 32.5977C242.55 32.5744 241.74 31.7158 241.763 30.6798C241.786 29.6439 242.633 28.823 243.656 28.8463L246.446 28.9086C249.277 28.9756 252.048 29.7514 254.51 31.1668C255.242 31.5874 255.602 32.455 255.387 33.2788C255.171 34.1027 254.434 34.6756 253.592 34.6738V34.6725ZM233.288 32.3618H233.246L222.918 32.1272C221.895 32.1158 221.075 31.2667 221.087 30.2308C221.098 29.1949 221.936 28.3644 222.959 28.3759H223.001L233.329 28.6105C234.336 28.6452 235.131 29.4874 235.12 30.5071C235.108 31.5268 234.295 32.3509 233.288 32.3631V32.3618ZM212.634 31.8914H212.591L202.265 31.6556C201.242 31.6323 200.431 30.7736 200.454 29.7377C200.477 28.7018 201.325 27.8809 202.348 27.9042L212.675 28.14C213.697 28.1515 214.517 29.0006 214.506 30.0365C214.495 31.0724 213.656 31.9029 212.634 31.8914ZM191.98 31.421H191.938L181.611 31.1863C180.605 31.1518 179.81 30.3099 179.82 29.2903C179.831 28.2707 180.644 27.4464 181.651 27.4338H181.693L192.021 27.6684C193.044 27.6798 193.864 28.5289 193.852 29.5648C193.841 30.6007 193.003 31.4312 191.98 31.4197V31.421ZM171.326 30.9517H171.283L160.956 30.7171C159.933 30.7056 159.113 29.8566 159.124 28.8207C159.136 27.7848 159.974 26.9543 160.997 26.9658H161.039L171.366 27.2004C172.372 27.2349 173.167 28.0768 173.156 29.0964C173.146 30.116 172.333 30.9403 171.326 30.9529V30.9517ZM150.671 30.4813H150.629L140.302 30.2467C139.279 30.2234 138.469 29.3647 138.492 28.3288C138.515 27.2929 139.363 26.472 140.385 26.4953L150.712 26.7299C151.735 26.7414 152.555 27.5905 152.544 28.6264C152.533 29.6623 151.694 30.4928 150.671 30.4813ZM130.02 30.0084H129.978L119.65 29.7738C118.627 29.7505 117.816 28.8918 117.839 27.8559C117.862 26.82 118.71 25.9991 119.733 26.0224L130.061 26.257C131.067 26.2918 131.862 27.1339 131.851 28.1536C131.84 29.1733 131.027 29.9975 130.02 30.0096V30.0084ZM109.365 29.5379H109.323L98.9973 29.3021C97.9744 29.2795 97.1633 28.4214 97.1856 27.3855C97.208 26.3496 98.0552 25.5281 99.0781 25.5507H99.095L109.406 25.7854C110.429 25.7968 111.249 26.6459 111.238 27.6818C111.226 28.7177 110.388 29.5482 109.365 29.5367V29.5379Z" fill="#4D7393"/>
+                      <g style="mix-blend-mode:multiply" opacity="0.25"><path d="M237.168 262.998L209.383 86.7822C209.333 86.4836 209.215 86.2011 209.037 85.9574C209.021 85.9342 209.004 85.9134 208.987 85.8902C208.881 85.7487 208.755 85.6229 208.615 85.5163L182.349 66.2451L166.811 54.8431C166.804 54.8386 166.796 54.8345 166.788 54.8309C166.658 54.7396 166.517 54.6653 166.368 54.6098C166.324 54.5926 166.282 54.578 166.237 54.5645C166.085 54.5151 165.928 54.4855 165.769 54.4766H165.754C165.63 54.4717 165.506 54.479 165.383 54.4986L37.4947 75.1799C29.2363 76.5248 23.6111 84.3858 24.92 92.7527L56.3736 292.237C56.753 294.651 58.0645 296.814 60.0191 298.248C61.9737 299.682 64.4112 300.271 66.7945 299.884L229.617 273.552C234.575 272.743 237.952 268.023 237.168 262.998Z" fill="#3A7EC1"/></g>
+                      <path d="M212.949 80.6187L240.733 256.835C241.346 260.799 238.683 264.521 234.773 265.166L71.9477 291.504C68.0329 292.124 64.3579 289.427 63.7215 285.466L32.2692 85.9733C31.1206 78.6929 36.0638 71.7841 43.2488 70.622L171.136 49.9407L184.595 59.8152L198.966 70.3556L212.949 80.6187Z" fill="white"/>
+                      <path d="M70.8172 293.531C66.3488 293.522 62.5453 290.235 61.8344 285.767L30.3761 86.2836C29.067 77.9181 34.6894 70.0575 42.9459 68.7096L170.84 48.0283C171.342 47.9472 171.855 48.0712 172.266 48.3729L214.072 79.0436C214.484 79.3456 214.76 79.801 214.84 80.3095L242.625 256.524C243.411 261.549 240.033 266.271 235.073 267.078L72.2506 293.414C71.7766 293.491 71.2973 293.53 70.8172 293.531ZM170.664 51.9886L43.5552 72.5429C37.393 73.5599 33.1969 79.424 34.1611 85.6714L65.6133 285.15C66.0806 288.054 68.7756 290.031 71.6461 289.575L234.466 263.244C237.333 262.769 239.285 260.041 238.837 257.134L211.179 81.7123L170.664 51.9886Z" fill="#4D7393"/>
+                      <g style="mix-blend-mode:multiply" opacity="0.25"><path d="M177.507 84.5815C178.231 85.3146 180.149 90.8867 212.245 88.6884L211.265 82.4749L177.507 84.5815Z" fill="#3A7EC1"/></g>
+                      <path d="M175.765 79.2673C176.402 83.2274 180.076 85.9238 183.99 85.3024L212.947 80.6199L171.146 49.9492L175.765 79.2673Z" fill="#DBE2EF"/><path d="M182.854 87.3357C178.386 87.3273 174.583 84.0399 173.873 79.5727L169.248 50.2461C169.127 49.4713 169.478 48.6986 170.138 48.2877C170.798 47.8768 171.637 47.9085 172.265 48.368L214.066 79.0387C214.693 79.4997 214.984 80.2979 214.804 81.0613C214.624 81.8247 214.008 82.4032 213.243 82.5274L184.286 87.2098C183.812 87.2899 183.333 87.332 182.854 87.3357ZM173.765 54.2663L177.658 78.9605C178.124 81.8659 180.82 83.8441 183.691 83.3864L208.074 79.442L173.765 54.2663Z" fill="#4D7393"/><path d="M114.948 102.192L64.9049 110.29C61.4235 110.842 58.1551 108.443 57.5896 104.921C57.045 101.395 59.4133 98.0854 62.8912 97.5121L112.935 89.4192C116.416 88.8668 119.684 91.265 120.251 94.7872C120.794 98.3122 118.425 101.62 114.948 102.192Z" fill="#FFCE70"/><path d="M185.826 119.556L88.6801 135.267C85.199 135.819 81.9308 133.421 81.3648 129.899C80.8193 126.373 83.1873 123.063 86.6651 122.49L183.812 106.779C187.293 106.226 190.562 108.624 191.127 112.147C191.672 115.673 189.304 118.983 185.826 119.556Z" fill="#E4ECF9"/><path d="M190.258 147.667L73.7672 166.505C70.2857 167.058 67.0173 164.659 66.4519 161.136C65.9065 157.611 68.2745 154.301 71.7523 153.728L188.243 134.889C191.725 134.337 194.993 136.735 195.56 140.257C196.105 143.783 193.737 147.094 190.258 147.667Z" fill="#E4ECF9"/><path d="M194.691 175.776L78.2001 194.615C74.7188 195.167 71.4503 192.769 70.8836 189.247C70.3383 185.721 72.7069 182.411 76.1852 181.838L192.679 162.999C196.16 162.446 199.428 164.845 199.994 168.368C200.539 171.894 198.17 175.204 194.691 175.776Z" fill="#E4ECF9"/><path d="M199.123 203.891L82.6317 222.729C79.1502 223.282 75.8819 220.883 75.3164 217.36C74.771 213.835 77.139 210.525 80.6168 209.952L197.108 191.113C200.589 190.56 203.857 192.959 204.423 196.481C204.969 200.007 202.601 203.317 199.123 203.891Z" fill="#E4ECF9"/><path d="M203.554 231.995L87.0633 250.834C83.5822 251.386 80.314 248.988 79.748 245.466C79.2026 241.94 81.5713 238.63 85.0496 238.057L201.541 219.217C205.022 218.665 208.29 221.064 208.856 224.587C209.401 228.112 207.033 231.422 203.554 231.995Z" fill="#E4ECF9"/>
+                      <g style="mix-blend-mode:multiply" opacity="0.25"><path d="M233.718 243.017L187.748 199.343C198.353 179.715 192.893 155.163 175.004 142.034C157.115 128.906 132.377 131.297 117.263 147.616C100.714 165.48 101.601 193.65 119.24 210.41C133.83 224.262 155.82 226.379 172.725 215.559L218.702 259.242C221.168 261.566 225.022 261.441 227.336 258.963L233.99 251.763C235.1 250.567 235.696 248.973 235.644 247.333C235.593 245.692 234.9 244.14 233.718 243.017Z" fill="#3A7EC1"/></g>
+                      <path d="M231.587 245.147L224.922 252.341C223.447 253.925 220.985 254.005 219.413 252.519L155.092 191.405C153.527 189.911 153.449 187.418 154.916 185.826L161.581 178.631C163.056 177.047 165.518 176.968 167.09 178.454L231.411 239.567C232.974 241.062 233.053 243.555 231.587 245.147Z" fill="#00b1ff"/><path d="M232.918 237.935L190.885 197.994L186.947 194.267L185.016 192.434L183.476 190.954L183.114 190.607H183.102L168.612 176.834C166.238 174.57 162.209 174.698 159.973 177.104L153.305 184.287C153.122 184.487 152.952 184.698 152.797 184.92C152.599 185.189 152.432 185.48 152.3 185.787C152.22 185.927 152.152 186.074 152.097 186.225C152.065 186.298 152.038 186.373 152.015 186.449C151.946 186.637 151.891 186.83 151.848 187.026C151.838 187.04 151.838 187.04 151.839 187.054C151.827 187.074 151.822 187.098 151.824 187.121C151.784 187.294 151.755 187.47 151.739 187.646C151.722 187.66 151.716 187.681 151.722 187.701C151.691 187.895 151.674 188.091 151.671 188.287C151.66 188.459 151.663 188.641 151.671 188.824C151.679 189.041 151.7 189.256 151.734 189.47C151.94 190.835 152.594 192.091 153.589 193.035L159.019 198.197L168.09 206.819H168.102L170.02 208.644V208.657L171.935 210.47V210.482L173.745 212.207L175.856 214.192L217.906 254.157C219.086 255.281 220.662 255.881 222.282 255.821C223.172 255.784 224.045 255.558 224.843 255.157C225.476 254.827 226.05 254.393 226.542 253.873L233.196 246.678C234.305 245.482 234.898 243.888 234.846 242.248C234.794 240.609 234.1 239.057 232.918 237.935ZM229.983 243.613L223.298 250.811C222.65 251.474 221.602 251.505 220.916 250.882L179.524 211.557L175.598 207.829L173.727 206.049L171.852 204.255L156.606 189.779C156.275 189.47 156.085 189.036 156.08 188.58C156.049 188.13 156.21 187.689 156.523 187.368L163.176 180.158C163.486 179.823 163.918 179.63 164.371 179.624C164.817 179.603 165.252 179.77 165.571 180.086L180.827 194.564L182.7 196.344L184.588 198.148L188.514 201.877L229.9 241.197C230.224 241.505 230.417 241.93 230.436 242.38C230.445 242.834 230.284 243.275 229.983 243.613Z" fill="#4D7393"/><path opacity="0.15" d="M190.883 197.994C190.513 198.657 190.145 199.322 189.741 199.97C189.337 200.617 188.935 201.249 188.513 201.881C187.262 203.709 185.877 205.441 184.372 207.061C182.867 208.677 181.249 210.18 179.53 211.56C178.937 212.043 178.341 212.491 177.726 212.922C177.112 213.354 176.484 213.803 175.851 214.202L153.576 193.037C151.129 190.692 151.006 186.788 153.301 184.291L159.972 177.107C162.201 174.701 166.23 174.571 168.607 176.829L190.883 197.994Z" fill="#232323"/><path d="M182.106 197.207C181.042 198.739 179.873 200.194 178.607 201.561C168.06 212.95 152.711 217.03 138.728 213.605C126.663 210.626 116.552 202.327 111.176 190.99C109.93 188.361 108.967 185.604 108.3 182.767C106.477 175.197 106.79 167.26 109.204 159.861C111.064 154.054 114.174 148.738 118.31 144.297C119.358 143.155 120.476 142.081 121.658 141.082C126.358 137.025 131.891 134.08 137.856 132.461C143.081 131.069 148.522 130.719 153.879 131.429C159.82 132.217 165.518 134.315 170.572 137.576C172.787 138.973 174.858 140.591 176.754 142.406C192.004 156.918 193.979 180.421 182.106 197.207Z" fill="white"/><path d="M178.473 140.526C170.579 132.986 160.192 128.7 149.342 128.504L149.28 128.514C148.539 128.49 147.802 128.492 147.056 128.514C138.649 128.769 130.494 131.48 123.574 136.321C120.996 138.132 118.614 140.212 116.466 142.529C104.283 155.689 101.168 175.004 108.583 191.406C113.399 202.075 122.183 210.385 133.02 214.527C138.395 216.569 144.115 217.518 149.853 217.32C150.754 217.292 151.663 217.237 152.543 217.148L152.606 217.138C159.48 216.505 166.106 214.22 171.933 210.474V210.461C172.57 210.07 173.201 209.64 173.815 209.187C174.418 208.762 175.021 208.311 175.605 207.823C177.339 206.455 178.962 204.948 180.458 203.317C181.961 201.7 183.341 199.97 184.584 198.142C185.015 197.51 185.429 196.878 185.809 196.227C186.225 195.584 186.599 194.921 186.949 194.261C186.953 194.26 186.955 194.259 186.958 194.256C186.96 194.254 186.961 194.251 186.96 194.247C190.732 187.291 192.577 179.432 192.3 171.501C192.242 169.594 192.063 167.693 191.765 165.809C190.242 156.116 185.564 147.217 178.473 140.526ZM187.222 171.668C187.439 178.231 186.025 184.744 183.108 190.608H183.096C182.763 191.29 182.403 191.964 182.017 192.629C181.641 193.28 181.252 193.933 180.821 194.566C179.609 196.423 178.245 198.173 176.743 199.799C175.245 201.425 173.61 202.917 171.857 204.257C171.253 204.734 170.65 205.173 170.023 205.589C169.395 206.006 168.758 206.436 168.092 206.819H168.08C162.495 210.153 156.168 212.003 149.687 212.195C148.954 212.222 148.217 212.223 147.488 212.195C137.945 211.984 128.946 208.236 121.918 201.577C115.67 195.624 111.544 187.745 110.183 179.169C110.138 178.888 110.096 178.619 110.062 178.336C110.011 178.004 109.97 177.67 109.941 177.333C109.707 175.27 109.639 173.191 109.737 171.116C109.748 170.774 109.759 170.432 109.795 170.085C109.805 169.821 109.83 169.568 109.853 169.303C109.964 168.038 110.141 166.78 110.384 165.534C111.743 158.227 115.14 151.467 120.173 146.053C125.681 140.117 132.698 136.126 140.424 134.497C142.659 134.018 144.932 133.742 147.215 133.673C168.618 132.989 186.522 149.993 187.222 171.668Z" fill="#4D7393"/><path d="M134.321 163.177C134.321 161.362 134.9 159.525 136.058 157.665C137.217 155.805 138.899 154.265 141.105 153.046C143.316 151.824 145.893 151.218 148.836 151.228C151.571 151.234 153.984 151.751 156.075 152.778C158.166 153.806 159.782 155.199 160.92 156.957C162.039 158.655 162.63 160.653 162.619 162.694C162.619 164.318 162.291 165.741 161.635 166.963C161.021 168.13 160.236 169.196 159.307 170.125C158.409 171.011 156.797 172.503 154.473 174.6C153.929 175.09 153.413 175.61 152.927 176.159C152.591 176.532 152.3 176.946 152.061 177.389C151.88 177.748 151.735 178.123 151.629 178.511C151.524 178.884 151.367 179.538 151.157 180.474C150.794 182.46 149.668 183.451 147.779 183.447C146.858 183.469 145.967 183.117 145.305 182.469C144.636 181.817 144.303 180.852 144.306 179.573C144.306 177.967 144.554 176.578 145.051 175.404C145.521 174.265 146.184 173.219 147.01 172.312C148.053 171.203 149.151 170.149 150.299 169.152C151.506 168.086 152.38 167.281 152.922 166.737C153.457 166.198 153.916 165.586 154.284 164.92C154.653 164.255 154.845 163.504 154.841 162.742C154.841 161.214 154.282 159.923 153.165 158.868C153.165 158.868 151.717 158.339 148.821 157.28C146.746 157.275 145.218 157.802 144.236 158.861C143.255 159.92 142.421 161.48 141.735 163.541C141.092 165.699 139.873 166.776 138.079 166.772C137.07 166.791 136.099 166.378 135.406 165.634C134.681 164.876 134.319 164.057 134.321 163.177ZM148.065 194.62C146.954 194.635 145.879 194.229 145.048 193.482C144.192 192.725 143.765 191.668 143.768 190.311C143.747 189.167 144.201 188.065 145.019 187.276C145.851 186.456 146.871 186.048 148.078 186.054C149.201 186.04 150.282 186.486 151.075 187.292C151.867 188.098 152.304 189.194 152.286 190.331C152.286 191.669 151.86 192.72 151.006 193.482C150.203 194.224 149.152 194.631 148.065 194.62Z" fill="#FFCE70"/>
+                    </svg>
+                  <div>Not Found Result ...</div>
+                  <p>We can't find any template matching your search...</p>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    
+  </div>
+  
+  <div class="filerOptBackDrop" onclick={toggleFilterOptions}></div>
+
+  <template lwc:if={isPreview}>
+    <template lwc:if={isCSVPreview}>
+      <c-preview-c-s-v  is-popup="true" class="csvPreview" template-id={selectedTemplateId} object-name={selectedObjectName}
+         onclose={closeTemplatePreview}></c-preview-c-s-v>
+    </template>
+    <template lwc:else>
+      <c-template-preview-modal templateid={selectedTemplateId} objectname={selectedObjectName} template-type={templateType}
+        onclosepreview={closeTemplatePreview}></c-template-preview-modal>
+    </template>
+  </template>
+  
+  <template lwc:if={isCreateTemplate}>
+    <c-new-template-creation onaftersave={fetchTemplateRecords} onclosemodal={toggleCreateNEwTemplate}></c-new-template-creation>
+  </template>
+
+  <template lwc:if={isCloneTemplate}>
+    <c-clone-template onaftersave={fetchTemplateRecords} onclosemodal={toggleCloneTemplate} templatelist={templateList} selectedtemplateid={selectedTemplateId}></c-clone-template>
+  </template>
+  
+  <c-document-loader display={isSpinner} fix-top="true" ></c-document-loader>
+  
+  <c-message-popup onconfirmation={handleConfirmation}></c-message-popup>
+  
+  <!-- <template lwc:if={isSpinner}>
+    <c-spinner></c-spinner>
+  </template> -->
+
+</template>
