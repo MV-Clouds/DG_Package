@@ -72,10 +72,13 @@ public with sharing class NewTemplateCreationController {
             template.Object_API_Name__c = templateData.sourceObject;
             template.Template_Type__c = templateData.templateType;
             template.Template_Status__c = true;
-            insert template;
+    
+            if(Schema.sObjectType.MVDG__Template__c.isCreateable()){
+                insert template;
+            }
             templateId = template.Id;
 
-            if(templateData.templateType == 'Simple Template' && Schema.sObjectType.Template_Page__c.isCreateable()){
+            if(templateData.templateType == 'Simple Template' && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){
                 Template_Page__c page = new Template_Page__c();
                 page.Template__c = templateId;
                 page.Page_Number__c = 1;
