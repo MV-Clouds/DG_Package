@@ -104,6 +104,8 @@ export default class PreviewGoogleDocument extends LightningElement {
 
     handleError(event) {
         try {
+            console.log('this.handleError');
+            
             this.isSpinner = false;
             let messagePopup = this.template.querySelector("c-message-popup");
             messagePopup?.showMessagePopup({
@@ -120,6 +122,7 @@ export default class PreviewGoogleDocument extends LightningElement {
 
     handleFileProcess(event) {
         try {
+            console.log('this.handleFileProcess');
             let file = event.detail.blob;
             this.blobFile = atob(file);
 
@@ -137,6 +140,7 @@ export default class PreviewGoogleDocument extends LightningElement {
     displayPDF(pdfBlob) {
         var loadingTask = window.pdfjsDistBuildPdf.getDocument({ data: pdfBlob });
         try {
+            console.log('displayPDF');
             loadingTask.promise.then((pdf) => {
                 const totalPagesInput = this.template.querySelector('[data-name="totalPages"]');
                 if (totalPagesInput) {
@@ -191,6 +195,7 @@ export default class PreviewGoogleDocument extends LightningElement {
     setZoomLevel(event) {
         var zoomOffset = 10;
         try {
+            console.log('setZoomLevel');
             const clickedButton = event.currentTarget.dataset.name;
             
             if (this.zoomLevel <= 25) {
@@ -227,6 +232,8 @@ export default class PreviewGoogleDocument extends LightningElement {
         onscroll() {
             var previousPageNo = this.currentPage;
             try {
+                console.log('this.onscroll');
+                
                 const singlePageHeight = this.content.scrollHeight / this.pdfPages;
                 
                 this.currentPage = Math.floor(this.content.scrollTop / (singlePageHeight - 8) + 1);
@@ -250,6 +257,8 @@ export default class PreviewGoogleDocument extends LightningElement {
     }
 
     onPageChange(event) {
+        console.log('this.onPageChange');
+        
         var pageNoToSet = this.currentPage;
         try {
             const dataName = event.currentTarget.dataset.name;
@@ -280,6 +289,7 @@ export default class PreviewGoogleDocument extends LightningElement {
 
     setPageBtnStatus() {
         try {
+            console.log('this.setPageBtnStatus');
             if (this.currentPage <= 1) {
                 this.pageMinus.setAttribute("disabled", "true");
             } else {
@@ -298,6 +308,8 @@ export default class PreviewGoogleDocument extends LightningElement {
     }
 
     scrollToTop() {
+        console.log('this.scrollToTop');
+        
         this.content.scrollTop = 0;
         this.onscroll();
     }
