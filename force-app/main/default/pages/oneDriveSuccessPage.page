@@ -103,7 +103,7 @@
                 }
 
                 function redirectToSalesforce() {
-                        var action = '{!$RemoteAction.MVDG__OneDriveSuccessController.redirectToSalesforcePage}';
+                        var action = '{!$RemoteAction.OneDriveSuccessController.redirectToSalesforcePage}';
                             Visualforce.remoting.Manager.invokeAction(
                                 action,
                                 function(result, event) {
