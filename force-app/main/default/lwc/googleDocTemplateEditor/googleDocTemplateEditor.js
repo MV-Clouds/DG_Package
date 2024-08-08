@@ -1,4 +1,4 @@
-baimport { LightningElement, track, api } from "lwc";
+import { LightningElement, track, api } from "lwc";
 
 import getAllData from "@salesforce/apex/GoogleDocTemplateEditorController.getAllData";
 
