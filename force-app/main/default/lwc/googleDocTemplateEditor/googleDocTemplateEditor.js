@@ -362,6 +362,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         console.log('this.activeTab');
         
         try {
+            this.resizeFunction();
             if (event) {
                 this.activeTabName = event.currentTarget.dataset.name;
                 if (this.activeTabName === "contentTab") {
@@ -405,6 +406,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     }
 
     iframeLoaded() {
+        this.resizeFunction();
         this.isSpinner = false;
     }
 

@@ -162,23 +162,10 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     content.forEach((element) => {
                         if (element.paragraph) {
                             // Replace all the signature anywhere texts with the content document image
-                            let resultElement = element.paragraph.elements.some((index) => index.textRun && index.textRun.content.includes(this.signatureKey));
+                            let stringBody = JSON.stringify(element);
+                            let resultElement = stringBody.includes(this.signatureKey);
                             if (resultElement) {
-                                let startIndex = this.tableOffset + element.startIndex;
-                                let endIndex = this.tableOffset + element.endIndex - 1;
-
-                                if (signatureImageValues && signatureImageValues["Signature Image"] && signatureImageValues["Signature Image"][0].ContentDownloadUrl) {
-                                    let imageLink = signatureImageValues["Signature Image"][0].ContentDownloadUrl;
-                                    let originalPageWidth = this.docPageSize.pageSize.width.magnitude - (this.docPageSize.marginLeft.magnitude + this.docPageSize.marginRight.magnitude);
-                                    let width = originalPageWidth * (this.signatureSize / 100);
-
-                                    this.deleteContentRequest(startIndex, endIndex);
-                                    this.insertImageRequest(startIndex, imageLink, width);
-                                    this.tableOffset -= this.signatureKey.length - 1;
-                                } else {
-                                    this.deleteContentRequest(startIndex, endIndex);
-                                    this.tableOffset -= this.signatureKey.length;
-                                }
+                                this.processSignatureImage(element, signatureImageValues);
                             }
                         } else if (element.table) {
                             // Process table one by one
@@ -274,6 +261,24 @@ export default class GenerateGoogleDocFile extends LightningElement {
                 });
         } catch (error) {
             console.log("Error in mapFieldValues:", error);
+        }
+    }
+
+    processSignatureImage(element, signatureImageValues) {
+        let startIndex = this.tableOffset + element.startIndex;
+        let endIndex = this.tableOffset + element.endIndex - 1;
+
+        if (signatureImageValues && signatureImageValues["Signature Image"] && signatureImageValues["Signature Image"][0].ContentDownloadUrl) {
+            let imageLink = signatureImageValues["Signature Image"][0].ContentDownloadUrl;
+            let originalPageWidth = this.docPageSize.pageSize.width.magnitude - (this.docPageSize.marginLeft.magnitude + this.docPageSize.marginRight.magnitude);
+            let width = originalPageWidth * (this.signatureSize / 100);
+
+            this.deleteContentRequest(startIndex, endIndex);
+            this.insertImageRequest(startIndex, imageLink, width);
+            this.tableOffset -= this.signatureKey.length - 1;
+        } else {
+            this.deleteContentRequest(startIndex, endIndex);
+            this.tableOffset -= this.signatureKey.length;
         }
     }
 
