@@ -66,7 +66,7 @@
                     console.log('currentUrl');
 
                     Visualforce.remoting.Manager.invokeAction(
-                        'OneDriveSuccessController.gettoken',
+                        'MVDG__OneDriveSuccessController.gettoken',
                         '{!$CurrentPage.URL}',
                         function(result, event) {
                             if(result == 'Success'){
@@ -103,7 +103,7 @@
                 }
 
                 function redirectToSalesforce() {
-                        var action = '{!$RemoteAction.OneDriveSuccessController.redirectToSalesforcePage}';
+                        var action = '{!$RemoteAction.MVDG__OneDriveSuccessController.redirectToSalesforcePage}';
                             Visualforce.remoting.Manager.invokeAction(
                                 action,
                                 function(result, event) {
