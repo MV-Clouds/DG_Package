@@ -183,6 +183,7 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'createListViewButtons');
             system.debug('exception in createListViewButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            throw new AuraHandledException('Error Creating Button.');
         }
     }
     
