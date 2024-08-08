@@ -119,29 +119,32 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
 /*
 *********************************************************
 @description     : Method is used to create a list view button 
-@param           : bdw - {ButtonDataWrapper} - button data
+@param           : buttonData - {Map<String, Object>} - button data
 @return          : none
 ********************************************************
 */
     @AuraEnabled
-    public static void createListViewButtons(ButtonDataWrapper bdw){
+    public static void createListViewButtons(List<String> objects,Map<String, String> buttonData){
         try {
-            System.debug('BDW Wrapper :' + bdw);
+            System.debug('buttonData :' + buttonData+ 'Objects ::' + objects);
+            String buttonName = buttonData.get('buttonName');
+            String buttonEndURL = buttonData.get('buttonEndURL');
+            String buttonLabel = buttonData.get('buttonLabel');
+
             MetadataService.MetadataPort service = new MetadataService.MetadataPort();
             if (!Test.isRunningTest()) {   
                 service.SessionHeader = new MetadataService.SessionHeader_element();
                 service.SessionHeader.sessionId = Page.UserSessionIdPage.getContent().toString();
             }
             List<MetadataService.Metadata> webLinks = new List<MetadataService.Metadata>();
-            for (String obj: bdw.objects) {
-                System.debug('BDW Wrapper :' + bdw);
-                String buttonURL = '/lightning/cmp/MVDG__generateDocument?MVDG__objectApiName='+ obj + bdw.buttonEndURL;
+            for (String obj: objects) {
+                String buttonURL = '/lightning/cmp/MVDG__generateDocument?c__objectApiName='+ obj +  buttonEndURL;
                 String displayType = 'massActionButton';
-                if(bdw.buttonName == 'DG_Basic_Print'){
+                if(buttonName == 'DG_Basic_Print'){
                     buttonURL = '/apex/MVDG__Dynamicpage?id={!'+ obj+'.Id}';
                     displayType = 'button';
                 }
-                String buttonApiName = bdw.buttonName;
+                String buttonApiName = buttonName;
                 MetadataService.WebLink webLink = new MetadataService.WebLink();
                 webLink.fullName = obj+'.'+buttonApiName;
                 webLink.availability = 'online';
@@ -149,7 +152,7 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
                 webLink.linkType = 'url';
                 webLink.url = buttonURL;
                 webLink.encodingKey = 'UTF-8';
-                webLink.masterLabel = bdw.buttonLabel;
+                webLink.masterLabel = buttonLabel;
                 webLink.openType = 'newWindow';
                 webLink.position = 'none'; 
                 webLink.width = 600;
@@ -173,8 +176,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
                     if(!isSuccess){
                         throw new AuraHandledException('Error Creating Button.');
                     }
-                    
-
                     // Clear the chunk list for the next batch
                     chunk.clear();
                 }
@@ -220,23 +221,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
 
 /*
 *********************************************************
-@description     : wrapper containing Data of the Custom Button
-@param           : objects {List<String>} - list of objects to create buttons on
-@param           : buttonLabel {String} - Label of the button
-@param           : buttonName {String} - Name of the button
-@param           : buttonEndURL {String} - End URL for the button
-@param           : buttonType {String} -type of the button
-********************************************************
-*/
-    public class ButtonDataWrapper{
-        @AuraEnabled public List<String> objects {get; set;}
-        @AuraEnabled public String buttonLabel {get; set;}
-        @AuraEnabled public String buttonName {get; set;}
-        @AuraEnabled public String buttonEndURL {get; set;}
-    }
-
-/*
-*********************************************************
 @description     : wrapper containing data of all already create button objects
 @param           : allObjects {List<Map<String, String>>} - list of map of label and value of the objects
 @param           : listViewButtonObj {List<String>} - list of object that have a list view button
@@ -251,7 +235,4 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
         @AuraEnabled public List<String> basicPrintButtonObj;
         @AuraEnabled public Boolean isSuccess;
     }
-
-
-
 }

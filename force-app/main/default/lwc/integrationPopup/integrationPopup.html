@@ -111,76 +111,11 @@
                                 <label>Set as Org Wide</label>
                                 <lightning-helptext class="helpalign" content='Files will be uploaded to Google Drive which is set as Org Wide. For more details refer User Guide.'></lightning-helptext>
                                 <lightning-input type="toggle" class="googleOrg" name="input1" message-toggle-active="" message-toggle-inactive="" onchange={toggleIsOrg}></lightning-input>
-                            <!-- <input type="checkbox" name="checkbox-toggle-17" value="checkbox-toggle-17" aria-describedby="checkbox-toggle-17" onchange={toggleIsOrg}/>
-                            <span id="checkbox-toggle-17" class="slds-checkbox_faux_container">
-                              <span class="slds-checkbox_faux"></span>
-                            </span>
-                          </label>
-                        </div> -->
+                            
                         </div>
                     </template>
                     
-                    
-
-                    <!-- <div class="select-label-float">
-                        <label>Source Object</label>
-                        <select onchange={handleObjectChange} class="select-dropdown object-dd">
-                            <option value="">--Select Object--</option>
-                            <template for:each={objectNames} for:item="option">
-                                <option key={option.name} value={option.apiName}>{option.name}</option>
-                            </template>
-                        </select>
-                    </div>
-                    <div class="select-label-float">
-                        <label>Template Type</label>
-                        <select onchange={handleTypeChange} class="select-dropdown type-dd">
-                            <option value="">--Select Template Type--</option>
-                            <template for:each={templateTypes} for:item="option">
-                                <option key={option} value={option}>{option}</option>
-                            </template>
-                        </select>
-                    </div> -->
-                    <!-- <div class="drag-drop-div" if:true={showRowColumn}>
-                        <div class="row ">
-                            <div class="input-num-div column">
-                                <div class="minus1" onclick={minusClick}>
-                                    <svg width="8" height="2" viewBox="0 0 8 2" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M7.97495 0.979167C7.94154 1.125 7.74113 1.25 7.4739 1.25H0.526096C0.258873 1.25 0.0584551 1.14583 0.0250522 0.979167C-0.00835073 0.729167 -0.00835073 0.5 0.0250522 0.270833C0.0584551 0.125 0.258873 0 0.526096 0H7.4739C7.74113 0 7.94154 0.125 7.97495 0.270833C8.00835 0.520833 8.00835 0.75 7.97495 0.979167Z" fill="black"/>
-                                    </svg>
-                                </div>
-                                    
-                                <div class="label-float">
-                                    <input class="num-input num-input1" type="number" value="1" min="1" max="3" onkeyup={handleColumnChange} onchange={handleColumnChange}/>
-                                    <label class="label-float-input">Columns</label>
-                                </div>
-                                <div class="plus1" onclick={plusClick}>
-                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 1V9M1 5H9" stroke="black" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>                                    
-                                </div>
-                                <div class="minus2" onclick={minusClick}>
-                                    <svg width="8" height="2" viewBox="0 0 8 2" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M7.97495 0.979167C7.94154 1.125 7.74113 1.25 7.4739 1.25H0.526096C0.258873 1.25 0.0584551 1.14583 0.0250522 0.979167C-0.00835073 0.729167 -0.00835073 0.5 0.0250522 0.270833C0.0584551 0.125 0.258873 0 0.526096 0H7.4739C7.74113 0 7.94154 0.125 7.97495 0.270833C8.00835 0.520833 8.00835 0.75 7.97495 0.979167Z" fill="black"/>
-                                    </svg>
-                                </div>
-                                <div class="label-float">
-                                    <input class="num-input num-input2" type="number" value="1" min="1" max="5" onkeyup={handleRowChange} onchange={handleRowChange}/>
-                                    <label class="label-float-input">Rows</label>
-                                </div>
-                                <div class="plus2" onclick={plusClick}>
-                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 1V9M1 5H9" stroke="black" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>                                    
-                                </div>
-
-                            </div>
-                            <div class="preview-div column">
-                                    <template for:each={cellDivs} for:item="cell" for:index="index">
-                                        <div key={cell}  class={cell}></div>
-                                    </template>
-                            </div>
-                        </div>
-                    </div> -->
+                
                     <div class="save-div">
                         <button class="save-btn slds-button slds-button_brand" disabled onclick={authorize}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" style="margin-right: 5px;">

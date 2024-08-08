@@ -15,17 +15,12 @@ public class ButtonGeneratorControllerTest {
     static void testcreateListViewButtons(){
         
         Test.startTest();
-        ButtonGeneratorController.ButtonDataWrapper buttonDataWrapper = new ButtonGeneratorController.ButtonDataWrapper();
         List<String> objects = new List<String>();
         objects.add('Account');
-        buttonDataWrapper.objects = objects;
-        buttonDataWrapper.buttonEndURL = 'xyz';
-        buttonDataWrapper.buttonLabel = 'Test button';
-        buttonDataWrapper.buttonName = 'TestButton';
-
-        ButtonGeneratorController.createListViewButtons(buttonDataWrapper);
+        Map<String, String> buttonData = new Map<String, String>{'buttonEndURL' => 'xyz','buttonLabel' => 'Test button','buttonName' => 'TestButton'};
+        ButtonGeneratorController.createListViewButtons(objects, buttonData);
         Test.stopTest();
         
-        System.assertEquals('TestButton', buttonDataWrapper.buttonName, 'The button name does not match');
+        System.assertEquals('TestButton', buttonData.get('buttonName'), 'The button name does not match');
     }
 }

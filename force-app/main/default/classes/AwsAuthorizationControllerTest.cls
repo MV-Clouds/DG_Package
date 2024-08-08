@@ -8,7 +8,11 @@ private class AwsAuthorizationControllerTest {
             if (req.getEndpoint().contains('s3.amazonaws.com')) {
                 res.setStatusCode(200);
                 res.setBody('{"message": "Success"}');
-            } else {
+            } else if( req.getEndpoint().contains('callout:')) {
+                res.setStatusCode(200);
+                res.setBody('{"meesage": "Success"}');
+            }
+            else {
                 res.setStatusCode(404);
                 res.setBody('{"error": "Not Found"}');
             }
@@ -77,6 +81,7 @@ private class AwsAuthorizationControllerTest {
 
     @IsTest
     static void testauthorizeNamed(){
+        Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());
         Test.startTest();
         String result = AwsAuthorizationController.authorizeNamed('AWS');
         Test.stopTest();

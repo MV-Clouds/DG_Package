@@ -326,10 +326,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     closeEnabled = false;
     @track isNotGoogleNotGenerable = false;
 
-    // @track filterForActiveTemplates = [
-    //     {field : 'MVDG__Template_Name__c', operator : 'eq', value : true}
-    // ];
-
     get showCloseButton(){
         return this.isCSVOnly || this.isDefaultGenerate || this.isCalledFromPreview;
     }
@@ -384,7 +380,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     get updatedTemplates(){
         let searchedTemplates = this.allTemplates.filter(t => t.MVDG__Template_Name__c.toUpperCase().includes(this.templateSearchKey.toUpperCase()));
-        this.noTemplateFound = searchedTemplates.length <1 ? true : false;
+        this.noTemplateFound = searchedTemplates.length < 1 ? true : false;
         if(!this.templateSearchKey){
             return this.allTemplates;
         }
@@ -433,11 +429,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             let isAutoGeneration = !window.location.href.includes(window.location.origin + '/lightning/action/quick/') && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
                 let urlParams = new URLSearchParams(window.location.search);
-                this.objectApiName = urlParams.get('MVDG__objectApiName');
-                this.isCSVOnly = urlParams.get('MVDG__isCSVOnly') === 'true' ? true : false;
-                this.isDefaultGenerate = urlParams.get('MVDG__isDefaultGenerate') === 'true' ? true : false;
+                this.objectApiName = urlParams.get('c__objectApiName');
+                this.isCSVOnly = urlParams.get('c__isCSVOnly') === 'true' ? true : false;
+                this.isDefaultGenerate = urlParams.get('c__isDefaultGenerate') === 'true' ? true : false;
                 this.template.host.classList.add('pou-up-view');
-                this.selectedTemplate = urlParams.get('MVDG__templateIdToGenerate');
+                this.selectedTemplate = urlParams.get('c__templateIdToGenerate');
             }
             Promise.resolve(this.objectApiName)
             .then(() => {
@@ -447,18 +443,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 ]);
             })
             .then(() => {
-                console.log('It should print after the data fetches..');
+                console.log('It should print after the data fetches..', window.location.href.includes('.DG_Document_Generate') || window.location.href.includes('.DG_Generate_CSV'));
                 if (this.calledFromWhere === "preview") {
-                    console.log('Going in the preview!');
                     this.handleCalledFromPreview();
                 } else if (this.calledFromWhere === 'defaults') {
-                    console.log('Going in the defaults');
                     this.handleCalledFromDefaults();
                 } else if(this.isCSVOnly || window.location.href.includes('.DG_Generate_Document')){
                     this.handleEmailTemplateSelect({detail:[]});
                     this.showSpinner = false;
                 } else if (isAutoGeneration) {
-                    console.log('Running auto Generate');
                     this.handleAutoGeneration();
                 }
             })
@@ -638,41 +631,46 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             console.log('selectedTemplate ::', this.selectedTemplate);
             getTemplateDefaultValues({ templateId : this.selectedTemplate})
             .then((data) =>{
-                console.log('Data ::', data);
-                if(data?.docType){
-                    this.documentTypes.find(item => item.name === data?.docType).isSelected = true;
-                }
-                this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
-                data?.iStorage?.split(', ')?.forEach((option) => {this.internalStorageOptions.find(item => item.name === option).isSelected = true});
-                data?.eStorage?.split(', ')?.forEach((option) => {this.externalStorageOptions.find(item => item.name === option).isSelected = true});
-                data?.oChannel?.split(', ')?.forEach((option) => {this.outputChannels.find(item => item.name === option).isSelected = true});
-                if(data?.emailAddresses?.includes('<|DGE|>')){
-                    const splitEmails = data?.emailAddresses.split('<|DGE|>');
-                    this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()) : [];
-                    this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()) : [];
-                    this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()) : [];
-                }
-                this.emailSubject = data?.emailSubject ? data?.emailSubject : '';
-                this.emailBody = data?.emailBody ? data?.emailBody : '';
-                this.selectedEmailTemplate = data?.emailTemplate ? data?.emailTemplate : null;
-                this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
-                this.buttonLabel = data?.buttonLabel ? data?.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent.length > 80 ? this.templateNameFromParent.slice(0, 80) : this.templateNameFromParent : '');
-                this.buttonName = data?.buttonName || null;
-                if(this.buttonName && this.allButtons.includes(this.buttonName)){
-                    this.isOldButton = true;
-                    this.bottomBtnLabel = 'Update Defaults';
+                if(data){
+                    console.log('Data ::', data);
+                    if(data?.docType){
+                        this.documentTypes.find(item => item.name === data?.docType).isSelected = true;
+                    }
+                    this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
+                    data?.iStorage?.split(', ')?.forEach((option) => {this.internalStorageOptions.find(item => item.name === option).isSelected = true});
+                    data?.eStorage?.split(', ')?.forEach((option) => {this.externalStorageOptions.find(item => item.name === option).isSelected = true});
+                    data?.oChannel?.split(', ')?.forEach((option) => {this.outputChannels.find(item => item.name === option).isSelected = true});
+                    if(data?.emailAddresses?.includes('<|DGE|>')){
+                        const splitEmails = data?.emailAddresses.split('<|DGE|>');
+                        this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()) : [];
+                        this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()) : [];
+                        this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()) : [];
+                    }
+                    this.emailSubject = data?.emailSubject ? data?.emailSubject : '';
+                    this.emailBody = data?.emailBody ? data?.emailBody : '';
+                    this.selectedEmailTemplate = data?.emailTemplate ? data?.emailTemplate : null;
+                    this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
+                    this.buttonLabel = data?.buttonLabel ? data?.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent.length > 80 ? this.templateNameFromParent.slice(0, 80) : this.templateNameFromParent : '');
+                    this.buttonName = data?.buttonName || null;
+                    if(this.buttonName && this.allButtons.includes(this.buttonName)){
+                        this.isOldButton = true;
+                        this.bottomBtnLabel = 'Update Defaults';
+                    }else{
+                        this.buttonName = null;
+                    }
+                    this.fileName = this.templateName;
+                    this.showCC = this.ccEmails.length > 0 ? true : false;
+                    this.showBCC = this.bccEmails.length > 0 ? true : false;
+                    this.isAdditionalInfo = true;
+                    this.showSpinner = false;
+                    console.log('Is there any error up till now??');
+                    if(!this.isCalledFromDefaults){
+                        this.showSpinner = true;
+                        this.handleGenerate();
+                    }
                 }else{
-                    this.buttonName = null;
-                }
-                this.fileName = this.templateName;
-                this.showCC = this.ccEmails.length > 0 ? true : false;
-                this.showBCC = this.bccEmails.length > 0 ? true : false;
-                this.isAdditionalInfo = true;
-                this.showSpinner = false;
-                console.log('Is there any error up till now??');
-                if(!this.isCalledFromDefaults){
-                    this.showSpinner = true;
-                    this.handleGenerate();
+                    this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
+                    this.isClosableError = true;
                 }
             })
             .catch((e) =>{
@@ -776,7 +774,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             value : temp.Id
                         }
                     });
-                    // this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
                     console.log('Calling from the get email templates ::', this.allEmailTemplates);
                     resolve();
                 })
@@ -1558,7 +1555,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.fetchedResults = [];
             if(!this.fileName){
                 let thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                this.fileName = thisTemplate.MVDG__Template_Name__c;
+                this.fileName = thisTemplate.Template_Name__c;
             }
             let element ;
             if(this.selectedExtension === '.csv'){
@@ -1736,8 +1733,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
             else{
                 this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
-                this.vfGeneratePageSRC = newSRC;
-                this.simpleTemplate = true;
+                setTimeout(() => {
+                    this.vfGeneratePageSRC = newSRC;
+                    this.simpleTemplate = true;
+                }, 300)
             }
         }
         catch(error){
@@ -1963,16 +1962,18 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             this.labelOfLoader = 'Sending email...';
     
-            const fileDataWrapper = {
+            let emailData = {
                 contentVersionId: cvId,
-                toEmails: this.toEmails,
-                ccEmails: this.ccEmails,
-                bccEmails: this.bccEmails,
                 emailSubject: this.emailSubject,
                 emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue : this.emailBody
             };
+            let allEmails = {
+                toEmails: this.toEmails,
+                ccEmails: this.ccEmails,
+                bccEmails: this.bccEmails
+            }
     
-            sendEmail({ saveDataWrapper: fileDataWrapper })
+            sendEmail({ allEmails:allEmails, emailData:emailData })
                 .then(() => {
                     console.log('Sent email successfully.');
                     this.succeeded.push('Email');
@@ -2167,12 +2168,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         let objList = [];
                         objList.push(this.objectApiName);
                         let buttonData = {
-                            objects : objList,
                             buttonLabel: this.buttonLabel,
                             buttonName: this.buttonName ? this.buttonName : this.buttonLabel.replace(/[^a-zA-Z_]+/g, '_'),
-                            buttonEndURL: '&MVDG__isDefaultGenerate=true&MVDG__templateIdToGenerate='+this.templateIdFromParent
+                            buttonEndURL: '&c__isDefaultGenerate=true&c__templateIdToGenerate='+this.templateIdFromParent
                         }
-                        createListViewButtons({ bdw : buttonData})
+                        createListViewButtons({objects: objList, buttonData : buttonData})
                         .then((isSuccess) => {
                             if(isSuccess == false){
                                 this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
@@ -2236,7 +2236,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }else{
                     this.isOldButton = true;
                     this.bottomBtnLabel = 'Update Defaults'
-                    this.showToast('success', 'Everything worked!', 'The defaults for' + this.buttonLabel + ' button is updated!', 5000);
+                    this.showToast('success', 'Everything worked!', 'The defaults for ' + this.buttonLabel + ' button is updated!', 5000);
                 }
             })
             .catch(e => {
