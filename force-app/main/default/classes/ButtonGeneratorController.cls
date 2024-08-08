@@ -70,15 +70,15 @@ public with sharing class ButtonGeneratorController {
 ********************************************************
 */
 @AuraEnabled
-public static List<String> getQuickActionButtonObj(List<ObjectsWrapper> allObjects){
+public static List<String> getQuickActionButtonObj(List<Map<String,String>> allObjects){
     try {
         List<String> objects = new List<String>();
         if(allObjects.size() > 0){
-            for (ObjectsWrapper ow : allObjects) {
+            for (Map<String,String> ow : allObjects) {
                 List<String> actionButtonsList = new List<String>();
-                actionButtonsList.add(ow.value+ '.DG_Generate_Document');
+                actionButtonsList.add(ow.get('value')+ '.DG_Generate_Document');
                 if(QuickAction.DescribeQuickActions(actionButtonsList).size() > 0) {
-                    objects.add(ow.value);
+                    objects.add(ow.get('value'));
                 }
             }
         }
@@ -98,14 +98,14 @@ public static List<String> getQuickActionButtonObj(List<ObjectsWrapper> allObjec
 ********************************************************
 */
     @AuraEnabled
-    public static List<ObjectsWrapper> getAllObjects(){
-        List<ObjectsWrapper> listOfOW = new List<ObjectsWrapper>();
+    public static List<Map<String, String>> getAllObjects(){
+        List<Map<String, String>> listOfOW = new List<Map<String, String>>();
         try {
             List<EntityDefinition> objects = [SELECT Label, QualifiedApiName FROM EntityDefinition WHERE IsCustomizable = true WITH SECURITY_ENFORCED];
             for (EntityDefinition obj : objects) {
-                ObjectsWrapper ow = new ObjectsWrapper();
-                ow.label = obj.Label;
-                ow.value = obj.QualifiedApiName;
+                Map<String, String> ow = new Map<String, String>();
+                ow.put('label', obj.Label);
+                ow.put('value', obj.QualifiedApiName);
                 listOfOW.add(ow);
             }
         } catch (Exception e) {
@@ -124,7 +124,7 @@ public static List<String> getQuickActionButtonObj(List<ObjectsWrapper> allObjec
 ********************************************************
 */
     @AuraEnabled
-    public static Boolean createListViewButtons(ButtonDataWrapper bdw){
+    public static void createListViewButtons(ButtonDataWrapper bdw){
         try {
             System.debug('BDW Wrapper :' + bdw);
             MetadataService.MetadataPort service = new MetadataService.MetadataPort();
@@ -169,18 +169,19 @@ public static List<String> getQuickActionButtonObj(List<ObjectsWrapper> allObjec
                 
                 if (chunk.size() == batchSize || i == totalSize - 1) {
                     // Process the chunk
-                    addButtons(chunk);
+                    Boolean isSuccess = addButtons(chunk);
+                    if(!isSuccess){
+                        throw new AuraHandledException('Error Creating Button.');
+                    }
                     
+
                     // Clear the chunk list for the next batch
                     chunk.clear();
                 }
             }
-
-            return true;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'createListViewButtons');
             system.debug('exception in createListViewButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
-            return false;
         }
     }
     
@@ -191,7 +192,7 @@ public static List<String> getQuickActionButtonObj(List<ObjectsWrapper> allObjec
 @return          : none
 ********************************************************
 */
-    public static void addButtons(List<MetadataService.Metadata> webLinks){
+    public static Boolean addButtons(List<MetadataService.Metadata> webLinks){
         try {
             MetadataService.MetadataPort service = new MetadataService.MetadataPort();
             if (!Test.isRunningTest()) {   
@@ -204,29 +205,18 @@ public static List<String> getQuickActionButtonObj(List<ObjectsWrapper> allObjec
 
             if(!saveResultList[0].created){
                 system.debug('Error Creating Button.');
-                throw new AuraHandledException('Error Creating Button.');
+                return false;
             }
-
+            return true;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'addButtons');
             system.debug('exception in addButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            return false;
         }
     }
 
 
 // -------------------------------------------------------------- Wrapper Classes ------------------------------------------------------------ //
-
-/*
-*********************************************************
-@description     : wrapper containing Data for the objects list
-@param           : label {String} - Label of the object
-@param           : value {String} - Name of the object
-********************************************************
-*/
-    public class ObjectsWrapper{
-        @AuraEnabled public String label {get; set;}
-        @AuraEnabled public String value {get; set;}
-    }
 
 /*
 *********************************************************
@@ -248,14 +238,14 @@ public static List<String> getQuickActionButtonObj(List<ObjectsWrapper> allObjec
 /*
 *********************************************************
 @description     : wrapper containing data of all already create button objects
-@param           : allObjects {List<ObjectsWrapper>} - list of all objects
+@param           : allObjects {List<Map<String, String>>} - list of map of label and value of the objects
 @param           : listViewButtonObj {List<String>} - list of object that have a list view button
 @param           : quickActionButtonObj {List<String>} - list of object that have a quick action button
 @param           : basicPrintButtonObj {List<String>} - list of objects that have a basic print button
 ********************************************************
 */
     public class CombinedDataWrapper{
-        @AuraEnabled public List<ObjectsWrapper> allObjects;
+        @AuraEnabled public List<Map<String, String>> allObjects;
         @AuraEnabled public List<String> listViewButtonObj;
         @AuraEnabled public List<String> quickActionButtonObj;
         @AuraEnabled public List<String> basicPrintButtonObj;

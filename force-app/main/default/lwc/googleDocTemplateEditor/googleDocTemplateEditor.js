@@ -122,7 +122,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     if (result.templateData) {
                         let templateData = JSON.parse(result.templateData);
                         this.webViewLink = templateData.MVDG__Google_Doc_WebViewLink__c;
-                        this.Google_Doc_Template_Id__c = templateData.MVDG__Google_Doc_Template_Id__c;
+                        this.MVDG__Google_Doc_Template_Id__c = templateData.MVDG__Google_Doc_Template_Id__c;
                         this.documentName = templateData.MVDG__Google_Doc_Name__c;
                     } else {
                         this.isSpinner = false;
@@ -207,7 +207,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         try {
             console.log('this.next');
             this.webViewLink = this.selectedTemplate.webViewLink;
-            this.Google_Doc_Template_Id__c = this.selectedTemplate.id;
+            this.MVDG__Google_Doc_Template_Id__c = this.selectedTemplate.id;
             this.documentName = this.selectedTemplate.name;
             this.isSpinner = true;
 

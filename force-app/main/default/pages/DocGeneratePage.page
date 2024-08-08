@@ -336,7 +336,7 @@
                 try {
 
                     const apexError = '{!JSENCODE(apexError)}';
-                    console.log('apexError : ', apexError);
+                    apexError && console.log('apexError : ', apexError);
 
                     if(apexError && apexError !== null && apexError !== ''){
                         // We faced issue in apex.. so stop process here and send message to parent compoent....
@@ -397,8 +397,8 @@
                         let headerHtml = '{!JSENCODE(headerHtml)}';
                         let footerHtml = '{!JSENCODE(footerHtml)}';
     
-                        const showHeader = '{!showHeader}';
-                        const showFooter = '{!showFooter}';
+                        const showHeader = JSON.parse('{!showHeader}');
+                        const showFooter = JSON.parse('{!showFooter}');
     
                         const headerMarginTop = showHeader ? toPx('{!headerMarginTop}') : 0;
                         
@@ -414,22 +414,23 @@
                         const childRecordTableKeysString = '{!JSENCODE(childRecordTableKeys)}';
                         const childRecordTableKeys = childRecordTableKeysString ? JSON.parse(childRecordTableKeysString) : {};
     
-                        const salesforceImageSRCsString = '{!JSENCODE(salesforceImageSRCs)}';
-                        const salesforceImageSRCs = salesforceImageSRCsString ? JSON.parse(salesforceImageSRCsString) : {};
+                        const salesforceImageSRCsString = '{!JSENCODE(salesforceImages)}';
+                        const salesforceImages = salesforceImageSRCsString ? JSON.parse(salesforceImageSRCsString) : {};
                         
                         const mergeTemplateKeysString = '{!JSENCODE(mergeTemplateKeys)}';
                         const mergeTemplateKeys = mergeTemplateKeysString ? JSON.parse(mergeTemplateKeysString) : {};
     
                         // ###
-                        const signatureImages = {};
+                        const signatureImageCvIdString =  '{!JSENCODE(signatureImageCvId)}';
+                        const signatureImageCvId = signatureImageCvIdString ? JSON.parse(signatureImageCvIdString) : null;
                         const signatureKey = '{!JSENCODE(signatureKey)}';
                         const signatureSize = '{!signatureSize}';
-    
-                        const imageMaxSize = '{!imageMaxSize}';
-    
-                        if(bodyHtml.includes(signatureKey)){
-                            signatureImages[signatureKey] = '';
+                        // Add signature image key and cv Id into salesforceImage List to fetch base64;
+                        if(signatureImageCvId){
+                            salesforceImages[signatureKey] = signatureImageCvId[signatureKey];
                         }
+
+                        const imageMaxSize = '{!imageMaxSize}';
                         
                         let isBatchRequired = '{!isBatchRequired}';
     
@@ -443,7 +444,7 @@
                         delete  mergeTemplateKeys[selfMergeTempKey];
     
                         //  --- ---- Fetch current template data and and merge template data (if required) --- ---- 
-                        if(Object.keys(mergeTemplateKeys)?.length ||  Object.keys(salesforceImageSRCs)?.length || Object.keys(signatureImages)?.length){
+                        if(Object.keys(mergeTemplateKeys)?.length ||  Object.keys(salesforceImages)?.length){
                             loadingInfo && (loadingInfo.innerText = 'Fetching Template Data...');
                             fetchData();
                         }
@@ -451,21 +452,23 @@
                             replaceKeysWithValue();
                         }
     
+                        /**
+                         * Meyhod to fetch template and contetent version data from backend using remoteAction and Rest Api...
+                        */
                         function fetchData() {
                             let completedProcess = 0;
                             let totalProcess = Object.keys(mergeTemplateKeys).length;
-                            totalProcess = totalProcess + Object.keys(signatureImages).length;
-                            totalProcess = totalProcess + Object.keys(salesforceImageSRCs).length;
-                            console.log('totalProcess : ', totalProcess);
+                            totalProcess = totalProcess + Object.keys(salesforceImages).length;
                             
                             let templatesData = {};
                             for(let key in mergeTemplateKeys){
                                 templatesData[key] = '';
                                 fetchAllTemplateData(1, mergeTemplateKeys[key], key);
                             }
-                            /* --- --- ---- ---- ---- ---- ---- ---- --- --- ---- ---- ---
-                                Fetch template Data in batch using remoteAction....
-                            --- --- ---- ---- ---- ---- ---- ---- --- --- ---- ---- --- --- */
+
+                            /**
+                             *  Fetch template Data in batch using remoteAction....
+                             */
                             function fetchAllTemplateData(offset, templateId, mergeKey) {
                                 Visualforce.remoting.Manager.invokeAction(
                                     'DocGenerateController.fetchTemplateData',
@@ -508,42 +511,13 @@
                                 );
                             }
     
-                            if(Object.keys(signatureImages).length){
-                                // Fetch Base64 for signature Images images....
-                                fetchSignatureImages();
-                            }
-    
-                            function fetchSignatureImages(){
-                                Visualforce.remoting.Manager.invokeAction(
-                                    '{!$RemoteAction.DocGenerateController.fetchSignatureBase64}',
-                                    recordId,
-                                    function(result, event) {
-                                        console.log('fetchSignatureBase64 : ', event);
-                                        // console.log('event : ', event);
-                                        if(event.status){
-                                            if( result && result != ''){
-                                                signatureImages[signatureKey] = result;
-                                            }
-                                            else{
-                                                signatureImages[signatureKey] = dummyImgSrc;
-                                                console.warn('error to fetch sf image : ', event);
-                                            }
-                                        }
-                                        else{
-                                            signatureImages[signatureKey] = dummyImgSrc;
-                                            console.warn('error to fetch sf image : ', event);
-                                        }
-    
-                                        proccesFurther();
-                                    }
-                                );
-                            }
-    
-                            for(let src in salesforceImageSRCs){
-                                fetchContentVersionsData(salesforceImageSRCs[src], src)
+                            for(let src in salesforceImages){
+                                fetchContentVersionsData(salesforceImages[src], src)
                             }
                             
-                            // Fetch Base64 for salesforce images using REST API....
+                            /**
+                             *   Fetch Base64 for salesforce Images(Content Version) using REST API....
+                             */
                             function fetchContentVersionsData(cvId, imageSRC){
                                 const queryURL = `/services/data/v56.0/sobjects/ContentVersion/${cvId}/VersionData`;
     
@@ -563,30 +537,29 @@
                                         if(blob.size < imageMaxSize){
                                             const reader = new FileReader();
                                             reader.onloadend = () => {
-                                                salesforceImageSRCs[imageSRC] = 'data:image/png;base64,'+ reader.result.split(',')[1];
+                                                salesforceImages[imageSRC] = 'data:image/png;base64,'+ reader.result.split(',')[1];
                                                 proccesFurther();
                                             }
                                             reader.onerror = () => {
-                                                salesforceImageSRCs[imageSRC] = dummyImgSrc;
+                                                salesforceImages[imageSRC] = dummyImgSrc;
                                                 proccesFurther();
                                             }
                                             reader.readAsDataURL(blob);
                                         }
                                         else{
-                                            salesforceImageSRCs[imageSRC] = dummyImgSrc;
+                                            salesforceImages[imageSRC] = dummyImgSrc;
                                             proccesFurther();
                                         }
                                     })
                                 })
                                 .catch(error => {
-                                    salesforceImageSRCs[imageSRC] = dummyImgSrc;
+                                    salesforceImages[imageSRC] = dummyImgSrc;
                                     proccesFurther();
                                 })
                             }
     
                             function proccesFurther(){
                                 completedProcess++;
-                                console.log('into proccesFurther : ', completedProcess);
                                 // Check if all templates data and Image base64 are fetched
                                 if (completedProcess === totalProcess) {
                                     replaceKeysWithValue();
@@ -635,29 +608,24 @@
                                 footerHtml = footerHtml.replaceAll(key, childRecordTableKeys[key])
                             }
     
-                            // replace signature key with signature image....
-                            if(Object.keys(signatureImages).length){
-                                let signatureImageEle = '';
-                                if(signatureImages[signatureKey]){
-                                    if(signatureImages[signatureKey] === 'largeImage'){
-                                        signatureImageEle = 'Signate Image size large.'
-                                    }
-                                    else if(signatureImages[signatureKey].includes('data:image')){
-                                        const signatureImageInPt = (signatureSize * pageFormats()[pageSize][0]) / 100;
-                                        signatureImageEle = `<img style="width : ${signatureImageInPt}pt; max-width:100%;" src="${signatureImages[signatureKey]}" >`
-                                    }
-                                }
-    
-                                bodyHtml = bodyHtml.replaceAll(signatureKey, signatureImageEle);
-                                headerHtml = headerHtml.replaceAll(signatureKey, signatureImageEle);
-                                footerHtml = footerHtml.replaceAll(signatureKey, signatureImageEle)
-                            }
     
                             // replace salesforce image url with base64...
-                            for(let src in salesforceImageSRCs){
-                                bodyHtml = bodyHtml.replaceAll(src, salesforceImageSRCs[src]);
-                                headerHtml = headerHtml.replaceAll(src, salesforceImageSRCs[src]);
-                                footerHtml = footerHtml.replaceAll(src, salesforceImageSRCs[src]);
+                            for(let src in salesforceImages){
+                                if(src === signatureKey){
+                                    const signatureImageInPt = (signatureSize * pageFormats()[pageSize][0]) / 100;
+                                    const signatureImageEle = `<img style="width : ${signatureImageInPt}pt; max-width:100%;" src="${salesforceImages[src]}" >`
+                                    
+                                    // replace signature key with signature image....
+                                    bodyHtml = bodyHtml.replaceAll(signatureKey, signatureImageEle);
+                                    headerHtml = headerHtml.replaceAll(signatureKey, signatureImageEle);
+                                    footerHtml = footerHtml.replaceAll(signatureKey, signatureImageEle)
+
+                                }
+                                else{
+                                    bodyHtml = bodyHtml.replaceAll(src, salesforceImages[src]);
+                                    headerHtml = headerHtml.replaceAll(src, salesforceImages[src]);
+                                    footerHtml = footerHtml.replaceAll(src, salesforceImages[src]);
+                                }
                             }
     
                             const promises = [];
@@ -716,6 +684,8 @@
                                 let headerElement = document.createElement('div');
                                 headerElement.innerHTML = editorNode.replace('<HTMLContent>', headerHtml)
                                                                         .replace('@typeClass', 'headerEditor');
+                                headerElement.style = ` max-height : headerFooterMaxHeight;
+                                                        overflow: hidden;`
     
                                 const headerImgs =  headerElement.querySelectorAll('img');
                                 headerImgs.forEach(ele => {
@@ -770,7 +740,7 @@
                                         const fileData = reader.result.split(',')[1];
                                         let downlaodUrl =  reader.result;
     
-                                        handleGenerateFiels(fileData, pdfBlob, downlaodUrl);
+                                        handleGeneratedFiles(fileData, pdfBlob, downlaodUrl);
                                     }
                                     reader.readAsDataURL(pdfBlob);
                                 }
@@ -947,13 +917,13 @@
     
                             const fileData = btoa(unescape(encodeURIComponent(output)));
     
-                            handleGenerateFiels(fileData, blob, url);
+                            handleGeneratedFiles(fileData, blob, url);
                         }
                         // ========= ========= File Generation Methods -- END --- ============== =============
     
                         // === ==== ==== File Storage Method --- START --- === === =====
     
-                        function handleGenerateFiels(fileData, blob, downalodURL){
+                        function handleGeneratedFiles(fileData, blob, downalodURL){
                             try {
                                 const fileSizeInByte = (fileData.length / 4) * 3;
                             
@@ -993,7 +963,7 @@
                                     createContentVersion(fileData);
                                 }
                             } catch (error) {
-                                console.log('error in handleGenerateFiels : ', error.stack);
+                                console.log('error in handleGeneratedFiles : ', error.stack);
                                 sendInfoToLWC('unknown', false, error);
                             }
                         }
@@ -1029,7 +999,7 @@
                                 fetch(encodeURI(domainURL + queryURL), requestOptions)
                                 .then(response => {
                                     response.json()
-                                    .then((result) => {
+                                    .then(result => {
                                         if (result.success) {
                                             sendInfoToLWC('Documents', true, null);
                                         }
@@ -1087,7 +1057,7 @@
                                 fetch(encodeURI(domainURL + queryURL), requestOptions)
                                 .then(response => {
                                     response.json()
-                                    .then((result) => {
+                                    .then(result => {
                                         if (result.success) {
                                             sendInfoToLWC('Notes & Attachments', true, null);
                                         }
@@ -1096,7 +1066,7 @@
                                         }
                                     })
                                 })
-                                .catch((error) => {
+                                .catch(error => {
                                     console.error('Error creating Notes & Attachments:', error);
                                 })
                             
@@ -1138,9 +1108,7 @@
                                 fetch(encodeURI(domainURL + queryURL), requestOptions)
                                 .then(response => {
                                     response.json()
-                                    .then((result) => {
-                                        // console.log('result of create content version : ', result);
-        
+                                    .then(result => {
                                         if (!result.success || !result.id) {
                                             console.log('Couldn\'t create the content version');
                                             sendInfoToLWC('External Storage', false, result.error);
@@ -1150,7 +1118,6 @@
                                             sendInfoToLWC('External Storage', true, null, result.id);
                                         }
                                     })
-    
                                 })
                                 .catch(error => {
                                     console.log('error in External Storage : ', error.json());
@@ -1166,6 +1133,8 @@
                         }
                         // === ==== ==== File Storage Method --- END --- === === =====
 
+                        // === ==== ==== File Storage Method --- END --- === === =====
+    
                         // ===== ==== GENERIC METHODS -- START -- ==== =====
     
                         // ==== ===  Function to convet URL src to base64 src using canvas APIs ==== =====

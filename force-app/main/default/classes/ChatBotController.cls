@@ -159,18 +159,20 @@ public with sharing class ChatBotController {
     //
     @AuraEnabled
     public static String storeMessages(String msg){
-        List<ChatBotData__c> checkData = [SELECT Chats__c FROM ChatBotData__c WHERE CreatedById = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
+        
+        List<MVDG__ChatBotData__c> checkData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
         if(!checkData.isEmpty()){
-            checkData[0].Chats__c = msg;
-            if(!Schema.sObjectType.ChatBotData__c.fields.Chats__c.isUpdateable()){
+            checkData[0].MVDG__Chats__c = msg;
+            if(!Schema.sObjectType.MVDG__ChatBotData__c.fields.MVDG__Chats__c.isUpdateable()){
                 return null;
             }
             update checkData;
+
         }
         else{
-            ChatBotData__c storedData = new ChatBotData__c();
-            storedData.Chats__c = msg;
-            if(!Schema.sObjectType.ChatBotData__c.fields.Chats__c.isCreateable()){
+            MVDG__ChatBotData__c storedData = new MVDG__ChatBotData__c();
+            storedData.MVDG__Chats__c = msg;
+            if(!Schema.sObjectType.MVDG__ChatBotData__c.fields.MVDG__Chats__c.isCreateable()){
                 return null;
             }
             insert storedData;
@@ -180,9 +182,9 @@ public with sharing class ChatBotController {
 
     @AuraEnabled
     public static String checkOldChats(){
-        List<ChatBotData__c> checkData = [SELECT Chats__c FROM ChatBotData__c WHERE CreatedById = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
+        List<MVDG__ChatBotData__c> checkData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
         if(!checkData.isEmpty()){
-            return checkData[0].Chats__c;
+            return checkData[0].MVDG__Chats__c;
         }
         else{
             return null;
@@ -192,10 +194,10 @@ public with sharing class ChatBotController {
 
     @AuraEnabled
     public static void deleteOldChats(){
-        if (!Schema.sObjectType.ChatBotData__c.isDeletable()) {
+        if (!Schema.sObjectType.MVDG__ChatBotData__c.isDeletable()) {
             return;
         }
-        List<ChatBotData__c> checkData = [SELECT Chats__c FROM ChatBotData__c WHERE CreatedById = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
+        List<MVDG__ChatBotData__c> checkData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
         if(!checkData.isEmpty()){
             delete checkData;
         }
@@ -217,17 +219,6 @@ public with sharing class ChatBotController {
         return 'null';
     }
 
-    // @AuraEnabled(cacheable=true)
-    // public static List<ContentVersion> getFileDetails(List<Id> contentDocumentIds) {
-    //     if(contentDocumentIds != null){
-    //     return [
-    //         SELECT Id, Title, ContentSize, ContentDocumentId 
-    //         FROM ContentVersion 
-    //         WHERE ContentDocumentId IN :contentDocumentIds WITH SECURITY_ENFORCED
-    //     ];
-    //     }
-    //     return null;
-    // }
 
     public class EmailDetails {
         @AuraEnabled public String toAddress { get; set; }

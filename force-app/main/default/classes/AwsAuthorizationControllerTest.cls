@@ -23,13 +23,13 @@ private class AwsAuthorizationControllerTest {
         
         Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());
 
-        AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getOrgDefaults();
-            settings.ClientId__c = 'mockClientId';
-            settings.ClientSecret__c = 'mockClientSecret';
-            settings.BucketName__c = 'mockBucketName';
-            settings.LinkedDate__c = Datetime.newInstance(Date.today().year(), Date.today().month(), Date.today().day()).format('dd/MM/yyyy');
-            settings.WorkingStatus__c = true;
-            settings.NickName__c = 'mockNickName';
+        MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+            settings.MVDG__ClientId__c = 'mockClientId';
+            settings.MVDG__ClientSecret__c = 'mockClientSecret';
+            settings.MVDG__BucketName__c = 'mockBucketName';
+            settings.MVDG__LinkedDate__c = Datetime.newInstance(Date.today().year(), Date.today().month(), Date.today().day()).format('dd/MM/yyyy');
+            settings.MVDG__WorkingStatus__c = true;
+            settings.MVDG__NickName__c = 'mockNickName';
             insert settings;
         
         // Test checkawsauth method
@@ -44,8 +44,8 @@ private class AwsAuthorizationControllerTest {
 
     @IsTest
     static void testelseverifyAuth(){
-        AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getOrgDefaults();
-        settings.NamedCredential__c = '';
+        MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+        settings.MVDG__NamedCredential__c = '';
         insert settings;
         Test.startTest();
         Boolean result = AwsAuthorizationController.verifyAuth();
@@ -59,18 +59,18 @@ private class AwsAuthorizationControllerTest {
         Test.startTest();
         String result = AwsAuthorizationController.authorize('mockClientId', 'mockClientSecret', 'mockBucket', 'mockNickName');
         Test.stopTest();
-        AwsAuthProviderSettings__c settings2 = [SELECT ClientId__c, ClientSecret__c, BucketName__c, NickName__c, LinkedDate__c, WorkingStatus__c FROM AwsAuthProviderSettings__c LIMIT 1];
+        MVDG__AwsAuthProviderSettings__c settings2 = [SELECT MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__BucketName__c, MVDG__NickName__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c FROM MVDG__AwsAuthProviderSettings__c LIMIT 1];
         System.assertEquals('Success', result);
         
     }
 
     @IsTest
     static void testUnauthorize() {
-        AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getInstance();
+        MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getInstance();
         System.assertNotEquals(null, settings);
         Test.startTest();
         Boolean result = AwsAuthorizationController.unauthorize();
-        AwsAuthProviderSettings__c settings1 = [SELECT ClientId__c, ClientSecret__c, BucketName__c, NickName__c, LinkedDate__c, WorkingStatus__c FROM AwsAuthProviderSettings__c LIMIT 1];
+        MVDG__AwsAuthProviderSettings__c settings1 = [SELECT MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__BucketName__c,MVDG__NickName__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c FROM MVDG__AwsAuthProviderSettings__c LIMIT 1];
         Test.stopTest();
         System.assertEquals(true, result);
     }

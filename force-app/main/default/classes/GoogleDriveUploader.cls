@@ -59,15 +59,15 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
     }
 
     global static String getToken(){
-        AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
+        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
         String endpoint = 'https://oauth2.googleapis.com/token';
         HttpRequest request = new HttpRequest();
         request.setEndpoint(endpoint);
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.refresh_token__c +
-                        '&client_id=' + settings.ClientId__c +
-                        '&client_secret=' + settings.ClientSecret__c +
+        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
+                        '&client_id=' + settings.MVDG__ClientId__c +
+                        '&client_secret=' + settings.MVDG__ClientSecret__c +
                         '&grant_type=refresh_token');
 
         Http http = new Http();
@@ -89,7 +89,7 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
     public static Boolean uploadToGoogleDrive(ContentVersion content, String fileName, String contentType) {
 
         if (content != null) {
-            AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
+            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
             HttpRequest req = createGoogleDriveRequest(content, settings);
 
             HttpResponse resp = sendHttpRequest(req);
@@ -107,7 +107,7 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
         return false;
     }
 
-    private static HttpRequest createGoogleDriveRequest(ContentVersion content, AuthProviderSettings__c settings) {
+    private static HttpRequest createGoogleDriveRequest(ContentVersion content, MVDG__AuthProviderSettings__c settings) {
         HttpRequest req = new HttpRequest();
         String fileN = content.Title;
         String fileExtension = content.FileExtension;
@@ -138,15 +138,15 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
         req.setTimeout(60000);
         return h.send(req);
     }
-// private static Boolean refreshAccessToken(AuthProviderSettings__c settings) {
+// private static Boolean refreshAccessToken(MVDG__AuthProviderSettings__c settings) {
 //         String ENDPOINT = 'https://oauth2.googleapis.com/token';
 //         HttpRequest request = new HttpRequest();
 //         request.setEndpoint(ENDPOINT);
 //         request.setMethod('POST');
 //         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-//         request.setBody('refresh_token=' + settings.refresh_token__c +
-//                         '&client_id=' + settings.ClientId__c +
-//                         '&client_secret=' + settings.ClientSecret__c +
+//         request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
+//                         '&client_id=' + settings.MVDG__ClientId__c +
+//                         '&client_secret=' + settings.MVDG__ClientSecret__c +
 //                         '&grant_type=refresh_token');
 
 //         Http http = new Http();
@@ -156,7 +156,7 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
 //             Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
 //             String newToken = (String) jsonResponse.get('access_token');
 //             if (newToken != null) {
-//                 settings.access_token__c = newToken;
+//                 settings.MVDG__access_token__c = newToken;
 //                 upsert settings;
 //                 return true;
 //             }
@@ -294,7 +294,7 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
     }
 
     public static string initiateUploadSession(String contentType, ContentVersion cv) {
-        AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
+        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
         HttpRequest req = new HttpRequest();
         req.setEndpoint('https://www.googleapis.com/upload/drive/v2/files?uploadType=resumable');
         req.setMethod('POST');
@@ -327,7 +327,7 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
             String contentRange = 'bytes ' + parameters.start + '-' + parameters.ending + '/' + parameters.fileSize;
 
             // System.debug('upload url' + result);
-            AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
+            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
             // System.debug('Content-Length' + String.valueof(chunk.size()));
             // System.debug('Content-Range' + contentRange);
             HttpRequest req2 = new HttpRequest();

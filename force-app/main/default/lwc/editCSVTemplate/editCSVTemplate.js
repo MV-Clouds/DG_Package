@@ -237,11 +237,11 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }
             if(filter.fieldName){
                 this.template.querySelectorAll('.operator-select')[index]?.classList.remove('dont-display-div');
-                this.template.querySelectorAll('.operator-select')[index]?.classList.remove('error-in-custom-combobox');
                 // console.log('There is Field Name');
             }else{
                 filter.operator = '';
                 filter.value = '';
+                this.template.querySelectorAll('.operator-select')[index]?.classList.remove('error-in-custom-combobox');
                 this.template.querySelectorAll('.operator-select')[index]?.classList.add('dont-display-div');
                 this.template.querySelectorAll('.value-select-div')[index]?.classList.add('dont-display-div');
                 // console.log('No field Selected');
@@ -274,6 +274,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     connectedCallback() {
         try {
             this.showSpinner = true;
+
+            console.log('this.isChild : ', this.isChild);
+            this.isChild
 
             this.limit = this.isChild ? this.childMaxLimit : 1000000;
             this.existingLimit = this.limit;
@@ -434,12 +437,18 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 let mainFilterDiv = this.template.querySelector('.main-div');
                 let styleEle = document.createElement('style');
                 styleEle.innerText = `
+
                             .main-div .slds-input{
                                 height: 2.5rem;
                                 border-radius: 0.5rem;
                                 border: 0.0625rem solid var(--slds-c-input-color-border);
                                 box-shadow: none;
                             } 
+
+                            .logic-div .slds-input{
+                                height: 42px;
+                            }
+
                             .main-div .slds-textarea{
                                 height: 3.5rem;
                                 border-radius: 0.5rem 0.5rem 0 0.5rem;
@@ -908,15 +917,13 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             // console.log('What is index: ' + index);
             if(this.sorts.length >1){
                 this.sorts.splice(index, 1);
-            }else if(this.sorts.length ==1){
+            }else if(this.sorts.length ===1){
                 this.sorts[0].field = '';
                 this.sorts[0].order = '';
-                this.template.querySelectorAll('.sort-index-div')[0].classList.remove('error-in-row');
-                this.template.querySelectorAll('.asc-btn')[0].classList.remove('selected-sort-order');
-                this.template.querySelectorAll('.desc-btn')[0].classList.remove('selected-sort-order');
-                this.template.querySelectorAll('.sort-field-select').forEach( ele => {
-                    ele.classList.remove('error-in-custom-combobox');
-                });
+                this.template.querySelector('.sort-index-div').classList.remove('error-in-row');
+                this.template.querySelector('.asc-btn')[0].classList.remove('selected-sort-order');
+                this.template.querySelector('.desc-btn')[0].classList.remove('selected-sort-order');
+                this.template.querySelector('.sort-field-select').classList.remove('error-in-custom-combobox');
             }
             this.isEditTabChanged = true;
         }catch(e){
@@ -935,12 +942,14 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 selectedSortFields.push(sort.field);
                 // console.log('Sort Selected Fields :: ' + sort.field);
             }
-            if(!event.detail[0] && this.sorts.length > 1){
-                ascBtn.classList.remove('selected-sort-order');
-                descBtn.classList.remove('selected-sort-order');
+            if(!event.detail[0]){
                 this.sorts[index].field = '';
                 this.sorts[index].order = '';
-                this.template.querySelectorAll('.sort-field-select')[index].classList.add('error-in-custom-combobox');
+                ascBtn.classList.remove('selected-sort-order');
+                descBtn.classList.remove('selected-sort-order');
+                if(this.sorts.length > 1){
+                    this.template.querySelectorAll('.sort-field-select')[index].classList.add('error-in-custom-combobox');
+                }
                 console.log('removed the order', this.sorts[index]);
                 return;
             }
@@ -1077,8 +1086,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         try{
             const index = event.target.dataset.index;
             this.filters[index].value = event.target.value.trim();
-            this.filters[index].value ? this.template.querySelectorAll('.value-select-div')[index].classList.remove('error-in-value-input'): this.template.querySelectorAll('.value-select-div')[index].classList.add('error-in-value-input');
-            // console.log('Value changed to: ' + this.filters[index].value);
+            this.template.querySelectorAll('.value-select-div')[index].classList.toggle('error-in-value-input', !this.filters[index].value);
             this.validateCurrentFilter(index);
             this.isEditTabChanged = true;
         }catch(e){
@@ -1088,7 +1096,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleSimpleInputFocus(event){
         try {
-            console.log('Event is now ::', event.target);
             const index = event.target.dataset.index;
             // console.log(this.filters[index].operator != "=" && this.filters[index].operator != "!=" && (this.filters[index].type.toUpperCase() !== 'DATETIME' || this.filters[index].type.toUpperCase() !=='DATE'));
             if((['ID','REFERENCE'].includes(this.filters[index].type.toUpperCase())) || this.filters[index].operator != "=" && this.filters[index].operator != "!=" && !['DATETIME', 'DATE'].includes(this.filters[index].type.toUpperCase())){
@@ -1132,11 +1139,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             this.template.querySelectorAll('.select-predefined-option').forEach((element)=>{
             element.classList.add('dont-display-div');
             })
-            this.filters[index].value ? this.template.querySelectorAll('.value-select-div')[index].classList.remove('error-in-value-input'): this.template.querySelectorAll('.value-select-div')[index].classList.add('error-in-value-input');
+            this.template.querySelectorAll('.value-select-div')[index].classList.toggle('error-in-value-input', !this.filters[index].value);
             const backDrop = this.template.querySelector('.backDrop');
             if(backDrop){
                 backDrop.style = 'display : none'
-                // console.log('preDefined value changed to : ' , this.filters[index].value);
             }
             this.validateCurrentFilter(index);
         }catch(e){
@@ -1155,7 +1161,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }else{
                 this.filters[index].value = event.detail;
             }
-            this.filters[index].value ? this.template.querySelectorAll('.value-select-div')[index].classList.remove('error-in-value-input') : this.template.querySelectorAll('.value-select-div')[index].classList.add('error-in-value-input');
+            this.template.querySelectorAll('.value-select-div')[index].classList.toggle('error-in-value-input', !this.filters[index].value);
             this.validateCurrentFilter(index);
             this.isEditTabChanged = true;
         }catch(e){
@@ -2332,12 +2338,12 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleUpdateTemplate(){
         try {
+            if(this.selectedListView){
+                this.handleListView();
+                this.isBasicTabChanged = false;
+            }
             if (this.isBasicTabChanged){
                 this.showSpinner = true;
-                if(this.selectedListView){
-                    this.handleListView();
-                    this.isBasicTabChanged = false;
-                }
                 let templateData = {
                     templateId : this.newTemplateData.Id,
                     templateName : this.newTemplateData.MVDG__Template_Name__c,
@@ -2352,7 +2358,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.existingTemplateData.MVDG__Description__c = this.newTemplateData.MVDG__Description__c;
                     this.existingTemplateData.MVDG__List_View__c = this.selectedListView;
                     this.isBasicTabChanged = false;
-                    this.showToast('success', 'Woohoo! Changes been saved!' , 'The template details been updated successfully.', 5000);
+                    // this.showToast('success', 'Woohoo! Changes been saved!' , 'The template details been updated successfully.', 5000);
                 })
                 .catch((e)=>{
                     console.log('Error updating the existing template :' , e.message);
@@ -2537,9 +2543,12 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                             this.existingFilters = JSON.parse(JSON.stringify(this.filters));
                             this.existingSorts = JSON.parse(JSON.stringify(this.sorts));
             
-                            if(this.isNew){
-                                this.showToast('success', 'Woohoo! List view updated!', 'All data from the list view has been imported.');
-                            }
+                            // if(this.isNew){
+                            //     this.showToast('success', 'Woohoo! List view updated!', 'All data from the list view has been imported.');
+                            // }
+                            //To Show Only source object Fields in available fields section
+                            this.setSelectionFields();
+                            //To Save Template just after proceeding with list view
                             this.handleSave();
                         })
                         .catch(e => {

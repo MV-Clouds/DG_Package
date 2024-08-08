@@ -12,15 +12,15 @@ public with sharing class PreviewCSVController {
         PreviewDataWrapper listOfPDW = new PreviewDataWrapper();
         try {
             List<sObject> previewRecords = new List<sObject>();
-            List<Template_Data__c> queryData = [SELECT Id, CSV_Query__c, CSV_Fields__c, Template__r.Template_Name__c,Template__r.Description__c, Template__r.Object_API_Name__c FROM Template_Data__c WHERE Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY Order_No_Simple__c asc NULLS Last];
+            List<MVDG__Template_Data__c> queryData = [SELECT Id, MVDG__CSV_Query__c, MVDG__CSV_Fields__c, MVDG__Template__r.MVDG__Template_Name__c,MVDG__Template__r.MVDG__Description__c, MVDG__Template__r.MVDG__Object_API_Name__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
             if(queryData.size() > 0){
-                String query = queryData[0].CSV_Query__c.substringBeforeLast('LIMIT') + ' LIMIT 25';
+                String query = queryData[0].MVDG__CSV_Query__c.substringBeforeLast('LIMIT') + ' LIMIT 25';
                 previewRecords = Database.query(query);
-                listOfPDW.fields = queryData[0].CSV_Fields__c;
+                listOfPDW.fields = queryData[0].MVDG__CSV_Fields__c;
                 listOfPDW.records = previewRecords;
-                listOfPDW.templateName = queryData[0].Template__r.Template_Name__c;
-                listOfPDW.templateObject = queryData[0].Template__r.Object_API_Name__c;
-                listOfPDW.templateDescription = queryData[0].Template__r.Description__c;
+                listOfPDW.templateName = queryData[0].MVDG__Template__r.MVDG__Template_Name__c;
+                listOfPDW.templateObject = queryData[0].MVDG__Template__r.MVDG__Object_API_Name__c;
+                listOfPDW.templateDescription = queryData[0].MVDG__Template__r.MVDG__Description__c;
             }
         } catch (Exception e) {
             log_Handler.store_Exception(e, 'PreviewCSVController', 'fetchPreviewData');

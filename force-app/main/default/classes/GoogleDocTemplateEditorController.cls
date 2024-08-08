@@ -21,8 +21,8 @@ public with sharing class GoogleDocTemplateEditorController {
     public static String getAllDocs() {
         try {
             String endpoint = 'https://www.googleapis.com/drive/v3/files';
-            AuthProviderSettings__c authProvider = new AuthProviderSettings__c();
-            authProvider = [SELECT Id, SetupOwnerId, access_token__c, refresh_token__c, ClientId__c, ClientSecret__c FROM AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            MVDG__AuthProviderSettings__c authProvider = new MVDG__AuthProviderSettings__c();
+            authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
             System.debug('authProvider==>' + authProvider);
             Map<String, String> params = new Map<String, String>();
 
@@ -40,7 +40,7 @@ public with sharing class GoogleDocTemplateEditorController {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint + '?' + paramString);
             request.setMethod('GET');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
 
             Http http = new Http();
             HttpResponse response = http.send(request);
@@ -64,14 +64,14 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
-    private static HttpResponse refreshAccessToken(AuthProviderSettings__c settings, HttpRequest requestPending) {
+    private static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
         System.debug('Refresh Access token');
         String endpoint = 'https://oauth2.googleapis.com/token';
         HttpRequest request = new HttpRequest();
         request.setEndpoint(endpoint);
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.refresh_token__c + '&client_id=' + settings.ClientId__c + '&client_secret=' + settings.ClientSecret__c + '&grant_type=refresh_token');
+        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + settings.MVDG__ClientId__c + '&client_secret=' + settings.MVDG__ClientSecret__c + '&grant_type=refresh_token');
 
         Http http = new Http();
         HttpResponse response = http.send(request);
@@ -80,13 +80,15 @@ public with sharing class GoogleDocTemplateEditorController {
             Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
             String newToken = (String) jsonResponse.get('access_token');
             if (newToken != null) {
-                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.access_token__c.isUpdateable()) {
-                    settings.access_token__c = newToken;
+
+                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable()) {
+                    settings.MVDG__access_token__c = newToken;
                 }
                 requestPending.setHeader('Authorization', 'Bearer ' + newToken);
                 Http httpPending = new Http();
                 HttpResponse responsePending = httpPending.send(requestPending);
-                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isAccessible() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable() && Schema.sObjectType.AuthProviderSettings__c.isCreateable()) {
+
+                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isAccessible() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isCreateable()) {
                     upsert settings;
                 }
                 return responsePending;
@@ -100,9 +102,9 @@ public with sharing class GoogleDocTemplateEditorController {
 
     public static String getTemplateData(String templateId) {
         try {
-            Template_Data__c templateData = new Template_Data__c();
-            templateData = [SELECT Google_Doc_WebViewLink__c, Google_Doc_Template_Id__c FROM Template_Data__c WHERE Template__c = :templateId AND Order_No_Simple__c = 1 WITH SECURITY_ENFORCED];
-            // templateData.Google_Doc_WebViewLink__c += '&access_token='+ AuthProviderSettings__c.getInstance().access_token__c;
+            MVDG__Template_Data__c templateData = new MVDG__Template_Data__c();
+            templateData = [SELECT MVDG__Google_Doc_WebViewLink__c, MVDG__Google_Doc_Template_Id__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c = :templateId AND MVDG__Order_No_Simple__c = 1 WITH SECURITY_ENFORCED];
+            // templateData.MVDG__Google_Doc_WebViewLink__c += '&access_token='+ MVDG__AuthProviderSettings__c.getInstance().MVDG__access_token__c;
 
             return JSON.serialize(templateData);
         } catch (Exception e) {
@@ -114,8 +116,8 @@ public with sharing class GoogleDocTemplateEditorController {
 
     public static String getTemplate(string templateId) {
         try {
-            Template__c template = new Template__c();
-            template = [SELECT Template_Name__c, Description__c, Id, Template_Status__c, Object_API_Name__c, Template_Type__c, CreatedDate, LastModifiedDate, CreatedBy.Name, LastModifiedBy.Name FROM Template__c WHERE Id = :templateId WITH SECURITY_ENFORCED];
+            MVDG__Template__c template = new MVDG__Template__c();
+            template = [SELECT MVDG__Template_Name__c, MVDG__Description__c, Id, MVDG__Template_Status__c, MVDG__Object_API_Name__c, MVDG__Template_Type__c, CreatedDate, LastModifiedDate, CreatedBy.Name, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id = :templateId WITH SECURITY_ENFORCED];
             return JSON.serialize(template);
         } catch (Exception e) {
             System.debug('Error In getTemplate ==> ' + e.getMessage());
@@ -127,12 +129,12 @@ public with sharing class GoogleDocTemplateEditorController {
     @AuraEnabled
     public static string getGoogleProfile() {
         try {
-            AuthProviderSettings__c authProvider = [SELECT Id, Name, access_token__c, email__c, photolink__c, username__c FROM AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            MVDG__AuthProviderSettings__c authProvider = [SELECT Id, Name, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__username__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
 
             Map<String, String> profile = new Map<String, String>();
-            profile.put('username', authProvider.username__c);
-            profile.put('email', authProvider.email__c);
-            profile.put('photolink', authProvider.photolink__c);
+            profile.put('username', authProvider.MVDG__username__c);
+            profile.put('email', authProvider.MVDG__email__c);
+            profile.put('photolink', authProvider.MVDG__photolink__c);
 
             return JSON.serialize(profile);
         } catch (Exception e) {
@@ -145,12 +147,12 @@ public with sharing class GoogleDocTemplateEditorController {
     @AuraEnabled
     public static void saveTemplateData(String templateId, String googleDocId, String webViewLink, String documentName) {
         try {
-            Template_Data__c templateData = new Template_Data__c();
-            templateData.Google_Doc_Template_Id__c = googleDocId;
-            templateData.Google_Doc_WebViewLink__c = webViewLink;
+            MVDG__Template_Data__c templateData = new MVDG__Template_Data__c();
+            templateData.MVDG__Google_Doc_Template_Id__c = googleDocId;
+            templateData.MVDG__Google_Doc_WebViewLink__c = webViewLink;
             // templateData.Google_Doc_Name__c = documentName;
-            templateData.Template__c = templateId;
-            templateData.Order_No_Simple__c = 1;
+            templateData.MVDG__Template__c = templateId;
+            templateData.MVDG__Order_No_Simple__c = 1;
 
             if (Schema.sObjectType.MVDG__Template_Data__c.isAccessible() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable()) {
                 insert templateData;
@@ -177,11 +179,11 @@ public with sharing class GoogleDocTemplateEditorController {
     @AuraEnabled
     public static void editTemplate(String templateRecord) {
         try {
-            Template__c template = (Template__c) JSON.deserialize(templateRecord, Template__c.class);
+            MVDG__Template__c template = (MVDG__Template__c) JSON.deserialize(templateRecord, MVDG__Template__c.class);
             if (Schema.sObjectType.MVDG__Template__c.isAccessible() && Schema.sObjectType.MVDG__Template__c.isUpdateable()) {
                 update template;
             } else {
-                System.debug('Error In editTemplate ==> Template__c is not accessible or updateable');
+                System.debug('Error In editTemplate ==> MVDG__Template__c is not accessible or updateable');
             }
         } catch (Exception e) {
             System.debug('Error In editTemplate ==> ' + e.getMessage());

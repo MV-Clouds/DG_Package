@@ -7,7 +7,6 @@ import getChildObjects from '@salesforce/apex/KeyMappingController.getChildObjec
 import formattingFieldKeys from '@salesforce/apex/KeyMappingController.formattingFieldKeys';
 import getSignatureInfo from '@salesforce/apex/KeyMappingController.getSignatureInfo';
 import updateSignatureInfo from '@salesforce/apex/KeyMappingController.updateSignatureInfo';
-import fetchImgBlob from '@salesforce/apex/KeyMappingController.fetchImgBlob';
 
 export default class KeyMappingContainer extends LightningElement {
 

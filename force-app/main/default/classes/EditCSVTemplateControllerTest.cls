@@ -3,20 +3,20 @@ public class EditCSVTemplateControllerTest {
     
     @TestSetup
     static void makeData(){
-        Template__c testTemplate = new Template__c(
-            Description__c = 'Test Description',
-            Object_API_Name__c = 'Contact',
-            Template_Name__c = 'Contact Template',
-            Template_Type__c = 'CSV Template',
-            Template_Status__c = true
+        MVDG__Template__c testTemplate = new MVDG__Template__c(
+            MVDG__Description__c = 'Test Description',
+            MVDG__Object_API_Name__c = 'Contact',
+            MVDG__Template_Name__c = 'Contact Template',
+            MVDG__Template_Type__c = 'CSV Template',
+            MVDG__Template_Status__c = true
         );
         insert testTemplate;
-        Template__c testTemplate2 = new Template__c(
-            Description__c = 'Test Description 2',
-            Object_API_Name__c = 'Contact',
-            Template_Name__c = 'Contact Template',
-            Template_Type__c = 'CSV Template',
-            Template_Status__c = true
+        MVDG__Template__c testTemplate2 = new MVDG__Template__c(
+            MVDG__Description__c = 'Test Description 2',
+            MVDG__Object_API_Name__c = 'Contact',
+            MVDG__Template_Name__c = 'Contact Template',
+            MVDG__Template_Type__c = 'CSV Template',
+            MVDG__Template_Status__c = true
         );
         insert testTemplate2;
 
@@ -24,35 +24,35 @@ public class EditCSVTemplateControllerTest {
 
     @IsTest
     static void testgetMethods(){
-        Template__c testT = [SELECT Id,Name, Object_API_Name__c FROM Template__c LIMIT 1];
-        Template_Page__c tp = new Template_Page__c(
-            Page_Number__c =001,
-            Template__c = testT.Id
+        MVDG__Template__c testT = [SELECT Id,Name, MVDG__Object_API_Name__c FROM MVDG__Template__c LIMIT 1];
+        MVDG__Template_Page__c tp = new MVDG__Template_Page__c(
+            MVDG__Page_Number__c =001,
+            MVDG__Template__c = testT.Id
         );
         insert tp;
 
-        Template_Data__c templateField= new Template_Data__c(
-            Template__c = testT.Id,
-            CSV_Fields__c = 'Name,Id',
-            Template_Page__c = tp.id,
-            CSV_Query__c = 'SELECT Name,Id FROM Account LIMIT 1',
-            CSV_orders__c = 'MasterRecordId<|IDG|>ASC<|SDG|>IsDeleted<|IDG|>ASC<|SDG|>Salutation<|IDG|>DESC',
-            CSV_logic__c = 'AND',
-            CSV_list_view__c = null,
-            CSV_limit__c = 1000,
-            CSV_Filter__c = 'FirstName<|IDG|>=<|IDG|>test<|IDG|>STRING<|IDG|>text<|FDG|>Title<|IDG|>=<|IDG|>test title<|IDG|>STRING<|IDG|>text<|FDG|>Company<|IDG|>!=<|IDG|>test<|IDG|>STRING<|IDG|>text<|FDG|>Street<|IDG|>!=<|IDG|>test<|IDG|>TEXTAREA<|IDG|>text',
-            Order_No_Simple__c = 1
+        MVDG__Template_Data__c templateField= new MVDG__Template_Data__c(
+            MVDG__Template__c = testT.Id,
+            MVDG__CSV_Fields__c = 'Name,Id',
+            MVDG__Template_Page__c = tp.id,
+            MVDG__CSV_Query__c = 'SELECT Name,Id FROM Account LIMIT 1',
+            MVDG__CSV_Orders__c = 'MasterRecordId<|IDG|>ASC<|SDG|>IsDeleted<|IDG|>ASC<|SDG|>Salutation<|IDG|>DESC',
+            MVDG__CSV_logic__c = 'AND',
+            MVDG__CSV_list_view__c = null,
+            MVDG__CSV_limit__c = 1000,
+            MVDG__CSV_Filter__c = 'FirstName<|IDG|>=<|IDG|>test<|IDG|>STRING<|IDG|>text<|FDG|>Title<|IDG|>=<|IDG|>test title<|IDG|>STRING<|IDG|>text<|FDG|>Company<|IDG|>!=<|IDG|>test<|IDG|>STRING<|IDG|>text<|FDG|>Street<|IDG|>!=<|IDG|>test<|IDG|>TEXTAREA<|IDG|>text',
+            MVDG__Order_No_Simple__c = 1
         );
 
         insert templateField;
         
         Test.startTest();
-        // List<EditCSVTemplateController.FieldInfoWrapper> testFields = EditCSVTemplateController.getFields(testT.Object_API_Name__c);
+        // List<EditCSVTemplateController.FieldInfoWrapper> testFields = EditCSVTemplateController.getFields(testT.MVDG__Object_API_Name__c);
         EditCSVTemplateController.templateDataWrapper testTemplateDataWithData = EditCSVTemplateController.getTemplateFieldsData(testT.Id);
         Test.stopTest();
 
         // System.assert(testFields.size()>0, 'There was an issue in fetching the Fields information...');
-        System.assertEquals( templateField.CSV_Fields__c, testTemplateDataWithData.Fields, 'The Filter is Having some data, It should have two fields !!');
+        System.assertEquals( templateField.MVDG__CSV_Fields__c, testTemplateDataWithData.Fields, 'The Filter is Having some data, It should have two fields !!');
     }
 
     @IsTest
@@ -63,7 +63,7 @@ public class EditCSVTemplateControllerTest {
         );
         insert a;
 
-        Template__c testT = [SELECT Id,Name, Object_API_Name__c FROM Template__c LIMIT 1];
+        MVDG__Template__c testT = [SELECT Id,Name, MVDG__Object_API_Name__c FROM MVDG__Template__c LIMIT 1];
 
         String query = 'SELECT Name,Id FROM Account LIMIT 1';
 
@@ -80,8 +80,8 @@ public class EditCSVTemplateControllerTest {
         EditCSVTemplateController.saveTemplateFields(testT.Id, query, testTemplateData);
         Test.stopTest();
 
-        System.assertEquals(1, [SELECT COUNT() FROM Template_Page__c], 'template pages may not be more than one for csv template.');
-        System.assertEquals(1, [SELECT COUNT() FROM Template_Data__c], 'template data may not be more than one for csv template.');
+        System.assertEquals(1, [SELECT COUNT() FROM MVDG__Template_Page__c], 'template pages may not be more than one for csv template.');
+        System.assertEquals(1, [SELECT COUNT() FROM MVDG__Template_Data__c], 'template data may not be more than one for csv template.');
     }
     
     @IsTest
@@ -114,17 +114,17 @@ public class EditCSVTemplateControllerTest {
 @isTest
     static void testGetTemplateDetails() {
 
-        Template__c testT = [SELECT Id, Template_Name__c, Object_API_Name__c FROM Template__c LIMIT 1];
+        MVDG__Template__c testT = [SELECT Id, MVDG__Template_Name__c, MVDG__Object_API_Name__c FROM MVDG__Template__c LIMIT 1];
 
         Test.startTest();
-        Template__c retrievedTemplate = EditCSVTemplateController.getTemplateDetails(testT.Id);
+        MVDG__Template__c retrievedTemplate = EditCSVTemplateController.getTemplateDetails(testT.Id);
         Test.stopTest();
-        System.assertEquals(testT.Template_Name__c,  retrievedTemplate.Template_Name__c, 'Queried fields do not match expected values');
+        System.assertEquals(testT.MVDG__Template_Name__c,  retrievedTemplate.MVDG__Template_Name__c, 'Queried fields do not match expected values');
     }
 @isTest
     static void testCSVControllerUpdate(){
 
-        Template__c testT = [SELECT Id, Template_Name__c, Object_API_Name__c FROM Template__c LIMIT 1];
+        MVDG__Template__c testT = [SELECT Id, MVDG__Template_Name__c, MVDG__Object_API_Name__c FROM MVDG__Template__c LIMIT 1];
 
         EditCSVTemplateController.TemplateInfo tempInfo = new EditCSVTemplateController.TemplateInfo();
         tempInfo.templateDescription = 'test';
@@ -137,8 +137,8 @@ public class EditCSVTemplateControllerTest {
         EditCSVTemplateController.updateTemplate(tempInfo);
         Test.stopTest();
 
-        Template__c updatedTemplate =  [SELECT Id, Template_Name__c, Object_API_Name__c FROM Template__c WHERE Id=:testT.Id LIMIT 1];
+        MVDG__Template__c updatedTemplate =  [SELECT Id, MVDG__Template_Name__c, MVDG__Object_API_Name__c FROM MVDG__Template__c WHERE Id=:testT.Id LIMIT 1];
 
-        System.assertNotEquals(testT.Template_Name__c, updatedTemplate.Template_Name__c, 'template Name must be updated.');
+        System.assertNotEquals(testT.MVDG__Template_Name__c, updatedTemplate.MVDG__Template_Name__c, 'template Name must be updated.');
     }
 }

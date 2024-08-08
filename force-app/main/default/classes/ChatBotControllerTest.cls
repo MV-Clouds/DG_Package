@@ -4,11 +4,11 @@ public class ChatBotControllerTest {
     @testSetup
     static void setupTestData() {
         // Create necessary test data
-        chatBotChats__c chatBotChats = new chatBotChats__c(Enable_storage__c = false);
+        MVDG__chatBotChats__c chatBotChats = new MVDG__chatBotChats__c(MVDG__Enable_storage__c = false);
         insert chatBotChats;
 
-        // Create a ChatBotData__c record for the running user
-        ChatBotData__c chatBotData = new ChatBotData__c(Chats__c = 'Initial chat data');
+        // Create a MVDG__ChatBotData__c record for the running user
+        MVDG__ChatBotData__c chatBotData = new MVDG__ChatBotData__c(MVDG__Chats__c = 'Initial chat data');
         insert chatBotData;
     }
 
@@ -20,8 +20,8 @@ public class ChatBotControllerTest {
         String result = ChatBotController.storeMessages(message);
         Test.stopTest();
 
-        ChatBotData__c storedData = [SELECT Chats__c FROM ChatBotData__c WHERE CreatedById = :UserInfo.getUserId()];
-        System.assertEquals(message, storedData.Chats__c);
+        MVDG__ChatBotData__c storedData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId()];
+        System.assertEquals(message, storedData.MVDG__Chats__c);
         System.assertEquals(null, result);
     }
 
@@ -38,7 +38,7 @@ public class ChatBotControllerTest {
 
     @isTest
     static void testStoreMessagesElsePart() {
-        // Test storing messages when no existing ChatBotData__c record
+        // Test storing messages when no existing MVDG__ChatBotData__c record
         // Using System.runAs to simulate a different user
         User testUser = [SELECT Id FROM User WHERE UserName != :UserInfo.getUserName() LIMIT 1];
         System.runAs(testUser) {
@@ -47,8 +47,8 @@ public class ChatBotControllerTest {
             String result = ChatBotController.storeMessages(message);
             Test.stopTest();
 
-            ChatBotData__c storedData = [SELECT Chats__c FROM ChatBotData__c WHERE CreatedById = :testUser.Id];
-            System.assertEquals(message, storedData.Chats__c);
+            MVDG__ChatBotData__c storedData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :testUser.Id];
+            System.assertEquals(message, storedData.MVDG__Chats__c);
             System.assertEquals(null, result);
         }
     }
@@ -60,7 +60,7 @@ public class ChatBotControllerTest {
         ChatBotController.deleteOldChats();
         Test.stopTest();
 
-        List<ChatBotData__c> chatData = [SELECT Id FROM ChatBotData__c WHERE CreatedById = :UserInfo.getUserId()];
+        List<MVDG__ChatBotData__c> chatData = [SELECT Id FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId()];
         System.assertEquals(0, chatData.size());
     }
 

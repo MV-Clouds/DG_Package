@@ -175,7 +175,22 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     }
 
     toggleNamedCredential(event){
+        this.clientId = '';
+        this.clientSecret = '';
+        this.bucket = '';
+        this.nickname = '';
+        this.namedCredential = '';
         this.isNamedCredential = !this.isNamedCredential;
+        if(this.isNamedCredential){
+            this.handleNamedCredentials();
+        }
+        else{
+            this.handleClientId();
+            this.handleClientSecret();
+            this.handleNickname();
+            this.handleBucket();
+        }
+        
         // console.log(this.isNamedCredential);        
     }
 

@@ -4,35 +4,35 @@ public with sharing class TemplateBuilder_Controller {
     public static retrunWrapper getTemplateData(String templateId){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
         try {
-            List<Template__c> temp = [SELECT Id, Name, Object_API_Name__c, Template_Name__c, Template_Type__c, Template_Status__c, Description__c, CreatedDate, LastModifiedDate, createdBy.Name, lastModifiedBy.Name,
-                                        (SELECT Id, Name, Template__c, Template_Value_Simple__c, Order_No_Simple__c, Value_Type__c FROM Template_Data__r WHERE Value_Type__c != null ORDER BY Order_No_Simple__c ASC )
-                                        FROM Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED LIMIT 1];
+            List<MVDG__Template__c> temp = [SELECT Id, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, CreatedDate, LastModifiedDate, createdBy.Name, lastModifiedBy.Name,
+                                        (SELECT Id, Name, MVDG__Template__c, MVDG__Template_Value_Simple__c, MVDG__Order_No_Simple__c, MVDG__Value_Type__c FROM MVDG__Template_Data__r WHERE MVDG__Value_Type__c != null ORDER BY MVDG__Order_No_Simple__c ASC )
+                                        FROM MVDG__Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED LIMIT 1];
 
             if(temp.size() > 0){
-                if(temp[0].Template_Type__c == 'Simple Template'){
+                if(temp[0].MVDG__Template_Type__c == 'Simple Template'){
 
                     retrunWrapper.isSuccess = true;
 
-                    List<Template_Page__c> pageConfigs = [SELECT Id, Name, Template__c, Page_Margin__c, Page_Orientation__c, Page_Size__c, Unit_of_Page_Configs__c, Show_Header__c, Show_Footer__c, Show_Watermark__c, Header_margin_top__c, Footer_margin_bottom__c 
-                                                            FROM Template_Page__c 
-                                                            WHERE Template__c =: temp[0].Id WITH SECURITY_ENFORCED ORDER BY Page_Number__c ASC  LIMIT 1];
+                    List<MVDG__Template_Page__c> pageConfigs = [SELECT Id, Name, MVDG__Template__c, MVDG__Page_Margin__c, MVDG__Page_Orientation__c, MVDG__Page_Size__c, MVDG__Unit_of_Page_Configs__c, MVDG__Show_Header__c, MVDG__Show_Footer__c, MVDG__Show_Watermark__c, MVDG__Header_margin_top__c, MVDG__Footer_margin_bottom__c 
+                                                            FROM MVDG__Template_Page__c 
+                                                            WHERE MVDG__Template__c =: temp[0].Id WITH SECURITY_ENFORCED ORDER BY MVDG__Page_Number__c ASC  LIMIT 1];
 
                     if(pageConfigs.size() == 0 && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){
-                        Template_Page__c page = new Template_Page__c();
-                        page.Template__c = temp[0].Id;
-                        page.Page_Number__c = 1;
-                        page.Page_Margin__c = '1;1;1;1';        // [top;bottom;left;right]
-                        page.Page_Orientation__c = 'portrait';
-                        page.Page_Size__c = 'a4';
-                        page.Unit_of_Page_Configs__c = 'in';
-                        page.Show_Header__c = true;
-                        page.Header_margin_top__c = 0.10;          // px to inch
-                        page.Show_Footer__c = true;
-                        page.Footer_margin_bottom__c = 0.10;       // px to inch
-                        page.Show_Watermark__c = true;       
+                        MVDG__Template_Page__c page = new MVDG__Template_Page__c();
+                        page.MVDG__Template__c = temp[0].Id;
+                        page.MVDG__Page_Number__c = 1;
+                        page.MVDG__Page_Margin__c = '1;1;1;1';        // [top;bottom;left;right]
+                        page.MVDG__Page_Orientation__c = 'portrait';
+                        page.MVDG__Page_Size__c = 'a4';
+                        page.MVDG__Unit_of_Page_Configs__c = 'in';
+                        page.MVDG__Show_Header__c = true;
+                        page.MVDG__Header_margin_top__c = 0.10;          // px to inch
+                        page.MVDG__Show_Footer__c = true;
+                        page.MVDG__Footer_margin_bottom__c = 0.10;       // px to inch
+                        page.MVDG__Show_Watermark__c = true;       
                         insert page;
-                        pageConfigs = [SELECT Id, Name, Template__c, Page_Margin__c, Page_Orientation__c, Page_Size__c, Unit_of_Page_Configs__c, Show_Header__c, Show_Footer__c, Show_Watermark__c, Header_margin_top__c, Footer_margin_bottom__c 
-                                        FROM Template_Page__c WHERE Id =: page.Id WITH SECURITY_ENFORCED ORDER BY Page_Number__c ASC LIMIT 1];
+                        pageConfigs = [SELECT Id, Name, MVDG__Template__c, MVDG__Page_Margin__c, MVDG__Page_Orientation__c, MVDG__Page_Size__c, MVDG__Unit_of_Page_Configs__c, MVDG__Show_Header__c, MVDG__Show_Footer__c, MVDG__Show_Watermark__c, MVDG__Header_margin_top__c, MVDG__Footer_margin_bottom__c 
+                                        FROM MVDG__Template_Page__c WHERE Id =: page.Id WITH SECURITY_ENFORCED ORDER BY MVDG__Page_Number__c ASC LIMIT 1];
                     }
 
                     retrunWrapper.template = temp[0];
@@ -81,24 +81,24 @@ public with sharing class TemplateBuilder_Controller {
     }
 
     @AuraEnabled
-    public static string saveTemplateApex(Template__c templateRecord, Map<String, List<String>> templateValues, Template_Page__c pageConfigs){
+    public static string saveTemplateApex(MVDG__Template__c templateRecord, Map<String, List<String>> templateValues, MVDG__Template_Page__c pageConfigs){
         try {
 
-            List<Template__c> temp = [SELECT Id, Name, Object_API_Name__c, Template_Name__c, Template_Type__c, Template_Status__c, Description__c, CreatedDate, LastModifiedDate,
-                                                (SELECT Id, Name, Template__c, Template_Value_Simple__c, Order_No_Simple__c, Value_Type__c FROM Template_Data__r ORDER BY Order_No_Simple__c),
-                                                (SELECT Id FROM Template_Pages__r)
-                                                FROM Template__c WHERE Id =: templateRecord.Id WITH SECURITY_ENFORCED LIMIT 1];
+            List<MVDG__Template__c> temp = [SELECT Id, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, CreatedDate, LastModifiedDate,
+                                                (SELECT Id, Name, MVDG__Template__c, MVDG__Template_Value_Simple__c, MVDG__Order_No_Simple__c, MVDG__Value_Type__c FROM MVDG__Template_Data__r ORDER BY MVDG__Order_No_Simple__c),
+                                                (SELECT Id FROM MVDG__Template_Pages__r)
+                                                FROM MVDG__Template__c WHERE Id =: templateRecord.Id WITH SECURITY_ENFORCED LIMIT 1];
 
             System.debug('templateValues : '+ templateValues);
 
             if(temp.size() > 0 && Schema.sObjectType.MVDG__Template__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Page__c.isUpdateable()){
-                Template__c templateToUpdate = temp[0];
-                templateToUpdate.Template_Name__c = templateRecord.Template_Name__c;
-                templateToUpdate.Template_Status__c = templateRecord.Template_Status__c;
-                templateToUpdate.Description__c = templateRecord.Description__c;
+                MVDG__Template__c templateToUpdate = temp[0];
+                templateToUpdate.MVDG__Template_Name__c = templateRecord.MVDG__Template_Name__c;
+                templateToUpdate.MVDG__Template_Status__c = templateRecord.MVDG__Template_Status__c;
+                templateToUpdate.MVDG__Description__c = templateRecord.MVDG__Description__c;
 
                 if(templateValues != null && templateValues.keySet().size() > 0){
-                   // updateTemplateDataRecords(templateToUpdate.Template_Data__r, templateValues, templateToUpdate.Id);
+                   // updateTemplateDataRecords(templateToUpdate.MVDG__Template_Data__r, templateValues, templateToUpdate.Id);
 
                    for(String valueType : templateValues.keySet()){
                     Map<String ,String> templateValuesMap = new Map<String ,String>();
@@ -140,19 +140,19 @@ public with sharing class TemplateBuilder_Controller {
             System.debug('startOrderNumber : '+ startOrderNumber);
             System.debug('endOrderNumber : '+ endOrderNumber);
 
-            List<Template_Data__c> storedTempDataRecords = [SELECT Id, Order_No_Simple__c, Template_Value_Simple__c, Value_Type__c
-                                                                FROM Template_Data__c
-                                                                WHERE Template__c = : tempId
-                                                                AND Order_No_Simple__c >= :startOrderNumber
-                                                                AND Order_No_Simple__c <= :endOrderNumber
-                                                                AND Value_Type__c =: valueType WITH SECURITY_ENFORCED
-                                                                ORDER BY Order_No_Simple__c ASC];
+            List<MVDG__Template_Data__c> storedTempDataRecords = [SELECT Id, MVDG__Order_No_Simple__c, MVDG__Template_Value_Simple__c, MVDG__Value_Type__c
+                                                                FROM MVDG__Template_Data__c
+                                                                WHERE MVDG__Template__c = : tempId
+                                                                AND MVDG__Order_No_Simple__c >= :startOrderNumber
+                                                                AND MVDG__Order_No_Simple__c <= :endOrderNumber
+                                                                AND MVDG__Value_Type__c =: valueType WITH SECURITY_ENFORCED
+                                                                ORDER BY MVDG__Order_No_Simple__c ASC];
             
             Integer batchedStoredRecords =  storedTempDataRecords.size();
                                                                 
-            List<Template_Data__c> recordToInsert = new List<Template_Data__c>();
-            List<Template_Data__c> recordToUpdate = new List<Template_Data__c>();
-            List<Template_Data__c> recordToDelete = new List<Template_Data__c>();
+            List<MVDG__Template_Data__c> recordToInsert = new List<MVDG__Template_Data__c>();
+            List<MVDG__Template_Data__c> recordToUpdate = new List<MVDG__Template_Data__c>();
+            List<MVDG__Template_Data__c> recordToDelete = new List<MVDG__Template_Data__c>();
 
             if(batchedStoredRecords > 0 && Schema.sObjectType.MVDG__Template_Data__c.isCreateable() && Schema.sObjectType.MVDG__Template_Data__c.isUpdateable()){
                 
@@ -162,18 +162,18 @@ public with sharing class TemplateBuilder_Controller {
                     // If recieved data records  is lesser than or equal to total stored record...
                     // Update All Record as per order number....
                     if(i <= (batchedStoredRecords + startOrderNumber - 1)){
-                        Template_Data__c dt = storedTempDataRecords[i - startOrderNumber];
-                        dt.Template_Value_Simple__c = templateDataList.get(String.valueOf(i));
+                        MVDG__Template_Data__c dt = storedTempDataRecords[i - startOrderNumber];
+                        dt.MVDG__Template_Value_Simple__c = templateDataList.get(String.valueOf(i));
                         recordToUpdate.add(dt);
                     }
                     // If revied data records  is lesser than stored record...
                     // Update All Record as per order number....
                     else if(i > (batchedStoredRecords + startOrderNumber - 1)){
-                        Template_Data__c dt = new Template_Data__c();
-                        dt.Template__c = tempId;
-                        dt.Template_Value_Simple__c = templateDataList.get(String.valueOf(i));
-                        dt.Order_No_Simple__c = (i);
-                        dt.Value_Type__c = ValueType;
+                        MVDG__Template_Data__c dt = new MVDG__Template_Data__c();
+                        dt.MVDG__Template__c = tempId;
+                        dt.MVDG__Template_Value_Simple__c = templateDataList.get(String.valueOf(i));
+                        dt.MVDG__Order_No_Simple__c = (i);
+                        dt.MVDG__Value_Type__c = ValueType;
                         recordToInsert.add(dt);
                     }
                 }
@@ -183,30 +183,30 @@ public with sharing class TemplateBuilder_Controller {
             }
             else if(Schema.sObjectType.MVDG__Template_Data__c.isCreateable()){
                 for(integer i = startOrderNumber; i <= endOrderNumber; i++){
-                    Template_Data__c dt = new Template_Data__c();
-                    dt.Template__c = tempId;
-                    dt.Template_Value_Simple__c = templateDataList.get(String.valueOf(i));
-                    dt.Order_No_Simple__c = (i);
-                    dt.Value_Type__c = ValueType;
+                    MVDG__Template_Data__c dt = new MVDG__Template_Data__c();
+                    dt.MVDG__Template__c = tempId;
+                    dt.MVDG__Template_Value_Simple__c = templateDataList.get(String.valueOf(i));
+                    dt.MVDG__Order_No_Simple__c = (i);
+                    dt.MVDG__Value_Type__c = ValueType;
                     recordToInsert.add(dt);
                 }
 
                 insert recordToInsert;
             }
 
-            Integer totalStoredDataRecords = Database.countQuery('SELECT Count() FROM Template_Data__c WHERE Template__c =: tempId AND Value_Type__c =: valueType');
+            Integer totalStoredDataRecords = Database.countQuery('SELECT Count() FROM MVDG__Template_Data__c WHERE MVDG__Template__c =: tempId AND MVDG__Value_Type__c =: valueType');
             System.debug('totalStoredDataRecords : '+ totalStoredDataRecords);
 
             if(isLastBatch && endOrderNumber < totalStoredDataRecords && Schema.sObjectType.MVDG__Template_Data__c.isDeletable()){
                 // if it is last batch and endOrderNumber is lesser than totalStoredDataRecords...
                 // Delete additon template data record....
-                delete [SELECT Id, Order_No_Simple__c, Template_Value_Simple__c, Value_Type__c
-                            FROM Template_Data__c
-                            WHERE Template__c = : tempId
-                            AND Order_No_Simple__c >= :endOrderNumber + 1
-                            AND Order_No_Simple__c <= :totalStoredDataRecords
-                            AND Value_Type__c =: valueType WITH SECURITY_ENFORCED
-                            ORDER BY Order_No_Simple__c ASC];
+                delete [SELECT Id, MVDG__Order_No_Simple__c, MVDG__Template_Value_Simple__c, MVDG__Value_Type__c
+                            FROM MVDG__Template_Data__c
+                            WHERE MVDG__Template__c = : tempId
+                            AND MVDG__Order_No_Simple__c >= :endOrderNumber + 1
+                            AND MVDG__Order_No_Simple__c <= :totalStoredDataRecords
+                            AND MVDG__Value_Type__c =: valueType WITH SECURITY_ENFORCED
+                            ORDER BY MVDG__Order_No_Simple__c ASC];
             }
 
             return isLastBatch ? 'last batch update succesfully' : 'batch update succesfully';
@@ -232,8 +232,8 @@ public with sharing class TemplateBuilder_Controller {
         @AuraEnabled public boolean isSuccess;
         @AuraEnabled public String returnMessage;
         @AuraEnabled public Obj_Label_API objectLabelAPI;
-        @auraEnabled public Template__c template;
-        @auraEnabled public Template_Page__c pageConfigs;
+        @auraEnabled public MVDG__Template__c template;
+        @auraEnabled public MVDG__Template_Page__c pageConfigs;
     }
 
     public class Obj_Label_API{

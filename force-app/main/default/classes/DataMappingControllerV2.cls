@@ -5,24 +5,26 @@ public with sharing class DataMappingControllerV2 {
             'objectNGeneral' => new map<string, string>(),
             'childRecordTable' => new map<string, string>(),
             'margeTemplate' => new map<string, string>(),
-            'salesforceImages' => new map<string, string>()
+            'salesforceImages' => new map<string, string>(),
+            'signatureImage' => new map<string, string>()
+
         };
         try {
-            List<Template__c> temps = [SELECT Id, Name, Object_API_Name__c, Template_Name__c, Template_Type__c, Template_Status__c, Description__c, CreatedDate, LastModifiedDate,
-                                      (SELECT Id, Name, Template_Value_Simple__c FROM Template_Data__r WHERE Value_Type__c = 'Extracted Mapping Keys' ORDER BY Order_No_Simple__c ASC)
-                                       FROM Template__c  WHERE Id In :templateIDs WITH SECURITY_ENFORCED];
+            List<MVDG__Template__c> temps = [SELECT Id, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, CreatedDate, LastModifiedDate,
+                                      (SELECT Id, Name, MVDG__Template_Value_Simple__c FROM MVDG__Template_Data__r WHERE MVDG__Value_Type__c = 'Extracted Mapping Keys' ORDER BY MVDG__Order_No_Simple__c ASC)
+                                       FROM MVDG__Template__c  WHERE Id In :templateIDs WITH SECURITY_ENFORCED];
 
-            for(Template__c temp : temps){
+            for(MVDG__Template__c temp : temps){
                 String extractedKeyString = '';
 
                 // get extracted Keys stored in field...
-                for(Template_Data__c fieldData : temp.Template_Data__r){
-                    extractedKeyString +=  fieldData.Template_Value_Simple__c;
+                for(MVDG__Template_Data__c fieldData : temp.MVDG__Template_Data__r){
+                    extractedKeyString +=  fieldData.MVDG__Template_Value_Simple__c;
                 }
 
                 extractedKeyString = extractedKeyString != '' ? extractedKeyString : 'null';
 
-                String sourceObjectAPI = temp.Object_API_Name__c;
+                String sourceObjectAPI = temp.MVDG__Object_API_Name__c;
 
                 // Type cast extracted key field value to key mappign keys, child object info and merge tempalte keys....
                 Map<String, Object> extractedKeyMap = (Map<String, Object>) JSON.deserializeUntyped(extractedKeyString);
@@ -48,6 +50,11 @@ public with sharing class DataMappingControllerV2 {
                 // Collect and Store Salesforce image SRC in to set ...
                 Map<String, String> sfImagesSRCVsID = getSFimageVsId(extractedKeyMap);
                 mapingKeyVsValuesGroup.get('salesforceImages').putAll(sfImagesSRCVsID);
+
+                // Collect signature Image contentVersion Id from source record...
+                Map<String, String> signatureImageCvId = getSignatureImageCVId(extractedKeyMap, recordId);
+                mapingKeyVsValuesGroup.get('signatureImage').putAll(signatureImageCvId);
+
                 
                 // this varibale will be FALSE when it call from "getKeyNValueFromMergeTemps" Method...
                 if(includeMergTemKeys == true){
@@ -63,6 +70,7 @@ public with sharing class DataMappingControllerV2 {
                     mapingKeyVsValuesGroup.get('salesforceImages').putAll(keyWithValues.get('salesforceImages'));
                     mapingKeyVsValuesGroup.get('margeTemplate').putAll(keyWithValues.get('margeTemplate'));
 
+                    // Note : no need to add signatureImage for merge tempalte key, because signature key will be same for each template...
                 }
             }
                                         
@@ -263,6 +271,27 @@ public with sharing class DataMappingControllerV2 {
         }
     }
 
+    // === === Methods to copllect Content Version Id for signature image from source record ==== ==== ====
+    public static Map<String, String> getSignatureImageCVId(Map<String, Object> extractedKeyMap, String recordId){
+        Map<String, String> signatureImage = new  Map<String,String>();
+        try {
+
+            Object signatureImageKey = extractedKeyMap?.get('signatureImage');
+
+            List<ContentVersion> signatures = [SELECT Id, ContentSize FROM ContentVersion WHERE Title Like '%Signature-%' AND FirstPublishLocationId =: recordId AND IsLatest = true WITH SECURITY_ENFORCED ORDER BY CreatedDate DESC LIMIT 1];
+
+            if(signatureImageKey != null && signatures.size() > 0){
+                signatureImage.put((String)string.valueOf(signatureImageKey), signatures[0].Id);
+            }
+
+            return signatureImage;
+            
+        } catch (Exception  e) {
+            system.debug('exception in getSFimageVsId : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            return signatureImage;
+        }
+    }
+
     // === === Method to Replace value with object field's, parent object field's and General field's mapping key ==== ====
     public static Map<String, String> getMappingKeyVsValue(List<String> mappingKeyList,String sourceObjectAPI, String recordId){
         Map<String, String> extractedKeyWithData = new Map<String, String>();
@@ -402,12 +431,12 @@ public with sharing class DataMappingControllerV2 {
             Map<String, String> templateIds = extractMergeTemplateIds(margeTempKeyList);
 
             // --- --- Collect mapping keys from merge template records --- ---
-            List<Template__c> mergeTemps = [SELECT Id,
-                                            (SELECT Id, Name, Template_Value_Simple__c FROM Template_Data__r WHERE Value_Type__c = 'Extracted Mapping Keys' ORDER BY Order_No_Simple__c ASC)
-                                            FROM Template__c WHERE Id IN :templateIds.values() AND Template_Type__c = 'Simple Template' AND Object_API_Name__c =:sourceObjectAPI AND Template_Status__c = true WITH SECURITY_ENFORCED];
+            List<MVDG__Template__c> mergeTemps = [SELECT Id,
+                                            (SELECT Id, Name, MVDG__Template_Value_Simple__c FROM MVDG__Template_Data__r WHERE MVDG__Value_Type__c = 'Extracted Mapping Keys' ORDER BY MVDG__Order_No_Simple__c ASC)
+                                            FROM MVDG__Template__c WHERE Id IN :templateIds.values() AND MVDG__Template_Type__c = 'Simple Template' AND MVDG__Object_API_Name__c =:sourceObjectAPI AND MVDG__Template_Status__c = true WITH SECURITY_ENFORCED];
             
             List<String> validTemplateListIds = new List<String>();
-            for(Template__c temp : mergeTemps){
+            for(MVDG__Template__c temp : mergeTemps){
                 validTemplateListIds.add(temp.Id);
             }
 

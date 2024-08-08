@@ -49,9 +49,9 @@ public with sharing class DropboxSuccessControllerTest {
 
     @isTest
     static void testgetToken(){
-        DropBoxAuthProviderSettings__c settings = new DropBoxAuthProviderSettings__c(
-            ClientId__c = 'Mock',
-            ClientSecret__c = 'Mock'
+        MVDG__DropBoxAuthProviderSettings__c settings = new MVDG__DropBoxAuthProviderSettings__c(
+            MVDG__ClientId__c = 'Mock',
+            MVDG__ClientSecret__c = 'Mock'
         );
         insert settings;
         String Url = 'https://www.google.com?code=\'45565465476987\'';

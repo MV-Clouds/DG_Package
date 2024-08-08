@@ -34,27 +34,27 @@ public class GoogleDocPreviewTest {
     
     @TestSetup
     static void createTemplate(){
-        AuthProviderSettings__c authProvider = new AuthProviderSettings__c();
+        MVDG__AuthProviderSettings__c authProvider = new MVDG__AuthProviderSettings__c();
         authProvider.SetupOwnerId = UserInfo.getOrganizationId();
-        authProvider.ClientId__c = 'dummyClientId';
-        authProvider.ClientSecret__c = 'dummyClientSecret';
-        authProvider.access_token__c = 'dummyAccessToken';
-        authProvider.refresh_token__c = 'dummyRefreshToken';
+        authProvider.MVDG__ClientId__c = 'dummyClientId';
+        authProvider.MVDG__ClientSecret__c = 'dummyClientSecret';
+        authProvider.MVDG__access_token__c = 'dummyAccessToken';
+        authProvider.MVDG__refresh_token__c = 'dummyRefreshToken';
         insert authProvider;
 
-        Template__c template = new Template__c();
-        template.Template_Type__c = 'Google Doc Template';
-        template.Template_Name__c = 'Test Template';
-        template.Description__c = 'Test Template Description';
-        template.Template_Status__c = true;
-        template.Object_API_Name__c = 'Account';
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Type__c = 'Google Doc Template';
+        template.MVDG__Template_Name__c = 'Test Template';
+        template.MVDG__Description__c = 'Test Template Description';
+        template.MVDG__Template_Status__c = true;
+        template.MVDG__Object_API_Name__c = 'Account';
         insert template;
 
-        Template_Data__c templateData = new Template_Data__c();
-        templateData.Template__c = template.Id;
-        templateData.Google_Doc_Template_Id__c = 'dummyDocumentId';
-        templateData.Google_Doc_WebViewLink__c = 'https://docs.google.com/document/d/dummyDocumentId/edit?usp=drivesdk';
-        templateData.Order_No_Simple__c = 1;
+        MVDG__Template_Data__c templateData = new MVDG__Template_Data__c();
+        templateData.MVDG__Template__c = template.Id;
+        templateData.MVDG__Google_Doc_Template_Id__c = 'dummyDocumentId';
+        templateData.MVDG__Google_Doc_WebViewLink__c = 'https://docs.google.com/document/d/dummyDocumentId/edit?usp=drivesdk';
+        templateData.MVDG__Order_No_Simple__c = 1;
         insert templateData;
 
         Account acc = new Account();
@@ -105,8 +105,8 @@ public class GoogleDocPreviewTest {
     @IsTest
     static void testCopyGoogleDoc(){
         
-        Template__c template = new Template__c();
-        template = [SELECT Template_Type__c, Template_Name__c, Description__c, Template_Status__c, Object_API_Name__c FROM Template__c];
+        MVDG__Template__c template = new MVDG__Template__c();
+        template = [SELECT MVDG__Template_Type__c, MVDG__Template_Name__c, MVDG__Description__c, MVDG__Template_Status__c, MVDG__Object_API_Name__c FROM MVDG__Template__c];
         
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new getDocumentMock());
@@ -121,7 +121,7 @@ public class GoogleDocPreviewTest {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new getDocumentMock());
         
-        GoogleDocPreview.authProvider = AuthProviderSettings__c.getOrgDefaults();
+        GoogleDocPreview.authProvider = MVDG__AuthProviderSettings__c.getOrgDefaults();
         GoogleDocPreview.refreshAccessToken();
         Test.stopTest();
     }

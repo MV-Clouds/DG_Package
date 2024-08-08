@@ -51,8 +51,8 @@ private class HomePageControllerTest {
     static void getTemplateListTEST3() {
         // for exception...
         Test.startTest();
-        Template__c temp = createTemplateRecord();
-        temp.Object_API_Name__c = 'asfasf';
+        MVDG__Template__c temp = createTemplateRecord();
+        temp.MVDG__Object_API_Name__c = 'asfasf';
         update temp;
         HomePageController.getTemplateList();
         String returnValue = HomePageController.updateTemplate('dfgdfg', true);
@@ -67,29 +67,29 @@ private class HomePageControllerTest {
 
 
 
-    static Template__c createTemplateRecord(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = true;
+    static MVDG__Template__c createTemplateRecord(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = true;
         insert template;
 
-        Template_Page__c page = new Template_Page__c();
-        page.Template__c = template.Id;
-        page.Page_Number__c = 1;
-        page.Page_Margin__c = '1;1;1;1';
-        page.Page_Orientation__c = 'portrait';
-        page.Page_Size__c = 'a4';
-        page.Unit_of_Page_Configs__c = 'inch';
+        MVDG__Template_Page__c page = new MVDG__Template_Page__c();
+        page.MVDG__Template__c = template.Id;
+        page.MVDG__Page_Number__c = 1;
+        page.MVDG__Page_Margin__c = '1;1;1;1';
+        page.MVDG__Page_Orientation__c = 'portrait';
+        page.MVDG__Page_Size__c = 'a4';
+        page.MVDG__Unit_of_Page_Configs__c = 'inch';
         insert page;
 
         String templateValue = templateValue();
         
-        Template_Data__c templateField = new Template_Data__c();
-        templateField.Template__c = template.Id;
-        templateField.Template_Value_Simple__c = templateValue;
-        templateField.Order_No_Simple__c =1;
+        MVDG__Template_Data__c templateField = new MVDG__Template_Data__c();
+        templateField.MVDG__Template__c = template.Id;
+        templateField.MVDG__Template_Value_Simple__c = templateValue;
+        templateField.MVDG__Order_No_Simple__c =1;
         insert templateField;
 
         return template;

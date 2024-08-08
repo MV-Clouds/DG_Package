@@ -25,16 +25,6 @@ export default class ButtonGenerator extends LightningElement {
     @track objOptionsForLVButton = [];
     @track objOptionsForQAButton = [];
     @track objOptionsForBPButton = [];
-
-    // get objOptionsForLVButton(){
-    //     return this.allObjects.filter(item => !this.createdLVButtonObj.includes(item.value));
-    // }
-    // get objOptionsForQAButton(){
-    //     return this.allObjects.filter(item => !this.createdQAButtonObj.includes(item.value));
-    // }
-    // get objOptionsForBPButton(){
-    //     return this.allObjects.filter(item => !this.createdBPButtonObj.includes(item.value));
-    // }
     
     connectedCallback(){
         this.showSpinner = true;
@@ -191,6 +181,9 @@ export default class ButtonGenerator extends LightningElement {
             this.showSpinner = false;
             this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
             console.log('Error in function handleCreateWebLinkButton:::', e.message);
+        }finally{
+            this.selectedLVObjects = [];
+            this.selectedBPObjects = [];
         }
     }
 
@@ -237,6 +230,7 @@ export default class ButtonGenerator extends LightningElement {
                             this.showToast('error','Something went Wrong!','Buttons couldn\'t be created please try again.', 5000);
                         });
                     })
+                    this.selectedQAObjects = [];
                 })
             .catch((error)=>{
                 this.showSpinner = false;

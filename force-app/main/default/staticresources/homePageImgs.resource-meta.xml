@@ -2,5 +2,5 @@
 <StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
     <cacheControl>Private</cacheControl>
     <contentType>application/zip</contentType>
-    <description>backgroud images for doc genius compoennt</description>
+    <description>background images for doc genius component</description>
 </StaticResource>

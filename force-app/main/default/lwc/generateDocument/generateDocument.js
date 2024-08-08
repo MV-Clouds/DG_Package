@@ -76,6 +76,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     @track emailSubject = '';
     @track emailBody = '';
+    @track previewEmailBody = '';
 
     isInitialStyleLoaded = false;
 
@@ -323,6 +324,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @track isClosableError = false;
 
     closeEnabled = false;
+    @track isNotGoogleNotGenerable = false;
+
+    // @track filterForActiveTemplates = [
+    //     {field : 'MVDG__Template_Name__c', operator : 'eq', value : true}
+    // ];
+
     get showCloseButton(){
         return this.isCSVOnly || this.isDefaultGenerate || this.isCalledFromPreview;
     }
@@ -368,6 +375,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         ];
         if(this.isCSVOnly){
             filters.push({field : 'MVDG__Template_Type__c', operator : 'eq', value : 'CSV Template'});
+        }
+        if(this.isNotGoogleNotGenerable){
+            filters.push({field : 'MVDG__Template_Type__c', operator : 'ne', value : 'Google Doc Template'});
         }
         return filters;
     }
@@ -419,6 +429,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     connectedCallback() {
         this.showSpinner = true;
         try{
+            this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = !window.location.href.includes(window.location.origin + '/lightning/action/quick/') && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
                 let urlParams = new URLSearchParams(window.location.search);
@@ -428,7 +439,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.template.host.classList.add('pou-up-view');
                 this.selectedTemplate = urlParams.get('MVDG__templateIdToGenerate');
             }
-
             Promise.resolve(this.objectApiName)
             .then(() => {
                 return Promise.all([
@@ -473,7 +483,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleCalledFromDefaults() {
         try{
             this.isCalledFromDefaults = true;
-            this.hideHeader = true;
             this.handleSelectTemplate({ detail: [{ Id: this.templateIdFromParent }] });
             this.fetchAllButtonNames()
             .then(() => {
@@ -646,11 +655,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.emailSubject = data?.emailSubject ? data?.emailSubject : '';
                 this.emailBody = data?.emailBody ? data?.emailBody : '';
                 this.selectedEmailTemplate = data?.emailTemplate ? data?.emailTemplate : null;
-                console.log('Calling from the auto Generation');
                 this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
-                this.buttonLabel = data?.buttonLabel ? data?.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent : '');
+                this.buttonLabel = data?.buttonLabel ? data?.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent.length > 80 ? this.templateNameFromParent.slice(0, 80) : this.templateNameFromParent : '');
                 this.buttonName = data?.buttonName || null;
-                console.log('This Buttton is :::' , this.buttonName);
                 if(this.buttonName && this.allButtons.includes(this.buttonName)){
                     this.isOldButton = true;
                     this.bottomBtnLabel = 'Update Defaults';
@@ -738,6 +745,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.externalStorageOptions.find( o => o.name=== 'AWS').isDisabled = !integrations.isAWSIntegrated;
             this.externalStorageOptions.find( o => o.name=== 'Dropbox').isDisabled = !integrations.isDropBoxIntegrated;
             this.externalStorageOptions.find( o => o.name=== 'One Drive').isDisabled = !integrations.isOneDriveIntegrated;
+            if(!integrations.isUserWideAccessible && !integrations.isGoogleDriveIntegrated){
+                this.isNotGoogleNotGenerable = true;
+            }
             console.log('Integration Status::' , this.externalStorageOptions);
         } catch (e) {
             console.log('Error in function setUpIntegrationStatus:::', e.message);
@@ -1075,10 +1085,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             this.selectedEmailTemplate = event.detail[0];
             if(this.selectedEmailTemplate){
-                this.template.querySelector('.email-template-preview-rich-text') ? this.template.querySelector('.email-template-preview-rich-text').value = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue : undefined;
-                this.emailSubject = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.Subject || this.emailSubject;
                 this.template.host.style.setProperty('--display-for-email-body-div',"none");
                 this.template.host.style.setProperty('--display-for-email-preview-div',"flex");
+                this.previewEmailBody = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue;
+                // this.template.querySelector('.email-template-preview-rich-text') ? this.template.querySelector('.email-template-preview-rich-text').value = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue : undefined;
+                this.emailSubject = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.Subject || this.emailSubject;
                 console.log('Set only Preview');
             }else{
                 console.log('Set body');
@@ -1665,22 +1676,22 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.labelOfLoader = 'Loading...';
                         this.showSpinner = false;
                     });
+                }else{
+                    Promise.all(this.resultPromises)
+                    .then(() => {
+                        this.handleGenerationResult();
+                        this.fetchedResults = [];
+                    })
+                    .catch(e => {
+                        this.showSpinner = false;
+                        console.error('Error in handling promises: ', e.message);
+                    })
+                    .finally(() => {
+                        this.labelOfLoader = 'Loading...';
+                        this.showSpinner = false;
+                    });
                 }
     
-            } else {
-                Promise.all(this.resultPromises)
-                .then(() => {
-                    this.handleGenerationResult();
-                    this.fetchedResults = [];
-                })
-                .catch(e => {
-                    this.showSpinner = false;
-                    console.error('Error in handling promises: ', e.message);
-                })
-                .finally(() => {
-                    this.labelOfLoader = 'Loading...';
-                    this.showSpinner = false;
-                });
             }
         } catch (e) {
             this.showSpinner = false;
@@ -2108,7 +2119,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.showToast('error', 'Something Went Wrong!', 'Please enter the name for the button.', 5000);
                 return;
             }
-            if(!this.isOldButton && this.allButtons.includes(this.buttonLabel.trim().replaceAll(" ", "_"))){
+            if(!this.isOldButton && this.allButtons.includes(this.buttonLabel.trim().replace(/[^a-zA-Z_]+/g, '_'))){
                 this.showToast('error', 'Something went wrong!','This button name is used, try changing name!', 5000)
                 return;
             }
@@ -2136,7 +2147,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             let defaults = {
                 templateId : this.templateIdFromParent,
                 buttonLabel : this.buttonLabel,
-                buttonName: this.buttonName ? this.buttonName : this.buttonLabel.trim().replaceAll(" ", "_"),
+                buttonName: this.buttonName ? this.buttonName : this.buttonLabel.trim().replace(/[^a-zA-Z_]+/g, '_'),
                 docType : this.selectedExtension?.slice(1,).toUpperCase(),
                 iStorage : iStorages,
                 eStorage : eStorages,
@@ -2158,16 +2169,19 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         let buttonData = {
                             objects : objList,
                             buttonLabel: this.buttonLabel,
-                            buttonName: this.buttonName ? this.buttonName : this.buttonLabel.replaceAll(" ", "_"),
+                            buttonName: this.buttonName ? this.buttonName : this.buttonLabel.replace(/[^a-zA-Z_]+/g, '_'),
                             buttonEndURL: '&MVDG__isDefaultGenerate=true&MVDG__templateIdToGenerate='+this.templateIdFromParent
                         }
-                        console.log('Button Data:::', buttonData);
                         createListViewButtons({ bdw : buttonData})
-                        .then(() => {
-                            this.isOldButton = true;
-                            this.bottomBtnLabel = 'Update Defaults'
-                            console.log('The Button is Successfully created!');
-                            this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                        .then((isSuccess) => {
+                            if(isSuccess == false){
+                                this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
+                            }else{
+                                this.isOldButton = true;
+                                this.bottomBtnLabel = 'Update Defaults';
+                                console.log('The Button is Successfully created!');
+                                this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                            }
                         })
                         .catch((e) => {
                             this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);

@@ -58,16 +58,16 @@ public class GoogleDriveAuthorizationControllerTest {
             UserName = 'testuser' + DateTime.now().getTime() + '@example.com'
         );
         insert testUser;
-        AuthProviderSettings__c settings = new AuthProviderSettings__c(
-            refresh_token__c = 'dummy_refresh_token',
-            access_token__c = 'dummy_access_token',
-            email__c = 'test@example.com',
-            LinkedDate__c = ''+Date.today(),
-            WorkingStatus__c = true,
-            username__c = 'testuser',
-            ClientId__c = 'Mock',
-            ClientSecret__c = 'Mock',
-            photolink__c = 'www.google.com',
+        MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c(
+            MVDG__refresh_token__c = 'dummy_refresh_token',
+            MVDG__access_token__c = 'dummy_access_token',
+            MVDG__email__c = 'test@example.com',
+            MVDG__LinkedDate__c = ''+Date.today(),
+            MVDG__WorkingStatus__c = true,
+            MVDG__username__c = 'testuser',
+            MVDG__ClientId__c = 'Mock',
+            MVDG__ClientSecret__c = 'Mock',
+            MVDG__photolink__c = 'www.google.com',
             SetupOwnerId = testUser.Id
         );
         insert settings;
@@ -90,16 +90,16 @@ public class GoogleDriveAuthorizationControllerTest {
             UserName = 'testuser' + DateTime.now().getTime() + '@example.com'
         );
         insert testUser;
-        AuthProviderSettings__c settings = new AuthProviderSettings__c(
-            refresh_token__c = 'dummy_refresh_token',
-            access_token__c = 'dummy_access_token',
-            email__c = 'test@example.com',
-            LinkedDate__c = ''+Date.today(),
-            WorkingStatus__c = true,
-            username__c = 'testuser',
-            ClientId__c = 'Mock',
-            ClientSecret__c = 'Mock',
-            photolink__c = 'www.google.com',
+        MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c(
+            MVDG__refresh_token__c = 'dummy_refresh_token',
+            MVDG__access_token__c = 'dummy_access_token',
+            MVDG__email__c = 'test@example.com',
+            MVDG__LinkedDate__c = ''+Date.today(),
+            MVDG__WorkingStatus__c = true,
+            MVDG__username__c = 'testuser',
+            MVDG__ClientId__c = 'Mock',
+            MVDG__ClientSecret__c = 'Mock',
+            MVDG__photolink__c = 'www.google.com',
             SetupOwnerId = testUser.Id
         );
         insert settings;        
@@ -127,14 +127,14 @@ public class GoogleDriveAuthorizationControllerTest {
         );
         insert testUser;
 
-        AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
-        settings.refresh_token__c = 'test';
-        settings.access_token__c = 'test';
-        settings.ClientId__c = 'test';
-        settings.ClientSecret__c = 'test';
-        settings.LinkedDate__c = '04/05/2004';
-        settings.username__c = 'test';
-        settings.email__c = 'test@gmail.com';
+        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        settings.MVDG__refresh_token__c = 'test';
+        settings.MVDG__access_token__c = 'test';
+        settings.MVDG__ClientId__c = 'test';
+        settings.MVDG__ClientSecret__c = 'test';
+        settings.MVDG__LinkedDate__c = '04/05/2004';
+        settings.MVDG__username__c = 'test';
+        settings.MVDG__email__c = 'test@gmail.com';
         insert settings;
         Test.startTest();
         System.runAs(testUser){
@@ -147,8 +147,8 @@ public class GoogleDriveAuthorizationControllerTest {
 
     @isTest
     static void testisOrgWide() {
-        AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
-        settings.refresh_token__c = 'test';
+        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        settings.MVDG__refresh_token__c = 'test';
         upsert settings;
         Test.startTest();
         Boolean result = GoogleDriveAuthorizationController.isOrgWide();
@@ -174,17 +174,17 @@ public class GoogleDriveAuthorizationControllerTest {
         System.runAs(testUser){
         Test.startTest();
         Boolean result = GoogleDriveAuthorizationController.unauthorize();
-        // AuthProviderSettings__c settings = AuthProviderSettings__c.getInstance();
+        // MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getInstance();
         Test.stopTest();
-        AuthProviderSettings__c settings = AuthProviderSettings__c.getInstance();
-        System.assertEquals(null, settings.ClientId__c);
-        System.assertEquals(null, settings.ClientSecret__c);
-        System.assertEquals(null, settings.username__c);
-        System.assertEquals(null, settings.LinkedDate__c);
-        System.assertEquals(null, settings.email__c);
-        System.assertEquals(null, settings.refresh_token__c);
-        System.assertEquals(null, settings.access_token__c);
-        System.assertEquals(false, settings.WorkingStatus__c);
+        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getInstance();
+        System.assertEquals(null, settings.MVDG__ClientId__c);
+        System.assertEquals(null, settings.MVDG__ClientSecret__c);
+        System.assertEquals(null, settings.MVDG__username__c);
+        System.assertEquals(null, settings.MVDG__LinkedDate__c);
+        System.assertEquals(null, settings.MVDG__email__c);
+        System.assertEquals(null, settings.MVDG__refresh_token__c);
+        System.assertEquals(null, settings.MVDG__access_token__c);
+        System.assertEquals(false, settings.MVDG__WorkingStatus__c);
         }
     }
 
@@ -214,8 +214,8 @@ public class GoogleDriveAuthorizationControllerTest {
 
     @isTest
     static void testorgunauthorize(){
-        AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
-        settings.refresh_token__c = 'test';
+        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        settings.MVDG__refresh_token__c = 'test';
         upsert settings;
         Test.startTest();
         Boolean result = GoogleDriveAuthorizationController.orgunauthorize();

@@ -9,12 +9,13 @@
 
 
 .preview_mainDiv {
-  /* position: fixed; */
+  position: fixed;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 100%;
-  /* background: rgb(0 0 0 / 65%); */
+  background: rgb(0 0 0 / 65%);
+
 
   display: flex;
   justify-content: center;
@@ -23,12 +24,21 @@
 
 }
 
+.preview_mainDiv[data-fix-position=true]{
+  position: static;
+  background: none;
+}
+
 .preview_Contanier {
   height: 98%;
   width:max-content;
   background: white;
   border-radius: 6px;
   overflow: hidden;
+}
+
+.preview_Contanier[data-full-width=true]{
+  width: 100% !important;
 }
 
 .preview_SubContanier {
@@ -40,6 +50,10 @@
   align-items: center;
 
   position: relative;
+}
+
+.preview_SubContanier[data-full-width=true]{
+  width: 100% !important;
 }
 
 .preview_leftSection {
@@ -133,6 +147,9 @@
   height: 18px;
   fill: white;
 }
+.generatePreviewBtn .cls-1{
+  fill: none;
+}
 .exportBtn{
   background: #01aeff;
   color: white;
@@ -159,7 +176,9 @@
   height: 100%;
   background: #f2f9ff;
 }
-
+.preview_rightSection[data-full-width=true]{
+  width: 100%;
+}
 .iframe_outer{
   /* width: var(--pdfActualPreviewWidth); */
 
@@ -168,6 +187,9 @@
   height: 100%;
   overflow: hidden;
   position: relative;
+}
+.iframe_outer[data-full-width=true]{
+  width: 100% !important;
 }
 
 .preview_iframe{
@@ -348,10 +370,9 @@ visibility: hidden;
 
 
 /* ------------------ ------------------------ Loading State CSS ------------------------- --------------------------- */
-@media only screen and (max-width: 1440px){
-  .preview_Contanier{
+@media screen and (max-width: 1440px){
+.preview_Contanier{
     width: 90%;
-    /* width: calc(var(--pageWidth) + 25rem); */
   }
   .preview_SubContanier{
     width: 100%;
@@ -362,8 +383,10 @@ visibility: hidden;
   .preview_rightSection{
     flex-grow: 1;
   }
+  .preview_rightSection[data-full-width=true]{
+    width: 100%;
+  }
   .iframe_outer{
-    /* width: min(var(--pageWidth), 100%); */
     width: 100%;
   }
 }

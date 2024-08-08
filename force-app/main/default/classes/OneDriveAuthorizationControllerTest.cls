@@ -11,13 +11,13 @@ public class OneDriveAuthorizationControllerTest {
 
     @TestSetup
     static void setup(){
-        OneDriveAuthProviderSettings__c settings = new OneDriveAuthProviderSettings__c(
-            refresh_token__c = 'dummy_refresh_token',
-            access_token__c = 'dummy_access_token',
-            email__c = 'test@example.com',
-            LinkedDate__c = ''+Date.today(),
-            WorkingStatus__c = true,
-            username__c = 'testuser'
+        MVDG__OneDriveAuthProviderSettings__c settings = new MVDG__OneDriveAuthProviderSettings__c(
+            MVDG__refresh_token__c = 'dummy_refresh_token',
+            MVDG__access_token__c = 'dummy_access_token',
+            MVDG__email__c = 'test@example.com',
+            MVDG__LinkedDate__c = ''+Date.today(),
+            MVDG__WorkingStatus__c = true,
+            MVDG__username__c = 'testuser'
         );
         insert settings;
     }
@@ -46,9 +46,9 @@ public class OneDriveAuthorizationControllerTest {
         Test.startTest();
         String result = OneDriveAuthorizationController.authorize(client_id, client_secret);
         Test.stopTest();
-        OneDriveAuthProviderSettings__c settings = OneDriveAuthProviderSettings__c.getInstance();
-        System.assertEquals(client_id, settings.ClientId__c);
-        System.assertEquals(client_secret, settings.ClientSecret__c);
+        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getInstance();
+        System.assertEquals(client_id, settings.MVDG__ClientId__c);
+        System.assertEquals(client_secret, settings.MVDG__ClientSecret__c);
     }
 
     @isTest

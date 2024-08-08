@@ -18,12 +18,12 @@ public with sharing class OneDriveSuccessController {
         try{
             String initialurl = currentUrl;
             String authcode = extractCodeParameter(initialurl);
-            OneDriveAuthProviderSettings__c settings = [SELECT Id, ClientId__c, ClientSecret__c FROM OneDriveAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() LIMIT 1];
+            MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() LIMIT 1];
             if (settings != null) {
                 System.debug('setting: '+ settings);
-                String clientid = settings.ClientId__c;
+                String clientid = settings.MVDG__ClientId__c;
                 System.debug('ClientId: ' + clientid);
-                String clientsecret = settings.ClientSecret__c;
+                String clientsecret = settings.MVDG__ClientSecret__c;
                 System.debug('ClientSecret: ' + clientsecret);
                 String url = ''+System.Url.getOrgDomainUrl();
                 String REDIRECT_URI = redirect(url);
@@ -49,8 +49,8 @@ public with sharing class OneDriveSuccessController {
                 System.debug('Email Address: ' + emailAddress);
                 String displayName = (String) parsedResponse.get('displayName');
                 System.debug('Display Name: ' + displayName);
-                settings.username__c = displayName;
-                settings.email__c = emailAddress;
+                settings.MVDG__username__c = displayName;
+                settings.MVDG__email__c = emailAddress;
                 List<String> parts1 = new List<String>();
 
                 if (accessToken != null && accessToken.length() > 254) {
@@ -70,24 +70,24 @@ public with sharing class OneDriveSuccessController {
                 System.debug(refreshToken);
                 System.debug(accessToken);
                 if(refreshToken1 != null){
-                    settings.refresh_token__c = refreshToken1;
-                    settings.refresh_token1__c = refreshToken2;
+                    settings.MVDG__refresh_token__c = refreshToken1;
+                    settings.MVDG__refresh_token1__c = refreshToken2;
                     System.debug('ref');
                     upsert settings;
                 }
                 if(accessToken1 != null){
-                    settings.access_token__c = accessToken1;
-                    settings.access_token1__c = accessToken2;
-                    settings.access_token2__c = accessToken3;
-                    settings.access_token3__c = accessToken4;
-                    settings.access_token4__c = accessToken5;
+                    settings.MVDG__access_token__c = accessToken1;
+                    settings.MVDG__access_token1__c = accessToken2;
+                    settings.MVDG__access_token2__c = accessToken3;
+                    settings.MVDG__access_token3__c = accessToken4;
+                    settings.MVDG__access_token4__c = accessToken5;
                     System.debug('ref');
                     Date todaysDate = Date.today();
                     Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
                     String formattedDate = datetimeToday.format('dd/MM/yyyy');
                     System.debug('Today\'s Date ==>'+formattedDate);
-                    settings.LinkedDate__c = formattedDate;
-                    settings.WorkingStatus__c = true;
+                    settings.MVDG__LinkedDate__c = formattedDate;
+                    settings.MVDG__WorkingStatus__c = true;
                     upsert settings;
                     return 'Success';
                 }

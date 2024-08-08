@@ -3,13 +3,13 @@ public class OneDriveUploaderTest {
 
     @testSetup
     static void setup() {
-        // Create test data for OneDriveAuthProviderSettings__c
-        OneDriveAuthProviderSettings__c settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
-            settings.refresh_token__c = 'testRefreshToken';
-            settings.refresh_token1__c = 'testRefreshToken1';
-            settings.ClientId__c = 'testClientId';
-            settings.ClientSecret__c = 'testClientSecret';
-            settings.email__c = 'testemail@test.com';
+        // Create test data for MVDG__OneDriveAuthProviderSettings__c
+        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
+            settings.MVDG__refresh_token__c = 'testRefreshToken';
+            settings.MVDG__refresh_token1__c = 'testRefreshToken1';
+            settings.MVDG__ClientId__c = 'testClientId';
+            settings.MVDG__ClientSecret__c = 'testClientSecret';
+            settings.MVDG__email__c = 'testemail@test.com';
         
         insert settings;
 

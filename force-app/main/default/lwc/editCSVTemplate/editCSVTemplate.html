@@ -1,7 +1,7 @@
 <template>
     <div class="main-div">
         <c-message-popup onconfirmation={handleConfirmation}></c-message-popup>
-        <c-document-loader display={showSpinner} style="--docTop:0;"></c-document-loader>
+        <c-document-loader display={showSpinner} style="--docTop:0;" full-size="true"></c-document-loader>
         <template if:true={showListViewPopup}>
             <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="section-div slds-modal slds-fade-in-open">
                 <div class="show-list-view-div">
@@ -246,7 +246,6 @@
                                     multiple="false"
                                     ></c-custom-combobox>
                                 </div>
-                
                                 <div class="custom-logic-div" if:true={isCustomLogic}>
                                     <lightning-input 
                                       class="logic-string-input"
@@ -300,7 +299,7 @@
                                             type={filter.inputType}
                                             label="Value"
                                             placeholder="Enter Value"
-                                            class="value-select-for-toggle custom-combobox"
+                                            class="value-select-for-toggle"
                                             message-toggle-active="True"
                                             message-toggle-inactive="False"
                                             value={filter.value}

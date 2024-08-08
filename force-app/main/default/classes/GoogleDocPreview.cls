@@ -1,6 +1,6 @@
 public with sharing class GoogleDocPreview {
-    public static AuthProviderSettings__c authProvider;
-    public static List<Template_Data__c> templateData = new List<Template_Data__c>();
+    public static MVDG__AuthProviderSettings__c authProvider;
+    public static List<MVDG__Template_Data__c> templateData = new List<MVDG__Template_Data__c>();
     public static Map<String, HttpResponse> responseList = new Map<String, HttpResponse>();
     public static String refreshToken;
 
@@ -42,7 +42,7 @@ public with sharing class GoogleDocPreview {
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             request.setBody(
-                'refresh_token=' + authProvider.refresh_token__c + '&client_id=' + authProvider.ClientId__c + '&client_secret=' + authProvider.ClientSecret__c + '&grant_type=refresh_token'
+                'refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + authProvider.MVDG__ClientId__c + '&client_secret=' + authProvider.MVDG__ClientSecret__c + '&grant_type=refresh_token'
             );
             Http http = new Http();
             HttpResponse response = http.send(request);
@@ -52,7 +52,7 @@ public with sharing class GoogleDocPreview {
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 String newToken = (String) jsonResponse.get('access_token');
                 if (newToken != null) {
-                    authProvider.access_token__c = newToken;
+                    authProvider.MVDG__access_token__c = newToken;
                 }
                 return newToken;
             }
@@ -72,7 +72,7 @@ public with sharing class GoogleDocPreview {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('GET');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             request.setTimeout(20000);
             Http http = new Http();
             HttpResponse response = http.send(request);
@@ -119,25 +119,25 @@ public with sharing class GoogleDocPreview {
             if (refreshToken == null) {
                 authProvider = getAuthProviderSettings();
             }
-            templateData = [SELECT Google_Doc_Template_Id__c, Template__r.Signature_Size__c FROM Template_Data__c WHERE Template__c = :templateId WITH SECURITY_ENFORCED ORDER BY Order_No_Simple__c ASC];
+            templateData = [SELECT MVDG__Google_Doc_Template_Id__c, MVDG__Template__r.MVDG__Signature_Size__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c = :templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c ASC];
 
             if (templateData.size() == 0) {
                 responseWrapper.error = 'warning:Template Error:No Google Document linked with this template.:-';
                 return responseWrapper;
                 
             }
-            responseWrapper.width = templateData[0].Template__r.Signature_Size__c;
+            responseWrapper.width = templateData[0].MVDG__Template__r.MVDG__Signature_Size__c;
 
             // Callout
-            String googleDocId = templateData[0].Google_Doc_Template_Id__c;
+            String googleDocId = templateData[0].MVDG__Google_Doc_Template_Id__c;
             String endpoint = 'https://www.googleapis.com/drive/v3/files/' + googleDocId + '/copy';
             Map<String, Object> requestBody = new Map<String, Object>();
-            requestBody.put('name', 'CopyOf' + googleDocId);
+            requestBody.put('name', 'Untitled');
             String jsonBody = JSON.serialize(requestBody);
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             request.setHeader('Content-Type', 'application/json');
             request.setBody(jsonBody);
             Http http = new Http();
@@ -181,7 +181,7 @@ public with sharing class GoogleDocPreview {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             request.setHeader('Content-Type', 'application/json');
             request.setBody(jsonBody);
             
@@ -222,7 +222,7 @@ public with sharing class GoogleDocPreview {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint + '?' + paramString);
             request.setMethod('GET');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             Http http = new Http();
             HttpResponse response = http.send(request);
             responseList.put('getPDF', response);
@@ -261,7 +261,7 @@ public with sharing class GoogleDocPreview {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint + '?' + paramString);
             request.setMethod('DELETE');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             Http http = new Http();
             HttpResponse response = http.send(request);
             responseList.put('deleteGoogleDoc', response);
@@ -463,14 +463,14 @@ public with sharing class GoogleDocPreview {
         System.debug('emailBody==>' + emailBody);
     }
 
-    public static AuthProviderSettings__c getAuthProviderSettings() {
+    public static MVDG__AuthProviderSettings__c getAuthProviderSettings() {
         try {
-            List<AuthProviderSettings__c> aps = new List<AuthProviderSettings__c>();
-            aps = [SELECT Id, IsDeleted, Name, SetupOwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, ClientId__c, ClientSecret__c, LinkedDate__c, WorkingStatus__c, access_token__c, email__c, photolink__c, refresh_token__c, username__c FROM AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            List<MVDG__AuthProviderSettings__c> aps = new List<MVDG__AuthProviderSettings__c>();
+            aps = [SELECT Id, IsDeleted, Name, SetupOwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
             if (aps.size() > 0) {
                 return aps[0];
             }
-            return AuthProviderSettings__c.getOrgDefaults();
+            return MVDG__AuthProviderSettings__c.getOrgDefaults();
         } catch (Exception e) {
             System.debug('Error in getAuthProviderSettings==>' + e.getMessage() + e.getLineNumber());
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'getAuthProviderSettings');

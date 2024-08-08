@@ -1,7 +1,7 @@
 public with sharing class DeleteGoogleDocument implements Schedulable{
     public String templateId;
     public String documentId;
-    public static AuthProviderSettings__c authProvider;
+    public static MVDG__AuthProviderSettings__c authProvider;
 
 
     public DeleteGoogleDocument(String templateId, String documentId) {
@@ -30,7 +30,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('DELETE');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             Http http = new Http();
             HttpResponse response = http.send(request);
             if (response.getStatusCode() == 204) {
@@ -68,7 +68,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             request.setBody(
-                'refresh_token=' + authProvider.refresh_token__c + '&client_id=' + authProvider.ClientId__c + '&client_secret=' + authProvider.ClientSecret__c + '&grant_type=refresh_token'
+                'refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + authProvider.MVDG__ClientId__c + '&client_secret=' + authProvider.MVDG__ClientSecret__c + '&grant_type=refresh_token'
             );
             Http http = new Http();
             HttpResponse response = http.send(request);
@@ -77,7 +77,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 String newToken = (String) jsonResponse.get('access_token');
                 if (newToken != null) {
-                    authProvider.access_token__c = newToken;
+                    authProvider.MVDG__access_token__c = newToken;
                 }
                 return newToken;
             }
@@ -88,14 +88,14 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
         return null;
     }
 
-    public static AuthProviderSettings__c getAuthProviderSettings() {
-        List<AuthProviderSettings__c> aps = new List<AuthProviderSettings__c>();
-        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, ClientId__c, ClientSecret__c, LinkedDate__c, WorkingStatus__c, access_token__c, email__c, photolink__c, refresh_token__c, username__c FROM AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+    public static MVDG__AuthProviderSettings__c getAuthProviderSettings() {
+        List<MVDG__AuthProviderSettings__c> aps = new List<MVDG__AuthProviderSettings__c>();
+        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
         if (aps.size() > 0) {
             System.debug('Inside user');
             return aps[0];
         }
         System.debug('Inside org');
-        return AuthProviderSettings__c.getOrgDefaults();
+        return MVDG__AuthProviderSettings__c.getOrgDefaults();
     }
 }

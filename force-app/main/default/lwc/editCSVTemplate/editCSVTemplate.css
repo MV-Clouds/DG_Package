@@ -231,6 +231,7 @@
 .TemplateNameText {
     max-width: 18rem;
     display: block;
+    white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
 }
@@ -529,7 +530,7 @@ li:hover{
     justify-content: center;
     font-size: 15px;
     background-color: #00AEFF;
-    width: 7rem;
+    min-width: 7rem;
     height: 2rem;
     border-radius: 6px;
     border: none;
@@ -623,6 +624,7 @@ button:hover{
     width: 100%;
     flex-direction: row;
     gap: 0.625rem;
+    align-items: end;
 }
 
 .error-div{
@@ -997,18 +999,11 @@ button:hover{
 
 /*  ------------------------------------------------- Template Defaults Tab -------------------------------------------------------- */
 
-/* .defaults-div{
-    width: calc(100% + 2rem);
-    height: 100%;
-    margin: -1rem;
-} */
-
 .defaults-div{
     width: 100%;
-    height: calc(100% - 1rem);
-    margin: -0.75rem auto;
+    height: calc(100% - 1.5rem);
+    margin: -0.5rem auto;
     border-radius: 0.5rem;
-    /* border: 1px solid #00aeff; */
     box-shadow: 0 0 6px 0px lightgray;
 }
 
@@ -1039,16 +1034,6 @@ c-generate-document{
 
     .save-button{
         font-size: 0.875rem;
-    }
-
-    .defaults-div{
-        width: 80%;
-    }
-}
-
-@media only screen and (max-width: 48rem){
-    .defaults-div{
-        width: 100%;
     }
 }
 

@@ -12,6 +12,13 @@ public with sharing class KeyMappingController {
     public static integer maxImageSize = 20*1000*1000;  // 20MB
 
 
+    /**
+     * Method Name : getFieldMappingKeys
+     * @param sourceObjectAPI string 
+     * @param getParentFields Boolean
+     * @return retrunWrapper class
+     * @description : Get Mapping Key for source object and its replated object.
+     */
     @AuraEnabled
     public static retrunWrapper getFieldMappingKeys(String sourceObjectAPI, Boolean getParentFields){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
@@ -68,6 +75,12 @@ public with sharing class KeyMappingController {
         }
     }
 
+    /**
+     * Method Name : getRelatedObjects
+     * @param sourceObjectAPI string
+     * @return List<RelatedObjInfo> class
+     * @description : Get Related Object using schema class
+     */
     public static List<RelatedObjInfo> getRelatedObjects(String sourceObjectAPI) {
         try {
             Set<String> parentObjects = new Set<String>();
@@ -101,6 +114,13 @@ public with sharing class KeyMappingController {
         }
     }
 
+    /**
+     * Method Name : createMappingObj
+     * @param relatedObj class
+     * @param sourceObjectLabel string
+     * @return List<RelatedObjInfo>, list of RelatedObjInfo class
+     * @description : Method to collect object information using MappingObjects wrapper class
+     */
     public static MappingObjects createMappingObj(RelatedObjInfo relatedObj, string sourceObjectLabel){
         list<MappingFields> fieldMappingList = new list<MappingFields>();
     
@@ -127,6 +147,12 @@ public with sharing class KeyMappingController {
         return mapObj;
     }
 
+    /**
+     * Method Name : getObjectFields
+     * @param objAPI string
+     * @return List<Schema.DescribeFieldResult>, list of Schema.DescribeFieldResult class
+     * @description : Method to collect object field and its using schema class.
+     */
     public static List<Schema.DescribeFieldResult> getObjectFields(String objAPI){
         try {
             List<Schema.DescribeFieldResult> objectFields = new List<Schema.DescribeFieldResult>();
@@ -151,6 +177,12 @@ public with sharing class KeyMappingController {
         }
     }
 
+    /**
+     * Method Name : getObjectFields
+     * @param objAPI string
+     * @return List<Schema.DescribeFieldResult>, list of Schema.DescribeFieldResult class
+     * @description : Method to collect object field and its using schema class.
+     */
     @AuraEnabled
     public static RetrunWrapper getChildObjects(string sourceObjectAPI){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
@@ -191,6 +223,11 @@ public with sharing class KeyMappingController {
         }
     }
 
+    /**
+     * Method Name : getGeneralFields
+     * @return RetrunWrapper, RetrunWrapper class
+     * @description : Method to collect All General Field for mapping keys.
+     */
     @AuraEnabled
     public static RetrunWrapper getGeneralFields(){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
@@ -241,6 +278,11 @@ public with sharing class KeyMappingController {
             return retrunWrapper;
         }
     }
+    /**
+     * Method Name : getCreationDateMappings
+     * @return MappingObjects, MappingObjects class
+     * @description : Method to create date mapping keys.
+     */
     public static MappingObjects getCreationDateMappings(){
         MappingObjects dateMapping = new MappingObjects();
         dateMapping.label = 'Dates';
@@ -276,6 +318,11 @@ public with sharing class KeyMappingController {
         }
     }
 
+    /**
+     * Method Name : dateFormats
+     * @return map<string, string>
+     * @description : Method to create Map of date, time, day, week, year information for generate key mapping and to replace data mapping.
+     */
     public static map<string, string> dateFormats(){
         datetime cTime = datetime.now();
 
@@ -295,22 +342,28 @@ public with sharing class KeyMappingController {
         return dateFormats;      
     }
 
+    /**
+     * Method Name : getMerginTemplateKeys
+     * @param sourceObjectAPI string
+     * @return RetrunWrapper
+     * @description : Method to create mapping key for merge template.
+     */
     @AuraEnabled
     public static RetrunWrapper getMerginTemplateKeys(string sourceObjectAPI){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
         try {
-            List<Template__c> activeTemps = [SELECT Id, Name, Template_Name__c FROM Template__c WHERE Template_Status__c = true AND Template_Type__c IN ('Simple Template') AND Object_API_Name__c =: sourceObjectAPI WITH SECURITY_ENFORCED];
+            List<MVDG__Template__c> activeTemps = [SELECT Id, Name, MVDG__Template_Name__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true AND MVDG__Template_Type__c IN ('Simple Template') AND MVDG__Object_API_Name__c =: sourceObjectAPI WITH SECURITY_ENFORCED];
             if(activeTemps != null){
                 list<MappingObjects> fieldMappingsWithObj = new list<MappingObjects>();
                 MappingObjects mergeTemps = new MappingObjects();
                 list<MappingFields> fieldMappings = new list<MappingFields>();
                 mergeTemps.name = 'Merge Tempaltes';
                 mergeTemps.name = 'megreTempaltes';
-                for(Template__c temp : activeTemps){
+                for(MVDG__Template__c temp : activeTemps){
                     MappingFields tempKeys = new MappingFields();
-                    tempKeys.label = temp.Template_Name__c;
+                    tempKeys.label = temp.MVDG__Template_Name__c;
                     tempKeys.name = temp.Id;
-                    tempKeys.key = mergeTemplatekeys.replace('tempId', temp.Id +' '+ formattingKeys.replace('formatKey', temp.Template_Name__c));
+                    tempKeys.key = mergeTemplatekeys.replace('tempId', temp.Id +' '+ formattingKeys.replace('formatKey', temp.MVDG__Template_Name__c));
                     fieldMappings.add(tempKeys);
                 }
                 mergeTemps.fieldMappings = fieldMappings;
@@ -333,6 +386,11 @@ public with sharing class KeyMappingController {
         }
     }
 
+    /**
+     * Method Name : getAllContentVersionImgs
+     * @return RetrunWrapper
+     * @description : Method to collect all content version.
+    */
     @AuraEnabled
     public static RetrunWrapper getAllContentVersionImgs(){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
@@ -378,7 +436,7 @@ public with sharing class KeyMappingController {
                     cd.Name = cvIdvsName.get(cvId);
                     cdToCreate.add(cd);
                 }
-                if(cdToCreate.size() > 0){
+                if(cdToCreate.size() > 0 && Schema.sObjectType.ContentDistribution.isCreateable()){
                     insert cdToCreate;
                 }
 
@@ -410,46 +468,46 @@ public with sharing class KeyMappingController {
         }
     }
 
-    @AuraEnabled
-    public static String fetchImgBlob(String imgId){
-        try {
-            List<ContentVersion> img = [SELECT Id, VersionData FROM ContentVersion WHERE Id =: imgId AND IsLatest = true AND ContentSize < :maxImageSize LIMIT 1];
-            if(img.size() > 0){
-                String blobString = EncodingUtil.base64Encode(img[0].VersionData);
-                return blobString;
-            }
-            return null;
-        } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'KeyMappingController', 'KeyMappingController');
-            system.debug('exception in getMerginTemplateKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
-            return null;
-        }
-    }
-    
+    /**
+     * Method Name : getSignatureInfo
+     * @return Decimal
+     * @description : Method to collect signature size.
+    */
     @AuraEnabled 
     public static Decimal getSignatureInfo(String templateId){
         Decimal signatureSize = 50;
             
-        List<Template__c> temp = [SELECT Id, Signature_Size__c FROM Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED];
+        List<MVDG__Template__c> temp = [SELECT Id, MVDG__Signature_Size__c FROM MVDG__Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED];
 
         if(temp.size() > 0){
-            signatureSize = temp[0].Signature_Size__c != null ? temp[0].Signature_Size__c : 50;
+            signatureSize = temp[0].MVDG__Signature_Size__c != null ? temp[0].MVDG__Signature_Size__c : 50;
         }
         
         return signatureSize;
     }
 
+    /**
+     * Method Name : updateSignatureInfo
+     * @return boolean
+     * @description : Method to update signature size.
+    */
     @AuraEnabled 
     public static boolean updateSignatureInfo(String templateId, Decimal signatureSize){
         System.debug('signatureSize : '+ signatureSize);
         try {
             
-            Template__c temp = new Template__c(
+            MVDG__Template__c temp = new MVDG__Template__c(
                 Id = templateId,
-                Signature_Size__c = signatureSize
+                MVDG__Signature_Size__c = signatureSize
             );
 
-            update temp;
+
+            if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
+                update temp;
+            }
+            else{
+                return false;
+            }
 
             return true;
         } catch (Exception e) {
@@ -460,6 +518,14 @@ public with sharing class KeyMappingController {
     }
     
 
+    /**
+     * Method Name : createMappingFieldInstance
+     * @param field
+     * @param parentObjKey
+     * @param mappingType
+     * @return MappingFields
+     * @description : Method to create MappingFields instance to store field information and generate mapping key using that infos.
+    */
     public static MappingFields createMappingFieldInstance(Schema.DescribeFieldResult field, string parentObjKey, string mappingType){
         try {
             String fieldKey = '';
@@ -505,6 +571,12 @@ public with sharing class KeyMappingController {
         }
     }
 
+    /**
+     * Method Name : getPicklistValue
+     * @param field
+     * @return list<String>
+     * @description : Method to get picklist values for picklist field.
+    */
     public static list<String> getPicklistValue(Schema.DescribeFieldResult field){
         List<String> picklistValues = new List<String>();
         Schema.PicklistEntry[] picklistEntries = field.getPicklistValues();
@@ -516,6 +588,12 @@ public with sharing class KeyMappingController {
         return picklistValues;
     }
 
+    /**
+     * Method Name : formattingFieldKeys
+     * 
+     * @return RetrunWrapper
+     * @description : Method to craete formatting key to generate formated field key to format field value.
+    */
     @AuraEnabled
     public static RetrunWrapper formattingFieldKeys(){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
@@ -531,11 +609,11 @@ public with sharing class KeyMappingController {
             'dd MMMM yyyy' => 'DD Month 2023 (31 December 2023)',
             'dd MMM yyyy' => 'DD Mon YYYY (31 Dec 2023)',
             'dd MMMM, yyyy' => 'DD Month, YYYY (31 December, 2023)',
-            'dd MM, yyyy' => 'DD Mon, YYYY (31 Dec, 2023)',
+            'dd MMM, yyyy' => 'DD Mon, YYYY (31 Dec, 2023)',
             'MMMM dd, yyyy' => 'Month DD, YYYY (December 31, 2023)',
             'MMM dd, yyyy' => 'Mon DD, YYYY (December 31, 2023)',
             'yyyy, MMMM dd' => 'YYYY, Month DD (2023, December 31)',
-            'yyyy, MM dd' => 'YYYY, Mon DD (2023, December 31)'
+            'yyyy, MMM dd' => 'YYYY, Mon DD (2023, December 31)'
         };
         dateFormatting.formatType = 'DATE';
         list<MappingFields> mappingFields = new list<MappingFields>();
@@ -582,7 +660,7 @@ public with sharing class KeyMappingController {
         @AuraEnabled public String returnMessage;
         @AuraEnabled public Obj_Label_API objectLabelAPI;
         @AuraEnabled public list<MappingObjects> fieldMappingsWithObj;
-        @auraEnabled public Template__c template;
+        @auraEnabled public MVDG__Template__c template;
         @auraEnabled public List<ContentVersion> cvImages;
         @auraEnabled public Map<Id, String> cvIdVsDownloadUrl;
         @auraEnabled public list<FormattingField> fieldFormatting;

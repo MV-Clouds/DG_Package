@@ -71,6 +71,14 @@
     height: 100%;
     z-index: 10;
 }
+.customeComboBox{
+  position: relative;
+}
+
+/* if combo in searchable, then dropdown button section placed above the back-shadow.... */
+.customeComboBox[data-searchable=true]{
+  z-index: 11;
+}
 
 .optionPosition{
     position: absolute;
@@ -150,6 +158,20 @@
     font-size : var(--optionFontSize);
     color : var(--optionFontColor);
     line-height: var(--optionLineHeight);
+  }
+
+  .dropDownCSS[data-position="left"]{
+    right: 0% !important;
+    left: auto !important;
+    transform: translateX(0px);
+  }
+  .dropDownCSS[data-position="right"]{
+    left: 0% !important;
+    transform: translateX(0px);
+  }
+  .dropDownCSS[data-ontop=true]{
+    top: auto !important;
+    bottom: 100% !important;
   }
 
   .label-div {

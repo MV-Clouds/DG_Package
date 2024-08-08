@@ -2231,7 +2231,7 @@ Worker.prototype.setPageSize = function setPageSize(pageSize) {
       if (this.opt?.header && this.opt?.jsPDF?.unit) {
           const headerMarginTop = this.opt.header.margins[0] ? this.opt.header.margins[0] : 0;
           const headerElement = this.opt.header.element;
-          headerElement.style.maxHeight = (this.opt.header.maxHeight).toString() + this.opt.header.unit;         // Max height in % of page size....
+          headerElement.style.maxHeight = (this.opt.header.maxHeight).toString() + this.opt.jsPDF.unit;         // Max height in % of page size....
           headerElement.style.width = (pageSize.width - this.opt.margin[1] - this.opt.margin[3]).toString() + this.opt.jsPDF.unit;
           headerElement.style.maxWidth = (pageSize.width - this.opt.margin[1] - this.opt.margin[3]).toString() + this.opt.jsPDF.unit;
           document.body.appendChild(headerElement);
@@ -2248,7 +2248,7 @@ Worker.prototype.setPageSize = function setPageSize(pageSize) {
           const footerMarginBottom = this.opt.footer.margins[2] ? this.opt.footer.margins[2] : 0;
           const footerElement = this.opt.footer.element;
           document.body.appendChild(footerElement);
-          footerElement.style.maxHeight = (this.opt.footer.maxHeight).toString() + this.opt.footer.unit;         // Max height in % of page size....
+          footerElement.style.maxHeight = (this.opt.footer.maxHeight).toString() + this.opt.jsPDF.unit;         // Max height in % of page size....
           footerElement.style.width = (pageSize.width - this.opt.margin[1] - this.opt.margin[3]).toString() + this.opt.jsPDF.unit;
           footerElement.style.maxWidth = (pageSize.width - this.opt.margin[1] - this.opt.margin[3]).toString() + this.opt.jsPDF.unit;
           footerElement.style.minWidth = (pageSize.width - this.opt.margin[1] - this.opt.margin[3]).toString() + this.opt.jsPDF.unit;

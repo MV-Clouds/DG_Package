@@ -228,6 +228,7 @@
 		<members>templateBuilder</members>
 		<members>templatePreviewModal</members>
 		<members>userGuide</members>
+		<members>customTimeout</members>
 		<name>LightningComponentBundle</name>
 	</types>
 	<types>

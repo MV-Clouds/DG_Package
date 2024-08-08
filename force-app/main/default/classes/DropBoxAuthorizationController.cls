@@ -13,15 +13,15 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkdropboxauth(){
         try{
-            DropBoxAuthProviderSettings__c settings = DropBoxAuthProviderSettings__c.getOrgDefaults();
+            MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
             Map<String, Object> result = new Map<String, Object>();
-            if (settings != null && settings.refresh_token__c != null && settings.access_token__c != null && settings.LinkedDate__c != null) {
+            if (settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null && settings.MVDG__LinkedDate__c != null) {
                 Boolean working = verifyAuth();
-                settings = DropBoxAuthProviderSettings__c.getOrgDefaults();
-                result.put('name', settings.username__c);
-                result.put('email', settings.email__c);
-                result.put('linkdate', settings.LinkedDate__c);
-                result.put('active', settings.WorkingStatus__c);
+                settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+                result.put('name', settings.MVDG__username__c);
+                result.put('email', settings.MVDG__email__c);
+                result.put('linkdate', settings.MVDG__LinkedDate__c);
+                result.put('active', settings.MVDG__WorkingStatus__c);
                 return result;
             }
             result.put('error', 'Error obtaining details: ');
@@ -36,10 +36,10 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean verifyAuth(){
         try {
-        DropBoxAuthProviderSettings__c settings = DropBoxAuthProviderSettings__c.getOrgDefaults();
-        String refresh = settings.refresh_token__c;
-        String clientid = settings.ClientId__c;
-        String clientsecret = settings.ClientSecret__c;
+        MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+        String refresh = settings.MVDG__refresh_token__c;
+        String clientid = settings.MVDG__ClientId__c;
+        String clientsecret = settings.MVDG__ClientSecret__c;
         String body =
             'grant_type=refresh_token' +
             '&refresh_token=' +
@@ -65,14 +65,14 @@ public with sharing class DropBoxAuthorizationController {
         if(res.getStatusCode() == 200){
             Map < String, String > jsonvalues = new Map < String, String > ();
             jsonvalues = parseJSONToMap(res.getBody());
-            settings.access_token__c = jsonvalues.get('access_token');
-            settings.WorkingStatus__c = true;
+            settings.MVDG__access_token__c = jsonvalues.get('access_token');
+            settings.MVDG__WorkingStatus__c = true;
             Update settings;
             return true;
         }
         else{
             Response_Handler.store_Callout_Response(res, 'DropBoxAuthorizationController', 'verifyAuth');
-            settings.WorkingStatus__c = false;
+            settings.MVDG__WorkingStatus__c = false;
             Update settings;
             return false;
         }
@@ -102,18 +102,18 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            DropBoxAuthProviderSettings__c settings = DropBoxAuthProviderSettings__c.getOrgDefaults();
+            MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
             if(settings != null){
                 System.debug(settings);
                 System.debug('I am not null');
-                settings.ClientId__c = '';
-                settings.ClientSecret__c = '';
-                settings.username__c = '';
-                settings.LinkedDate__c = '';
-                settings.email__c = '';
-                settings.refresh_token__c = '';
-                settings.access_token__c = '';
-                settings.WorkingStatus__c = false;
+                settings.MVDG__ClientId__c = '';
+                settings.MVDG__ClientSecret__c = '';
+                settings.MVDG__username__c = '';
+                settings.MVDG__LinkedDate__c = '';
+                settings.MVDG__email__c = '';
+                settings.MVDG__refresh_token__c = '';
+                settings.MVDG__access_token__c = '';
+                settings.MVDG__WorkingStatus__c = false;
                 upsert settings;
                 return true;
             }
@@ -132,12 +132,12 @@ public with sharing class DropBoxAuthorizationController {
                 System.debug('looks fishy');
                 return 'Both Client ID and Client Secret are required.';
             }
-            DropBoxAuthProviderSettings__c settings = DropBoxAuthProviderSettings__c.getOrgDefaults();
+            MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
             if (settings == null) {
-                settings = new DropBoxAuthProviderSettings__c();
+                settings = new MVDG__DropBoxAuthProviderSettings__c();
             }
-            settings.ClientId__c = clientId;
-            settings.ClientSecret__c = clientSecret;
+            settings.MVDG__ClientId__c = clientId;
+            settings.MVDG__ClientSecret__c = clientSecret;
             String durl = authcode(clientId, clientSecret);
             System.debug('before upsert');
             upsert settings;

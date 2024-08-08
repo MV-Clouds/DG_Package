@@ -25,12 +25,12 @@ private class TemplateBuilder_ControllerTest {
 
     @isTest
     static void templateBuilderControllerTest1() {
-        Template__c temp = createTemplateRecord();
-        Template_Page__c pageConfigs = createPageConfig(temp.Id);
+        MVDG__Template__c temp = createTemplateRecord();
+        MVDG__Template_Page__c pageConfigs = createPageConfig(temp.Id);
         
         Test.startTest();
 
-        // to cover get Templatedata with template_page__c record
+        // to cover get Templatedata with MVDG__Template_Page__c record
         TemplateBuilder_Controller.getTemplateData(temp.Id);
 
         // to cover save method....
@@ -55,8 +55,8 @@ private class TemplateBuilder_ControllerTest {
     @isTest
     static void templateBuilderControllerTest2() {
 
-        // to cover get Templatedata with template_page__c record
-        Template__c temp = createTemplateWithoutPage();
+        // to cover get Templatedata with MVDG__Template_Page__c record
+        MVDG__Template__c temp = createTemplateWithoutPage();
 
         Test.startTest();
         TemplateBuilder_Controller.getTemplateData(temp.Id);
@@ -68,8 +68,8 @@ private class TemplateBuilder_ControllerTest {
 
     @isTest
     static void templateBuilderControllerTest3() {
-        Template__c temp2 = new Template__c();
-        Template__c csvTemp = createCSVTemplate();
+        MVDG__Template__c temp2 = new MVDG__Template__c();
+        MVDG__Template__c csvTemp = createCSVTemplate();
 
         Test.startTest();
         TemplateBuilder_Controller.getTemplateData('asdasd');
@@ -83,7 +83,7 @@ private class TemplateBuilder_ControllerTest {
 
     @isTest
     static void templateBuilderControllerTest4() {
-        Template__c temp = createExceptionTemplate();
+        MVDG__Template__c temp = createExceptionTemplate();
         Test.startTest();
         TemplateBuilder_Controller.getTemplateData(temp.Id);
         String returnValue = TemplateBuilder_Controller.saveTemplateApex(temp, null, null);
@@ -96,8 +96,8 @@ private class TemplateBuilder_ControllerTest {
     // Info - Method to cover saveTempDataRecordsInBatch logic for create extra temlatedate__c record...
     @isTest
     static void templateBuilderControllerTest5() {
-        Template__c temp = createTemplateRecord();
-        Template_Page__c pageConfigs = createPageConfig(temp.Id);
+        MVDG__Template__c temp = createTemplateRecord();
+        MVDG__Template_Page__c pageConfigs = createPageConfig(temp.Id);
         
         Test.startTest();
         TemplateBuilder_Controller.getTemplateData(temp.Id);
@@ -107,63 +107,63 @@ private class TemplateBuilder_ControllerTest {
         System.assertEquals('Temlpate Updated Successfully Success', returnValue, 'success');
     }
 
-    static Template__c createTemplateRecord(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = true;
+    static MVDG__Template__c createTemplateRecord(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = true;
         insert template;
 
         createPageConfig(template.Id);
 
-        Template_Data__c templateField = new Template_Data__c();
-        templateField.Template__c = template.Id;
-        templateField.Template_Value_Simple__c = '<div></div>';
-        templateField.Order_No_Simple__c =1;
+        MVDG__Template_Data__c templateField = new MVDG__Template_Data__c();
+        templateField.MVDG__Template__c = template.Id;
+        templateField.MVDG__Template_Value_Simple__c = '<div></div>';
+        templateField.MVDG__Order_No_Simple__c =1;
         insert templateField;
 
         return template;
     }
 
-    public static Template_Page__c createPageConfig(String tempId){
-        Template_Page__c page = new Template_Page__c();
-        page.Template__c = tempId;
-        page.Page_Number__c = 1;
-        page.Page_Margin__c = '1;1;1;1';
-        page.Page_Orientation__c = 'portrait';
-        page.Page_Size__c = 'a4';
-        page.Unit_of_Page_Configs__c = 'inch';
+    public static MVDG__Template_Page__c createPageConfig(String tempId){
+        MVDG__Template_Page__c page = new MVDG__Template_Page__c();
+        page.MVDG__Template__c = tempId;
+        page.MVDG__Page_Number__c = 1;
+        page.MVDG__Page_Margin__c = '1;1;1;1';
+        page.MVDG__Page_Orientation__c = 'portrait';
+        page.MVDG__Page_Size__c = 'a4';
+        page.MVDG__Unit_of_Page_Configs__c = 'inch';
         insert page;
         return page;
     }
 
-    public static Template__c createTemplateWithoutPage(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template 2';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = true;
+    public static MVDG__Template__c createTemplateWithoutPage(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template 2';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = true;
         insert template;
         return template;
     }
 
-    public static Template__c createCSVTemplate(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template 3';
-        template.Template_Type__c = 'CSV Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = true;
+    public static MVDG__Template__c createCSVTemplate(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template 3';
+        template.MVDG__Template_Type__c = 'CSV Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = true;
         insert template;
         return template;
     }
     
-    public static Template__c createExceptionTemplate(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template 5';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'fdsdf';
-        template.Template_Status__c = true;
+    public static MVDG__Template__c createExceptionTemplate(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template 5';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'fdsdf';
+        template.MVDG__Template_Status__c = true;
         insert template;
         return template;
     }
