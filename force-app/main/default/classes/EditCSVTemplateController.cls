@@ -9,14 +9,16 @@ public with sharing class EditCSVTemplateController {
 */
     @AuraEnabled
     public static MVDG__Template__c getTemplateDetails(String templateId){
-        MVDG__Template__c template ;
         try {
-            template = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c, MVDG__List_View__c, MVDG__Object_API_Name__c, CreatedDate, CreatedBy.Name, MVDG__Template_Status__c, MVDG__Template_Type__c, LastModifiedDate, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id =:templateId][0];
+            List<MVDG__Template__c> templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c, MVDG__List_View__c, MVDG__Object_API_Name__c, CreatedDate, CreatedBy.Name, MVDG__Template_Status__c, MVDG__Template_Type__c, LastModifiedDate, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id =:templateId lIMIT 1];
+            if(templates.size() > 0){
+                return templates[0];
+            }
+            return null;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'getTemplateDetails');
+            return null;
         }
-
-        return template;
     }
 
     // -=-=- This method is used for to get the Template fields records if there are any for any template -=-=- 
@@ -41,8 +43,6 @@ public with sharing class EditCSVTemplateController {
             // tf.addAll([SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c  WHERE MVDG__Template__c =:templateId ORDER BY MVDG__Order_No_Simple__c asc NULLS Last]);
 
             if(tf.size() >0){
-                // for (MVDG__Template_Data__c t : tf) {
-                // }
                 allData.listView = tf[0].MVDG__Template__r.MVDG__List_View__c;
                 allData.logic = tf[0].MVDG__CSV_Logic__c;
                 allData.filters = tf[0].MVDG__CSV_Filter__c;

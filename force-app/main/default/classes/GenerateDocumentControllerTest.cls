@@ -71,17 +71,13 @@ public with sharing class GenerateDocumentControllerTest {
         );
         insert cv;
         Test.startTest();
-            GenerateDocumentController.saveDataWrapper saveDataWrapper = new GenerateDocumentController.saveDataWrapper();
-            saveDataWrapper.toEmails = new String[]{'test1@gmail.com', 'test2@gmail.com'};
-            saveDataWrapper.ccEmails = new String[]{};
-            saveDataWrapper.bccEmails = new String[]{};
-            saveDataWrapper.contentVersionId = cv.Id;
-            saveDataWrapper.emailSubject = 'Test Email';
-            saveDataWrapper.emailBody = 'Test Email Body';
-            String status = GenerateDocumentController.sendEmail(saveDataWrapper);
+            Map<String, List<String>> allEmails = new Map<String, List<String>>{'toEmails' => new List<String>{'test.t1@gmail.com'}, 'ccEmails' => new List<String>{}, 'bccEmails' => new List<String>{}};
+            Map<String, String> emailData = new Map<String, String>{'contentVersionId' => cv.Id,'emailSubject' => 'Test Sub','emailBody' => 'test body'};
 
-            saveDataWrapper.contentVersionId = '012345678901234567';
-            GenerateDocumentController.sendEmail(saveDataWrapper);
+            String status = GenerateDocumentController.sendEmail(allEmails, emailData);
+
+            emailData.put('contentVersionId', '012345678901234567');
+            GenerateDocumentController.sendEmail(allEmails, emailData);
         Test.stopTest(); 
 
         System.assertEquals('completed', status, 'Processs neeeds to be completed!');
@@ -145,25 +141,25 @@ public with sharing class GenerateDocumentControllerTest {
     @isTest
     static void testSetDefaultOptions(){
         MVDG__Template__c template = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Object_API_NAME__c, MVDG__Description__c, MVDG__Template_Status__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true LIMIT 1];
-        GenerateDocumentController.DefaultDataWrapper defaultValues = new GenerateDocumentController.DefaultDataWrapper();
-        defaultValues.templateId = template.Id;
-        defaultValues.templateName = template.MVDG__Template_Name__c;
-        defaultValues.buttonLabel = 'test btn';
-        defaultValues.buttonName = 'test_btn';
-        defaultValues.docType = 'CSV';
-        defaultValues.iStorage = 'Files';
-        defaultValues.eStorage = 'AWS';
-        defaultValues.oChannel = 'Email';
-        defaultValues.emailAddresses = 'test@qwe123.com';
-        defaultValues.emailSubject = 'Test Subject';
-        defaultValues.emailBody = 'test email body';
-        defaultValues.templateType = 'CSV Template';
-        defaultValues.emailTemplate =  '123123123123123';
+        Map<String, String> defaultValues = new Map<String, String>{
+        'templateId' => template.Id,
+        'templateName' => template.MVDG__Template_Name__c,
+        'buttonLabel' => 'test btn',
+        'buttonName' => 'test_btn',
+        'docType' => 'CSV',
+        'iStorage' => 'Files',
+        'eStorage' => 'AWS',
+        'oChannel' => 'Email',
+        'emailAddresses' => 'test@qwe123.com',
+        'emailSubject' => 'Test Subject',
+        'emailBody' => 'test email body',
+        'templateType' => 'CSV Template',
+        'emailTemplate' =>  '123123123123123' };
         Test.startTest();
         GenerateDocumentController.setDefaultOptions(defaultValues);
         Test.stopTest();
 
         MVDG__Template__c newTemplate = [SELECT Id, MVDG__Document_Type__c  FROM MVDG__Template__c WHERE Id=:template.Id];
-        System.assertEquals(defaultValues.docType, newTemplate.MVDG__Document_Type__c, 'The template document type must be updated and should match.');
+        System.assertEquals(defaultValues.get('docType'), newTemplate.MVDG__Document_Type__c, 'The template document type must be updated and should match.');
     }
 }

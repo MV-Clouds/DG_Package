@@ -195,17 +195,6 @@ li.info-topic {
     height: 15px !important;
 }
 
-.disabled-button{
-    background-color: lightgray !important;
-    cursor: not-allowed !important;
-    box-shadow: none !important;
-}
-
-.disabled-button:hover{
-    background-color: lightgray !important;
-    box-shadow: 0px 0px 10px 0px #00000040;
-}
-
 .grid-div{
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(calc(25% - 1rem), 1fr));
@@ -255,7 +244,7 @@ li.info-topic {
     box-shadow: 0 0 10px 0 lightgray;
 }
 
-.edit-btn:not(.disabled-button):hover{
+.edit-btn:hover{
     background: #0084c1 !important;
 }
 
@@ -314,6 +303,17 @@ li.info-topic {
 
 .control-btns:has(.file-info-div) {
     align-items: end;
+}
+
+.bottom-btn:has(svg.true){
+    box-shadow: none;
+    pointer-events: none;
+    background-color: lightgray !important;
+}
+.edit-btn:has(svg.true){
+    box-shadow: none;
+    pointer-events: none;
+    background-color: lightgray !important;
 }
 
 .button-name-div span {
@@ -729,6 +729,10 @@ svg{
     overflow-y: scroll;
 }
 
+.all-templates-scroll-div:not(:has(.props-div)) {
+    flex-grow: 0;
+}
+
 .template-selection-div{
     background-color: #d5ebff;
     border-radius: 0.5rem;
@@ -841,6 +845,12 @@ svg{
 .select-template-option .select{
     width: 8%;
     margin: 0.5rem;
+}
+
+.select-template-button:has(svg.false){
+    box-shadow: none;
+    pointer-events: none;
+    background-color: lightgray !important;
 }
 
 .select-template-option .edit{
