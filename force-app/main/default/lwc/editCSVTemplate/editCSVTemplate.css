@@ -101,7 +101,7 @@
     overflow-y:scroll;
     scrollbar-width: none;
     overflow-x: hidden;
-    background-image: url(/resource/homePageImgs/HomBg.png);
+    background-image: url(/resource/MVDG__homePageImgs/HomBg.png);
     background-size: cover;
     background-repeat: no-repeat;
     overflow: hidden;
@@ -808,7 +808,7 @@ button:hover{
     background-color: white;
     border-radius: 0.5rem;
     padding: 1.5rem;
-    background-image: url(/resource/homePageImgs/HomBg.png);
+    background-image: url(/resource/MVDG__homePageImgs/HomBg.png);
     background-size: cover;
     background-repeat: no-repeat;
 }
@@ -825,7 +825,7 @@ button:hover{
     height: 17rem;
     overflow-y: scroll;
     background-color: white;
-    background-image: url(/resource/homePageImgs/HomeNoRecordBg.png);
+    background-image: url(/resource/MVDG__homePageImgs/HomeNoRecordBg.png);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

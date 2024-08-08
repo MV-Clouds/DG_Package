@@ -1,5 +1,4 @@
 import { LightningElement , api, track , wire} from 'lwc';
-import newTemplateImage from '@salesforce/resourceUrl/new_template_image';
 import cloneTemplateImage from '@salesforce/resourceUrl/clone_template_image';
 import newTemplateBg from '@salesforce/resourceUrl/new_template_bg';
 import cloneTempData from '@salesforce/apex/CloneTemplateDataController.cloneTempData'

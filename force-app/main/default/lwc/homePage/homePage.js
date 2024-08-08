@@ -206,7 +206,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.isSpinner = true;
             getTemplateList()
             .then(result => {
-                // console.log('result : ', result);
+                console.log('result : ', result);
                 if(result.isSuccess === true){
                     if(result.returnMessage !== 'No Template Found'){
                         var templateList = result.templateList;

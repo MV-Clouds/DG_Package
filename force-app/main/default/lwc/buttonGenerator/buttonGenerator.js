@@ -159,7 +159,7 @@ export default class ButtonGenerator extends LightningElement {
                 buttonData.objects = this.selectedLVObjects;
                 buttonData.buttonLabel = 'DG Generate CSV';
                 buttonData.buttonName = 'DG_Generate_CSV';
-                buttonData.buttonEndURL = '&c__isCSVOnly=true';
+                buttonData.buttonEndURL = '&MVDG__isCSVOnly=true';
             }
             else if(type === 'basicPrint'){
                 buttonData.objects  = this.selectedBPObjects;
@@ -205,7 +205,7 @@ export default class ButtonGenerator extends LightningElement {
                         label: "DG Generate Document",
                         optionsCreateFeedItem: false,
                         type: "LightningWebComponent",
-                        lightningWebComponent: "generateDocument"
+                        lightningWebComponent: "MVDG__generateDocument"
                     },
                     FullName: `${record}.DG_Generate_Document`
                 }));

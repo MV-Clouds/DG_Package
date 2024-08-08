@@ -30,7 +30,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('Url:[delegate=https://test.develop.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://test--c.develop.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
 
     }
 
@@ -39,7 +39,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('Url:[delegate=https://test.scratch.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://test--c.scratch.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
 
     }
 
@@ -48,7 +48,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('Url:[delegate=https://test.sandbox.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://test--c.sandbox.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
 
     }
 
@@ -57,7 +57,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('Url:[delegate=https://test.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://test--c.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
     }
     
     @isTest
@@ -96,7 +96,7 @@ private class OneDriveSuccessControllerTest {
         Test.stopTest();
         
         System.assertNotEquals(null, result);
-        System.assert(result.getUrl().contains('lightning/n/User_Configuration'), 'URL should contain the User_Configuration page');
+        System.assert(result.getUrl().contains('lightning/n/MVDG__User_Configuration'), 'URL should contain the User_Configuration page');
     }
 
     @isTest
@@ -126,7 +126,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String referenceUrl = OneDriveSuccessController.referenceUrl(testUrl);
         Test.stopTest();
-        System.assertEquals('.develop.lightning.force.com/lightning/n/User_Configuration', referenceUrl);
+        System.assertEquals('.develop.lightning.force.com/lightning/n/MVDG__User_Configuration', referenceUrl);
     }
     
     @isTest
@@ -136,7 +136,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String referenceUrl = OneDriveSuccessController.referenceUrl(testUrl);
         Test.stopTest();
-        System.assertEquals('.sandbox.lightning.force.com/lightning/n/User_Configuration', referenceUrl);
+        System.assertEquals('.sandbox.lightning.force.com/lightning/n/MVDG__User_Configuration', referenceUrl);
     }
     
     @isTest
@@ -146,7 +146,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String referenceUrl = OneDriveSuccessController.referenceUrl(testUrl);
         Test.stopTest();
-        System.assertEquals('.scratch.lightning.force.com/lightning/n/User_Configuration', referenceUrl);
+        System.assertEquals('.scratch.lightning.force.com/lightning/n/MVDG__User_Configuration', referenceUrl);
     }
     
     @isTest
@@ -156,6 +156,6 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String referenceUrl = OneDriveSuccessController.referenceUrl(testUrl);
         Test.stopTest();
-        System.assertEquals('.force.com/lightning/n/User_Configuration', referenceUrl);
+        System.assertEquals('.force.com/lightning/n/MVDG__User_Configuration', referenceUrl);
     }
 }

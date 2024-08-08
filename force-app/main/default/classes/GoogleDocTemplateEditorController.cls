@@ -80,12 +80,14 @@ public with sharing class GoogleDocTemplateEditorController {
             Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
             String newToken = (String) jsonResponse.get('access_token');
             if (newToken != null) {
+
                 if (Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable()) {
                     settings.MVDG__access_token__c = newToken;
                 }
                 requestPending.setHeader('Authorization', 'Bearer ' + newToken);
                 Http httpPending = new Http();
                 HttpResponse responsePending = httpPending.send(requestPending);
+
                 if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isAccessible() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isCreateable()) {
                     upsert settings;
                 }

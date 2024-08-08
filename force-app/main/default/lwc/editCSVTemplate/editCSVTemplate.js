@@ -299,6 +299,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.existingTemplateData = JSON.parse(JSON.stringify(data));
                 this.newTemplateData = JSON.parse(JSON.stringify(this.existingTemplateData));
                 this.resolvedPromise++;
+                console.log('Template Details ::', this.newTemplateData);
             })
             .catch(e => {
                 this.resolvedPromise++;
@@ -317,6 +318,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.allListViews = data.map(listView => ({ label: listView.Name, value: listView.Id }));
                 this.showListViewPopup = this.isNew && this.allListViews.length>0 ?  true : false;
                 this.resolvedPromise++;
+                console.log('All the List Views Are::', this.allListViews);
             })
             .catch(e => {
                 this.resolvedPromise++;
@@ -361,6 +363,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.setSelectionFields();
                     this.setFilterFields();
                     this.resolvedPromise++;
+                    console.log('All Related Objects Are ::', this.relatedObjects);
+                    console.log('All Fields Are ::', this.allRetrievedFields);
+                    
                 }
                 else{
                     this.resolvedPromise++;
@@ -404,6 +409,8 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.parseFilterString();
                 }
                 this.resolvedPromise++;
+                console.log('Template Fields Data::', this.separatedData);
+                
             })
             .catch(e => {
                 this.resolvedPromise++;
@@ -2247,7 +2254,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     }
     handleTemplateNameChange(event){
         try{
-            this.newTemplateData.MVDG__Template_Status__c = event.target.value;
+            this.newTemplateData.MVDG__Template_Name__c = event.target.value;
             this.isBasicTabChanged = true;
         }catch(e){
             console.log('Error in handleTemplateNameChange :: ' , e.stack);

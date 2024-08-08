@@ -158,7 +158,7 @@ input:focus-visible {
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     /* box-shadow: 5px 5px 3px rgb(145, 145, 145) ; */
     animation: expand 1s backwards;
-    background-image: url('/resource/dropAreaBackground');
+    background-image: url('/resource/MVDG__dropAreaBackground');
     background-size: 570px 370px; 
     background-repeat: repeat;
 }

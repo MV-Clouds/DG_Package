@@ -72,10 +72,9 @@ public with sharing class NewTemplateCreationController {
             template.MVDG__Template_Type__c = templateData.get('templateType');
             template.MVDG__Template_Status__c = true;
     
-            if(MVDG__Template__c.SObjectType.getDescribe().isCreateable() == false){
-                throw new AuraHandledException('You have no permission to insert this object MVDG__Template__c');
+            if(Schema.sObjectType.MVDG__Template__c.isCreateable()){
+                insert template;
             }
-            insert template;
             templateId = template.Id;
 
             if(templateData.get('templateType') == 'Simple Template' && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){

@@ -84,7 +84,7 @@ public class OneDriveAuthorizationControllerTest {
         Test.startTest();
         String redirectUrl = OneDriveAuthorizationController.redirect('Url:[delegate=https://testorg.develop.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://testorg--c.develop.vf.force.com/apex/oneDriveSuccessPage', redirectUrl);
+        System.assertEquals('https://testorg--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage', redirectUrl);
 
     }
 
@@ -96,7 +96,7 @@ public class OneDriveAuthorizationControllerTest {
         Test.startTest();
         String redirectUrl = OneDriveAuthorizationController.redirect('Url:[delegate=https://testorg.sandbox.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://testorg--c.sandbox.vf.force.com/apex/oneDriveSuccessPage', redirectUrl);
+        System.assertEquals('https://testorg--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage', redirectUrl);
 
     }
 
@@ -107,7 +107,7 @@ public class OneDriveAuthorizationControllerTest {
         Test.startTest();
         String redirectUrl = OneDriveAuthorizationController.redirect('Url:[delegate=https://testorg.scratch.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://testorg--c.scratch.vf.force.com/apex/oneDriveSuccessPage', redirectUrl);
+        System.assertEquals('https://testorg--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage', redirectUrl);
 
     }
 
@@ -118,6 +118,6 @@ public class OneDriveAuthorizationControllerTest {
         Test.startTest();
         String redirectUrl = OneDriveAuthorizationController.redirect('Url:[delegate=https://testorg.my.salesforce.com]');
         Test.stopTest();
-        System.assertEquals('https://testorg--c.vf.force.com/apex/oneDriveSuccessPage', redirectUrl);
+        System.assertEquals('https://testorg--c.vf.force.com/apex/MVDG__oneDriveSuccessPage', redirectUrl);
     }
 }

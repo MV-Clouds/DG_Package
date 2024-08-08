@@ -73,7 +73,7 @@ li.info-topic {
     width: var(--width-of-main-generate-document-div);
     flex-direction: column;
     position: relative;
-    background: var(--background-of-main-generate-document-div, white url(/resource/homePageImgs/HomBg.png) no-repeat center center);
+    background: var(--background-of-main-generate-document-div, white url(/resource/MVDG__homePageImgs/HomBg.png) no-repeat center center);
     background-size: cover;
     backdrop-filter: blur(2px);
 }

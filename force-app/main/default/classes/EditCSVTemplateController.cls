@@ -91,10 +91,10 @@ public with sharing class EditCSVTemplateController {
             if(existingPage.size() > 0){
                 tp.Id = existingPage[0].Id;
             }
-            if(MVDG__Template_Page__c.SObjectType.getDescribe().isUpdateable() == false || MVDG__Template_Page__c.SObjectType.getDescribe().isCreateable() == false){
-                throw new AuraHandledException('You have no permission to insert this object ContentDocumentLink');
+
+            if(Schema.sObjectType.MVDG__Template_Page__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){
+                upsert tp;
             }
-            upsert tp;
 
             MVDG__Template_Data__c td = new MVDG__Template_Data__c();
             td.MVDG__Template__c = templateId;
@@ -111,10 +111,9 @@ public with sharing class EditCSVTemplateController {
                 td.Id = existingData[0].Id;
             }
 
-            if(MVDG__Template_Data__c.SObjectType.getDescribe().isUpdateable() == false || MVDG__Template_Data__c.SObjectType.getDescribe().isCreateable() == false){
-                throw new AuraHandledException('You have no permission to insert this object ContentDocumentLink');
+            if(Schema.sObjectType.MVDG__Template_Data__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable()){
+                upsert td;
             }
-            upsert td;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'saveTemplateFields');
         }
@@ -203,10 +202,10 @@ public with sharing class EditCSVTemplateController {
                 MVDG__Template_Status__c = templateInfo.templateStatus,
                 MVDG__List_View__c = templateInfo.listView
             );
-            if(MVDG__Template__c.SObjectType.getDescribe().isUpdateable() == false){
-                throw new AuraHandledException('You have no permission to update this object MVDG__Template__c');
+
+            if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
+                update updatedTemplate;
             }
-            update updatedTemplate;
         }catch(Exception e){
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'updateTemplate');
         }

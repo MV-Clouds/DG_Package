@@ -481,24 +481,6 @@
             </div>
             <div class="basic-main-div">
                 <div class="edit-detail-div">
-                    <!-- <div class="tempToggle">
-                        <template lwc:if={newTemplateData.MVDG__Template_Name__c}>
-                          <input class="checkBox checked" type="checkbox" data-status="checked" id={newTemplateData.Id} onchange={handleChangeStatus} style="display: none;" checked/>
-                        </template>
-                        <template lwc:else>
-                          <input class="checkBox" type="checkbox" data-status="unchecked" id={newTemplateData.Id} onchange={handleChangeStatus} style="display: none;"/>
-                        </template>
-                        <label for={newTemplateData.Id}> 
-                          <div class="toggleDiv">
-                            <div class="toggleBtnBg">
-                              <div class="StatusText">
-                                <span>Active</span>
-                                <span>Inactive</span>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-                    </div> -->
                     <div class="tempToggle">
                         <input class="checkBox" type="checkbox" id={newTemplateData.Id} data-name="MVDG__Template_Status__c" onchange={handleChangeStatus} style="display: none;" checked={newTemplateData.MVDG__Template_Status__c}/>
                         <label for={newTemplateData.Id}> 
