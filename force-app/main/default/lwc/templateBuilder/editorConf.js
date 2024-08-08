@@ -1,7 +1,10 @@
 import {customeIcons} from 'c/globalProperties';
 var _self;
 
-// Method to set CSS of HTML Elements Once Editor Load SuccessFully...
+/**
+ * Method to set CSS of HTML Elements Once Editor Load SuccessFully...
+ * @param {*} note 
+ */
 function setCSSAfterLoadEditor(note){
   try {
     note.noteEditorFrame = note.summerNote.nextSibling;
@@ -22,8 +25,11 @@ function setCSSAfterLoadEditor(note){
 }
 
 // *** ======== ===== ======  Set Font Size Using Custom Button -- START ======== ===== ====== ========
-// Method to  // set font-resiz input value as per selectd text font-size...
-// this mehtod will triggers when user change mouse postion OR editor value changed...
+/**
+ * Method to  // set font-resize input value as per selected text font-size...
+ * this method will triggers when user change mouse position OR editor value changed...
+ * @param {*} note 
+ */
 function setFontResizerValue(note){
   try {
       // get Editor CurrentStyle;
@@ -37,7 +43,11 @@ function setFontResizerValue(note){
       console.warn('error in editorConfig.setFontResizerValue : ', );
   }
 }
-// Method to Set Font-Size in Editor...
+/**
+ * Method to Set Font-Size in Editor...
+ * @param {*} event 
+ * @param {*} note 
+ */
 function setFontSize(event, note){
    
   // get Editor CurrentStyle;
@@ -89,7 +99,11 @@ function setFontSize(event, note){
       
   }
 }
-// Method to create and return custom fontResize BUTTON....
+/**
+ * Method to create and return custom fontResize BUTTON....
+ * @param {*} note 
+ * @returns 
+ */
 function createFontResizer(note){
         var fontReiszerContanier = globalThis.document?.createElement('div');
         fontReiszerContanier.classList.add('fontResizer');
@@ -135,8 +149,18 @@ function createFontResizer(note){
 // ======== ===== ====== Set Font Size Using Custom Button  - END ======== ===== ====== ========
 
 // *** ======== ===== ====== Set Table Row Color Custom Button -- START ======== ===== ====== ========
-// Method to create a button with custom color palette dropdown... 
-// this method is replicated from summerNote JS File, so be carefull to made any changes....
+/**
+ * Method to create a button with custom color palette dropdown... 
+ * this method is Replicated from summerNote JS File, so be careful to made any changes....
+ * @param {*} className 
+ * @param {*} infoOpt 
+ * @param {*} defaultColor 
+ * @param {*} PaletTitle 
+ * @param {*} callBackFnc 
+ * @param {*} note 
+ * @param {*} context 
+ * @returns 
+ */
 function colorPalette_CusBtn(className, infoOpt, defaultColor, PaletTitle, callBackFnc, note, context){
 
   var ui = $.summernote.ui;
@@ -254,7 +278,13 @@ function colorPalette_CusBtn(className, infoOpt, defaultColor, PaletTitle, callB
   }).render();
 }
 
-// Method to set Table row color
+/**
+ * Method to set Table row color
+ * @param {*} color 
+ * @param {*} note 
+ * @param {*} context 
+ * @returns 
+ */
 function setTableRowColor(color, note, context) {
   try {
       // Check if selection is inside a table row
@@ -274,13 +304,24 @@ function setTableRowColor(color, note, context) {
   }
 };
 
-// Method to create custom Button to set Table Row Color
+/**
+ * Method to create custom Button to set Table Row Color
+ * @param {*} note 
+ * @param {*} context 
+ * @returns 
+ */
 function createRowColorBtn(note, context){
     var defaultColor = '#ffffff';
     return colorPalette_CusBtn('row-color', 'rowcolor', defaultColor, 'Select Row Colors', setTableRowColor, note, context);
 }
 
-// Method to set Table Border color
+/**
+ * Method to set Table Border color using table popover button
+ * @param {*} color 
+ * @param {*} note 
+ * @param {*} context 
+ * @returns 
+ */
 function setTableBorderColor(color, note, context) {
   try {
       // Check if selection is inside a table row
@@ -299,14 +340,25 @@ function setTableBorderColor(color, note, context) {
       
   }
   }
-// Method to create custom Button to set Table Border Color
+
+/**
+ * Method to create custom Button to set Table Border Color
+ * @param {*} note 
+ * @param {*} context 
+ * @returns 
+ */
 function createBorderColorBtn(note, context){
   var defaultColor = '#000000';
   return colorPalette_CusBtn('border-color', 'bordercolor', defaultColor, 'Select Border Colors', setTableBorderColor , note, context);
 }
-;
 
-// Method to set Table Cell color
+/**
+ * Method to set Table Cell color
+ * @param {*} color 
+ * @param {*} note 
+ * @param {*} context 
+ * @returns 
+ */
 function setTableCellColor(color, note, context) {
   try {
       // Check if selection is inside a table row
@@ -332,13 +384,26 @@ function setTableCellColor(color, note, context) {
       
   }
   }
-// Method to create custom Button to set Table Single Cell Color
+
+/**
+ * Method to create custom Button to set Table Single Cell Color
+ * @param {*} note 
+ * @param {*} context 
+ * @returns 
+ */
 function createCellColorBtn(note, context){
   var defaultColor = '#ffffff';
   return colorPalette_CusBtn('cell-color', 'cellcolor', defaultColor, 'Select Cell Colors', setTableCellColor, note, context);
 }
 
  // ======== ====== ====== Set Table Row Color Custom Button - END ======== ===== ====== ========
+
+ /**
+  * Method to set Alignment of text into table using popper button
+  * @param {*} position 
+  * @param {*} context 
+  * @returns 
+  */
  function setCellVerticalAlighn(position, context){
   try {
         // Check if selection is inside a table row
@@ -364,6 +429,12 @@ function createCellColorBtn(note, context){
     
   }
  }
+ /**
+  * Method to generate cell vertical custom button 
+  * @param {*} note 
+  * @param {*} context 
+  * @returns 
+  */
  function createCellVerticalAlignBtn(note, context){
       
         var ui = $.summernote.ui;
@@ -421,6 +492,13 @@ function createCellColorBtn(note, context){
  }
 
 //  ==== ===== ======= ====== Page Setup Methods -- START ==== ==== ==== ==== 
+
+/**
+ * Method to create page-setup custom button
+ * @param {*} note 
+ * @param {*} context 
+ * @returns 
+ */
 function createPageSetupBtn(note, context){
   var ui = $.summernote.ui;
   var options = context.options;
@@ -446,6 +524,15 @@ function createPageSetupBtn(note, context){
 //  ==== ===== ======= ====== Related List (Child Table) calculation method -- END ==== ==== ==== ==== 
 
 // === ==== ====  Configuration method for summernote Editor === ==== ==== 
+
+/**
+ * This is main method to initialize editor into DOM,
+ * Use can use this method multiple time to initialize multiple editor,
+ * @param {*} self 
+ * @param {*} docGeniusLogoSvg 
+ * @param {*} editorSelector 
+ * @returns 
+ */
 export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
     try { 
             var note = {
@@ -480,7 +567,6 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
             }
 
             var createBuilderTitle = function(){
-                // var titleDiv = `<div class="docGeniusLogo">Template</br> Builder</div>`;
                 var titleImg = `<div class="docGeniusLogo"><img src=${docGeniusLogoSvg}></img></div>`
                 return titleImg;
             }
@@ -501,15 +587,11 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
               return createCellVerticalAlignBtn(note, context);
             };
 
-            // var truncateBtn = function(context){
-            //   return createTruncateBtn(note, context);
-            // }
-
             var pageSetupBtn = function(context){
               return createPageSetupBtn(note, context)
             }
 
-            // Initalize SummerNote Editor...
+            // Initialize SummerNote Editor...
             $(note.summerNote).summernote({
     
                 editing: true,
@@ -591,25 +673,7 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
                   theme: 'blackboard',
                   mode: "text/html",
                   lineNumbers: true,
-                  // lineWrapping: true,
                   tabMode: 'indent'
-                  // indentWithTabs: true,
-                  // indentUnit: 4,
-                  // autoCloseTags: true,
-                  // autoCloseBrackets: true,
-                  // showCursorWhenSelecting: true,
-                  // gutters: ["CodeMirror-lint-markers"],
-                  // lint: true,
-                  // styleActiveLine: true,
-                  // matchBrackets: true,
-                  // extraKeys: {
-                  //   'Ctrl-Space': 'autocomplete',
-                  // },
-                  // lintWith: CodeMirror.fromTextArea,
-                  // lintOptions: {
-                  //   'async': true,
-                  //   'lint': true,
-                  // },
                 },
 
                 icons: {
