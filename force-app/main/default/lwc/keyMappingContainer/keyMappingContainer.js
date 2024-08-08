@@ -23,6 +23,7 @@ export default class KeyMappingContainer extends LightningElement {
 
     hideMergeTemplatesFor = ['Google Doc Template'];
     showFullHeightButtonFor = ['Simple Template'];
+    showMaxSizeLimit = ['Simple Template'];
     // copyBase64AvailableFor = ['Google Doc Template'];
     copyBase64AvailableFor = [];
 
@@ -213,6 +214,10 @@ export default class KeyMappingContainer extends LightningElement {
         return this.savedSignatureSize === this.signatureSize;
     }
 
+    get isMaxSizeLimit(){
+        return this.showMaxSizeLimit.includes(this.templateType);
+    }
+
     connectedCallback(){
         try {
             this.fetchFieldMapping();
@@ -357,7 +362,7 @@ export default class KeyMappingContainer extends LightningElement {
 
     fetchAllContentVersionImages(){
         try {
-            getAllContentVersionImgs()
+            getAllContentVersionImgs({templateType : this.templateType})
             .then(result => {
                 this.isDataRefreshing = false;
                 console.log('getAllContentVersionImgs result => ', result);

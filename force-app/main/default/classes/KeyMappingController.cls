@@ -394,9 +394,15 @@ public with sharing class KeyMappingController {
      * @description : Method to collect all content version.
     */
     @AuraEnabled
-    public static RetrunWrapper getAllContentVersionImgs(){
+    public static RetrunWrapper getAllContentVersionImgs(String templateType){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
         try {
+
+
+            // for Google Doc Template we have set max image size to 1000MB, meanse no size limit
+            if(templateType == 'Google Doc Template'){
+                maxImageSize = 1000*1000*1000;  
+            }
 
             List<ContentVersion> allImgCV = [SELECT Id, Title, FileExtension, FileType, VersionDataUrl, ContentSize, IsLatest FROM ContentVersion WHERE FileExtension IN: imgTyes AND IsLatest = true AND ContentSize < :maxImageSize WITH SECURITY_ENFORCED];
 
