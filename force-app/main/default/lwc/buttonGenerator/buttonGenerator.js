@@ -209,10 +209,11 @@ export default class ButtonGenerator extends LightningElement {
                         label: "DG Generate Document",
                         optionsCreateFeedItem: false,
                         type: "LightningWebComponent",
-                        lightningWebComponent: "generateDocument"
+                        lightningWebComponent: "MVDG__generateDocument"
                     },
                     FullName: `${record}.DG_Generate_Document`
                 }));
+                let failedButtonsNumber = 0;
                 requestBodyExpanded.forEach((requestBody, i) => {
                     console.log('the requestBody :::  ', requestBody);
                     let requestOptions = {
@@ -224,13 +225,28 @@ export default class ButtonGenerator extends LightningElement {
                         fetch(encodeURI(endpoint), requestOptions)
                         .then(response => response.json())
                         .then(result => {
-                            (i == requestBodyExpanded.length - 1) ? this.fetchAlreadyCreatedObjects() : undefined;
+                            if(i == requestBodyExpanded.length - 1){
+                                this.fetchAlreadyCreatedObjects();
+                                console.log('failedButtonsNumber ::: ', failedButtonsNumber);
+                                if(failedButtonsNumber > 0){
+                                    this.showToast('error','Something went Wrong!','There was error creating '+ failedButtonsNumber + (failedButtonsNumber==1?' button,' : 'buttons,') + 'please try again...', 5000);
+                                }
+                            }
                             console.log(result);
+                            if(!result?.success){
+                                failedButtonsNumber++;
+                            }
                         })
                         .catch(error => {
-                            (i == requestBodyExpanded.length - 1) ? this.fetchAlreadyCreatedObjects() : undefined;
+                            if(i == requestBodyExpanded.length - 1){
+                                this.fetchAlreadyCreatedObjects();
+                                console.log('failedButtonsNumber ::: ', failedButtonsNumber);
+                                if(failedButtonsNumber > 0){
+                                    this.showToast('error','Something went Wrong!','There was error creating '+ failedButtonsNumber + (failedButtonsNumber==1?' button,' : 'buttons,') + 'please try again...', 5000);
+                                }
+                            }
                             console.log('error', error);
-                            this.showToast('error','Something went Wrong!','Buttons couldn\'t be created please try again.', 5000);
+                            this.showToast('error','Something went Wrong!','There was some error creating button, try again...', 5000);
                         });
                     })
                     this.selectedQAObjects = [];
