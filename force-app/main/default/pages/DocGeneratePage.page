@@ -471,7 +471,8 @@
                              */
                             function fetchAllTemplateData(offset, templateId, mergeKey) {
                                 Visualforce.remoting.Manager.invokeAction(
-                                    'DocGenerateController.fetchTemplateData',
+                                    // 'DocGenerateController.fetchTemplateData',
+                                    'MVDG__DocGenerateController.fetchTemplateData',
                                     offset, templateId, mergeKey,
                                     function(result, event) {
                                         // console.log('event : ', event);

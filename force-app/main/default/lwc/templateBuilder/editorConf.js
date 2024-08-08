@@ -617,7 +617,7 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
                     'alignCenter': customeIcons.aligncenter,
                     'alignJustify': customeIcons.alignjustify,
                     'alignLeft': customeIcons.alignleft,
-                    'alignRight': customeIcons.alignleft,
+                    'alignRight': customeIcons.alignright,
                     'rowBelow': 'note-icon-row-below',
                     'colBefore': 'note-icon-col-before',
                     'colAfter': 'note-icon-col-after',

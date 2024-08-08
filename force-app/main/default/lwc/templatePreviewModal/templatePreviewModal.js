@@ -20,8 +20,8 @@ export default class TemplatePreviewModal extends LightningElement {
     @track selectedRecordId = null;
 
     @track isSpinner = false;
+    @track showPreview;
     @track vfPageSRC; 
-    @track vfGeneratePageSRC;
     @track errorDetail = {};
 
     customSetTimeout;
@@ -169,6 +169,7 @@ export default class TemplatePreviewModal extends LightningElement {
                 var paraDataStringify = JSON.stringify(paraData);
     
                 // var newSRC = '/apex/DocPreviewPage?paraData=' + paraDataStringify;
+                // var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
                 var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify;
     
                 if(newSRC !== previousSRC){
@@ -184,6 +185,7 @@ export default class TemplatePreviewModal extends LightningElement {
                     }, 4000);
                 }
                 else{
+                    // this.vfPageSRC = '/apex/DocGeneratePage';
                     this.vfPageSRC = '/apex/MVDG__DocGeneratePage';
 
                     // setTimeout( () => {

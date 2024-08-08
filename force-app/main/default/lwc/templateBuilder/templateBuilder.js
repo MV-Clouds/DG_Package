@@ -90,7 +90,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     maxRelatedLIstTableLimit = 10;
 
     allowFontFamily = ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana'];
-    maxImageSize = 3*1000*1000;
+    maxImageSize = 3*1024*1024;
     allowFileExtensions = ".png,.jpg,.jpeg,.avif,.webp,.heic,.ico,.jfif,.jps,.jpe";
 
     // watermark options

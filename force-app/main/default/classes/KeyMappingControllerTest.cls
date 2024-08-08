@@ -94,6 +94,8 @@ private class KeyMappingControllerTest {
     static void keyMappingTest2(){
         Test.startTest();
         KeyMappingController.RetrunWrapper returnValue = new KeyMappingController.RetrunWrapper();
+        Account acc = createAccountRecord();
+        createContentVersion(acc.Id);
         returnValue = KeyMappingController.getAllContentVersionImgs();
         Test.stopTest();
 

@@ -197,6 +197,11 @@
       </template>
       <template lwc:if={mappingTypeTabArea.sfImages}>
         <div class="mappingFields_sub">
+          <div lwc:if={isMaxSizeLimit} class="keyInfoText">
+            <ul>
+              <li>Add salesforce images upto 20MB.</li>
+            </ul>
+          </div>
           <template for:each={contentVersionToDisplay} for:item="img" for:index="index">
             <div class="mappingImgContainer" data-imgid={img.Id} key={img}>
               <div class="fetchLoadingOverlay" data-overlay={img.Id}>

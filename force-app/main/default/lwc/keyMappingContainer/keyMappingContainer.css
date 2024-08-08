@@ -628,6 +628,15 @@
     padding-inline: 1rem;
 }
 
+.maxSizeLimitInfo{
+    padding: 0.25rem 1rem;
+    max-width: 100%;
+    font-size: 13px;
+    color: rgb(41, 41, 41);
+    text-transform: capitalize;
+    text-align: left;
+}
+
 .table_tr {
     display: flex;
     align-items: center;

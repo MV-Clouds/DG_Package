@@ -4,10 +4,7 @@ import deleteTemplate from '@salesforce/apex/HomePageController.deleteTemplate';
 import docGeniusImgs from "@salesforce/resourceUrl/homePageImgs";
 import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getTemplateList from '@salesforce/apex/HomePageController.getTemplateList';
-import templateObject from '@salesforce/schema/MVDG__Template__c';
-import templateTypeFIELD from '@salesforce/schema/MVDG__Template__c.MVDG__Template_Type__c';
 import updateTemplate from '@salesforce/apex/HomePageController.updateTemplate';
-import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
 import {nameSpace,navigationComps} from 'c/globalProperties';
 
 export default class HomePage extends NavigationMixin(LightningElement) {
@@ -107,18 +104,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         return this.displayedTemplateList.length || this.isSpinner ? false : true;
     }
 
-    // Get MVDG__Template__c Object Information...
-    @wire(getObjectInfo, { objectApiName: templateObject })
-    objectInfo;
-
-    // Get Picklist values form MVDG__Template_Type__c FIELD from MVDG__Template__c Object
-    @wire(getPicklistValues, { recordTypeId: '$objectInfo.data.defaultRecordTypeId', fieldApiName: templateTypeFIELD })
-    wiredTemplateTypeValues({ data }) {
-        if (data) {
-            this.templateTypeList = this.mapPicklistValues(data);
-        }
-    }
-
     connectedCallback(){
         try {
 
@@ -208,6 +193,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             .then(result => {
                 console.log('result : ', result);
                 if(result.isSuccess === true){
+                    this.templateTypeList = result.templateTypes;
                     if(result.returnMessage !== 'No Template Found'){
                         var templateList = result.templateList;
                         // Add additional keys for logic implementation...
