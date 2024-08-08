@@ -50,13 +50,13 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
         const template = this.templatelist.find(temp => temp.Id === this.selectedtemplateid);
         console.log('template *** : ',JSON.stringify(template));
         this.templateId =  template.Id;
-        this.templateName = template.Template_Name__c+'-copy';
-        this.templateDescription = template.Description__c;
+        this.templateName = template.MVDG__Template_Name__c+'-copy';
+        this.templateDescription = template.MVDG__Description__c;
         if(this.templateDescription == undefined || this.templateDescription == null){
             this.templateDescription='';
         }
-        this.trmplateObject = template.Object_API_Name__c;
-        this.templateType = template.Template_Type__c;
+        this.trmplateObject = template.MVDG__Object_API_Name__c;
+        this.templateType = template.MVDG__Template_Type__c;
         console.log('this.templateType *** : ',this.templateType);
         if( this.templateType == 'CSV Template'){
             this.templateTypeCSV = true;

@@ -8,10 +8,10 @@ public with sharing class EditCSVTemplateController {
 ********************************************************
 */
     @AuraEnabled
-    public static Template__c getTemplateDetails(String templateId){
-        Template__c template ;
+    public static MVDG__Template__c getTemplateDetails(String templateId){
+        MVDG__Template__c template ;
         try {
-            template = [SELECT Id, Template_Name__c, Description__c, List_View__c, Object_API_Name__c, CreatedDate, CreatedBy.Name, Template_Status__c, Template_Type__c, LastModifiedDate, LastModifiedBy.Name FROM Template__c WHERE Id =:templateId][0];
+            template = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c, MVDG__List_View__c, MVDG__Object_API_Name__c, CreatedDate, CreatedBy.Name, MVDG__Template_Status__c, MVDG__Template_Type__c, LastModifiedDate, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id =:templateId][0];
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'getTemplateDetails');
         }
@@ -37,18 +37,18 @@ public with sharing class EditCSVTemplateController {
         allData.orders = '';
         allData.maxLimit = 1000000;
         try {
-            List<Template_Data__c> tf = [SELECT Id, CSV_Fields__c, CSV_Filter__c, Template__r.List_View__c, CSV_Logic__c, CSV_Orders__c, CSV_Query__c, CSV_Limit__c FROM Template_Data__c WHERE Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY Order_No_Simple__c asc NULLS Last];
-            // tf.addAll([SELECT Id, CSV_Fields__c, CSV_Filter__c, CSV_Query__c FROM Template_Data__c  WHERE Template__c =:templateId ORDER BY Order_No_Simple__c asc NULLS Last]);
+            List<MVDG__Template_Data__c> tf = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__Template__r.MVDG__List_View__c, MVDG__CSV_Logic__c, MVDG__CSV_Orders__c, MVDG__CSV_Query__c, MVDG__CSV_Limit__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
+            // tf.addAll([SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c  WHERE MVDG__Template__c =:templateId ORDER BY MVDG__Order_No_Simple__c asc NULLS Last]);
 
             if(tf.size() >0){
-                // for (Template_Data__c t : tf) {
+                // for (MVDG__Template_Data__c t : tf) {
                 // }
-                allData.listView = tf[0].Template__r.List_View__c;
-                allData.logic = tf[0].CSV_Logic__c;
-                allData.filters = tf[0].CSV_Filter__c;
-                allData.orders = tf[0].CSV_Orders__c;
-                allData.maxLimit = tf[0].CSV_Limit__c;
-                allData.fields = tf[0].CSV_Fields__c;
+                allData.listView = tf[0].MVDG__Template__r.MVDG__List_View__c;
+                allData.logic = tf[0].MVDG__CSV_Logic__c;
+                allData.filters = tf[0].MVDG__CSV_Filter__c;
+                allData.orders = tf[0].MVDG__CSV_Orders__c;
+                allData.maxLimit = tf[0].MVDG__CSV_Limit__c;
+                allData.fields = tf[0].MVDG__CSV_Fields__c;
             }
             System.debug('Template Fields Data Fetched: ' + allData);
         } catch (Exception e) {
@@ -70,8 +70,8 @@ public with sharing class EditCSVTemplateController {
     @AuraEnabled
     public static void saveTemplateFields(String templateId, String query, TemplateDataWrapper configData){
         try {
-            List<Template_Data__c> existingData = [SELECT Id, CSV_Fields__c, CSV_Filter__c, CSV_Query__c, Template_Page__c FROM Template_Data__c WHERE Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY Order_No_Simple__c asc NULLS Last];
-            List<Template_Page__c> existingPage = [SELECT Id FROM Template_Page__c WHERE Template__c =:templateId WITH SECURITY_ENFORCED];
+            List<MVDG__Template_Data__c> existingData = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c, MVDG__Template_Page__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
+            List<MVDG__Template_Page__c> existingPage = [SELECT Id FROM MVDG__Template_Page__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED];
             // List<String> filterParts = new List<String>();
 
             System.debug('Config Data : ' + configData);
@@ -79,39 +79,39 @@ public with sharing class EditCSVTemplateController {
             System.debug('Fields Count :: ' + existingData.size());
             System.debug('Pages Count :: ' + existingPage.size());
 
-            Template__c template = new Template__c(
+            MVDG__Template__c template = new MVDG__Template__c(
                 Id = templateId,
-                List_View__c = configData.listView
+                MVDG__List_View__c = configData.listView
             );
             update template;
 
-            Template_Page__c tp = new Template_Page__c();
-            tp.Page_Number__c =001;
-            tp.Template__c = templateId;
+            MVDG__Template_Page__c tp = new MVDG__Template_Page__c();
+            tp.MVDG__Page_Number__c =001;
+            tp.MVDG__Template__c = templateId;
             if(existingPage.size() > 0){
                 tp.Id = existingPage[0].Id;
             }
-            if(Template_Page__c.SObjectType.getDescribe().isUpdateable() == false || Template_Page__c.SObjectType.getDescribe().isCreateable() == false){
+            if(MVDG__Template_Page__c.SObjectType.getDescribe().isUpdateable() == false || MVDG__Template_Page__c.SObjectType.getDescribe().isCreateable() == false){
                 throw new AuraHandledException('You have no permission to insert this object ContentDocumentLink');
             }
             upsert tp;
 
-            Template_Data__c td = new Template_Data__c();
-            td.Template__c = templateId;
-            td.Template_Page__c = tp.id;
-            td.CSV_Fields__c = configData.fields;
-            td.CSV_Filter__c = configData.filters;
-            td.CSV_Orders__c = configData.orders;
-            td.CSV_Query__c = query;
-            td.CSV_Logic__c = configData.logic;
-            // td.CSV_List_View__c = configData.listView;
-            td.CSV_Limit__c = configData.maxLimit;
+            MVDG__Template_Data__c td = new MVDG__Template_Data__c();
+            td.MVDG__Template__c = templateId;
+            td.MVDG__Template_Page__c = tp.id;
+            td.MVDG__CSV_Fields__c = configData.fields;
+            td.MVDG__CSV_Filter__c = configData.filters;
+            td.MVDG__CSV_Orders__c = configData.orders;
+            td.MVDG__CSV_Query__c = query;
+            td.MVDG__CSV_Logic__c = configData.logic;
+            // td.MVDG__CSV_List_View__c = configData.listView;
+            td.MVDG__CSV_Limit__c = configData.maxLimit;
 
             if(existingData.size() > 0){
                 td.Id = existingData[0].Id;
             }
 
-            if(Template_Data__c.SObjectType.getDescribe().isUpdateable() == false || Template_Data__c.SObjectType.getDescribe().isCreateable() == false){
+            if(MVDG__Template_Data__c.SObjectType.getDescribe().isUpdateable() == false || MVDG__Template_Data__c.SObjectType.getDescribe().isCreateable() == false){
                 throw new AuraHandledException('You have no permission to insert this object ContentDocumentLink');
             }
             upsert td;
@@ -196,15 +196,15 @@ public with sharing class EditCSVTemplateController {
     @AuraEnabled
     public static void updateTemplate(TemplateInfo templateInfo){
         try{
-            Template__c updatedTemplate = new Template__c(
+            MVDG__Template__c updatedTemplate = new MVDG__Template__c(
                 Id = templateInfo.templateId,
-                Template_Name__c = templateInfo.templateName,
-                Description__c = templateInfo.templateDescription,
-                Template_Status__c = templateInfo.templateStatus,
-                List_View__c = templateInfo.listView
+                MVDG__Template_Name__c = templateInfo.templateName,
+                MVDG__Description__c = templateInfo.templateDescription,
+                MVDG__Template_Status__c = templateInfo.templateStatus,
+                MVDG__List_View__c = templateInfo.listView
             );
-            if(Template__c.SObjectType.getDescribe().isUpdateable() == false){
-                throw new AuraHandledException('You have no permission to update this object Template__c');
+            if(MVDG__Template__c.SObjectType.getDescribe().isUpdateable() == false){
+                throw new AuraHandledException('You have no permission to update this object MVDG__Template__c');
             }
             update updatedTemplate;
         }catch(Exception e){

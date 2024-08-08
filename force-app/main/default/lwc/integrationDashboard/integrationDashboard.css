@@ -926,6 +926,10 @@ h2{
         width: 100px;
     }
 
+    .img-content{
+        min-width: 20px;
+    }
+
     .img-content img{
         margin-inline: 5px;
         height: 35px;
@@ -1003,6 +1007,10 @@ h2{
 
     .switch p {
         font-size: 0.9rem;
+    }
+
+    .userdata .left{
+        width: 65px;
     }
 
     

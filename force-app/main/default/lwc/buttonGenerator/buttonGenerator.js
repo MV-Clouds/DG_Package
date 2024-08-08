@@ -25,16 +25,6 @@ export default class ButtonGenerator extends LightningElement {
     @track objOptionsForLVButton = [];
     @track objOptionsForQAButton = [];
     @track objOptionsForBPButton = [];
-
-    // get objOptionsForLVButton(){
-    //     return this.allObjects.filter(item => !this.createdLVButtonObj.includes(item.value));
-    // }
-    // get objOptionsForQAButton(){
-    //     return this.allObjects.filter(item => !this.createdQAButtonObj.includes(item.value));
-    // }
-    // get objOptionsForBPButton(){
-    //     return this.allObjects.filter(item => !this.createdBPButtonObj.includes(item.value));
-    // }
     
     connectedCallback(){
         this.showSpinner = true;
@@ -84,43 +74,6 @@ export default class ButtonGenerator extends LightningElement {
             this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
         }
     }
-
-    // fetchAllObjects(){
-    //     try{
-    //         getAllObjects()
-    //         .then((data) => {
-    //             // this.allObjects = data.slice().sort((a, b) => a.name.localeCompare(b.name)).map(obj => ({
-    //             //     label: obj.name,
-    //             //     value: obj.apiName,
-    //             // }));
-    //             this.allObjects = data.slice().sort((a, b) => a.label.localeCompare(b.label));
-    //             let objLabelList = [];
-    //             let updatedObject = [];
-
-    //             this.allObjects.forEach((obj) =>{
-    //                 if(this.alreadyCreatedObjects.includes(obj.value)){
-    //                     objLabelList.push(obj.label) 
-    //                 }else{
-    //                     updatedObject.push(obj);
-    //                 } 
-    //             })
-
-    //             this.allObjects = JSON.parse(JSON.stringify(updatedObject));
-    //             this.alreadyCreatedObjects = JSON.parse(JSON.stringify(objLabelList));
-
-    //             console.log('All Objects are now :::', this.allObjects);
-    //             console.log('Selected objects are now::: ', this.alreadyCreatedObjects);
-    //             this.showSpinner = false;
-    //         })
-    //         .catch((error) => {
-    //             this.showSpinner = false;
-    //             console.log('Error in getAllObjects', error.message);
-    //         })
-    //     }catch(e){
-    //         this.showSpinner = false;
-    //         console.log('Error in fetchAllObjects', e.message);
-    //     }
-    // }
 
     handleObjectSeparation(data){
         try {
@@ -228,6 +181,9 @@ export default class ButtonGenerator extends LightningElement {
             this.showSpinner = false;
             this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
             console.log('Error in function handleCreateWebLinkButton:::', e.message);
+        }finally{
+            this.selectedLVObjects = [];
+            this.selectedBPObjects = [];
         }
     }
 
@@ -274,6 +230,7 @@ export default class ButtonGenerator extends LightningElement {
                             this.showToast('error','Something went Wrong!','Buttons couldn\'t be created please try again.', 5000);
                         });
                     })
+                    this.selectedQAObjects = [];
                 })
             .catch((error)=>{
                 this.showSpinner = false;

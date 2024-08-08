@@ -34,6 +34,7 @@
 .defaults-tab-info-div {
     width: 30%;
     padding: 0.5rem 1rem;
+    backdrop-filter: blur(2px);
 }
 
 .how-to-div{
@@ -64,13 +65,8 @@ li.info-topic {
 }
 
 .main-generate-document-div {
-    /* background:  white url(/resource/homePageImgs/HomBg.png) cover no-repeat center center; */
     border-radius: 0.5rem;
     text-align: center;
-    /* background-color: white; */
-    /* background-image: url(/resource/homePageImgs/HomBg.png); */
-    /* background-repeat: no-repeat; */
-    /* background-position: center; */
     user-select: none;
     height: var(--height-of-main-generate-document-div);
     display: flex;
@@ -79,7 +75,7 @@ li.info-topic {
     position: relative;
     background: var(--background-of-main-generate-document-div, white url(/resource/homePageImgs/HomBg.png) no-repeat center center);
     background-size: cover;
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(2px);
 }
 
 .header-div{
@@ -259,7 +255,7 @@ li.info-topic {
     box-shadow: 0 0 10px 0 lightgray;
 }
 
-.edit-btn:hover{
+.edit-btn:not(.disabled-button):hover{
     background: #0084c1 !important;
 }
 
@@ -421,6 +417,11 @@ li.info-topic {
     justify-content: end;
     gap: 0.5rem;
     top: 1rem;
+}
+
+.additional-info-div input{
+    cursor: pointer;
+    z-index: 12;
 }
 
 .bottom-btn{

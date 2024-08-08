@@ -1,7 +1,7 @@
 <template>
     <div class="main-div">
         <c-message-popup onconfirmation={handleConfirmation}></c-message-popup>
-        <c-document-loader display={showSpinner} style="--docTop:0;"></c-document-loader>
+        <c-document-loader display={showSpinner} style="--docTop:0;" full-size="true"></c-document-loader>
         <template if:true={showListViewPopup}>
             <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="section-div slds-modal slds-fade-in-open">
                 <div class="show-list-view-div">
@@ -107,7 +107,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="#000000" d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM80 64h64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64h64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16zm16 96H288c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V256c0-17.7 14.3-32 32-32zm0 32v64H288V256H96zM240 416h64c8.8 0 16 7.2 16 16s-7.2 16-16 16H240c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/></svg>
                     <!-- </div> -->
                     <div class="TemplateNameText">
-                        {existingTemplateData.Template_Name__c}
+                        {existingTemplateData.MVDG__Template_Name__c}
                     </div>
                 </div>
                 <div class="active-tab-bar"></div>
@@ -246,7 +246,6 @@
                                     multiple="false"
                                     ></c-custom-combobox>
                                 </div>
-                
                                 <div class="custom-logic-div" if:true={isCustomLogic}>
                                     <lightning-input 
                                       class="logic-string-input"
@@ -300,7 +299,7 @@
                                             type={filter.inputType}
                                             label="Value"
                                             placeholder="Enter Value"
-                                            class="value-select-for-toggle custom-combobox"
+                                            class="value-select-for-toggle"
                                             message-toggle-active="True"
                                             message-toggle-inactive="False"
                                             value={filter.value}
@@ -483,7 +482,7 @@
             <div class="basic-main-div">
                 <div class="edit-detail-div">
                     <!-- <div class="tempToggle">
-                        <template lwc:if={newTemplateData.Template_Status__c}>
+                        <template lwc:if={newTemplateData.MVDG__Template_Name__c}>
                           <input class="checkBox checked" type="checkbox" data-status="checked" id={newTemplateData.Id} onchange={handleChangeStatus} style="display: none;" checked/>
                         </template>
                         <template lwc:else>
@@ -501,7 +500,7 @@
                         </label>
                     </div> -->
                     <div class="tempToggle">
-                        <input class="checkBox" type="checkbox" id={newTemplateData.Id} data-name="Template_Status__c" onchange={handleChangeStatus} style="display: none;" checked={newTemplateData.Template_Status__c}/>
+                        <input class="checkBox" type="checkbox" id={newTemplateData.Id} data-name="MVDG__Template_Status__c" onchange={handleChangeStatus} style="display: none;" checked={newTemplateData.MVDG__Template_Status__c}/>
                         <label for={newTemplateData.Id}> 
                           <div class="toggleDiv">
                             <div class="toggleBtnBg">
@@ -519,7 +518,7 @@
                       maxlength="255"
                       label="Template Name"
                       placeholder="Enter Template Name"
-                      value={newTemplateData.Template_Name__c}
+                      value={newTemplateData.MVDG__Template_Name__c}
                       onchange={handleTemplateNameChange}
                       required="true"
                     ></lightning-input>
@@ -544,7 +543,7 @@
                       max-length="131072" 
                       label="Description" 
                       placeholder="What this template is about?"
-                      value={newTemplateData.Description__c}
+                      value={newTemplateData.MVDG__Description__c}
                       variant="standard"
                       onchange={handleDescriptionChange}
                     ></lightning-textarea>
@@ -552,13 +551,13 @@
                     <lightning-input 
                       type="text"
                       label="Source Object"
-                      value={newTemplateData.Object_API_Name__c}
+                      value={newTemplateData.MVDG__Object_API_Name__c}
                       disabled="true"
                     ></lightning-input>
                     <lightning-input 
                       type="text"
                       label="Template Type"
-                      value={newTemplateData.Template_Type__c}
+                      value={newTemplateData.MVDG__Template_Type__c}
                       disabled="true"
                     ></lightning-input>
 
@@ -615,7 +614,7 @@
                 template-type-from-parent="CSV Template"
                 template-id-from-parent={templateId}
                 object-api-name={objectName}
-                template-name-from-parent={existingTemplateData.Template_Name__c}
+                template-name-from-parent={existingTemplateData.MVDG__Template_Name__c}
             ></c-generate-document>
         </div>
     </div>

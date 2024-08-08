@@ -44,14 +44,24 @@ export default class DocumentLoader extends LightningElement {
 			this.isDisplay = true;
 		}
 		else if(value == false){
-			setTimeout(() => {
+
+			this.customTimeout?.setCustomTimeoutMethod(() => {
 				this.template.querySelector('.documentPage').classList.add('zoomOutEffect');
 				this.template.querySelector('.loader_mainDiv').classList.add('fadedTransitionEffect');
 			}, 300)
-			setTimeout(() => {
-				this.isDisplay = false;
 
-			}, this.scaleOutTime + 300);
+			this.customTimeout?.setCustomTimeoutMethod(() => {
+				this.isDisplay = false;
+			}, this.scaleOutTime + 300)
+			
+			// setTimeout(() => {
+			// 	this.template.querySelector('.documentPage').classList.add('zoomOutEffect');
+			// 	this.template.querySelector('.loader_mainDiv').classList.add('fadedTransitionEffect');
+			// }, 300)
+			// setTimeout(() => {
+			// 	this.isDisplay = false;
+
+			// }, this.scaleOutTime + 300);
 		}
 		else{
 			this.isDisplay = false;
@@ -69,5 +79,18 @@ export default class DocumentLoader extends LightningElement {
 		return style;
 	}
 	// === Custom Styling / CSS Method - END - =====
+
+	customTimeout;
+	renderedCallback(){
+		if(!this.customTimeout){
+			this.customTimeout = this.template.querySelector('c-custom-timeout');
+		}
+	}
+
+	handleTimeout(event){
+		if(event?.detail?.function){
+			event?.detail?.function();
+		}
+	}
 
 }

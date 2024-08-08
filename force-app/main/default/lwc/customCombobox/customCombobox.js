@@ -1,5 +1,5 @@
-import { LightningElement, api, track, wire } from "lwc";
-import { gql, graphql } from "lightning/uiGraphQLApi";
+import { LightningElement, api, track } from "lwc";
+import { errorDebugger } from 'c/globalProperties'
 export default class CustomCombobox extends LightningElement {
 
     // ***************************************************************************** //
@@ -43,69 +43,103 @@ export default class CustomCombobox extends LightningElement {
     // *
     // ***************************************************************************** //
 
-    
+    /**
+     * labe : defined the label for combobox, 
+     * if label is null manse combo-box is label-hidden
+     */
     _label;
     @api get label(){ return this._label }
     set label(value){ this._label = value }
 
-    // define comboBox is multi-select or not...
+    /**
+     * API to defined weather comboBox is multi-select or not.
+     */
     isMultiSelect;      
     @api get multiselect(){ return this.isMultiSelect };
-    set multiselect(value){ this.isMultiSelect = (value == 'true' || value == true) ? true : false };
+    set multiselect(value){ this.isMultiSelect = (value === 'true' || value === true) ? true : false };
 
-    // define comboBox is searchable or not...
+    /**
+     * API to defined weather comboBox is Searchable or not.
+     */
     isSearchable;                 
     @api get searchable(){ return this.isSearchable};
-    set searchable(value){ this.isSearchable = (value == 'true' || value == true) ? true : false };
+    set searchable(value){ this.isSearchable = (value === 'true' || value === true) ? true : false };
 
-    // define comboBox is required or not...
+    /**
+     * API to defined weather comboBox is Required or not.
+     */
     isRequired;                 
     @api get required(){ return this.isRequired };
-    set required(value){ this.isRequired = (value == 'true' || value == true) ? true : false};
+    set required(value){ this.isRequired = (value === 'true' || value === true) ? true : false};
 
+    /**
+     * API to defined weather comboBox is Disabled or not.
+     */
     _disabled;
     @api get disabled(){ return this._disabled };
-    set disabled(value){ this._disabled = (value == 'true' || value == true) ? true : false };
+    set disabled(value){ this._disabled = (value === 'true' || value === true) ? true : false };
 
-    // use to displays cross icon once option in selected...
+    /**
+     * API to defined weather comboBox should display clear button or not.
+     */
     _showClearButton = true;
     @api get showClearButton(){ return this._showClearButton};
-    set showClearButton(value){ this._showClearButton = (value == 'false' || value == false) ? false : true};
+    set showClearButton(value){ this._showClearButton = (value === 'false' || value === false) ? false : true};
 
-    // API to Show Hide Option Description...
+    /**
+     * API to defined weather comboBox should display Description or not for drop-down options.
+     */
     isDescription;
     @api get showDescription(){ return this.isDescription };
-    set showDescription(value){ this.isDescription = (value == 'true' || value == true) ? true : false };
+    set showDescription(value){ this.isDescription = (value === 'true' || value === true) ? true : false };
 
+    /**
+     * API to defined weather comboBox should display Help text or not for drop-down options
+     */
     _showHelpText;
     @api get showHelpText(){ return this._showHelpText };
-    set showHelpText(value){ this._showHelpText = (value == 'true' || value == true) ? true : false};
+    set showHelpText(value){ this._showHelpText = (value === 'true' || value === true) ? true : false};
     
+    /**
+     * API to defined weather comboBox should display Icons or not for drop-down options
+     */
     _showOptionIcon;
     @api get showOptionIcon(){ return this._showOptionIcon}
-    set showOptionIcon(value){ this._showOptionIcon = (value == 'true' || value == true) ? true : false}
+    set showOptionIcon(value){ this._showOptionIcon = (value === 'true' || value === true) ? true : false}
     
+    /**
+     * API to defined icon to be display for options,
+     * These icon are the salesforce standard icon,
+     * You may get the name these icon from this site: https://www.lightningdesignsystem.com/icons/
+     */
     _iconName = "standard:account";
     @api get iconName(){ return this._iconName};
     set iconName(value){ this._iconName = value ? value : this._iconName};
 
-    // use to hide search icon... and show native down arrow...Only for Searchable Combobox
+    /**
+     * API to defined weather comboBox should display Search Icon or not,
+     * use to hide search icon... and show native down arrow...Only for Searchable Combobox
+     */
     _hideSearchIcon;
     @api get hideSearchIcon(){ return this._hideSearchIcon};
-    set hideSearchIcon(value){ this._hideSearchIcon = (value == 'true' || value == true) ? true : false};
+    set hideSearchIcon(value){ this._hideSearchIcon = (value === 'true' || value === true) ? true : false};
 
+    /**
+     * API that defined Drop-Down Options,
+     */
     optionsToSet;
     @api get options(){ return this.optionsToSet };
     set options(value){
         try {
             this.optionsToSet = value;
-            // console.log('options : ', this.optionsToSet);
             this.setDisplayOptions();
         } catch (error) {
-            console.log('log in set option : ', error.stack);
+            errorDebugger('CustomCombobox', 'get/set options', error, 'warn');
         }
     }
-
+    /**
+     * API that defined pre-selected drop-down options,
+     */
     valueToSet;
     @api get value(){ return this.valueToSet };
     set value(val){
@@ -118,42 +152,29 @@ export default class CustomCombobox extends LightningElement {
                 this.clearValue();
             }
         } catch (error) {
-            console.log(error.stack);
+            errorDebugger('CustomCombobox', 'get/set value', error, 'warn');
         }
     }
 
-    @track setDropDownPosition = '';
+    /**
+     * API that defined Position of drop-down,
+     * It May be left, right or centred align
+     */
+    setDropDownPosition;
     @api get dropdownPosition(){ return this.setDropDownPosition };
-    set dropdownPosition(value){
-        if(value == 'left'){
-            this.setDropDownPosition = this.setDropDownPosition + `
-                    right: 0% !important;
-                    left: auto !important;
-                    transform: translateX(0px);
-            `
-        }
-        else if(value == 'right'){
-            this.setDropDownPosition =  this.setDropDownPosition + `
-                    left: 0% !important;
-                    transform: translateX(0px);
-            `
-        }
-        else{
-            // by default drop down set to center
-            this.setDropDownPosition = ''
-        }
-    }
+    set dropdownPosition(value){ this.setDropDownPosition = value };
 
-    @api get dropdownTop(){return this.setDropDownPosition };
-    set dropdownTop(value){
-        if((value == 'true' || value == true)){
-            this.setDropDownPosition = this.setDropDownPosition + `
-                top: auto !important;
-                bottom: 100% !important;
-            `
-        }
-    }
+    /**
+     * API that defined drop-down should open upper-side,
+     * Use this api when you want to open drop-down upper-side
+     */
+    _dropdownTop;
+    @api get dropdownTop(){return this._dropdownTop };
+    set dropdownTop(value){ this._dropdownTop = (value === 'true' || value === true) ? true : false }
 
+    /**
+     * API that defined custom placeholder for combo-box
+     */
     _placeholder;
     @api get placeholder(){ return this._placeholder };
     set placeholder(value){ 
@@ -166,29 +187,21 @@ export default class CustomCombobox extends LightningElement {
     @track displayOptions = [];              // to display option in dropdown
     @track selectedItems = [];              // to set store and send selected option to parent component
     @track selectedOptionLabel = null;      // to display selected option in markup (for single select)
+    @track isDropDownOpen = false           // to check dropdown is open or not....
 
+    // To show the label of selected option for single select non-searchable combo-box
     get _selectedOptionLabel(){
         return this.selectedOptionLabel;
     }
     
     allOptions = [];                        // All Option List Modified Keys....
 
-    get loadStyle(){
-        // if combo in searchable, then dropdown button section placed above the back-shadow....
-        if(this.searchable){
-            return `position: relative;z-index: 11;`;
-        }
-        // if combo in not searchable, then dropdown button section placed below the back-shadow....
-        else{
-            return `position: relative;`;
-        }
-    }
-
     // to display no result found when search result not found...
     get isOptions(){
         return this.displayOptions.length ? true : false;
     }
 
+    // To set info message when search result not found and when no option available.
     get emptyOptionLabel(){
         if(this.options && this.options.length){
             return 'couldn\'t find any matches';
@@ -202,20 +215,30 @@ export default class CustomCombobox extends LightningElement {
     connectedCallback(){
         try {
             this.setPlaceHolder();
+            // window?.globalThis?.document?.body?.addEventListener('click', this.onBodyClick)
         } catch (error) {
-            console.warn('error inside connectedCallback in custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'connectedCallback', error, 'warn');
         }
     }
 
+    onBodyClick = (event) => {
+        if(this.isDropDownOpen){
+            this.closeDropDown();
+        }
+    }
+
+    /**
+     * Method to set display option on initialization and option change from parent component.
+     */
     setDisplayOptions(){
         try {
             if(this.options ){
                 this.allOptions = JSON.parse(JSON.stringify(this.options));
     
                 var tempOptions = JSON.parse(JSON.stringify(this.options));
-                tempOptions.forEach(ele => {
-                    ele['isSelected'] = false;                                  // by default set all option as unselected
-                    ele['originalIndex'] = tempOptions.indexOf(ele);            // set original index of option for re-sorting
+                tempOptions.forEach((ele, index) => {
+                    ele['isSelected'] = false;                // by default set all option as unselected
+                    ele['originalIndex'] = index;            // set original index of option for re-sorting
                 });
     
                 this.allOptions = tempOptions;
@@ -231,25 +254,27 @@ export default class CustomCombobox extends LightningElement {
             }
 
         } catch (error) {
-            console.warn('error inside  in setDisplayOptions  in custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'setDisplayOptions', error, 'warn');
         }
     }
     
-    // Set default value if user passes value...
+    /**
+     * Method to set default selected option if user defied...
+     */
     setDefaultValue(){
         try {
-            const valueToSet = typeof this.value == 'object' ? this.value : [this.value];
+            const valueToSet = typeof this.value === 'object' ? this.value : [this.value];
 
             if(this.multiselect){
                 valueToSet.forEach(ele => {
-                    var matchedOption = this.displayOptions.find(option => option.value == ele);
+                    var matchedOption = this.displayOptions.find(option => option.value === ele);
 
                     if(matchedOption && !matchedOption.disabled){
                         (!matchedOption.isSelected) && this.selectedItems.push(matchedOption);
                     }
                     else{
-                        this.selectedItems = this.selectedItems.filter((ele) => {
-                            return ele != ele;
+                        this.selectedItems = this.selectedItems.filter((item) => {
+                            return item !== ele;
                         });
                     }
                 });
@@ -259,7 +284,7 @@ export default class CustomCombobox extends LightningElement {
             else{
 
                 // for single select took first one as default option...
-                var matchedOption = this.displayOptions.find(option => option.value == valueToSet[0]);
+                var matchedOption = this.displayOptions.find(option => option.value === valueToSet[0]);
                 if(matchedOption && !matchedOption.disabled){
                     this.selectedItems = [matchedOption];
                     this.selectedOptionLabel = matchedOption.label;
@@ -272,33 +297,41 @@ export default class CustomCombobox extends LightningElement {
             this.setSelection();
             
         } catch (error) {
-            console.warn('error in setDefaultValue custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'setDefaultValue', error, 'warn');
         }
     }
 
-    handleShowDropDown(event){
+    /**
+     * Method to handle oping of dropdown,
+     */
+    handleShowDropDown(){
         try {
+            this.isDropDownOpen = true;
+
             const comboBoxDiv = this.template.querySelector(`[data-id="slds-combobox"]`);
             if(comboBoxDiv){
                 comboBoxDiv.classList.add('slds-is-open');
             }
 
             const backDrop = this.template.querySelector('.backDrop');
-            if(backDrop){
-                backDrop.style = 'display : block'
-            }
+            backDrop && (backDrop.style = 'display : block');
 
             this.sortDisplayItems();
 
         } catch (error) {
-            console.warn('error inside handleShowDropDown in custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'handleShowDropDown', error, 'warn');
         }
     }
 
+    /**
+     * Method to handle search of option for searchable combo-box,
+     * Method send search value to parent component using CustomEvent,
+     * @param {*} event 
+     */
     handleSearch(event){
         try {
             var searchValue = (event.target.value).toLowerCase();
-            if(searchValue == null || searchValue.trim() == '' || searchValue == undefined){
+            if(searchValue === null || searchValue.trim() === '' || searchValue === undefined){
                 this.displayOptions = this.allOptions;
             }
             else{
@@ -313,17 +346,22 @@ export default class CustomCombobox extends LightningElement {
             // sort After each Search
             this.sortDisplayItems();
         } catch (error) {
-            console.warn('error inside handleSearch in custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'handleSearch', error, 'warn');
         }
     }
 
-    // this method use to send value to parent component on option selection....
+    /**
+     *  Method to handle option selection form Ui and send selected option to parent component using dispatch event.
+     * Method handle option selection for both type (single select and multi-select).
+     * @param {*} event 
+     */
     handleOptionClick(event){
         try {
             // Use Original Index as unique Value and comparison...
             var originalIndex = event.currentTarget.dataset.oriindex;
-            const currentOption = this.displayOptions.find(option => option.originalIndex == originalIndex);
+            const currentOption = this.displayOptions.find(option => option.originalIndex === Number(originalIndex));
             if(currentOption && !currentOption.disabled){
+
                 if(this.multiselect){
     
                     // Assign or remove clicked option from selected list...
@@ -332,7 +370,7 @@ export default class CustomCombobox extends LightningElement {
                     }
                     else{
                         this.selectedItems = this.selectedItems.filter((selectedOption) => {
-                            return selectedOption.originalIndex != originalIndex;
+                            return selectedOption.originalIndex !== Number(originalIndex);
                         });
                     }
                     this.setSelection();
@@ -344,7 +382,7 @@ export default class CustomCombobox extends LightningElement {
                         selectedOptionList.push(this.options[selectedOption.originalIndex].value);
                     });
     
-                    // Send data to parent compoent...
+                    // Send data to parent component...
                     this.dispatchEvent(new CustomEvent('select',{
                         detail : selectedOptionList
                     }));
@@ -369,12 +407,15 @@ export default class CustomCombobox extends LightningElement {
             }
             
         } catch (error) {
-            console.warn('error inside handleOptionClick in custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'handleOptionClick', error, 'warn');
         }
     }
 
-    //this method only for Single select Combo-Box
-    clearSelection(event){ 
+    /**
+     * Method handle selection clearing,
+     * Generally this method clear all selected option...
+     */
+    clearSelection(){ 
         try {
             this.selectedOptionLabel = null;
             this.selectedItems = [];
@@ -383,9 +424,11 @@ export default class CustomCombobox extends LightningElement {
             this.allOptions.forEach(option => {option.isSelected = false;});
 
             // Send Null Data to parent Component...
-            this.dispatchEvent(new CustomEvent('select',{detail : 
-                []
-            }));
+            if (!import.meta.env.SSR) {
+                this.dispatchEvent(new CustomEvent('select',{detail : 
+                    []
+                }));
+            }
 
             if(this.searchable){
                 const searchInput = this.template.querySelector('[data-id="search-input"]');
@@ -396,58 +439,69 @@ export default class CustomCombobox extends LightningElement {
             this.setErrorBorder();
             this.setPlaceHolder();
         } catch (error) {
-            console.warn('error in clearSelection custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'clearSelection', error, 'warn');
         }
     }
 
-    closeDropDown(event){
+    /**
+     * Method Handle closing of drop-down
+     */
+    closeDropDown(){
         try {
+            this.isDropDownOpen = false;
+
             // remove slds-is-open class from combobox div to hide dropdown...
             const comboBoxDiv = this.template.querySelector(`[data-id="slds-combobox"]`);
             if(comboBoxDiv && comboBoxDiv.classList.contains('slds-is-open')){
                 comboBoxDiv.classList.remove('slds-is-open');
             }
 
-            // remove back-shodow from main div
+            // remove back-shadow from main div
             const backDrop = this.template.querySelector('.backDrop');
-            if(backDrop){
-                backDrop.style = 'display : none'
-            }
+            backDrop && (backDrop.style = 'display : none');
 
             this.setErrorBorder();
             this.sortDisplayItems();
 
         } catch (error) {
-            console.warn('error inside closeDropDown in custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'closeDropDown', error, 'warn');
         }
     }
 
-    // Generic Method -> to update initial options list and display option list...as option select and unselect...
+    /**
+     * Method to add and remove option from selected option list based on user selection
+     */
     setSelection(){
         try {
-            this.displayOptions.forEach(options => { options.isSelected = this.selectedItems.length ? this.selectedItems.some(ele => ele.originalIndex == options.originalIndex) : false});
-            this.allOptions.forEach(options => { options.isSelected = this.selectedItems.length ? this.selectedItems.some(ele => ele.originalIndex == options.originalIndex) : false});
+            this.displayOptions.forEach(options => { options.isSelected = this.selectedItems?.some(ele => ele.originalIndex === options.originalIndex)});
+            this.allOptions.forEach(options => { options.isSelected = this.selectedItems?.some(ele => ele.originalIndex === options.originalIndex)});
         } catch (error) {
-            console.warn('error in setSelection : ', error.stack);
+            errorDebugger('CustomCombobox', 'setSelection', error, 'warn');
         }
     }
 
     // Generic Method -> to Set place older as user select or unselect options... (Generally used for multi-Select combobox)
+    /**
+     * Method that set place holder based on user selection,
+     * This method cover both combo-box type (searchable and non-searchable)
+     */
     setPlaceHolder(){
         if(this.selectedItems.length <= 0){
             this.placeholderText = this.placeholder ? this.placeholder : (this.multiselect ? 'Select an Options...' : 'Select an Option...');
         }
         else{
             var length = this.selectedItems.length;
-            this.placeholderText = this.selectedItems.length + (length == 1 ? ' option' : ' options') + ' selected';
+            this.placeholderText = this.selectedItems.length + (length === 1 ? ' option' : ' options') + ' selected';
         }
     }
 
-    //Generic Method -> to Set error border if combobox is required == true and no option selected...
+    /**
+     * Method to Set Error border when user not select and option for required combo-box ,
+     */
     setErrorBorder(){
         try {
             if(this.required){
-                if((this.multiselect && this.selectedItems.length == 0) || (!this.multiselect && this.selectedOptionLabel == null)){
+                if((this.multiselect && this.selectedItems.length === 0) || (!this.multiselect && this.selectedOptionLabel === null)){
                     this.template.querySelector('.slds-combobox__input')
                     .style = `  background-color: rgb(255, 255, 255);
                                 border-color: rgb(238 72 65);
@@ -459,11 +513,14 @@ export default class CustomCombobox extends LightningElement {
                 }
             }
         } catch (error) {
-            console.warn('error in setErrorBorder in custom combobox  : ', error.stack);
+            errorDebugger('CustomCombobox', 'setErrorBorder', error, 'warn');
         }
     }
 
-    // Generic Method -> to  sort the display options based on selected or unselect...
+    /**
+     * Method to handle ordering of option after user select and un-select any option,
+     * this method bring all selected option on top, and set back on original position when user un-select.
+     */
     sortDisplayItems(){
         try {
             var displayOptions = JSON.parse(JSON.stringify(this.displayOptions));
@@ -475,7 +532,7 @@ export default class CustomCombobox extends LightningElement {
                 if(a.isSelected < b.isSelected){
                     return 1;
                 }
-                if(a.isSelected == b.isSelected){
+                if(a.isSelected === b.isSelected){
                      if(a.originalIndex < b.originalIndex){
                         return -1;
                      }
@@ -483,15 +540,20 @@ export default class CustomCombobox extends LightningElement {
                         return 1;
                      }
                 }
+                return 1;
             });
 
             this.displayOptions = displayOptions;
             
         } catch (error) {
-            console.warn('error in sortDisplayItems in custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'sortDisplayItems', error, 'warn');
         }
     }
 
+    /**
+     * Method that prevent any click on disable option
+     * @param {*} event 
+     */
     handleDisableClick(event){
         event.stopPropagation();
         event.preventDefault();
@@ -499,24 +561,30 @@ export default class CustomCombobox extends LightningElement {
 
 // === ==== ==== ===  [ API Methods to Access from Parent Components ] === === == === ==== ===
 
-    // When user remove selected option form parent component... use this method to remove it from selecteOption Array.....
+    /**
+     * API method to un-select option from parent component,
+     * It removes selected option form selectedItems List and set error border and place holder according to it.
+     * @param {*} unselectedOption 
+     */
     @api
     unselectOption(unselectedOption){
         try {
             this.selectedItems = this.selectedItems.filter((option) => {
                 option.isSelected = false;
-                return option.value != unselectedOption;
+                return option.value !== unselectedOption;
             });
 
             this.setSelection();
             this.setErrorBorder();
             this.setPlaceHolder();
         } catch (error) {
-            console.warn('error in unselectOption in custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'unselectOption', error, 'warn');
         }
     }
 
-    // Clear all value from parent component....
+    /**
+     * API Method to clear all selected option from parent component,
+     */
     @api
     clearValue(){
         try {
@@ -533,16 +601,21 @@ export default class CustomCombobox extends LightningElement {
                 }
             }
             else{
-                if(this.selectedOptionLabel != null){
+                if(this.selectedOptionLabel !== null){
                     this.clearSelection();
                 }
             }
         } catch (error) {
-            console.warn('error in clearAll in custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'clearValue', error, 'warn');
         }
     }
 
-    // Reset value to default value from parent component....
+    /**
+     * API Method to reset all option to default selected,
+     * This method does not clear all selection but is set option to default on that user have defined,
+     * if there is no default value are defined, it clear all options...
+     * 
+     */
     @api
     resetValue(){
         this.clearValue();
@@ -552,7 +625,9 @@ export default class CustomCombobox extends LightningElement {
         }
     }
 
-    // ==== Clear search value of input element for searchable combobox...
+    /**
+     * API Method to clear search from combo-box,
+     */
     @api 
     clearSearch(){
         try {
@@ -561,11 +636,15 @@ export default class CustomCombobox extends LightningElement {
                 searchInput && (searchInput.value = '');
             }
         } catch (error) {
-            console.warn('error in clearSearch : custom combobox : ', error.stack);
+            errorDebugger('CustomCombobox', 'clearSearch', error, 'warn');
         }
     }
 
-    // Set Error Border from Parent component as per validation on parent component...
+    /**
+     * Method to show error border on combo-box from parent component
+     * parameter take true/false values that defined, should error border to be show or not,
+     * @param {*} isInvalid 
+     */
     @api
     isInvalidInput(isInvalid){
         try {
@@ -582,7 +661,7 @@ export default class CustomCombobox extends LightningElement {
                 this.template.querySelector('.slds-combobox__input').style = '';
             }
         } catch (error) {
-            console.warn('error in isInvalidInput : custom combobox :', error.stack);
+            errorDebugger('CustomCombobox', 'isInvalidInput', error, 'warn');
             
         }
     }

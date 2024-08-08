@@ -11,17 +11,17 @@ public with sharing class GoogleDriveAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkgoogleauth(){
         try{
-            Integer count = [SELECT COUNT() FROM AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+            Integer count = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             Map<String, Object> result = new Map<String, Object>();
             if(count > 0){
-                AuthProviderSettings__c settings = [SELECT Id, refresh_token__c, access_token__c, username__c, email__c, LinkedDate__c, WorkingStatus__c, SetupOwnerId, Name FROM AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
-                if (settings != null && settings.refresh_token__c != null && settings.access_token__c != null && settings.username__c != null && settings.email__c != null && settings.LinkedDate__c != null) {
+                MVDG__AuthProviderSettings__c settings = [SELECT Id, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__username__c, MVDG__email__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, SetupOwnerId, Name FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+                if (settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null && settings.MVDG__username__c != null && settings.MVDG__email__c != null && settings.MVDG__LinkedDate__c != null) {
                         Boolean working = getToken(false);
-                        settings = [SELECT Id, refresh_token__c, access_token__c, username__c, email__c, LinkedDate__c, WorkingStatus__c, SetupOwnerId, Name FROM AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
-                        result.put('name', settings.username__c);
-                        result.put('email', settings.email__c);
-                        result.put('linkdate', settings.LinkedDate__c);
-                        result.put('active', settings.WorkingStatus__c);
+                        settings = [SELECT Id, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__username__c, MVDG__email__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, SetupOwnerId, Name FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+                        result.put('name', settings.MVDG__username__c);
+                        result.put('email', settings.MVDG__email__c);
+                        result.put('linkdate', settings.MVDG__LinkedDate__c);
+                        result.put('active', settings.MVDG__WorkingStatus__c);
                     return result;
                 }
             }
@@ -36,15 +36,15 @@ public with sharing class GoogleDriveAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkorggoogleauth(){
         try{
-            AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
+            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
             Map<String, Object> result = new Map<String, Object>();
-            if (settings != null && settings.refresh_token__c != null && settings.access_token__c != null && settings.username__c != null && settings.email__c != null && settings.LinkedDate__c != null) {
+            if (settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null && settings.MVDG__username__c != null && settings.MVDG__email__c != null && settings.MVDG__LinkedDate__c != null) {
                     Boolean working = getToken(true);
-                    settings = AuthProviderSettings__c.getOrgDefaults();
-                    result.put('name', settings.username__c);
-                    result.put('email', settings.email__c);
-                    result.put('linkdate', settings.LinkedDate__c);
-                    result.put('active', settings.WorkingStatus__c);
+                    settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+                    result.put('name', settings.MVDG__username__c);
+                    result.put('email', settings.MVDG__email__c);
+                    result.put('linkdate', settings.MVDG__LinkedDate__c);
+                    result.put('active', settings.MVDG__WorkingStatus__c);
                 return result;
             }
             result.put('error', 'Error obtaining details: ');
@@ -58,8 +58,8 @@ public with sharing class GoogleDriveAuthorizationController {
     @AuraEnabled
     public static Boolean isOrgWide(){
         try {
-            AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
-            if(settings != null && settings.refresh_token__c != null && settings.access_token__c != null){
+            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+            if(settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null){
                 return true;
             }
             else{
@@ -74,21 +74,21 @@ public with sharing class GoogleDriveAuthorizationController {
 
     public static Boolean getToken(Boolean isOrg){
         try {
-            AuthProviderSettings__c settings;
+            MVDG__AuthProviderSettings__c settings;
             if(isOrg){
-                settings = AuthProviderSettings__c.getOrgDefaults();
+                settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
             }
             else{
-                settings = AuthProviderSettings__c.getInstance(UserInfo.getUserId());
+                settings = MVDG__AuthProviderSettings__c.getInstance(UserInfo.getUserId());
             }
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            request.setBody('refresh_token=' + settings.refresh_token__c +
-                            '&client_id=' + settings.ClientId__c +
-                            '&client_secret=' + settings.ClientSecret__c +
+            request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
+                            '&client_id=' + settings.MVDG__ClientId__c +
+                            '&client_secret=' + settings.MVDG__ClientSecret__c +
                             '&grant_type=refresh_token');
 
             Http http = new Http();
@@ -98,9 +98,9 @@ public with sharing class GoogleDriveAuthorizationController {
             if (response.getStatusCode() == 200) {
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 String newToken = (String) jsonResponse.get('access_token');
-                settings.access_token__c = newToken;
-                settings.WorkingStatus__c = true;
-                if(!Schema.sObjectType.AuthProviderSettings__c.fields.access_token__c.isUpdateable() || !Schema.sObjectType.AuthProviderSettings__c.fields.WorkingStatus__c.isUpdateable() || !Schema.sObjectType.AuthProviderSettings__c.fields.access_token__c.isCreateable() || !Schema.sObjectType.AuthProviderSettings__c.fields.WorkingStatus__c.isCreateable()){
+                settings.MVDG__access_token__c = newToken;
+                settings.MVDG__WorkingStatus__c = true;
+                if(!Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() || !Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() || !Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() || !Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()){
                     return null;
                 }
                     upsert settings;
@@ -109,7 +109,7 @@ public with sharing class GoogleDriveAuthorizationController {
             }
             else{
                 Response_Handler.store_Callout_Response(response, 'GoogleDriveAuthorizationController', 'getToken');
-                settings.WorkingStatus__c = false;
+                settings.MVDG__WorkingStatus__c = false;
                 upsert settings; 
                 return false;
             }
@@ -126,13 +126,16 @@ public with sharing class GoogleDriveAuthorizationController {
                 return 'Both Client ID and Client Secret are required.';
             }
 
-            AuthProviderSettings__c settings = AuthProviderSettings__c.getInstance(UserInfo.getUserId());
+            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
             if (settings == null) {
-                settings = new AuthProviderSettings__c();
+                settings = new MVDG__AuthProviderSettings__c();
             }
 
-            settings.ClientId__c = clientId;
-            settings.ClientSecret__c = clientSecret;
+            clientId = settings.MVDG__ClientId__c;
+            clientSecret = settings.MVDG__ClientSecret__c;
+
+            // settings.MVDG__ClientId__c = clientId;
+            // settings.MVDG__ClientSecret__c = clientSecret;
 
             String authUrl = authcode(clientId, clientSecret);
             return authUrl;
@@ -168,14 +171,14 @@ public with sharing class GoogleDriveAuthorizationController {
     @AuraEnabled
     public static String authorizeGoogle(String authcode, Boolean isOrg){
         try{
-        AuthProviderSettings__c defsettings = AuthProviderSettings__c.getOrgDefaults();
-        AuthProviderSettings__c settings = new AuthProviderSettings__c();
-        string client_id = defsettings.ClientId__c;
-        string client_secret = defsettings.ClientSecret__c;
-        settings.ClientId__c = client_id;
-        settings.ClientSecret__c = client_secret;
-        // defsettings.ClientId__c = client_id;
-        // defsettings.ClientSecret__c = clientSecret;
+        MVDG__AuthProviderSettings__c defsettings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
+        string client_id = defsettings.MVDG__ClientId__c;
+        string client_secret = defsettings.MVDG__ClientSecret__c;
+        settings.MVDG__ClientId__c = client_id;
+        settings.MVDG__ClientSecret__c = client_secret;
+        // defsettings.MVDG__ClientId__c = client_id;
+        // defsettings.MVDG__ClientSecret__c = clientSecret;
         // System.debug(client_id);
         // System.debug(client_secret);
         String redirectUri = 'https://mvclouds28-dev-ed.develop.my.salesforce-sites.com/googleauth';            
@@ -183,15 +186,15 @@ public with sharing class GoogleDriveAuthorizationController {
         String refresh = result.get('refresh_token');
         String access = result.get('access_token');
         if(refresh != null){
-            settings.refresh_token__c = refresh;
-            defsettings.refresh_token__c = refresh;
+            settings.MVDG__refresh_token__c = refresh;
+            defsettings.MVDG__refresh_token__c = refresh;
             
             if(access != null){
-                settings.access_token__c = access;
+                settings.MVDG__access_token__c = access;
                 Date todaysDate = Date.today();
                 Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
                 String formattedDate = datetimeToday.format('dd/MM/yyyy');
-                settings.LinkedDate__c = formattedDate;
+                settings.MVDG__LinkedDate__c = formattedDate;
                 String userdetails = fetchUserDetails(access);
                 Map<String, Object> parsedResponse = (Map<String, Object>) JSON.deserializeUntyped(userdetails);
                 Map<String, Object> userObject = (Map<String, Object>) parsedResponse.get('user');
@@ -200,16 +203,16 @@ public with sharing class GoogleDriveAuthorizationController {
                 String displayName = (String) userObject.get('displayName');
                 // System.debug('Display Name: ' + displayName);
                 String userPhoto = (String) userObject.get('photoLink');
-                settings.photolink__c = userPhoto;
-                settings.username__c = displayName;
-                settings.email__c = emailAddress;
-                settings.WorkingStatus__c = true;
-                defsettings.access_token__c = access;
-                defsettings.photolink__c = userPhoto;
-                defsettings.LinkedDate__c = formattedDate;
-                defsettings.username__c = displayName;
-                defsettings.email__c = emailAddress;
-                defsettings.WorkingStatus__c = true;
+                settings.MVDG__photolink__c = userPhoto;
+                settings.MVDG__username__c = displayName;
+                settings.MVDG__email__c = emailAddress;
+                settings.MVDG__WorkingStatus__c = true;
+                defsettings.MVDG__access_token__c = access;
+                defsettings.MVDG__photolink__c = userPhoto;
+                defsettings.MVDG__LinkedDate__c = formattedDate;
+                defsettings.MVDG__username__c = displayName;
+                defsettings.MVDG__email__c = emailAddress;
+                defsettings.MVDG__WorkingStatus__c = true;
                 
             }
             System.debug('isOrg = '+isOrg);
@@ -292,6 +295,9 @@ public with sharing class GoogleDriveAuthorizationController {
 
     public static Map<String, String> generaterefreshtoken(String clientId, String clientSecret, String redirectUri, String authcode){
         try{
+            System.debug(clientId);
+            System.debug(clientSecret);
+            System.debug(redirectUri);
             String scope = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly';
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
@@ -339,9 +345,9 @@ public with sharing class GoogleDriveAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            AuthProviderSettings__c settings = AuthProviderSettings__c.getInstance(UserInfo.getUserId());
+            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getInstance(UserInfo.getUserId());
             if(settings != null){
-                if (!Schema.sObjectType.AuthProviderSettings__c.isDeletable()) {
+                if (!Schema.sObjectType.MVDG__AuthProviderSettings__c.isDeletable()) {
                     return false;
                 }
                 delete settings;
@@ -358,15 +364,15 @@ public with sharing class GoogleDriveAuthorizationController {
     @AuraEnabled
     public static Boolean orgunauthorize(){
         try {
-            AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
+            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
             if(settings != null){
-                settings.refresh_token__c = '';
-                settings.access_token__c = '';
-                settings.photolink__c = '';
-                settings.LinkedDate__c = '';
-                settings.email__c = '';
-                settings.username__c = '';
-                settings.WorkingStatus__c = false;
+                settings.MVDG__refresh_token__c = '';
+                settings.MVDG__access_token__c = '';
+                settings.MVDG__photolink__c = '';
+                settings.MVDG__LinkedDate__c = '';
+                settings.MVDG__email__c = '';
+                settings.MVDG__username__c = '';
+                settings.MVDG__WorkingStatus__c = false;
                 update settings;
                 // delete settings;
                 return true;

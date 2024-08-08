@@ -85,7 +85,7 @@
                 </svg>
               </div>
               <div class="templateNameText">
-                {templateRecord.Template_Name__c}
+                {templateRecord.MVDG__Template_Name__c}
               </div>
             </div>
             <div class="activeTabBar"></div>
@@ -321,16 +321,16 @@
                       <template lwc:if={showTempDetail}>
                         <div class="editName editField">
                           <div class="floatingLabel">Template Name</div>
-                          <lightning-input type="text" class="fieldInput" value={templateRecord.Template_Name__c} variant="label-hidden" data-name="Template_Name__c" onkeyup={handleEditDetail} maxlength="255" ></lightning-input>
+                          <lightning-input type="text" class="fieldInput" value={templateRecord.MVDG__Template_Name__c} variant="label-hidden" data-name="MVDG__Template_Name__c" onkeyup={handleEditDetail} maxlength="255" ></lightning-input>
                         </div>
                         <div class="editDescription editField">
                           <div class="floatingLabel">Description</div>
-                          <lightning-textarea class="descriptionInput" value={templateRecord.Description__c} variant="label-hidden" data-name="Description__c" onkeyup={handleEditDetail}></lightning-textarea>
+                          <lightning-textarea class="descriptionInput" value={templateRecord.MVDG__Description__c} variant="label-hidden" data-name="MVDG__Description__c" onkeyup={handleEditDetail}></lightning-textarea>
                         </div>
                         <div class="editStatus">
                           <span class="statusLabel">Status: </span>
                           <div class="tempToggle">
-                            <input class="checkBox" type="checkbox" id={templateRecord.Id} data-name="Template_Status__c" onchange={handleEditDetail} style="display: none;" checked={templateRecord.Template_Status__c}/>
+                            <input class="checkBox" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none;" checked={templateRecord.MVDG__Template_Status__c}/>
                             <label for={templateRecord.Id}> 
                               <div class="toggleDiv">
                                 <div class="toggleBtnBg">
@@ -346,11 +346,11 @@
                         <div class="previewTwise">
                           <div class="previewField">
                             <div class="previewLabel">Source Object</div>
-                            <lightning-input type="text" class="nonEditInput" value={templateRecord.Object_API_Name__c} variant="label-hidden" disabled="true"></lightning-input>
+                            <lightning-input type="text" class="nonEditInput" value={templateRecord.MVDG__Object_API_Name__c} variant="label-hidden" disabled="true"></lightning-input>
                           </div>
                           <div class="previewField">
                             <div class="previewLabel">Template Type</div>
-                            <lightning-input type="text" class="nonEditInput" value={templateRecord.Template_Type__c} variant="label-hidden" disabled="true"></lightning-input>
+                            <lightning-input type="text" class="nonEditInput" value={templateRecord.MVDG__Template_Type__c} variant="label-hidden" disabled="true"></lightning-input>
                           </div>
                         </div>
                         <div class="previewTwise">
@@ -497,12 +497,12 @@
            <div class="templateDefaultSection tabArea deactiveTabs" data-section="templateDefault" data-key-mapping="false" data-toolbar="false">
             <template lwc:if={templateRecord.Id}>
               <c-generate-document
-                  object-api-name={templateRecord.Object_API_Name__c}
+                  object-api-name={templateRecord.MVDG__Object_API_Name__c}
                   called-from-where="defaults"
                   template-type-from-parent="Simple Template"
                   template-id-from-parent={templateRecord.Id}
-                  object-name-from-parent={templateRecord.Object_API_Name__c}
-                  template-name-from-parent={templateRecord.Template_Name__c}
+                  object-name-from-parent={templateRecord.MVDG__Object_API_Name__c}
+                  template-name-from-parent={templateRecord.MVDG__Template_Name__c}
               ></c-generate-document>
             </template>
            </div>
@@ -529,12 +529,14 @@
     </div>
   </div>
 
+  <div data-name="custom_timeout"></div>
+
 
   <!-- ### #Child Object Table Builder.... -->
   <c-child-object-table-builder></c-child-object-table-builder>
 
   <template lwc:if={isPreview}>
-    <c-template-preview-modal templateid={templateRecord.Id} objectname={templateRecord.Object_API_Name__c} template-type="Simple Template"
+    <c-template-preview-modal templateid={templateRecord.Id} objectname={templateRecord.MVDG__Object_API_Name__c} template-type="Simple Template"
      onclosepreview={closeTemplatePreview}></c-template-preview-modal>
   </template>
 

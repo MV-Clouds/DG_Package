@@ -63,32 +63,45 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
             console.error('Error in createDivs:', error.message);
         }
     }
-    async fetchData() {
+    fetchData() {
         try {
             this.showSpinner = true; // Start spinner
+            getObjects()
+            .then((data) => {
+                if (data) {
+
+                    // Process object names
+                    this.objectNames = data.slice().sort((a, b) => a.name.localeCompare(b.name)).map(obj => ({
+                        label: obj.name,
+                        value: obj.apiName,
+                    }));
+
+                    isGoogleIntegrated()
+                    .then((isIntegrated) => {
+
+                        getTemplateTypes()
+                        .then((result) => {
+                            this.templateTypes = result.map(type => {
+                                return {
+                                    label: type,
+                                    value: type,
+                                    disabled: type === 'Google Doc Template' ? !isIntegrated : false,
+                                }
+                            });
+                        }).catch(error => {
+                            console.log('error in getTemplateTypes==>', error.message);
+                        });
+                        
+                    }).catch(error => {
+                        console.log('error in isGoogleIntegrated==>', error.message);
+                    });
+                } else {
+                    console.error('Error fetching object info: No data returned');
+                }
+            }).catch(error => {
+                console.log('error in getObjects==>', error.message);
+            });
     
-            const data = await getObjects();
-            if (data) {
-                // Process object names
-                this.objectNames = data.slice().sort((a, b) => a.name.localeCompare(b.name)).map(obj => ({
-                    label: obj.name,
-                    value: obj.apiName,
-                }));
-    
-                const isIntegrated = await isGoogleIntegrated();
-                const result = await getTemplateTypes();
-                this.templateTypes = result.map(type => {
-                    return {
-                        label: type,
-                        value: type,
-                        disabled: type === 'Google Doc Template' ? !isIntegrated : false,
-                    }
-                });
-    
-                console.log('Picklist Values:', this.templateTypes);
-            } else {
-                console.error('Error fetching object info: No data returned');
-            }
         } catch (error) {
             console.error('Error in fetchData:', error.stack); // Log error stack
         } finally {
@@ -159,10 +172,8 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 isNew: true
             };
             if (this.selectedTemplateType === 'Simple Template') {
-                console.log('Navigating to simple template....... ' + this.templateId);
                 this.navigateToComp(navigationComps.simpleTemplateBuilder, paramToPass);
             } else if (this.selectedTemplateType === 'CSV Template') {
-                console.log('Navigating to CSV template....... ');
                 this.navigateToComp(navigationComps.csvTemplateBuilder, paramToPass);
             }else if(this.selectedTemplateType === 'Google Doc Template'){
                 this.navigateToComp(navigationComps.googleDocTemplateEditor, paramToPass);
@@ -207,14 +218,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 saveTemplate({ templateData : templateData })
                 .then((data) => {
                     this.templateId = data;
-                    console.log('Template ' + this.templateId +' saved successfully.');
-                    const messageContainer = this.template.querySelector('c-message-popup')
-                    messageContainer.showMessageToast({
-                        status: 'success',
-                        title: 'Yay! Everything worked!',
-                        message : 'The template was saved successfully',
-                        duration : 5000
-                    });
+                    this.showToast('success', 'Everything worked!', 'The Template was saved Successfully!');
                     this.handleNavigate();
                     this.dispatchEvent(new CustomEvent('aftersave'))
                     this.closeModel();
@@ -222,19 +226,23 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 })
                 .catch(error => {
                     console.error('Error saving template:', error);
-                    const messageContainer = this.template.querySelector('c-message-popup')
-                    messageContainer.showMessageToast({
-                        status: 'error',
-                        title: 'Uh oh, something went wrong!',
-                        message : 'Sorry! There was a problem with your submission.',
-                        duration : 5000
-                    });
-                    this.isImageLoaded = true;
+                    this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
                 });
             }
         } catch (error) {
             console.error('Error in saveNewTemplate:', error.message);
         }
+    }
+
+    showToast(status, title, message){
+        const messageContainer = this.template.querySelector('c-message-popup')
+        messageContainer.showMessageToast({
+            status: status,
+            title: title,
+            message : message,
+            duration : 5000
+        });
+        this.isImageLoaded = true;
     }
       
 

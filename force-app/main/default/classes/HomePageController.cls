@@ -23,15 +23,15 @@ public with sharing class HomePageController {
         ReturnValues returnValue = new ReturnValues();
         try {
 
-            List<Template__c> tempList = [  SELECT Id, IsDeleted, Name, Object_API_Name__c, Template_Name__c, Template_Type__c, Template_Status__c, Description__c, CreatedDate, CreatedBy.Name,LastModifiedDate
-                                            FROM Template__c WITH SECURITY_ENFORCED
-                                            ORDER BY LastModifiedDate DESC, Template_Name__c ASC, Object_API_Name__c ASC];
+            List<MVDG__Template__c> tempList = [  SELECT Id, IsDeleted, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, CreatedDate, CreatedBy.Name,LastModifiedDate
+                                            FROM MVDG__Template__c WITH SECURITY_ENFORCED
+                                            ORDER BY LastModifiedDate DESC, MVDG__Template_Name__c ASC, MVDG__Object_API_Name__c ASC];
 
             if (tempList.size() > 0) {
                 // Store Object API Name of create Templates...
                 Set<String> objectListSet = new Set<String>();  
-                for(Template__c temp : tempList){
-                    objectListSet.add(temp.Object_API_Name__c);
+                for(MVDG__Template__c temp : tempList){
+                    objectListSet.add(temp.MVDG__Object_API_Name__c);
                 }
     
                 // Create List Of Object of create Templates with API and Label...
@@ -44,11 +44,11 @@ public with sharing class HomePageController {
                 }
     
                 // Create List of Only Date Field form Templare Object...
-                List<TempDateFields> tempDateFields = createTempFieldInstance('Template__c');
+                List<TempDateFields> tempDateFields = createTempFieldInstance('MVDG__Template__c');
 
                 // 
-                // returnValue.isGoogleDocEnable = AuthProviderSettings__c.getOrgDefaults().WorkingStatus__c || AuthProviderSettings__c.getInstance().WorkingStatus__c;
-                returnValue.isGoogleDocEnable = AuthProviderSettings__c.getInstance().WorkingStatus__c;
+                // returnValue.isGoogleDocEnable = MVDG__AuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c || MVDG__AuthProviderSettings__c.getInstance().MVDG__WorkingStatus__c;
+                returnValue.isGoogleDocEnable = MVDG__AuthProviderSettings__c.getInstance().MVDG__WorkingStatus__c;
                 
                 // Assign Values to returnValue Object...
                 returnValue.isSuccess = true;
@@ -98,10 +98,10 @@ public with sharing class HomePageController {
     @AuraEnabled
     public static string updateTemplate(String templateId, Boolean isActive){
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
-        List<Template__c> tempToUpdate = [SELECT ID, Name, Template_Status__c  FROM Template__c WHERE ID = : templateId WITH SECURITY_ENFORCED LIMIT 1];
+        List<MVDG__Template__c> tempToUpdate = [SELECT ID, Name, MVDG__Template_Name__c  FROM MVDG__Template__c WHERE ID = : templateId WITH SECURITY_ENFORCED LIMIT 1];
         if(tempToUpdate.size() > 0){
-            // if (Schema.sObjectType.Template__c.fields.Template_Status__c.isUpdateable()) {
-                tempToUpdate[0].Template_Status__c = isActive;
+            // if (Schema.sObjectType.MVDG__Template__c.fields.MVDG__Template_Name__c.isUpdateable()) {
+                tempToUpdate[0].MVDG__Template_Status__c = isActive;
                 update tempToUpdate[0];
             // }
             return 'updated';
@@ -113,7 +113,7 @@ public with sharing class HomePageController {
     @AuraEnabled
     public static boolean deleteTemplate(String templateId){
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
-        List<Template__c> tempToDelete = [SELECT ID, Name  FROM Template__c WHERE ID =:templateId WITH SECURITY_ENFORCED LIMIT 1];
+        List<MVDG__Template__c> tempToDelete = [SELECT ID, Name  FROM MVDG__Template__c WHERE ID =:templateId WITH SECURITY_ENFORCED LIMIT 1];
         if(tempToDelete.size() > 0){
             delete tempToDelete[0];
             return true;
@@ -122,7 +122,7 @@ public with sharing class HomePageController {
     }
 
     public class ReturnValues{
-        @AuraEnabled public list<Template__c> templateList;
+        @AuraEnabled public list<MVDG__Template__c> templateList;
         @AuraEnabled public list<TempObject> objectList;
         @AuraEnabled public list<TempDateFields> dateFields;
         @AuraEnabled public boolean isSuccess;

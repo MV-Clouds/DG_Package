@@ -76,6 +76,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     @track emailSubject = '';
     @track emailBody = '';
+    @track previewEmailBody = '';
 
     isInitialStyleLoaded = false;
 
@@ -323,6 +324,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @track isClosableError = false;
 
     closeEnabled = false;
+    @track isNotGoogleNotGenerable = false;
+
+    // @track filterForActiveTemplates = [
+    //     {field : 'MVDG__Template_Name__c', operator : 'eq', value : true}
+    // ];
+
     get showCloseButton(){
         return this.isCSVOnly || this.isDefaultGenerate || this.isCalledFromPreview;
     }
@@ -363,17 +370,20 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     get filterForActiveTemplates(){
         let filters = [
-            {field : 'Object_API_Name__c', operator : 'eq', value : this.objectApiName},
-            {field : 'Template_Status__c', operator : 'eq', value : true}
+            {field : 'MVDG__Object_API_Name__c', operator : 'eq', value : this.objectApiName},
+            {field : 'MVDG__Template_Status__c', operator : 'eq', value : true}
         ];
         if(this.isCSVOnly){
-            filters.push({field : 'Template_Type__c', operator : 'eq', value : 'CSV Template'});
+            filters.push({field : 'MVDG__Template_Type__c', operator : 'eq', value : 'CSV Template'});
+        }
+        if(this.isNotGoogleNotGenerable){
+            filters.push({field : 'MVDG__Template_Type__c', operator : 'ne', value : 'Google Doc Template'});
         }
         return filters;
     }
 
     get updatedTemplates(){
-        let searchedTemplates = this.allTemplates.filter(t => t.Template_Name__c.toUpperCase().includes(this.templateSearchKey.toUpperCase()));
+        let searchedTemplates = this.allTemplates.filter(t => t.MVDG__Template_Name__c.toUpperCase().includes(this.templateSearchKey.toUpperCase()));
         this.noTemplateFound = searchedTemplates.length <1 ? true : false;
         if(!this.templateSearchKey){
             return this.allTemplates;
@@ -386,11 +396,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     get templateType(){
-        return !this.isCalledFromDefaults ? this.allTemplates.find(t => t.Id === this.selectedTemplate)?.Template_Type__c || 'CSV Template' : this.templateTypeFromParent;
+        return !this.isCalledFromDefaults ? this.allTemplates.find(t => t.Id === this.selectedTemplate)?.MVDG__Template_Type__c || 'CSV Template' : this.templateTypeFromParent;
     }
 
     get templateName(){
-        return this.allTemplates.find(t => t.Id === this.selectedTemplate)?.Template_Name__c || '';
+        return this.allTemplates.find(t => t.Id === this.selectedTemplate)?.MVDG__Template_Name__c || '';
     }
 
     get isCSVTemplate(){
@@ -419,6 +429,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     connectedCallback() {
         this.showSpinner = true;
         try{
+            this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = !window.location.href.includes(window.location.origin + '/lightning/action/quick/') && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
                 let urlParams = new URLSearchParams(window.location.search);
@@ -428,7 +439,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.template.host.classList.add('pou-up-view');
                 this.selectedTemplate = urlParams.get('c__templateIdToGenerate');
             }
-
             Promise.resolve(this.objectApiName)
             .then(() => {
                 return Promise.all([
@@ -470,7 +480,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleCalledFromDefaults() {
         try{
             this.isCalledFromDefaults = true;
-            this.hideHeader = true;
             this.handleSelectTemplate({ detail: [{ Id: this.templateIdFromParent }] });
             this.fetchAllButtonNames()
             .then(() => {
@@ -643,11 +652,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.emailSubject = data?.emailSubject ? data?.emailSubject : '';
                 this.emailBody = data?.emailBody ? data?.emailBody : '';
                 this.selectedEmailTemplate = data?.emailTemplate ? data?.emailTemplate : null;
-                console.log('Calling from the auto Generation');
                 this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
-                this.buttonLabel = data?.buttonLabel ? data?.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent : '');
+                this.buttonLabel = data?.buttonLabel ? data?.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent.length > 80 ? this.templateNameFromParent.slice(0, 80) : this.templateNameFromParent : '');
                 this.buttonName = data?.buttonName || null;
-                console.log('This Buttton is :::' , this.buttonName);
                 if(this.buttonName && this.allButtons.includes(this.buttonName)){
                     this.isOldButton = true;
                     this.bottomBtnLabel = 'Update Defaults';
@@ -703,11 +710,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     setUpAllTemplates(templates){
         try {
             if(this.isCSVOnly){
-                templates = templates.filter(t => t.Template_Type__c==='CSV Template');
+                templates = templates.filter(t => t.MVDG__Template_Type__c==='CSV Template');
             }
             this.allTemplates = templates.map((temp, index) => {
                 const formattedDate = new Date(temp.LastModifiedDate).toLocaleDateString("en-US");
-                if (temp.Button_Api_Name__c && window.location.href.includes(temp.Button_Api_Name__c)) {
+                if (temp.MVDG__Button_Api_Name__c && window.location.href.includes(temp.MVDG__Button_Api_Name__c)) {
                     this.selectedTemplate = temp.Id;
                     this.handleAutoGeneration();
                 }
@@ -717,10 +724,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     index: +index + 1
                 };
             });
-            this.activeTemplates = this.allTemplates.filter(temp => temp.Template_Status__c === true);
+            this.activeTemplates = this.allTemplates.filter(temp => temp.MVDG__Template_Status__c === true);
             this.templateList =  this.activeTemplates.map((template) =>{
                 return {
-                    label:template.Template_Name__c, value:template.Id
+                    label:template.MVDG__Template_Name__c, value:template.Id
                 }
             });
             console.log('Fetch All templates are done!');
@@ -735,6 +742,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.externalStorageOptions.find( o => o.name=== 'AWS').isDisabled = !integrations.isAWSIntegrated;
             this.externalStorageOptions.find( o => o.name=== 'Dropbox').isDisabled = !integrations.isDropBoxIntegrated;
             this.externalStorageOptions.find( o => o.name=== 'One Drive').isDisabled = !integrations.isOneDriveIntegrated;
+            if(!integrations.isUserWideAccessible && !integrations.isGoogleDriveIntegrated){
+                this.isNotGoogleNotGenerable = true;
+            }
         } catch (e) {
             console.log('Error in function setUpIntegrationStatus:::', e.message);
         }
@@ -762,7 +772,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             value : temp.Id
                         }
                     });
-                    // this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
                     console.log('Calling from the get email templates.');
                     resolve();
                 })
@@ -1071,10 +1080,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             this.selectedEmailTemplate = event.detail[0];
             if(this.selectedEmailTemplate){
-                this.template.querySelector('.email-template-preview-rich-text') ? this.template.querySelector('.email-template-preview-rich-text').value = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue : undefined;
-                this.emailSubject = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.Subject || this.emailSubject;
                 this.template.host.style.setProperty('--display-for-email-body-div',"none");
                 this.template.host.style.setProperty('--display-for-email-preview-div',"flex");
+                this.previewEmailBody = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue;
+                // this.template.querySelector('.email-template-preview-rich-text') ? this.template.querySelector('.email-template-preview-rich-text').value = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue : undefined;
+                this.emailSubject = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.Subject || this.emailSubject;
                 console.log('Set only Preview');
             }else{
                 console.log('Set body');
@@ -1288,10 +1298,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         if (this.isAdditionalInfo) {
                             const thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                            thisTemplate.Description__c = thisTemplate.Description__c || 'No Description Available for this template';
-                            csvContent += ' , Name : ,"' + thisTemplate.Template_Name__c + '"\n'
-                                + ' , Description : ,"' + thisTemplate.Description__c + '"\n'
-                                + ' , Object Api Name : ,' + thisTemplate.Object_API_Name__c + '\n'
+                            thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || 'No Description Available for this template';
+                            csvContent += ' , Name : ,"' + thisTemplate.MVDG__Template_Name__c + '"\n'
+                                + ' , Description : ,"' + thisTemplate.MVDG__Description__c + '"\n'
+                                + ' , Object Api Name : ,' + thisTemplate.MVDG__Object_API_Name__c + '\n'
                                 + ' , CSV Creation Time : , ' + new Date().toLocaleString().replace(',', ' ') + '\n\n';
                         }
                         csvContent += fieldNames.join(',') + '\n';
@@ -1336,10 +1346,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         if (this.isAdditionalInfo) {
                             const thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                            thisTemplate.Description__c = thisTemplate.Description__c || 'No Description Available for this template';
-                            xlsContent += '<tr> <td> </td> <th> Name : </th><td> ' + thisTemplate.Template_Name__c + '</td></tr>'
-                                + '<tr> <td> </td> <th> Description : </th><td> ' + thisTemplate.Description__c + '</td></tr>'
-                                + '<tr> <td></td> <th> Object Api Name : </th><td> ' + thisTemplate.Object_API_Name__c + '</td></tr>'
+                            thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || 'No Description Available for this template';
+                            xlsContent += '<tr> <td> </td> <th> Name : </th><td> ' + thisTemplate.MVDG__Template_Name__c + '</td></tr>'
+                                + '<tr> <td> </td> <th> Description : </th><td> ' + thisTemplate.MVDG__Description__c + '</td></tr>'
+                                + '<tr> <td></td> <th> Object Api Name : </th><td> ' + thisTemplate.MVDG__Object_API_Name__c + '</td></tr>'
                                 + '<tr> <td> </td> <th> CSV Creation Time : </th><td> ' + new Date().toLocaleString().replace(',', ' ') + '</td></tr>' + '<tr></tr>';
                         }
                         xlsContent += '<tr> <th> ' + fieldNames.join('</th><th>') + '</th> </tr>';
@@ -1543,7 +1553,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.fetchedResults = [];
             if(!this.fileName){
                 let thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                this.fileName = thisTemplate.Template_Name__c;
+                this.fileName = thisTemplate.MVDG__Template_Name__c;
             }
             let element ;
             if(this.selectedExtension === '.csv'){
@@ -1661,22 +1671,22 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.labelOfLoader = 'Loading...';
                         this.showSpinner = false;
                     });
+                }else{
+                    Promise.all(this.resultPromises)
+                    .then(() => {
+                        this.handleGenerationResult();
+                        this.fetchedResults = [];
+                    })
+                    .catch(e => {
+                        this.showSpinner = false;
+                        console.error('Error in handling promises: ', e.message);
+                    })
+                    .finally(() => {
+                        this.labelOfLoader = 'Loading...';
+                        this.showSpinner = false;
+                    });
                 }
     
-            } else {
-                Promise.all(this.resultPromises)
-                .then(() => {
-                    this.handleGenerationResult();
-                    this.fetchedResults = [];
-                })
-                .catch(e => {
-                    this.showSpinner = false;
-                    console.error('Error in handling promises: ', e.message);
-                })
-                .finally(() => {
-                    this.labelOfLoader = 'Loading...';
-                    this.showSpinner = false;
-                });
             }
         } catch (e) {
             this.showSpinner = false;
@@ -2104,7 +2114,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.showToast('error', 'Something Went Wrong!', 'Please enter the name for the button.', 5000);
                 return;
             }
-            if(!this.isOldButton && this.allButtons.includes(this.buttonLabel.trim().replaceAll(" ", "_"))){
+            if(!this.isOldButton && this.allButtons.includes(this.buttonLabel.trim().replace(/[^a-zA-Z_]+/g, '_'))){
                 this.showToast('error', 'Something went wrong!','This button name is used, try changing name!', 5000)
                 return;
             }
@@ -2132,7 +2142,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             let defaults = {
                 templateId : this.templateIdFromParent,
                 buttonLabel : this.buttonLabel,
-                buttonName: this.buttonName ? this.buttonName : this.buttonLabel.trim().replaceAll(" ", "_"),
+                buttonName: this.buttonName ? this.buttonName : this.buttonLabel.trim().replace(/[^a-zA-Z_]+/g, '_'),
                 docType : this.selectedExtension?.slice(1,).toUpperCase(),
                 iStorage : iStorages,
                 eStorage : eStorages,
@@ -2154,16 +2164,19 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         let buttonData = {
                             objects : objList,
                             buttonLabel: this.buttonLabel,
-                            buttonName: this.buttonName ? this.buttonName : this.buttonLabel.replaceAll(" ", "_"),
+                            buttonName: this.buttonName ? this.buttonName : this.buttonLabel.replace(/[^a-zA-Z_]+/g, '_'),
                             buttonEndURL: '&c__isDefaultGenerate=true&c__templateIdToGenerate='+this.templateIdFromParent
                         }
-                        console.log('Button Data:::', buttonData);
                         createListViewButtons({ bdw : buttonData})
-                        .then(() => {
-                            this.isOldButton = true;
-                            this.bottomBtnLabel = 'Update Defaults'
-                            console.log('The Button is Successfully created!');
-                            this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                        .then((isSuccess) => {
+                            if(isSuccess == false){
+                                this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
+                            }else{
+                                this.isOldButton = true;
+                                this.bottomBtnLabel = 'Update Defaults';
+                                console.log('The Button is Successfully created!');
+                                this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                            }
                         })
                         .catch((e) => {
                             this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);

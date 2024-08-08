@@ -56,14 +56,14 @@
 
                     <template if:true={isNamedCredential}>
                         <div class="label-float">
-                            <input type="text" class="t-named" placeholder="Enter API Name" onchange={handleNamedCredentials} onblur={handleNamedCredentials}/>
+                            <input type="text" class="t-named" placeholder="Enter API Name" oninput={handleNamedCredentials} onkeypress={handleNamedCredentials}/>
                             <label>Named Credential</label>
                         </div>
                     </template>
                     <template if:false={isGoogleDrive}>
                         <template if:false={isNamedCredential}>
                         <div class="label-float">
-                            <input type="text" class="t-clientid inputhelp" placeholder="Enter Client Id" onblur={handleClientId} onchange={handleClientId}/>
+                            <input type="text" class="t-clientid inputhelp" placeholder="Enter Client Id" oninput={handleClientId} onkeypress={handleClientId}/>
                             <label>Client Id</label>
                         </div>
                         </template>
@@ -71,7 +71,7 @@
                     <template if:false={isGoogleDrive}>
                         <template if:false={isNamedCredential}>
                         <div class="label-float">
-                            <input type="password" class="t-clientsecret inputhelp" placeholder="Enter Client Secret" onblur={handleClientSecret} onchange={handleClientSecret}/>
+                            <input type="password" class="t-clientsecret inputhelp" placeholder="Enter Client Secret" oninput={handleClientSecret} onkeypress={handleClientSecret}/>
                             <label>Client Secret</label>
                             
                         </div>
@@ -80,7 +80,7 @@
                     <template if:true={isAws}>
                         <template if:false={isNamedCredential}>
                         <div class="label-float">
-                            <input type="text" class="t-name" placeholder="Enter Nickname" onblur={handleNickname} onchange={handleNickname}/>
+                            <input type="text" class="t-name" placeholder="Enter Nickname" oninput={handleNickname} onkeypress={handleNickname}/>
                             <label>Nickname</label>
                         </div>
                         </template>
@@ -88,7 +88,7 @@
                     <template if:true={isAws}>
                         <template if:false={isNamedCredential}>
                         <div class="label-float">
-                            <input type="text" class="t-bucket" placeholder="Enter Bucket Name" onblur={handleBucket} onchange={handleBucket}/>
+                            <input type="text" class="t-bucket" placeholder="Enter Bucket Name" oninput={handleBucket} onkeypress={handleBucket}/>
                             <label>Bucket Name</label>
                         </div>
                         </template>
@@ -98,7 +98,7 @@
                     </div>
                     <template if:true={isGoogleDrive}>
                         <div class="label-float">
-                            <input type="text" class="t-authorizationcode" placeholder="Enter Authorization code" onkeyup={handleAuthorizationCode} onblur={handleAuthorizationCode} onchange={handleAuthorizationCode}/>
+                            <input type="text" class="t-authorizationcode" placeholder="Enter Authorization code" oninput={handleAuthorizationCode} onkeypress={handleAuthorizationCode} onchange={handleAuthorizationCode}/>
                             <label>Authorization Code</label>
                         </div>
                     </template>

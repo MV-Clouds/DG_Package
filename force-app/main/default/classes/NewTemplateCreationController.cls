@@ -15,7 +15,6 @@ public with sharing class NewTemplateCreationController {
                 !info.apiName.containsignorecase('group') && !info.apiName.containsignorecase('public') &&
                 !objResult.isCustomSetting() && objResult.isCreateable() &&
                 objResult.getRecordTypeInfos().size() > 0){
-                    
                     objectsInfo.add(info);
                 }
             }
@@ -51,9 +50,9 @@ public with sharing class NewTemplateCreationController {
     public static Boolean isGoogleIntegrated(){
         Boolean isIntegrated = false;
         try {
-            List<AuthProviderSettings__c> googleDriveSetting = [SELECT WorkingStatus__c FROM AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
             if(googleDriveSetting.size() > 0){
-                isIntegrated = googleDriveSetting[0].WorkingStatus__c;
+                isIntegrated = googleDriveSetting[0].MVDG__WorkingStatus__c;
             }
         } catch (Exception e) {
             System.debug('Error in isGoogleIntegrated =>' + e.getMessage());
@@ -63,35 +62,35 @@ public with sharing class NewTemplateCreationController {
     }
 
     @AuraEnabled
-    public static String saveTemplate(TemplateData templateData){
+    public static String saveTemplate(Map<String, String> templateData){
         String templateId;
         try {
-            Template__c template = new Template__c();
-            template.Template_Name__c = templateData.templateName;
-            template.Description__c = templateData.templateDescription;
-            template.Object_API_Name__c = templateData.sourceObject;
-            template.Template_Type__c = templateData.templateType;
-            template.Template_Status__c = true;
+            MVDG__Template__c template = new MVDG__Template__c();
+            template.MVDG__Template_Name__c = templateData.get('templateName');
+            template.MVDG__Description__c = templateData.get('templateDescription');
+            template.MVDG__Object_API_Name__c = templateData.get('sourceObject');
+            template.MVDG__Template_Type__c = templateData.get('templateType');
+            template.MVDG__Template_Status__c = true;
     
-            if(Template__c.SObjectType.getDescribe().isCreateable() == false){
-                throw new AuraHandledException('You have no permission to insert this object Template__c');
+            if(MVDG__Template__c.SObjectType.getDescribe().isCreateable() == false){
+                throw new AuraHandledException('You have no permission to insert this object MVDG__Template__c');
             }
             insert template;
             templateId = template.Id;
 
-            if(templateData.templateType == 'Simple Template' && Schema.sObjectType.Template_Page__c.isCreateable()){
-                Template_Page__c page = new Template_Page__c();
-                page.Template__c = templateId;
-                page.Page_Number__c = 1;
-                page.Page_Margin__c = '1;1;1;1';        // [top;bottom;left;right]
-                page.Page_Orientation__c = 'portrait';
-                page.Page_Size__c = 'a4';
-                page.Unit_of_Page_Configs__c = 'in';
-                page.Show_Header__c = true;
-                page.Header_margin_top__c = 0.10;          // px to inch
-                page.Show_Footer__c = true;
-                page.Footer_margin_bottom__c = 0.10;       // px to inch
-                // page.Show_Watermark__c = true;       
+            if(templateData.get('templateType') == 'Simple Template' && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){
+                MVDG__Template_Page__c page = new MVDG__Template_Page__c();
+                page.MVDG__Template__c = templateId;
+                page.MVDG__Page_Number__c = 1;
+                page.MVDG__Page_Margin__c = '1;1;1;1';        // [top;bottom;left;right]
+                page.MVDG__Page_Orientation__c = 'portrait';
+                page.MVDG__Page_Size__c = 'a4';
+                page.MVDG__Unit_of_Page_Configs__c = 'in';
+                page.MVDG__Show_Header__c = true;
+                page.MVDG__Header_margin_top__c = 0.10;          // px to inch
+                page.MVDG__Show_Footer__c = true;
+                page.MVDG__Footer_margin_bottom__c = 0.10;       // px to inch
+                // page.MVDG__Show_Watermark__c = true;       
                 insert page;
             }
 
@@ -104,17 +103,15 @@ public with sharing class NewTemplateCreationController {
     }
     
     public class ObjectInfo {
-        @AuraEnabled public String name {get; set;}
-        @AuraEnabled public String apiName {get; set;}
+        @AuraEnabled public String name;
+        @AuraEnabled public String apiName;
     }
 
     public class TemplateData{
-        @AuraEnabled public String templateName { get; set; }
-        @AuraEnabled public String templateDescription { get; set; }
-        @AuraEnabled public String sourceObject { get; set; }
-        @AuraEnabled public String templateType { get; set; }
-        @AuraEnabled public Decimal columnValue { get; set; }
-        @AuraEnabled public Decimal rowValue { get; set; }
+        @AuraEnabled public String templateName;
+        @AuraEnabled public String templateDescription;
+        @AuraEnabled public String sourceObject;
+        @AuraEnabled public String templateType;
     }
     
 }

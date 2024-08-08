@@ -18,12 +18,12 @@ public with sharing class DropboxSuccessController {
         try {
             String initialurl = currentUrl;
             String authcode = extractCodeParameter(initialurl);
-            DropBoxAuthProviderSettings__c settings = [SELECT Id, ClientId__c, ClientSecret__c FROM DropBoxAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() LIMIT 1];
+            MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() LIMIT 1];
             if (settings != null) {
                 System.debug('setting: '+ settings);
-                String clientid = settings.ClientId__c;
+                String clientid = settings.MVDG__ClientId__c;
                 System.debug('ClientId: ' + clientid);
-                String clientsecret = settings.ClientSecret__c;
+                String clientsecret = settings.MVDG__ClientSecret__c;
                 System.debug('ClientId: ' + clientsecret);
                 String url = ''+System.Url.getOrgDomainUrl();
                 String REDIRECT_URI = redirect(url);        
@@ -35,11 +35,11 @@ public with sharing class DropboxSuccessController {
                 System.debug(refreshToken);
                 System.debug(accessToken);
                 if(refreshToken != null){
-                    settings.refresh_token__c = refreshToken;
+                    settings.MVDG__refresh_token__c = refreshToken;
                     System.debug('ref');
                     }
                 if(accessToken != null){
-                    settings.access_token__c = accessToken;
+                    settings.MVDG__access_token__c = accessToken;
                     String userdetails = fetchUserDetails(accessToken);
                     System.debug(userdetails);
                     Map<String, Object> parsedResponse = (Map<String, Object>) JSON.deserializeUntyped(userdetails);
@@ -53,10 +53,10 @@ public with sharing class DropboxSuccessController {
                     Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
                     String formattedDate = datetimeToday.format('dd/MM/yyyy');
                     System.debug('Today\'s Date ==>'+formattedDate);
-                    settings.username__c = displayName;
-                    settings.email__c = emailAddress;
-                    settings.LinkedDate__c = formattedDate;
-                    settings.WorkingStatus__c = true;
+                    settings.MVDG__username__c = displayName;
+                    settings.MVDG__email__c = emailAddress;
+                    settings.MVDG__LinkedDate__c = formattedDate;
+                    settings.MVDG__WorkingStatus__c = true;
                     upsert settings;
                     return 'Success';
                     }

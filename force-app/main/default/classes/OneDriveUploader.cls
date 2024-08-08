@@ -4,15 +4,15 @@ global class OneDriveUploader implements Database.Batchable < SObject > , Databa
     global static string fullFileName;
 
     public static String getToken(){
-        OneDriveAuthProviderSettings__c settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
+        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
         // System.debug('generating new token');
         HttpRequest request = new HttpRequest();
         request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.refresh_token__c + settings.refresh_token1__c +
-            '&client_id=' + settings.ClientId__c +
-            '&client_secret=' + settings.ClientSecret__c +
+        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + settings.MVDG__refresh_token1__c +
+            '&client_id=' + settings.MVDG__ClientId__c +
+            '&client_secret=' + settings.MVDG__ClientSecret__c +
             '&grant_type=refresh_token');
         Http http1 = new Http();
         HttpResponse response1 = http1.send(request);
@@ -90,8 +90,8 @@ global class OneDriveUploader implements Database.Batchable < SObject > , Databa
     @AuraEnabled
     public static Boolean uploadToOneDrive(ContentVersion content, String fileName, String contentType) {
 
-        OneDriveAuthProviderSettings__c settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
-        String emailid = settings.email__c;
+        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
+        String emailid = settings.MVDG__email__c;
         // req.setHeader('Content-Disposition', content.Title+'.'+content.FileExtension);
         string endpointUrl = 'https://graph.microsoft.com/v1.0/users/me/drive/items/root:/{file}:/content';
         string file = EncodingUtil.URLENCODE(fileName, 'UTF-8').replace('+', '%20');
@@ -279,7 +279,7 @@ global class OneDriveUploader implements Database.Batchable < SObject > , Databa
 
 
     public static string initiateUploadSession(String contentType, ContentVersion cv) {
-        OneDriveAuthProviderSettings__c settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
+        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
         HttpRequest req = new HttpRequest();
         req.setEndpoint('https://graph.microsoft.com/v1.0/me/drive/root:/' + cv.Title + '.' + cv.FileExtension + ':/createUploadSession');
         req.setMethod('POST');
@@ -315,7 +315,7 @@ global class OneDriveUploader implements Database.Batchable < SObject > , Databa
             String contentRange = 'bytes ' + parameters.start + '-' + parameters.ending + '/' + parameters.fileSize;
 
             // System.debug('upload url' + result);
-            OneDriveAuthProviderSettings__c settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
+            MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
             // System.debug('Content-Length' + String.valueof(chunk.size()));
             // System.debug('Content-Range' + contentRange);
             HttpRequest req2 = new HttpRequest();

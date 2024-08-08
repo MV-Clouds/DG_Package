@@ -96,6 +96,8 @@
     flex-wrap: wrap;
     align-items: center;
     margin-top: 0.2rem;
+    max-height: 15rem;
+    overflow-y: scroll;
 }
 
 .generated-object-div {
@@ -104,6 +106,12 @@
     border-radius: 6px;
     margin-top: 0.5rem;
     min-height: 7rem;
+}
+
+.is-no-object-div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .added-object {

@@ -26,14 +26,14 @@ public with sharing class GenerateDocumentController {
 *********************************************************
 @description     : Method is used to fetch all the templates
 @param           : objName {String} - Name of the object, from where the quick action is started
-@return          : List<Template__c> - including all the templates fetched from org
+@return          : List<MVDG__Template__c> - including all the templates fetched from org
 ********************************************************
 */
     @AuraEnabled
-    public static List<Template__c> fetchTemplates(String objName){
+    public static List<MVDG__Template__c> fetchTemplates(String objName){
         try {
-            List<Template__c> templates = new List<Template__c>();
-            templates = [ SELECT Id, Name, Object_API_Name__c, Template_Name__c, Template_Type__c, Template_Status__c, Description__c, LastModifiedDate, Button_Api_Name__c FROM Template__c WHERE Object_API_Name__c=:objName WITH SECURITY_ENFORCED];
+            List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
+            templates = [ SELECT Id, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, LastModifiedDate, MVDG__Button_Api_Name__c FROM MVDG__Template__c WHERE MVDG__Object_API_Name__c=:objName WITH SECURITY_ENFORCED];
             return templates;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'fetchTemplates');
@@ -51,12 +51,16 @@ public with sharing class GenerateDocumentController {
     @AuraEnabled
     public static IntegrationWrapper getIntegrationStatus(){
         try {
-            IntegrationWrapper listOfIW = new IntegrationWrapper();
-            listOfIW.isGoogleDriveIntegrated = AuthProviderSettings__c.getOrgDefaults().WorkingStatus__c;
-            listOfIW.isAWSIntegrated = AwsAuthProviderSettings__c.getOrgDefaults().WorkingStatus__c;
-            listOfIW.isDropBoxIntegrated = DropBoxAuthProviderSettings__c.getOrgDefaults().WorkingStatus__c;
-            listOfIW.isOneDriveIntegrated = OneDriveAuthProviderSettings__c.getOrgDefaults().WorkingStatus__c;
-            return listOfIW;
+            IntegrationWrapper listOfStatus = new IntegrationWrapper();
+            listOfStatus.isGoogleDriveIntegrated = MVDG__AuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            listOfStatus.isAWSIntegrated = MVDG__AwsAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            listOfStatus.isDropBoxIntegrated = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            listOfStatus.isOneDriveIntegrated = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            if(googleDriveSetting.size() > 0){
+                listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;
+            }
+            return listOfStatus;
         } catch (Exception e) {
             System.debug('Error in getIntegrationStatus =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getIntegrationStatus');
@@ -289,12 +293,12 @@ public with sharing class GenerateDocumentController {
     public static String getTemplateData(String templateId){
         String allData = '';
         try{
-            List<Template_Data__c> tfList = [SELECT Id, CSV_Fields__c, CSV_Query__c FROM Template_Data__c WHERE Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY Order_No_Simple__c asc NULLS Last LIMIT 1];
+            List<MVDG__Template_Data__c> tfList = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last LIMIT 1];
 
             if(!tfList.isEmpty()){
-                String fields = tfList[0].CSV_Fields__c;
+                String fields = tfList[0].MVDG__CSV_Fields__c;
                 System.debug('all the Fields here :: ' + fields);
-                String query = tfList[0].CSV_Query__c;
+                String query = tfList[0].MVDG__CSV_Query__c;
 
                 String sessionId = '';
 
@@ -323,21 +327,21 @@ public with sharing class GenerateDocumentController {
     public static DefaultDataWrapper getTemplateDefaultValues(String templateId){
         DefaultDataWrapper ddw = new DefaultDataWrapper();
         try {
-            List<Template__c> templates = [SELECT Id, Template_Name__c,Button_Label__c, Button_Api_Name__c, Document_Type__c, Internal_Storage__c, External_Storage__c, Output_Channel__c, Email_Addresses__c,	Email_Subject__c, Email_Body__c, Template_Type__c, Email_Template__c FROM Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+            List<MVDG__Template__c> templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Object_API_Name__c, MVDG__Email_Addresses__c,	MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
             if(templates.size() > 0){
                 ddw.templateId = templates[0].Id;
-                ddw.templateName = templates[0].Template_Name__c;
-                ddw.buttonLabel = templates[0].Button_Label__c;
-                ddw.buttonName = templates[0].Button_Api_Name__c;
-                ddw.docType = templates[0].Document_Type__c;
-                ddw.iStorage = templates[0].Internal_Storage__c;
-                ddw.eStorage = templates[0].External_Storage__c;
-                ddw.oChannel = templates[0].Output_Channel__c;
-                ddw.emailAddresses = templates[0].Email_Addresses__c;
-                ddw.emailSubject = templates[0].Email_Subject__c;
-                ddw.emailBody = templates[0].Email_Body__c;
-                ddw.templateType = templates[0].Template_Type__c;
-                ddw.emailTemplate = templates[0].Email_Template__c;
+                ddw.templateName = templates[0].MVDG__Template_Name__c;
+                ddw.buttonLabel = templates[0].MVDG__Button_Label__c;
+                ddw.buttonName = templates[0].MVDG__Button_Api_Name__c;
+                ddw.docType = templates[0].MVDG__Document_Type__c;
+                ddw.iStorage = templates[0].MVDG__Internal_Storage__c;
+                ddw.eStorage = templates[0].MVDG__External_Storage__c;
+                ddw.oChannel = templates[0].MVDG__Object_API_Name__c;
+                ddw.emailAddresses = templates[0].MVDG__Email_Addresses__c;
+                ddw.emailSubject = templates[0].MVDG__Email_Subject__c;
+                ddw.emailBody = templates[0].MVDG__Email_Body__c;
+                ddw.templateType = templates[0].MVDG__Template_Type__c;
+                ddw.emailTemplate = templates[0].MVDG__Email_Template__c;
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateDefaultValues');
@@ -357,22 +361,22 @@ public with sharing class GenerateDocumentController {
     @AuraEnabled
     public static void setDefaultOptions(DefaultDataWrapper defaultData){
         try {
-            Template__c template = new Template__c(
+            MVDG__Template__c template = new MVDG__Template__c(
                 Id = defaultData.templateId,
-                Button_Label__c = defaultData.buttonLabel,
-                Button_Api_Name__c = defaultData.buttonName,
-                Document_Type__c = defaultData.docType,
-                Internal_Storage__c = defaultData.iStorage,
-                External_Storage__c = defaultData.eStorage,
-                Output_Channel__c = defaultData.oChannel,
-                Email_Addresses__c = defaultData.emailAddresses,
-                Email_Subject__c = defaultData.emailSubject,
-                Email_Body__c = defaultData.emailBody,
-                Email_Template__c = defaultData.emailTemplate
+                MVDG__Button_Label__c = defaultData.buttonLabel,
+                MVDG__Button_Api_Name__c = defaultData.buttonName,
+                MVDG__Document_Type__c = defaultData.docType,
+                MVDG__Internal_Storage__c = defaultData.iStorage,
+                MVDG__External_Storage__c = defaultData.eStorage,
+                MVDG__Object_API_Name__c = defaultData.oChannel,
+                MVDG__Email_Addresses__c = defaultData.emailAddresses,
+                MVDG__Email_Subject__c = defaultData.emailSubject,
+                MVDG__Email_Body__c = defaultData.emailBody,
+                MVDG__Email_Template__c = defaultData.emailTemplate
             );
 
-            if(Template__c.SObjectType.getDescribe().isUpdateable() == false){
-                throw new AuraHandledException('You have no permission to insert record to Template__c');
+            if(MVDG__Template__c.SObjectType.getDescribe().isUpdateable() == false){
+                throw new AuraHandledException('You have no permission to insert record to MVDG__Template__c');
             }
             update template;
 
@@ -398,6 +402,7 @@ public with sharing class GenerateDocumentController {
         @AuraEnabled public Boolean isAWSIntegrated;
         @AuraEnabled public Boolean isOneDriveIntegrated;
         @AuraEnabled public Boolean isDropBoxIntegrated;
+        @AuraEnabled public Boolean isUserWideAccessible;
     }
 
 /*
@@ -473,7 +478,7 @@ public with sharing class GenerateDocumentController {
 @param           : integrationWrapper {IntegrationWrapper} - wrapper containing integration status of different storage options
 @param           : folderWrapper {FolderWrapper} - wrapper containing label and Id of the folders for the document storing
 @param           : defaultDataWrapper {DefaultDataWrapper} - wrapper containing with default data for the template
-@param           : templates {List<Template__c>} - List of the templates
+@param           : templates {List<MVDG__Template__c>} - List of the templates
 ********************************************************
 */
 
@@ -481,7 +486,7 @@ public with sharing class GenerateDocumentController {
         @AuraEnabled public IntegrationWrapper integrationWrapper;
         @AuraEnabled public List<FolderWrapper> folderWrapper;
         // @AuraEnabled public DefaultDataWrapper defaultDataWrapper;
-        @AuraEnabled public List<Template__c> templates;
+        @AuraEnabled public List<MVDG__Template__c> templates;
         @AuraEnabled public Boolean isSuccess;
     }
 }

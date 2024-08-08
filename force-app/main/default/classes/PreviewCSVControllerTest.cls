@@ -3,12 +3,12 @@ public with sharing class PreviewCSVControllerTest {
 
     @isTest
     static void testFetchPreviewData() {
-        Template__c template = new Template__c(
-            Template_Name__c = 'test template',
-            Template_Type__c = 'CSV Template',
-            Object_API_Name__c = 'Account',
-            Description__c = 'Test Description',
-            Template_Status__c = true
+        MVDG__Template__c template = new MVDG__Template__c(
+            MVDG__Template_Name__c = 'test template',
+            MVDG__Template_Type__c = 'CSV Template',
+            MVDG__Object_API_Name__c = 'Account',
+            MVDG__Description__c = 'Test Description',
+            MVDG__Template_Status__c = true
         );
         insert template;
 
@@ -17,16 +17,16 @@ public with sharing class PreviewCSVControllerTest {
         );
         insert a;
 
-        Template_Page__c tp = new Template_Page__c(
-            Page_Number__c =001,
-            Template__c = template.Id
+        MVDG__Template_Page__c tp = new MVDG__Template_Page__c(
+            MVDG__Page_Number__c =001,
+            MVDG__Template__c = template.Id
         );
         insert tp;
-        Template_Data__c td= new Template_Data__c(
-            Template__c = template.Id,
-            Template_Page__c = tp.Id,
-            CSV_Query__c = 'SELECT Id FROM Account',
-            CSV_Fields__c = 'Id, Name'
+        MVDG__Template_Data__c td= new MVDG__Template_Data__c(
+            MVDG__Template__c = template.Id,
+            MVDG__Template_Page__c = tp.Id,
+            MVDG__CSV_Query__c = 'SELECT Id FROM Account',
+            MVDG__CSV_Fields__c = 'Id, Name'
         );
         insert td;
 

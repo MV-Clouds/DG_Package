@@ -63,9 +63,9 @@ private class OneDriveSuccessControllerTest {
     @isTest
     static void testGetToken() {
         // Insert mock settings
-        OneDriveAuthProviderSettings__c settings = new OneDriveAuthProviderSettings__c(
-            ClientId__c = 'mockClientId',
-            ClientSecret__c = 'mockClientSecret'
+        MVDG__OneDriveAuthProviderSettings__c settings = new MVDG__OneDriveAuthProviderSettings__c(
+            MVDG__ClientId__c = 'mockClientId',
+            MVDG__ClientSecret__c = 'mockClientSecret'
         );
         insert settings;
 
@@ -77,16 +77,16 @@ private class OneDriveSuccessControllerTest {
         Test.stopTest();
 
         // Retrieve updated settings
-        settings = [SELECT ClientId__c, ClientSecret__c, refresh_token__c, refresh_token1__c, 
-                    access_token__c, access_token1__c, access_token2__c, access_token3__c, 
-                    access_token4__c, username__c, email__c, LinkedDate__c, WorkingStatus__c 
-                    FROM OneDriveAuthProviderSettings__c LIMIT 1];
+        settings = [SELECT MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__refresh_token__c, MVDG__refresh_token1__c, 
+                    MVDG__access_token__c, MVDG__access_token1__c, MVDG__access_token2__c, MVDG__access_token3__c, 
+                    MVDG__access_token4__c, MVDG__username__c, MVDG__email__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c 
+                    FROM MVDG__OneDriveAuthProviderSettings__c LIMIT 1];
 
         // Validate results
         System.assertEquals('Success', result);
-        System.assertEquals('Mock User', settings.username__c);
-        System.assertEquals('mockemail@example.com', settings.email__c);
-        System.assertEquals(true, settings.WorkingStatus__c);
+        System.assertEquals('Mock User', settings.MVDG__username__c);
+        System.assertEquals('mockemail@example.com', settings.MVDG__email__c);
+        System.assertEquals(true, settings.MVDG__WorkingStatus__c);
     }
 
     @isTest

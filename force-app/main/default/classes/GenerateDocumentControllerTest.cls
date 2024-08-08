@@ -2,20 +2,20 @@
 public with sharing class GenerateDocumentControllerTest {
     @TestSetup
     static void makeData(){
-        Template__c templateActive = new Template__c(
-            Template_Name__c = 'test template',
-            Template_Type__c = 'CSV Template',
-            Object_API_Name__c = 'Account',
-            Description__c = 'Test Description',
-            Template_Status__c = true
+        MVDG__Template__c templateActive = new MVDG__Template__c(
+            MVDG__Template_Name__c = 'test template',
+            MVDG__Template_Type__c = 'CSV Template',
+            MVDG__Object_API_Name__c = 'Account',
+            MVDG__Description__c = 'Test Description',
+            MVDG__Template_Status__c = true
         );
         insert templateActive;
-        Template__c templateInactive = new Template__c(
-            Template_Name__c = 'test template 2',
-            Template_Type__c = 'Simple Template',
-            Object_API_Name__c = 'Contact',
-            Description__c = 'Test Description 2',
-            Template_Status__c = false
+        MVDG__Template__c templateInactive = new MVDG__Template__c(
+            MVDG__Template_Name__c = 'test template 2',
+            MVDG__Template_Type__c = 'Simple Template',
+            MVDG__Object_API_Name__c = 'Contact',
+            MVDG__Description__c = 'Test Description 2',
+            MVDG__Template_Status__c = false
         );
         insert templateInactive;
     }
@@ -96,24 +96,24 @@ public with sharing class GenerateDocumentControllerTest {
     }
     @isTest
     static void testGetTemplateData(){
-        Template__c t = [SELECT Id FROM Template__c LIMIT 1];
-        Template_Page__c tp = new Template_Page__c(
-            Page_Number__c =001,
-            Template__c = t.Id
+        MVDG__Template__c t = [SELECT Id FROM MVDG__Template__c LIMIT 1];
+        MVDG__Template_Page__c tp = new MVDG__Template_Page__c(
+            MVDG__Page_Number__c =001,
+            MVDG__Template__c = t.Id
         );
         insert tp;
-        Template_Data__c td= new Template_Data__c(
-            Template__c = t.Id,
-            Template_Page__c = tp.Id,
-            CSV_Query__c = 'SELECT Id FROM Account',
-            CSV_Fields__c = 'Id, Name'
+        MVDG__Template_Data__c td= new MVDG__Template_Data__c(
+            MVDG__Template__c = t.Id,
+            MVDG__Template_Page__c = tp.Id,
+            MVDG__CSV_Query__c = 'SELECT Id FROM Account',
+            MVDG__CSV_Fields__c = 'Id, Name'
         );
         insert td;
 
         Test.startTest();
         String templateData = GenerateDocumentController.getTemplateData(t.Id);
         Test.stopTest();
-        System.assert(td.CSV_Fields__c + ' <|QDG|> ' + td.CSV_Query__c + ' <|QDG|> ' + 'testSessionId' == templateData, 'The String is not right.');
+        System.assert(td.MVDG__CSV_Fields__c + ' <|QDG|> ' + td.MVDG__CSV_Query__c + ' <|QDG|> ' + 'testSessionId' == templateData, 'The String is not right.');
     }
 
     @isTest
@@ -135,19 +135,19 @@ public with sharing class GenerateDocumentControllerTest {
 
     @isTest
     static void testGetTemplateDefaultValues(){
-        Template__c template = [SELECT Id, Template_Name__c, Template_Type__c, Object_API_Name__c, Description__c, Template_Status__c FROM Template__c WHERE Template_Status__c = true LIMIT 1];
+        MVDG__Template__c template = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Object_API_Name__c, MVDG__Description__c, MVDG__Template_Status__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true LIMIT 1];
         Test.startTest();
         GenerateDocumentController.DefaultDataWrapper defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id);
         Test.stopTest();
-        System.assertEquals(template.Template_Name__c,defaultValues.templateName, 'The name of the default data should match.');
+        System.assertEquals(template.MVDG__Template_Name__c,defaultValues.templateName, 'The name of the default data should match.');
     }
 
     @isTest
     static void testSetDefaultOptions(){
-        Template__c template = [SELECT Id, Template_Name__c, Template_Type__c, Object_API_NAME__c, Description__c, Template_Status__c FROM Template__c WHERE Template_Status__c = true LIMIT 1];
+        MVDG__Template__c template = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Object_API_NAME__c, MVDG__Description__c, MVDG__Template_Status__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true LIMIT 1];
         GenerateDocumentController.DefaultDataWrapper defaultValues = new GenerateDocumentController.DefaultDataWrapper();
         defaultValues.templateId = template.Id;
-        defaultValues.templateName = template.Template_Name__c;
+        defaultValues.templateName = template.MVDG__Template_Name__c;
         defaultValues.buttonLabel = 'test btn';
         defaultValues.buttonName = 'test_btn';
         defaultValues.docType = 'CSV';
@@ -163,7 +163,7 @@ public with sharing class GenerateDocumentControllerTest {
         GenerateDocumentController.setDefaultOptions(defaultValues);
         Test.stopTest();
 
-        Template__c newTemplate = [SELECT Id, Document_Type__c  FROM Template__c WHERE Id=:template.Id];
-        System.assertEquals(defaultValues.docType, newTemplate.Document_Type__c, 'The template document type must be updated and should match.');
+        MVDG__Template__c newTemplate = [SELECT Id, MVDG__Document_Type__c  FROM MVDG__Template__c WHERE Id=:template.Id];
+        System.assertEquals(defaultValues.docType, newTemplate.MVDG__Document_Type__c, 'The template document type must be updated and should match.');
     }
 }

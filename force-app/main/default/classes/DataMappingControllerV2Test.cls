@@ -53,94 +53,94 @@ private class DataMappingControllerV2Test {
     }
     
 
-    static Template__c createTemplateRecord(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = true;
+    static MVDG__Template__c createTemplateRecord(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = true;
         insert template;
 
-        Template_Page__c page = new Template_Page__c();
-        page.Template__c = template.Id;
-        page.Page_Number__c = 1;
-        page.Page_Margin__c = '1;1;1;1';
-        page.Page_Orientation__c = 'portrait';
-        page.Page_Size__c = 'a4';
-        page.unit_of_page_configs__c = 'inch';
+        MVDG__Template_Page__c page = new MVDG__Template_Page__c();
+        page.MVDG__Template__c = template.Id;
+        page.MVDG__Page_Number__c = 1;
+        page.MVDG__Page_Margin__c = '1;1;1;1';
+        page.MVDG__Page_Orientation__c = 'portrait';
+        page.MVDG__Page_Size__c = 'a4';
+        page.MVDG__Unit_of_Page_Configs__c = 'inch';
         insert page;
 
         String templateValue = templateValue();
         
-        Template_Data__c templateField = new Template_Data__c();
-        templateField.Template__c = template.Id;
-        templateField.Value_Type__c	= 'Body Value';
-        templateField.Template_Value_Simple__c = templateValue;
-        templateField.Order_No_Simple__c =1;
+        MVDG__Template_Data__c templateField = new MVDG__Template_Data__c();
+        templateField.MVDG__Template__c = template.Id;
+        templateField.MVDG__Value_Type__c	= 'Body Value';
+        templateField.MVDG__Template_Value_Simple__c = templateValue;
+        templateField.MVDG__Order_No_Simple__c =1;
         insert templateField;
 
-        Template_Data__c templateField2 = new Template_Data__c();
-        templateField2.Template__c = template.Id;
-        templateField2.Value_Type__c	= 'Extracted Mapping Keys';
-        templateField2.Template_Value_Simple__c = extractedKey();
-        templateField2.Order_No_Simple__c =2;
+        MVDG__Template_Data__c templateField2 = new MVDG__Template_Data__c();
+        templateField2.MVDG__Template__c = template.Id;
+        templateField2.MVDG__Value_Type__c	= 'Extracted Mapping Keys';
+        templateField2.MVDG__Template_Value_Simple__c = extractedKey();
+        templateField2.MVDG__Order_No_Simple__c =2;
         insert templateField2;
 
         return template;
     }
 
-    static Template__c templateRecordException(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = true;
+    static MVDG__Template__c templateRecordException(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = true;
         insert template;
 
-        Template_Data__c templateField2 = new Template_Data__c();
-        templateField2.Template__c = template.Id;
-        templateField2.Value_Type__c	= 'Extracted Mapping Keys';
-        templateField2.Template_Value_Simple__c = '[{name : sfasf}]';
-        templateField2.Order_No_Simple__c =2;
+        MVDG__Template_Data__c templateField2 = new MVDG__Template_Data__c();
+        templateField2.MVDG__Template__c = template.Id;
+        templateField2.MVDG__Value_Type__c	= 'Extracted Mapping Keys';
+        templateField2.MVDG__Template_Value_Simple__c = '[{name : sfasf}]';
+        templateField2.MVDG__Order_No_Simple__c =2;
         insert templateField2;
 
         return template;
     }
 
-    public static Template__c createMergeTemplate(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template 2';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = true;
+    public static MVDG__Template__c createMergeTemplate(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template 2';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = true;
         insert template;
 
-        Template_Data__c templateField = new Template_Data__c();
-        templateField.Template__c = template.Id;
-        templateField.Template_Value_Simple__c = 'test data 1234';
-        templateField.Order_No_Simple__c =1;
+        MVDG__Template_Data__c templateField = new MVDG__Template_Data__c();
+        templateField.MVDG__Template__c = template.Id;
+        templateField.MVDG__Template_Value_Simple__c = 'test data 1234';
+        templateField.MVDG__Order_No_Simple__c =1;
         insert templateField;
 
         return template;
     }
 
-    public static Template__c createMergeTemplateInActive(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template 3';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = false;
+    public static MVDG__Template__c createMergeTemplateInActive(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template 3';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = false;
         insert template;
 
         return template;
     }
 
-    public static Template__c createMergeTemplateCSV(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template 4';
-        template.Template_Type__c = 'CSV Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = false;
+    public static MVDG__Template__c createMergeTemplateCSV(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template 4';
+        template.MVDG__Template_Type__c = 'CSV Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = false;
         insert template;
 
         return template;

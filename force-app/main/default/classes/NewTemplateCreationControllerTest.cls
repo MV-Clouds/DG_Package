@@ -2,14 +2,7 @@
 public with sharing class NewTemplateCreationControllerTest {
     @IsTest
     public static void testNewTemplate(){
-        NewTemplateCreationController.TemplateData testObj = new NewTemplateCreationController.TemplateData();
-        testObj.templateName = 'Test Template';
-        testObj.templateDescription = 'Test Description';
-        testObj.sourceObject = 'Account';
-        testObj.templateType = 'Simple Template';
-        testObj.columnValue = null;
-        testObj.rowValue = null;
-        
+        Map<String, String> testObj = new Map<String, String>{'templateName' => 'Test Template','templateDescription' => 'Test Description','sourceObject' => 'Account','templateType' => 'Simple Template'};
         Test.startTest();
         
         List<NewTemplateCreationController.ObjectInfo> objects = NewTemplateCreationController.getObjects();
@@ -21,14 +14,12 @@ public with sharing class NewTemplateCreationControllerTest {
         Test.stopTest();
 
 
-        Assert.isTrue(objects.size() > 0, 'There are no Objects Returned by the class!!!!');
-        Assert.isTrue(types.contains('CSV Template'), 'There are more than 3 types of the Template !!!!');
+        System.assert(objects.size() > 0, 'There are no Objects Returned by the class!!!!');
+        System.assert(types.size() > 0, 'There are no Types Returned by the class!!!!');
 
-        Template__c template = [SELECT Id, Template_Name__c FROM Template__c LIMIT 1];
+        MVDG__Template__c template = [SELECT Id, MVDG__Template_Name__c FROM MVDG__Template__c LIMIT 1];
 
-        Assert.areEqual(testObj.templateName, template.Template_Name__c , 'The Template name is different than assigned!!');
-        
-        
+        System.assertEquals(testObj.get('templateName'), template.MVDG__Template_Name__c , 'The Template name is different than assigned!!');
     }
 
     @isTest

@@ -23,12 +23,12 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
 
     global void execute(Database.BatchableContext bC, List<ContentVersion> scope) {
         try {
-            AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getOrgDefaults();
-            String bucketName = settings.BucketName__c;
-            String awsKey = settings.ClientId__c;
-            String awsSecret = settings.ClientSecret__c;
+            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+            String bucketName = settings.MVDG__BucketName__c;
+            String awsKey = settings.MVDG__ClientId__c;
+            String awsSecret = settings.MVDG__ClientSecret__c;
             String methodName = 'PUT';
-            String namedCredentialApiName = settings.NamedCredential__c;
+            String namedCredentialApiName = settings.MVDG__NamedCredential__c;
             if(namedCredentialApiName != null){
                 namedCredential = namedCredentialApiName;
             }
@@ -149,86 +149,87 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
     }
 
     public static void mailMessage(Integer code){
-        if (code == 400) {
-            String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                   'We have noticed an issue while attempting to upload the file ' + awsFullFileName + ' to AWS.\n\n' +
-                   'To resolve this issue, please ensure that your credentials are correct. If the problem persists, try the following steps:\n\n' +
-                   '1. Remove the existing AWS connection.\n' +
-                   '2. Reconnect to AWS.\n\n' +
-                   'These steps should help resolve the issue. If you continue to experience difficulties, please feel free to contact our support team for further assistance.\n\n' +
-                   'Thank you for your cooperation.\n\n' +
-                   'Best regards,\n' +
-                   'DocGenius';
+        System.debug('This is status code --->'+code);
+        // if (code == 400) {
+        //     String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
+        //            'We have noticed an issue while attempting to upload the file ' + awsFullFileName + ' to AWS.\n\n' +
+        //            'To resolve this issue, please ensure that your credentials are correct. If the problem persists, try the following steps:\n\n' +
+        //            '1. Remove the existing AWS connection.\n' +
+        //            '2. Reconnect to AWS.\n\n' +
+        //            'These steps should help resolve the issue. If you continue to experience difficulties, please feel free to contact our support team for further assistance.\n\n' +
+        //            'Thank you for your cooperation.\n\n' +
+        //            'Best regards,\n' +
+        //            'DocGenius';
 
-            emailUser(emailBody);
-        }
-        else if (code == 401) {
-            String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                   'We have noticed an issue while attempting to upload the file ' + awsFullFileName + ' to AWS.\n\n' +
-                   'To resolve this issue, please follow these steps to reconnect:\n\n' +
-                   '1. Remove the existing AWS connection.\n' +
-                   '2. Reconnect to AWS.\n\n' +
-                   'These steps should help re-establish the connection. If you continue to experience difficulties, please don\'t hesitate to reach out to our support team for further assistance.\n\n' +
-                   'Thank you for your cooperation.\n\n' +
-                   'Best regards,\n' +
-                   'DocGenius';
+        //     emailUser(emailBody);
+        // }
+        // else if (code == 401) {
+        //     String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
+        //            'We have noticed an issue while attempting to upload the file ' + awsFullFileName + ' to AWS.\n\n' +
+        //            'To resolve this issue, please follow these steps to reconnect:\n\n' +
+        //            '1. Remove the existing AWS connection.\n' +
+        //            '2. Reconnect to AWS.\n\n' +
+        //            'These steps should help re-establish the connection. If you continue to experience difficulties, please don\'t hesitate to reach out to our support team for further assistance.\n\n' +
+        //            'Thank you for your cooperation.\n\n' +
+        //            'Best regards,\n' +
+        //            'DocGenius';
 
-            emailUser(emailBody);
-        }
-        else if (code == 403){
-            String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                   'We encountered an issue while attempting to upload the file ' + awsFullFileName + ' to AWS. ' +
-                   'It appears that you do not have the necessary permissions to complete this upload.\n\n' +
-                   'To resolve this issue, please check the following:\n\n' +
-                   '1. Ensure that you have the correct permissions to upload files to the specified AWS folder.\n' +
-                   '2. Verify that your AWS account has the appropriate access rights.\n\n' +
-                   'If you continue to experience difficulties, please don\'t hesitate to reach out to our support team for further assistance.\n\n' +
-                   'Thank you for your attention to this matter.\n\n' +
-                   'Best regards,\n' +
-                   'DocGenius';
+        //     emailUser(emailBody);
+        // }
+        // else if (code == 403){
+        //     String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
+        //            'We encountered an issue while attempting to upload the file ' + awsFullFileName + ' to AWS. ' +
+        //            'It appears that you do not have the necessary permissions to complete this upload.\n\n' +
+        //            'To resolve this issue, please check the following:\n\n' +
+        //            '1. Ensure that you have the correct permissions to upload files to the specified AWS folder.\n' +
+        //            '2. Verify that your AWS account has the appropriate access rights.\n\n' +
+        //            'If you continue to experience difficulties, please don\'t hesitate to reach out to our support team for further assistance.\n\n' +
+        //            'Thank you for your attention to this matter.\n\n' +
+        //            'Best regards,\n' +
+        //            'DocGenius';
 
-            emailUser(emailBody);
-        }
-        else if (code == 404){
-            String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                   'We have encountered a connection error (404 - File Not Found) while attempting to access your AWS.\n\n' +
-                   'This error indicates that the file or resource you are trying to access may not exist or could not be found. To resolve this issue, please try the following steps:\n\n' +
-                   '1. Verify that the file or resource exists in your AWS.\n' +
-                   '2. Ensure that the file\'s name and path are correct.\n' +
-                   '3. Check that you have the necessary permissions to access the file.\n\n' +
-                   'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
-                   'Thank you for your cooperation.\n\n' +
-                   'Best regards,\n' +
-                   'DocGenius';
+        //     emailUser(emailBody);
+        // }
+        // else if (code == 404){
+        //     String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
+        //            'We have encountered a connection error (404 - File Not Found) while attempting to access your AWS.\n\n' +
+        //            'This error indicates that the file or resource you are trying to access may not exist or could not be found. To resolve this issue, please try the following steps:\n\n' +
+        //            '1. Verify that the file or resource exists in your AWS.\n' +
+        //            '2. Ensure that the file\'s name and path are correct.\n' +
+        //            '3. Check that you have the necessary permissions to access the file.\n\n' +
+        //            'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
+        //            'Thank you for your cooperation.\n\n' +
+        //            'Best regards,\n' +
+        //            'DocGenius';
 
-            emailUser(emailBody);
-        }
-        else if (code == 500){
-            String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                   'We have encountered a server error (500 - Internal Server Error) while attempting to upload your file '+ awsFullFileName +' to AWS. This error typically indicates a problem with our server or the service.\n\n' +
-                   'To resolve this issue, please try the following:\n\n' +
-                   '1. Wait for a few minutes and try uploading the file again.\n' +
-                   '2. If the issue persists, it may be due to temporary server problems on One\'s end.\n\n' +
-                   'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
-                   'Thank you for your cooperation.\n\n' +
-                   'Best regards,\n' +
-                   'DocGenius';
+        //     emailUser(emailBody);
+        // }
+        // else if (code == 500){
+        //     String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
+        //            'We have encountered a server error (500 - Internal Server Error) while attempting to upload your file '+ awsFullFileName +' to AWS. This error typically indicates a problem with our server or the service.\n\n' +
+        //            'To resolve this issue, please try the following:\n\n' +
+        //            '1. Wait for a few minutes and try uploading the file again.\n' +
+        //            '2. If the issue persists, it may be due to temporary server problems on One\'s end.\n\n' +
+        //            'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
+        //            'Thank you for your cooperation.\n\n' +
+        //            'Best regards,\n' +
+        //            'DocGenius';
 
-            emailUser(emailBody);
-        }
-        else {
-            String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                   'We have encountered error with code: '+ code + 'while attempting to upload your file '+ awsFullFileName +' to AWS. This error typically indicates a problem with our server or the service.\n\n' +
-                   'To resolve this issue, please try the following:\n\n' +
-                   '1. Remove the existing AWS connection.\n' +
-                   '2. Reconnect to AWS.\n\n' +
-                   'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
-                   'Thank you for your cooperation.\n\n' +
-                   'Best regards,\n' +
-                   'DocGenius';
+        //     emailUser(emailBody);
+        // }
+        // else {
+        //     String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
+        //            'We have encountered error with code: '+ code + 'while attempting to upload your file '+ awsFullFileName +' to AWS. This error typically indicates a problem with our server or the service.\n\n' +
+        //            'To resolve this issue, please try the following:\n\n' +
+        //            '1. Remove the existing AWS connection.\n' +
+        //            '2. Reconnect to AWS.\n\n' +
+        //            'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
+        //            'Thank you for your cooperation.\n\n' +
+        //            'Best regards,\n' +
+        //            'DocGenius';
 
-            emailUser(emailBody);
-        }
+        //     emailUser(emailBody);
+        // }
     }
 
 

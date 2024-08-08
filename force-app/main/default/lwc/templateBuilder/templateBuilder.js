@@ -8,7 +8,7 @@ import getTemplateData from '@salesforce/apex/TemplateBuilder_Controller.getTemp
 import saveTemplateApex from '@salesforce/apex/TemplateBuilder_Controller.saveTemplateApex';
 import saveTempDataRecordsInBatch from '@salesforce/apex/TemplateBuilder_Controller.saveTempDataRecordsInBatch';
 import { initializeSummerNote } from './editorConf.js';
-import {navigationComps, nameSpace, pageFormats, unitMultiplier, unitConverter} from 'c/globalProperties';
+import {navigationComps, nameSpace, pageFormats, unitMultiplier, unitConverter, errorDebugger} from 'c/globalProperties';
 
 export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
@@ -168,7 +168,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 globalThis?.window.addEventListener('resize', this.resizeFunction);
 
         } catch (error) {
-            console.log('error in TemplateBuilder.connectedCallback : ', error.stack);
+            errorDebugger('TemplateBuilder', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -210,18 +210,20 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         );
                     })
                     .catch(err => {
-                        console.log('Error To Load summerNote_Editor >> ', {err}) 
+                        errorDebugger('TemplateBuilder', 'renderedCallback', err, 'warn', 'Error To Load summerNote_Editor');
                     })
                 })
                 .catch(error => { 
-                    console.log('Error To Load Jquery >> ', {error}) ;
+                    errorDebugger('TemplateBuilder', 'renderedCallback', error, 'warn', 'Error To Load Jquery');
                 })
 
                 this.setActiveTab();
+
+                this.template.querySelector(`[data-name="custom_timeout"]`)?.addEventListener('animationend', this.customTimeoutMethod)
             }
         }
         catch(error){
-            console.log('error in richTextEditor_custom.renderedCallback : ', error.stack);
+            errorDebugger('TemplateBuilder', 'renderedCallback', error, 'warn');
         }
     }
 
@@ -241,7 +243,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.resolvedPromise++
             }
         } catch (error) {
-            console.log('error in richTextEditor_custom.initialize_Content_Editor : ', error.stack);
+            errorDebugger('TemplateBuilder', 'initialize_Content_Editor', error, 'warn');
         }
     }
 
@@ -258,7 +260,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             }
             
         } catch (error) {
-            console.log('error in initialize_Header_Editor : ', error.stack);
+            errorDebugger('TemplateBuilder', 'initialize_Header_Editor', error, 'warn');
         }
     }
 
@@ -272,7 +274,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             }
             
         } catch (error) {
-            console.log('error in initialize_Footer_Editor : ', error.stack);
+            errorDebugger('TemplateBuilder', 'initialize_Footer_Editor', error, 'warn');
         }
     }
 
@@ -301,18 +303,18 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
 
                         // Collect Value in Single variable...
-                        result.template.Template_Data__r?.forEach(ele => {
-                            if(ele.Value_Type__c == 'Body Value'){
-                                this.bodyData += ele.Template_Value_Simple__c ? ele.Template_Value_Simple__c : '';
+                        result.template.MVDG__Template_Data__r?.forEach(ele => {
+                            if(ele.MVDG__Value_Type__c == 'Body Value'){
+                                this.bodyData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
                             }
-                            else if(ele.Value_Type__c == 'Header Value'){
-                                this.headerData = ele.Template_Value_Simple__c ? ele.Template_Value_Simple__c : '';
+                            else if(ele.MVDG__Value_Type__c == 'Header Value'){
+                                this.headerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
                             }
-                            else if(ele.Value_Type__c == 'Footer Value'){
-                                this.footerData = ele.Template_Value_Simple__c ? ele.Template_Value_Simple__c : '';
+                            else if(ele.MVDG__Value_Type__c == 'Footer Value'){
+                                this.footerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
                             }
-                            else if(ele.Value_Type__c == 'Watermark Value'){
-                                watermarkData += ele.Template_Value_Simple__c ? ele.Template_Value_Simple__c : '';
+                            else if(ele.MVDG__Value_Type__c == 'Watermark Value'){
+                                watermarkData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
                             }
                         });
                         
@@ -324,7 +326,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         watermarkData && watermarkData != '' && (this.watermark = JSON.parse(watermarkData));
                         this.setWatermarkPreview();
 
-                        delete this.templateRecord['Template_Data__r'];
+                        delete this.templateRecord['MVDG__Template_Data__r'];
 
                         this.resolvedPromise++
                     }
@@ -335,11 +337,11 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 })
                 .catch(error => {
                     this.resolvedPromise++
-                    console.log('error in getTemplateData apex callout : ', error.message);
+                    errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn', 'Error in getTemplateData APEX Method.');
                 })
             }
         } catch (error) {
-            console.log('error in templateBuilder.getTemplateValues : ', error.stack);
+            errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn');
             
         }
     }
@@ -352,7 +354,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.valueInserted = true;
             }
         } catch (error) {
-            console.log('error in templateBuilder.setDataInMainEditor : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setDataInMainEditor', error, 'warn');
         }
     }
 
@@ -448,7 +450,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 'Header Value' : headerDataRecords,
                 'Footer Value' : footerDataRecords,
                 'Watermark Value' : watermarkDataRecords,
-                'Extracted Mapping Keys' : [JSON.stringify(extractedMappingKeys)]
+                'Extracted Mapping Keys' : [JSON.stringify(extractedMappingKeys)],
             }
 
             console.log('extractedMappingKeys : ', [JSON.stringify(extractedMappingKeys)]);
@@ -496,7 +498,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 }
             })
             .catch(error => {
-                console.log('error in saveTemplateApex : ', error);
+                errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTemplateApex APEX Method');
                 completedProcess++;
                 this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
             })
@@ -521,13 +523,13 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 .catch(error => {
                     completedProcess++;
                     this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
-                    console.log('error in saveTempDataRecordsInBatch apex callout : ', error);
+                    errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                 })
             }
 
         } catch (error) {
-            console.log(`error in templateBuilder.saveTemplateData for action - ${actionName} : `, error.stack);
             this.isSpinner = false;
+            errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', `Error during ${actionName}`);
         }
     }
 
@@ -540,14 +542,17 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 }
                 else if(actionName == 'preview'){
                     this.loaderLabel = 'Opening Preview...'
+
+                    // for the custom solution of settimeout...
+                    this.template.querySelector(`[data-name="custom_timeout"]`).classList.add('dummyAnimation');
                     // To not confect with loader...
-                    setTimeout(() =>{
-                        this.isPreview = true;
-                    }, 500)
+                    // setTimeout(() =>{
+                    // }, 500)
+                    this.isPreview = true;
                 }
             }
         } catch (error) {
-            console.log('error in this.handleOngoingAction : ', error.stack);
+            errorDebugger('TemplateBuilder', 'handleOngoingAction', error, 'warn');
         }
     }
 
@@ -563,10 +568,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             $(this.contentEditor).summernote('destroy');
             this.navigateToComp(navigationComps.home);
-            // this.showMessageToast('success', 'testing', 'testing message......', 5000)
 
         } catch (error) {
-           console.log('error in templateBuilder.closeEditTemplate : ', error.stack)
+            errorDebugger('TemplateBuilder', 'closeEditTemplate', error, 'warn');
         }
     }
 
@@ -598,7 +602,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             const pdfViewer = iframe.querySelector( 'pdf-viewer' );
             console.log('pdfViewer : ', pdfViewer);
         } catch (error) {
-            console.log('log in templateBuilder.vfPageLoaded : ', error.stack);
+            errorDebugger('TemplateBuilder', 'vfPageLoaded', error, 'warn');
         }
     }
 
@@ -606,7 +610,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             this.isPreview = false;
         } catch (error) {
-            console.log('error in templateBuilder.closeTemplatePreview : ', error.stack);
+            errorDebugger('TemplateBuilder', 'closeTemplatePreview', error, 'warn');
         }
     }
 
@@ -651,7 +655,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 }
             });
         } catch (error) {
-            console.log('error in  : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setActiveTab', error, 'warn');
         }
     }
 
@@ -690,7 +694,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                                                 top : 0.1rem;`;
             }
         } catch (error) {
-            console.log('error in toggleMappingContainerHeight : ', error.stack);
+            errorDebugger('TemplateBuilder', 'toggleMappingContainerHeight', error, 'warn');
         }
     }
 
@@ -705,7 +709,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.templateRecord[targetInput] = event.target.checked;
             }
         } catch (error) {
-            console.log('error in handleEditDetail : ', error.stack);
+            errorDebugger('TemplateBuilder', 'handleEditDetail', error, 'warn');
         }
     }
 
@@ -724,8 +728,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     ele.selected = ele.name == configName ? true : false;
                 })
 
-                this.pageConfigRecord.Page_Orientation__c = pageConfig == 'pageOrientation' ? value : this.pageConfigRecord.Page_Orientation__c;
-                this.pageConfigRecord.Page_Size__c = pageConfig == 'pageSize' ? value : this.pageConfigRecord.Page_Size__c;
+                this.pageConfigRecord.MVDG__Page_Orientation__c = pageConfig == 'pageOrientation' ? value : this.pageConfigRecord.MVDG__Page_Orientation__c;
+                this.pageConfigRecord.MVDG__Page_Size__c = pageConfig == 'pageSize' ? value : this.pageConfigRecord.MVDG__Page_Size__c;
 
             }
             else if(pageConfig == 'unitOptions'){
@@ -734,8 +738,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 });
                 this.pageConfigs['unit'] = value;
 
-                this.convertConfigValue(this.pageConfigRecord.Unit_of_Page_Configs__c, value);
-                this.pageConfigRecord.Unit_of_Page_Configs__c = value;
+                this.convertConfigValue(this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c, value);
+                this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c = value;
                 
             }
             else if(pageConfig == 'pageMargins'){
@@ -757,7 +761,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             (pageConfig != 'pageMargins') && this.setPageMarginValue();
             (pageConfig != 'header' && pageConfig != 'footer') && this.setHeaderFooterMargin();
         } catch (error) {
-            console.log('error in managePageConfigs : ', error.stack);
+            errorDebugger('TemplateBuilder', 'managePageConfigs', error, 'warn');
         }
     }
 
@@ -769,7 +773,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let pageMarginsLeft = this.pageConfigs['pageMargins'][2].value;
             let pageMarginsRight = this.pageConfigs['pageMargins'][3].value;
 
-            let k = unitMultiplier(this.pageConfigRecord.Unit_of_Page_Configs__c)* 1.3334;
+            let k = unitMultiplier(this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c)* 1.3334;
 
             // configName == 'top' 
             pageMarginsTop = pageMarginsTop ? pageMarginsTop : 0;
@@ -800,16 +804,16 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             (pageMarginsRight >= (this.currentPageWidth / k - pageMarginsLeft)) && (pageMarginsRight = (this.currentPageWidth /k - pageMarginsLeft));
             (this.pageConfigs['pageMargins'][3].value = pageMarginsRight);
     
-            this.pageConfigRecord.Page_Margin__c = pageMarginsTop+';'+pageMarginsBottom+';'+pageMarginsLeft+';'+pageMarginsRight;
+            this.pageConfigRecord.MVDG__Page_Margin__c = pageMarginsTop+';'+pageMarginsBottom+';'+pageMarginsLeft+';'+pageMarginsRight;
         } catch (error) {
-            console.log('error in setPageMarginValue : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setPageMarginValue', error, 'warn');
         }
     }
 
         // Set Header(top) and footer(bottom) editor margin in config variable...
     setHeaderFooterMargin(){
         try {
-            let k = unitMultiplier(this.pageConfigRecord.Unit_of_Page_Configs__c)* 1.3334;
+            let k = unitMultiplier(this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c)* 1.3334;
             let pageHeight = this.currentPageHeight / k;
 
             if(this.pageConfigs.header.marginTop > pageHeight * 0.4){
@@ -826,23 +830,23 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.pageConfigs.footer.marginBottom = 0;
             }
 
-            this.pageConfigRecord.Show_Header__c = this.pageConfigs.header.show;
-            this.pageConfigRecord.Header_margin_top__c = this.pageConfigs.header.marginTop;
+            this.pageConfigRecord.MVDG__Show_Header__c = this.pageConfigs.header.show;
+            this.pageConfigRecord.MVDG__Header_margin_top__c = this.pageConfigs.header.marginTop;
 
-            this.pageConfigRecord.Show_Footer__c = this.pageConfigs.footer.show;
-            this.pageConfigRecord.Footer_margin_bottom__c = this.pageConfigs.footer.marginBottom;
+            this.pageConfigRecord.MVDG__Show_Footer__c = this.pageConfigs.footer.show;
+            this.pageConfigRecord.MVDG__Footer_margin_bottom__c = this.pageConfigs.footer.marginBottom;
 
             this.setPageHeaderFooterMargin();
 
         } catch (error) {
-            console.log('error in setHeaderFooterMargin : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setHeaderFooterMargin', error, 'warn');
         }
     }
 
     // Set Header(top) and footer(bottom) editor margin in editor page...
     setPageHeaderFooterMargin(){
         const root = document.querySelector(':root');
-        let unit = this.pageConfigRecord.Unit_of_Page_Configs__c;
+        let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
 
         root.style.setProperty('--headerMarginsTop', `${this.pageConfigs.header.marginTop}${unit}`);
         root.style.setProperty('--footerMarginsBottom', `${this.pageConfigs.footer.marginBottom}${unit}`);
@@ -858,46 +862,46 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             this.pageConfigs.footer.marginBottom = unitConverter(previousUnit, currentUnit, this.pageConfigs.footer.marginBottom);
 
         } catch (error) {
-            console.log('error in convertConfigValue : ', error.stack);
+            errorDebugger('TemplateBuilder', 'convertConfigValue', error, 'warn');
         }
     }
 
     // === ==== === Function to Set template page record's value in pageConfig variable to display in UI/Front-End.. === === ===
     setPageConfigVariable(){
         try {
-            this.pageConfigs['pageMargins'][0].value = this.pageConfigRecord.Page_Margin__c.split(';')[0];
-            this.pageConfigs['pageMargins'][1].value = this.pageConfigRecord.Page_Margin__c.split(';')[1];
-            this.pageConfigs['pageMargins'][2].value = this.pageConfigRecord.Page_Margin__c.split(';')[2];
-            this.pageConfigs['pageMargins'][3].value = this.pageConfigRecord.Page_Margin__c.split(';')[3];
+            this.pageConfigs['pageMargins'][0].value = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[0];
+            this.pageConfigs['pageMargins'][1].value = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[1];
+            this.pageConfigs['pageMargins'][2].value = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[2];
+            this.pageConfigs['pageMargins'][3].value = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[3];
 
             this.pageConfigs['pageOrientation'].forEach(ele => {
-                ele['selected'] = ele.value == this.pageConfigRecord.Page_Orientation__c ? true : false;
+                ele['selected'] = ele.value == this.pageConfigRecord.MVDG__Page_Orientation__c ? true : false;
             });
 
             this.pageConfigs['pageSize'].forEach(ele => {
-                ele['selected'] = ele.value == this.pageConfigRecord.Page_Size__c ? true : false;
+                ele['selected'] = ele.value == this.pageConfigRecord.MVDG__Page_Size__c ? true : false;
             });
 
             this.pageConfigs['unitOptions'].forEach(ele => {
-                ele['selected'] = ele.value == this.pageConfigRecord.Unit_of_Page_Configs__c ? true : false;
+                ele['selected'] = ele.value == this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c ? true : false;
             });
 
-            this.pageConfigs['unit'] = this.pageConfigRecord.Unit_of_Page_Configs__c;
+            this.pageConfigs['unit'] = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
 
             if(this.contentEditor && this.dataLoaded){
                 this.setEditorPageSize();
             }
 
-            this.pageConfigs.header.show = this.pageConfigRecord.Show_Header__c;
-            this.pageConfigs.header.marginTop = this.pageConfigRecord.Header_margin_top__c;
+            this.pageConfigs.header.show = this.pageConfigRecord.MVDG__Show_Header__c;
+            this.pageConfigs.header.marginTop = this.pageConfigRecord.MVDG__Header_margin_top__c;
 
-            this.pageConfigs.footer.show = this.pageConfigRecord.Show_Footer__c;
-            this.pageConfigs.footer.marginBottom = this.pageConfigRecord.Footer_margin_bottom__c;
+            this.pageConfigs.footer.show = this.pageConfigRecord.MVDG__Show_Footer__c;
+            this.pageConfigs.footer.marginBottom = this.pageConfigRecord.MVDG__Footer_margin_bottom__c;
 
-            this.pageConfigs.watermark.show = this.pageConfigRecord.Show_Watermark__c;
+            this.pageConfigs.watermark.show = this.pageConfigRecord.MVDG__Show_Watermark__c;
 
         } catch (error) {
-            console.log('error in setPageConfigVariable : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setPageConfigVariable', error, 'warn');
         }
     }
 
@@ -906,14 +910,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             const root = document.querySelector(':root');
 
-            let pageMarginsTop = this.pageConfigRecord.Page_Margin__c.split(';')[0];
-            let pageMarginsBottom = this.pageConfigRecord.Page_Margin__c.split(';')[1];
-            let pageMarginsLeft = this.pageConfigRecord.Page_Margin__c.split(';')[2];
-            let pageMarginsRight = this.pageConfigRecord.Page_Margin__c.split(';')[3];
+            let pageMarginsTop = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[0];
+            let pageMarginsBottom = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[1];
+            let pageMarginsLeft = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[2];
+            let pageMarginsRight = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[3];
 
-            let unit = this.pageConfigRecord.Unit_of_Page_Configs__c;
-            let pageSize = this.pageConfigRecord.Page_Size__c;
-            let orientation = this.pageConfigRecord.Page_Orientation__c;
+            let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
+            let pageSize = this.pageConfigRecord.MVDG__Page_Size__c;
+            let orientation = this.pageConfigRecord.MVDG__Page_Orientation__c;
 
             this.currentPageWidth = (orientation == 'portrait' ? pageFormats[pageSize][0] : pageFormats[pageSize][1]) * 1.3334;
             this.currentPageHeight = (orientation == 'portrait' ? pageFormats[pageSize][1] : pageFormats[pageSize][0]) * 1.3334;
@@ -929,7 +933,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             this.setDummyPageSize();
 
         } catch (error) {
-            console.log('error in setEditorPageSize > ', error.stack);
+            errorDebugger('TemplateBuilder', 'setEditorPageSize', error, 'warn');
         }
     }
 
@@ -964,17 +968,17 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             }
 
         } catch (error) {
-            console.log('error in setEditorArea : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setEditorArea', error, 'warn');
         }
     }
 
     setDummyPageSize(){
-        let pageMarginsTop = this.pageConfigRecord.Page_Margin__c.split(';')[0];
-        let pageMarginsBottom = this.pageConfigRecord.Page_Margin__c.split(';')[1];
-        let pageMarginsLeft = this.pageConfigRecord.Page_Margin__c.split(';')[2];
-        let pageMarginsRight = this.pageConfigRecord.Page_Margin__c.split(';')[3];
+        let pageMarginsTop = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[0];
+        let pageMarginsBottom = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[1];
+        let pageMarginsLeft = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[2];
+        let pageMarginsRight = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[3];
 
-        let unit = this.pageConfigRecord.Unit_of_Page_Configs__c;
+        let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
         let aspectRatio = this.currentPageWidth/this.currentPageHeight;
 
         const dummyPage = this.template.querySelector('.dummyPage');
@@ -1030,7 +1034,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
               this.lastRelatedListTableCount = validTableCount;
             }
         } catch (error) {
-          console.log('error in calculateRelatedListTable : ', error.stack);
+          errorDebugger('TemplateBuilder', 'calculateRelatedListTable', error, 'warn');
         }
     }
 
@@ -1062,7 +1066,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
             }
         } catch (error) {
-            console.log('error in setHeaderFooterMaxHeight : ', error.stack);
+          errorDebugger('TemplateBuilder', 'setHeaderFooterMaxHeight', error, 'warn');
         }
     }
 
@@ -1081,8 +1085,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 }
             })
         } catch (error) {
-            console.log('error in restrictLargeImageInsert : ', error.stack);
-            
+          errorDebugger('TemplateBuilder', 'restrictLargeImageInsert', error, 'warn');
         }
     }
 
@@ -1104,7 +1107,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 basicDetails_sub.appendChild(pageConfigs);
             }
         } catch (error) {
-            console.log('error in togglePageConfigPopover : ', error.stack);
+            errorDebugger('TemplateBuilder', 'togglePageConfigPopover', error, 'warn');
         }
     }
     // === ==== ==== ==== ==== Method called from EditorConfig JS -- END --  === ==== ==== ==== ==== ====
@@ -1145,7 +1148,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 page && (page.scrollTop = 0);
             }
         } catch (error) {
-            console.warn('error in scrollToTop : ', error.stack);
+            errorDebugger('TemplateBuilder', 'scrollToTop', error, 'warn');
         }
     }
 
@@ -1161,6 +1164,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             const childRecordTables = this.extractChildRecordTables();
             const sfImages = this.extractSalesforceImages();
 
+            const signatureKey = '{{Sign.DocGenius *Signature Key*}}';
+
             return  {
                         'objectFields' : objectFields, 
                         'generalFields' : generalFields, 
@@ -1168,10 +1173,11 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         'childRecordTables' : childRecordTables,
                         'signatureKeys' : signatureKeys,
                         'salesforceImages' : sfImages,
+                        'signatureImage' : innerHTML.includes(signatureKey) ? signatureKey : null,
                     }
 
         } catch (error) {
-            console.log('error in extractMappingKeys : ', error.stack);
+            errorDebugger('TemplateBuilder', 'extractMappingKeys', error, 'warn');
         }
     }
 
@@ -1211,7 +1217,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             return childRecordTables;
             
         } catch (error) {
-            console.log('error in extractChildRecordTables : ', error.stack);
+            errorDebugger('TemplateBuilder', 'extractChildRecordTables', error, 'warn');
             return [];
         }
     }
@@ -1237,7 +1243,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
             return childTableWrapper;
         } catch (error) {
-            console.log('error in extractChildTableInfo : ', error.stack);
+            errorDebugger('TemplateBuilder', 'extractChildTableInfo', error, 'warn');
             return {};
         }
     }
@@ -1259,7 +1265,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
             return Array.from(extractedSfImages);
         } catch (error) {
-            console.log('error in extractSalesforceImages => ', error.stack);
+            errorDebugger('TemplateBuilder', 'extractSalesforceImages', error, 'warn');
             return [];
         }
     }
@@ -1280,7 +1286,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 }
             })
         } catch (error) {
-            console.warn('error in HomePage.setWatermarkOptsTab : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setWatermarkOptsTab', error, 'warn');
         }
     }
 
@@ -1294,7 +1300,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.setWatermarkPreview();
             }
         } catch (error) {
-            console.warn('error in HomePage.setWatermarkImageUpload : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setWatermarkImageUpload', error, 'warn');
         }
     }
 
@@ -1303,7 +1309,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             this.watermark.image[event.currentTarget.dataset.name] = event.target.value;
             this.setWatermarkPreview();
         } catch (error) {
-            console.log('error in setWatermarkImage : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setWatermarkImage', error, 'warn');
         }
 
     }
@@ -1336,7 +1342,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     setWatermarkShowHideOpt(event){
         this.pageConfigs['watermark']['show'] = event.target.checked;
-        this.pageConfigRecord.Show_Watermark__c = event.target.checked;
+        this.pageConfigRecord.MVDG__Show_Watermark__c = event.target.checked;
     }
 
     setWatermarkPreview(){
@@ -1366,10 +1372,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                                     opacity : ${this.watermark.text.opacity/100};
                                     `);
         } catch (error) {
-            console.log('error in setWatermarkImage : ', error.stack);
+            errorDebugger('TemplateBuilder', 'setWatermarkPreview', error, 'warn');
         }
     }
     // ==== ==== ==== Watermark -- END -- ==== ==== ====
+
+    customTimeoutMethod = (event) =>{
+        event.target.classList.remove('dummyAnimation');
+        this.isPreview = true;
+    }
 
 
 
@@ -1422,7 +1433,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     }
                   });
             } catch (error) {
-                console.log('error in navigateToComp : ', error.stack);
+                errorDebugger('TemplateBuilder', 'navigateToComp', error, 'warn');
             }
         }
 

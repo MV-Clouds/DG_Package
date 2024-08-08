@@ -13,15 +13,15 @@ public with sharing class OneDriveAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkonedriveauth(){
         try {
-            OneDriveAuthProviderSettings__c settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
+            MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
             Map<String, Object> result = new Map<String, Object>();
-            if (settings != null && settings.refresh_token__c != null && settings.access_token__c != null && settings.email__c != null && settings.LinkedDate__c != null) {
+            if (settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null && settings.MVDG__email__c != null && settings.MVDG__LinkedDate__c != null) {
                 Boolean working = getToken();
-                settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
-                result.put('email', settings.email__c);
-                result.put('linkdate', settings.LinkedDate__c);
-                result.put('active', settings.WorkingStatus__c);
-                result.put('name', settings.username__c);
+                settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
+                result.put('email', settings.MVDG__email__c);
+                result.put('linkdate', settings.MVDG__LinkedDate__c);
+                result.put('active', settings.MVDG__WorkingStatus__c);
+                result.put('name', settings.MVDG__username__c);
                 return result;
             }
             result.put('error', 'Error obtaining details: ');
@@ -34,15 +34,15 @@ public with sharing class OneDriveAuthorizationController {
     }
 
     public static Boolean getToken(){
-        OneDriveAuthProviderSettings__c settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
+        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
         // System.debug('generating new token');
         HttpRequest request = new HttpRequest();
         request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.refresh_token__c + settings.refresh_token1__c +
-            '&client_id=' + settings.ClientId__c +
-            '&client_secret=' + settings.ClientSecret__c +
+        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + settings.MVDG__refresh_token1__c +
+            '&client_id=' + settings.MVDG__ClientId__c +
+            '&client_secret=' + settings.MVDG__ClientSecret__c +
             '&grant_type=refresh_token');
         Http http1 = new Http();
         HttpResponse response1 = http1.send(request);
@@ -69,20 +69,20 @@ public with sharing class OneDriveAuthorizationController {
                 String newtoken5 = parts1[4];
                 System.debug(newtoken);
                 if(newtoken1 != null){
-                    settings.access_token__c = newtoken1;
-                    settings.access_token1__c = newtoken2;
-                    settings.access_token2__c = newtoken3;
-                    settings.access_token3__c = newtoken4;
-                    settings.access_token4__c = newtoken5;
+                    settings.MVDG__access_token__c = newtoken1;
+                    settings.MVDG__access_token1__c = newtoken2;
+                    settings.MVDG__access_token2__c = newtoken3;
+                    settings.MVDG__access_token3__c = newtoken4;
+                    settings.MVDG__access_token4__c = newtoken5;
                 }
-                settings.WorkingStatus__c = true;
+                settings.MVDG__WorkingStatus__c = true;
                 Update settings;
                 return true;
         }
         else {
             Response_Handler.store_Callout_Response(response1, 'OneDriveAuthorizationController', 'getToken');
             System.debug('No token generated');
-            settings.WorkingStatus__c = false;
+            settings.MVDG__WorkingStatus__c = false;
             Update settings;
             return false;
         }
@@ -92,21 +92,21 @@ public with sharing class OneDriveAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            OneDriveAuthProviderSettings__c	 settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
+            MVDG__OneDriveAuthProviderSettings__c	 settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
             if(settings != null){
-                settings.access_token__c = '';
-                settings.access_token1__c = '';
-                settings.access_token2__c = '';
-                settings.access_token3__c = '';
-                settings.access_token4__c = '';
-                settings.ClientId__c = '';
-                settings.ClientSecret__c = '';
-                settings.LinkedDate__c = '';
-                settings.WorkingStatus__c = false;
-                settings.username__c = '';
-                settings.refresh_token__c = '';
-                settings.refresh_token1__c = '';
-                settings.email__c = '';
+                settings.MVDG__access_token__c = '';
+                settings.MVDG__access_token1__c = '';
+                settings.MVDG__access_token2__c = '';
+                settings.MVDG__access_token3__c = '';
+                settings.MVDG__access_token4__c = '';
+                settings.MVDG__ClientId__c = '';
+                settings.MVDG__ClientSecret__c = '';
+                settings.MVDG__LinkedDate__c = '';
+                settings.MVDG__WorkingStatus__c = false;
+                settings.MVDG__username__c = '';
+                settings.MVDG__refresh_token__c = '';
+                settings.MVDG__refresh_token1__c = '';
+                settings.MVDG__email__c = '';
                 upsert settings;
                 return true;
             }
@@ -172,12 +172,12 @@ public with sharing class OneDriveAuthorizationController {
             if (String.isBlank(clientId) || String.isBlank(clientSecret) ) {
                 return 'Both Client ID and Client Secret are required.';
             }
-            OneDriveAuthProviderSettings__c settings = OneDriveAuthProviderSettings__c.getOrgDefaults();
+            MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
             if (settings == null) {
-                settings = new OneDriveAuthProviderSettings__c();
+                settings = new MVDG__OneDriveAuthProviderSettings__c();
             }
-            settings.ClientId__c = clientId;
-            settings.ClientSecret__c = clientSecret;
+            settings.MVDG__ClientId__c = clientId;
+            settings.MVDG__ClientSecret__c = clientSecret;
             String durl = authcode(clientId, clientSecret);
             upsert settings;
             System.debug(durl);

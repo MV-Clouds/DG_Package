@@ -6,10 +6,10 @@ global class DropboxUploader implements Database.Batchable < SObject > , Databas
 
 
     public static String tokenPermanent() {
-        DropBoxAuthProviderSettings__c settings = DropBoxAuthProviderSettings__c.getOrgDefaults();
-        String refresh = settings.refresh_token__c;
-        String clientid = settings.ClientId__c;
-        String clientsecret = settings.ClientSecret__c;
+        MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+        String refresh = settings.MVDG__refresh_token__c;
+        String clientid = settings.MVDG__ClientId__c;
+        String clientsecret = settings.MVDG__ClientSecret__c;
         String body =
             'grant_type=refresh_token' +
             '&refresh_token=' +

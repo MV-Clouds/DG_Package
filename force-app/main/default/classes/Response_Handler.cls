@@ -1,13 +1,13 @@
 public class Response_Handler {
     public static void store_Callout_Response(HttpResponse res,String classname, String methodname) {
         try{
-            API_Responses__c response = new API_Responses__c();
-            response.Response_Body__c = res.getBody();
-            response.Response_Status_Code__c = String.valueOf(res.getStatusCode());
-            response.Class_Name__c = classname;
-            response.Method_Name__c = methodname;
+            MVDG__API_Responses__c response = new MVDG__API_Responses__c();
+            response.MVDG__Response_Body__c = res.getBody();
+            response.MVDG__Response_Status_Code__c = String.valueOf(res.getStatusCode());
+            response.MVDG__Class_Name__c = classname;
+            response.MVDG__Method_Name__c = methodname;
         
-            if(Schema.sObjectType.API_Responses__c.isCreateable()){
+            if(Schema.sObjectType.MVDG__API_Responses__c.isCreateable()){
                 insert response;
             }
             

@@ -11,15 +11,15 @@
 public with sharing class DropboxAuthorizationControllerTest {
     @TestSetup
     static void setup(){
-        DropBoxAuthProviderSettings__c settings = DropBoxAuthProviderSettings__c.getOrgDefaults();
-            settings.refresh_token__c = 'dummy_refresh_token';
-            settings.access_token__c = 'dummy_access_token';
-            settings.email__c = 'test@example.com';
-            settings.LinkedDate__c = ''+Date.today();
-            settings.WorkingStatus__c = true;
-            settings.ClientId__c = 'Mock';
-            settings.ClientSecret__c = 'Mock';
-            settings.username__c = 'testuser';
+        MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+            settings.MVDG__refresh_token__c = 'dummy_refresh_token';
+            settings.MVDG__access_token__c = 'dummy_access_token';
+            settings.MVDG__email__c = 'test@example.com';
+            settings.MVDG__LinkedDate__c = ''+Date.today();
+            settings.MVDG__WorkingStatus__c = true;
+            settings.MVDG__ClientId__c = 'Mock';
+            settings.MVDG__ClientSecret__c = 'Mock';
+            settings.MVDG__username__c = 'testuser';
         insert settings;
     }
 
@@ -45,9 +45,9 @@ public with sharing class DropboxAuthorizationControllerTest {
         String client_secret = 'MockClientSecret';
         Test.startTest();
         String result = DropBoxAuthorizationController.authorize(client_id, client_secret);
-        DropBoxAuthProviderSettings__c settings = DropBoxAuthProviderSettings__c.getInstance();
+        MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getInstance();
         Test.stopTest();
-        System.assertEquals(client_id, settings.ClientId__c);
+        System.assertEquals(client_id, settings.MVDG__ClientId__c);
     }
     @isTest
     static void testRedirectUrl1() {

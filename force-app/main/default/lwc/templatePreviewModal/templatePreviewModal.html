@@ -1,7 +1,7 @@
 <template>
-  <div class="preview_mainDiv" style={popUpStyle}>
-    <div class="preview_Contanier" style={widthStyleForGeneratePreview}>
-      <div class="preview_SubContanier" style={widthStyleForGeneratePreview}>
+  <div class="preview_mainDiv" data-fix-position={isCalledFromGenerateDoc}>
+    <div class="preview_Contanier" data-full-width={isCalledFromGenerateDoc}>
+      <div class="preview_SubContanier" data-full-width={isCalledFromGenerateDoc}>
         <div class="preview_leftSection" if:false={isCalledFromGenerateDoc}>
           <div class="titleSection">
             Preview Section
@@ -27,7 +27,7 @@
             </div>
             <div class="buttonSection">
               <button class="generatePreviewBtn" title="Generate Preview" onclick={generatePreview} disabled={disableGenerateBtn}>
-                <svg viewBox="0 0 32.00 32.00" transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)"> <g stroke-linecap="round" stroke-linejoin="round"></g><g><circle class="eye-circle" cx="22" cy="24" r="2"></circle><path data-name="<inner path>" class="cls-1" style="fill: none;" d="M22,28a4,4,0,1,1,4-4A4.0039,4.0039,0,0,1,22,28Zm0-6a2,2,0,1,0,2,2A2.0027,2.0027,0,0,0,22,22Z"></path><path class="eye" d="M29.7769,23.4785A8.64,8.64,0,0,0,22,18a8.64,8.64,0,0,0-7.7769,5.4785L14,24l.2231.5215A8.64,8.64,0,0,0,22,30a8.64,8.64,0,0,0,7.7769-5.4785L30,24ZM22,28a4,4,0,1,1,4-4A4.0045,4.0045,0,0,1,22,28Z"></path><path d="M12,28H8V4h8v6a2.0058,2.0058,0,0,0,2,2h6v4h2V10a.9092.9092,0,0,0-.3-.7l-7-7A.9087.9087,0,0,0,18,2H8A2.0058,2.0058,0,0,0,6,4V28a2.0058,2.0058,0,0,0,2,2h4ZM18,4.4,23.6,10H18Z"></path><rect data-name="<Transparent Rectangle>" class="cls-1" style="fill: none;" width="32" height="32"></rect> </g></svg>
+                <svg viewBox="0 0 32.00 32.00" transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)"> <g stroke-linecap="round" stroke-linejoin="round"></g><g><circle class="eye-circle" cx="22" cy="24" r="2"></circle><path data-name="<inner path>" class="cls-1" d="M22,28a4,4,0,1,1,4-4A4.0039,4.0039,0,0,1,22,28Zm0-6a2,2,0,1,0,2,2A2.0027,2.0027,0,0,0,22,22Z"></path><path class="eye" d="M29.7769,23.4785A8.64,8.64,0,0,0,22,18a8.64,8.64,0,0,0-7.7769,5.4785L14,24l.2231.5215A8.64,8.64,0,0,0,22,30a8.64,8.64,0,0,0,7.7769-5.4785L30,24ZM22,28a4,4,0,1,1,4-4A4.0045,4.0045,0,0,1,22,28Z"></path><path d="M12,28H8V4h8v6a2.0058,2.0058,0,0,0,2,2h6v4h2V10a.9092.9092,0,0,0-.3-.7l-7-7A.9087.9087,0,0,0,18,2H8A2.0058,2.0058,0,0,0,6,4V28a2.0058,2.0058,0,0,0,2,2h4ZM18,4.4,23.6,10H18Z"></path><rect data-name="<Transparent Rectangle>" class="cls-1" width="32" height="32"></rect> </g></svg>
                   Generate Preview
               </button>
             </div>
@@ -45,8 +45,8 @@
             <!-- <lightning-button variant="brand" label="Download" title="Downland" onclick={downloadFile} icon-name="utility:download" icon-position="left" disabled={disableGenerateBtn}></lightning-button> -->
           </div>
         </div>
-        <div class="preview_rightSection" style={widthStyleForGeneratePreview}>
-          <div class="iframe_outer">
+        <div class="preview_rightSection" data-full-width={isCalledFromGenerateDoc}>
+          <div class="iframe_outer" data-full-width={isCalledFromGenerateDoc}>
             <template lwc:if={showPreview}> 
               <iframe lwc:if={vfGeneratePageSRC} class="generate_iframe" src={vfGeneratePageSRC} onload={fileDownloaded} width="0%" height="0%"></iframe>
               <template lwc:if={isSimpleTemplatePreview}>
@@ -98,25 +98,6 @@
     </div>
   </div>
 
-    <div class="customSetTimeout" data-name="customSetTimeout0"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout1"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout2"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout3"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout4"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout5"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout6"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout7"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout8"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout9"></div>
-    <div class="customSetTimeout" data-name="customSetTimeout10"></div>
-
-    <!-- <template for:each={customTimeoutProcessList} for:item="process">
-      <div class="customSetTimeout" data-name={process.name} key={process.name}></div>
-    </template> -->
-
-  <!-- <template lwc:if={isSpinner}>
-    <c-spinner></c-spinner>
-  </template> -->
   <template lwc:if={isGenerate}>
     <c-generate-document
     record-id={selectedRecordId}
@@ -127,4 +108,6 @@
   ></c-generate-document>
   </template>
   <c-document-loader display={isSpinner} label={spinnerLabel} full-size="true"></c-document-loader>
+
+  <c-custom-timeout data-id="previewTimeout" ontimeoutmethod={runTimeoutMethod}></c-custom-timeout>
 </template>

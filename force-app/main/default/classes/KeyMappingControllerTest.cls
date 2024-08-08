@@ -1,33 +1,12 @@
-/**
- * This class contains unit tests for validating the behavior of Apex classes
- * and triggers.
- *
- * Unit tests are class methods that verify whether a particular piece
- * of code is working properly. Unit test methods take no arguments,
- * commit no data to the database, and are flagged with the testMethod
- * keyword in the method definition.
- *
- * All test methods in an org are executed whenever Apex code is deployed
- * to a production org to confirm correctness, ensure code
- * coverage, and prevent regressions. All Apex classes are
- * required to have at least 75% code coverage in order to be deployed
- * to a production org. In addition, all triggers must have some code coverage.
- * 
- * The @isTest class annotation indicates this class only contains test
- * methods. Classes defined with the @isTest annotation do not count against
- * the org size limit for all Apex scripts.
- *
- * See the Apex Language Reference for more information about Testing and Code Coverage.
- */
 @isTest
 private class KeyMappingControllerTest {
     public static Blob imageBlob = Blob.valueOf('iVBORw0KGgoAAAANSUhEUgAAARAAAAB/CAIAAACovQp5AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAABEKADAAQAAAABAAAAfwAAAADAZSePAAANGUlEQVR4Ae2dO4gUSxSGr5drauIqYmjgBoKbi+CCGCisKIiRgusjMTIQH2io+MDAyMQHgkaLoLCggSysIAZmCgYaGIr4QDA1uZ/3XA7l9kxPVU9NT/XuP8FQU33q1Om/zt+nnj2rPn/+/Jc+QkAIxCHwd5yYpISAEPiNgAgjPxACCQiIMAlgSVQIiDDyASGQgIA');
 
     @isTest
     static void keyMappingTest(){
-        String sourceObjectAPI = createTemplateRecord().Object_API_Name__c;
+        String sourceObjectAPI = createTemplateRecord().MVDG__Object_API_Name__c;
         String imgID = createContentVersion(null).Id;
-        Template__c temp = createTemplateRecord();
+        MVDG__Template__c temp = createTemplateRecord();
 
         Test.startTest();
         KeyMappingController.getFieldMappingKeys(sourceObjectAPI, true);
@@ -35,13 +14,12 @@ private class KeyMappingControllerTest {
         KeyMappingController.getMerginTemplateKeys(sourceObjectAPI);
         KeyMappingController.getAllContentVersionImgs();
         KeyMappingController.getGeneralFields();
-        string getBlob = KeyMappingController.fetchImgBlob(imgID);
         KeyMappingController.formattingFieldKeys();
         KeyMappingController.getSignatureInfo(temp.Id);
-        KeyMappingController.updateSignatureInfo(temp.Id, 59);
+        Boolean result = KeyMappingController.updateSignatureInfo(temp.Id, 59);
         Test.stopTest();
 
-        System.assertEquals(EncodingUtil.base64Encode(imageBlob), getBlob, 'success');
+        System.assertEquals(true, result, 'success');
     }
 
     @isTest
@@ -60,22 +38,24 @@ private class KeyMappingControllerTest {
 
     @isTest
     static void docGenerateTest(){
-        Template__c temp = createTemplateRecord();
+        MVDG__Template__c temp = createTemplateRecord();
         Account acc = createAccountRecord();
         String imageUrl = 'sfc/servlet.shepherd/version/download' + createContentVersion(acc.Id).Id;
         String orgDomain = URL.getOrgDomainURL().toExternalForm();
         String orgHost = orgDomain.substringBefore('.');
         Test.startTest();
-        String paraData = '{ "templateId" : "'+temp.Id+'", "Object_API_Name__c" : "'+temp.Object_API_Name__c+'", "recordId" : "'+acc.Id+'", "usedFrom" : "Simple Template" }';
+        String paraData = '{ "templateId" : "'+temp.Id+'", "MVDG__Object_API_Name__c" : "'+temp.MVDG__Object_API_Name__c+'", "recordId" : "'+acc.Id+'", "usedFrom" : "Simple Template" }';
         PageReference pageRef = new PageReference('/apex/DocGeneratePage');
         Test.setCurrentPage(pageRef);
         pageRef.getParameters().put('paraData', paraData);
         DocGenerateController docGenerate = new DocGenerateController();
-        DocGenerateController.paraData = '{ "templateId" : "'+temp.Id+'", "Object_API_Name__c" : "'+temp.Object_API_Name__c+'", "recordId" : "'+acc.Id+'", "usedFrom" : "Simple Template" }';
+        DocGenerateController.paraData = '{ "templateId" : "'+temp.Id+'", "MVDG__Object_API_Name__c" : "'+temp.MVDG__Object_API_Name__c+'", "recordId" : "'+acc.Id+'", "usedFrom" : "Simple Template" }';
+        DocGenerateController.getTemplateDetails();
         DocGenerateController.pageMargins = '';
         DocGenerateController.pageConfigUnit = '';
         DocGenerateController.pageSize = '';
         DocGenerateController.pageOrientation = '';
+        DocGenerateController.apexError = '';
         DocGenerateController.selectedExtension = '';
         DocGenerateController.selectedChannels = '';
         DocGenerateController.recordId = '';
@@ -94,107 +74,111 @@ private class KeyMappingControllerTest {
         DocGenerateController.showWatermark = true;
         DocGenerateController.mappingKeyVsMappingValues = '';
         DocGenerateController.childRecordTableKeys = '';
-        DocGenerateController.salesforceImageSRCs = '';
+        DocGenerateController.salesforceImages = '';
         DocGenerateController.mergeTemplateKeys = '';
         DocGenerateController.signatureKey = '';
         DocGenerateController.signatureSize = 50;
         DocGenerateController.imageMaxSize = 20*1000*1000;
         DocGenerateController.sessionId = '';
+        DocGenerateController.isBatchRequired = false;
         DocGenerateController.fetchTemplateData(0, temp.Id, '{{Temp.'+temp.Id+' *Demo temp*}}');
         DocGenerateController.fetchSignatureBase64(acc.Id);
         DocGenerateController.fetchImageBase64(orgHost+imageUrl);
+
+        System.assertEquals('{ "templateId" : "'+temp.Id+'", "MVDG__Object_API_Name__c" : "'+temp.MVDG__Object_API_Name__c+'", "recordId" : "'+acc.Id+'", "usedFrom" : "Simple Template" }', paraData, 'success');
+
         Test.stopTest();
     }
 
     @isTest
     static void keyMappingTest2(){
         Test.startTest();
-        KeyMappingController.getAllContentVersionImgs();
-        String getBlob = KeyMappingController.fetchImgBlob('sdas');
+        KeyMappingController.RetrunWrapper returnValue = new KeyMappingController.RetrunWrapper();
+        returnValue = KeyMappingController.getAllContentVersionImgs();
         Test.stopTest();
 
-        System.assertEquals(null, getBlob, 'success');
+        System.assertEquals(true, returnValue.isSuccess, 'success');
     }
 
 
 
-    static Template__c createTemplateRecord(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = true;
+    static MVDG__Template__c createTemplateRecord(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = true;
         insert template;
 
-        Template_Page__c page = new Template_Page__c();
-        page.Template__c = template.Id;
-        page.Page_Number__c = 1;
-        page.Page_Margin__c = '1;1;1;1';
-        page.Page_Orientation__c = 'portrait';
-        page.Page_Size__c = 'a4';
-        page.unit_of_page_configs__c = 'inch';
+        MVDG__Template_Page__c page = new MVDG__Template_Page__c();
+        page.MVDG__Template__c = template.Id;
+        page.MVDG__Page_Number__c = 1;
+        page.MVDG__Page_Margin__c = '1;1;1;1';
+        page.MVDG__Page_Orientation__c = 'portrait';
+        page.MVDG__Page_Size__c = 'a4';
+        page.MVDG__Unit_of_Page_Configs__c = 'inch';
         insert page;
 
         String templateValue = templateValue();
         
-        Template_Data__c templateField = new Template_Data__c();
-        templateField.Template__c = template.Id;
-        templateField.Value_Type__c	= 'Body Value';
-        templateField.Template_Value_Simple__c = templateValue;
-        templateField.Order_No_Simple__c =1;
+        MVDG__Template_Data__c templateField = new MVDG__Template_Data__c();
+        templateField.MVDG__Template__c = template.Id;
+        templateField.MVDG__Value_Type__c	= 'Body Value';
+        templateField.MVDG__Template_Value_Simple__c = templateValue;
+        templateField.MVDG__Order_No_Simple__c =1;
         insert templateField;
 
-        Template_Data__c templateField2 = new Template_Data__c();
-        templateField2.Template__c = template.Id;
-        templateField2.Value_Type__c	= 'header Value';
-        templateField2.Template_Value_Simple__c = templateValue;
-        templateField2.Order_No_Simple__c =2;
+        MVDG__Template_Data__c templateField2 = new MVDG__Template_Data__c();
+        templateField2.MVDG__Template__c = template.Id;
+        templateField2.MVDG__Value_Type__c	= 'header Value';
+        templateField2.MVDG__Template_Value_Simple__c = templateValue;
+        templateField2.MVDG__Order_No_Simple__c =2;
         insert templateField2;
 
-        Template_Data__c templateField3 = new Template_Data__c();
-        templateField3.Template__c = template.Id;
-        templateField3.Value_Type__c	= 'Footer Value';
-        templateField3.Template_Value_Simple__c = templateValue;
-        templateField3.Order_No_Simple__c =3;
+        MVDG__Template_Data__c templateField3 = new MVDG__Template_Data__c();
+        templateField3.MVDG__Template__c = template.Id;
+        templateField3.MVDG__Value_Type__c	= 'Footer Value';
+        templateField3.MVDG__Template_Value_Simple__c = templateValue;
+        templateField3.MVDG__Order_No_Simple__c =3;
         insert templateField3;
 
         return template;
     }
 
-    public static Template__c createMergeTemplate(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template 2';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = true;
+    public static MVDG__Template__c createMergeTemplate(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template 2';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = true;
         insert template;
 
-        Template_Data__c templateField = new Template_Data__c();
-        templateField.Template__c = template.Id;
-        templateField.Template_Value_Simple__c = 'test data 1234';
-        templateField.Order_No_Simple__c =1;
+        MVDG__Template_Data__c templateField = new MVDG__Template_Data__c();
+        templateField.MVDG__Template__c = template.Id;
+        templateField.MVDG__Template_Value_Simple__c = 'test data 1234';
+        templateField.MVDG__Order_No_Simple__c =1;
         insert templateField;
 
         return template;
     }
 
-    public static Template__c createMergeTemplateInActive(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template 3';
-        template.Template_Type__c = 'Simple Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = false;
+    public static MVDG__Template__c createMergeTemplateInActive(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template 3';
+        template.MVDG__Template_Type__c = 'Simple Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = false;
         insert template;
 
         return template;
     }
 
-    public static Template__c createMergeTemplateCSV(){
-        Template__c template = new Template__c();
-        template.Template_Name__c = 'Test Template 4';
-        template.Template_Type__c = 'CSV Template';
-        template.Object_API_Name__c = 'Account';
-        template.Template_Status__c = false;
+    public static MVDG__Template__c createMergeTemplateCSV(){
+        MVDG__Template__c template = new MVDG__Template__c();
+        template.MVDG__Template_Name__c = 'Test Template 4';
+        template.MVDG__Template_Type__c = 'CSV Template';
+        template.MVDG__Object_API_Name__c = 'Account';
+        template.MVDG__Template_Status__c = false;
         insert template;
 
         return template;

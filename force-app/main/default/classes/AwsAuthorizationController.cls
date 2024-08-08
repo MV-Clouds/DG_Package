@@ -24,20 +24,20 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkawsauth(){
         try{
-            AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getOrgDefaults();
-            // System.debug('bucket-->'+settings.BucketName__c);
-            // System.debug('bucket-->'+settings.BucketName__c);
-            // System.debug('bucket-->'+settings.BucketName__c);
+            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+            // System.debug('bucket-->'+settings.MVDG__BucketName__c);
+            // System.debug('bucket-->'+settings.MVDG__BucketName__c);
+            // System.debug('bucket-->'+settings.MVDG__BucketName__c);
 
             Map<String, Object> result = new Map<String, Object>();
-            if (settings != null  && (settings.BucketName__c != '' && settings.LinkedDate__c != '' && settings.NickName__c != '') || (settings.NamedCredential__c != '' || settings.NamedCredential__c != null)) {
+            if (settings != null  && (settings.MVDG__BucketName__c != '' && settings.MVDG__LinkedDate__c != '' && settings.MVDG__NickName__c != '') || (settings.MVDG__NamedCredential__c != '' || settings.MVDG__NamedCredential__c != null)) {
                 Boolean working = verifyAuth();
-                settings = AwsAuthProviderSettings__c.getOrgDefaults();
+                settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
                 if(working){
-                    result.put('bucket', settings.BucketName__c);
-                    result.put('linkdate', settings.LinkedDate__c);
-                    result.put('active', settings.WorkingStatus__c);
-                    result.put('name', settings.NickName__c);
+                    result.put('bucket', settings.MVDG__BucketName__c);
+                    result.put('linkdate', settings.MVDG__LinkedDate__c);
+                    result.put('active', settings.MVDG__WorkingStatus__c);
+                    result.put('name', settings.MVDG__NickName__c);
                     return result;
                 }
             }
@@ -54,20 +54,20 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getOrgDefaults();
+            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
             if(settings != null){
-                settings.BucketName__c = '';
-                settings.ClientId__c = '';
-                settings.ClientSecret__c = '';
-                settings.LinkedDate__c = '';
-                settings.WorkingStatus__c = false;
-                settings.NickName__c = '';
-                settings.NamedCredential__c = '';
-                if(!Schema.sObjectType.AwsAuthProviderSettings__c.fields.NamedCredential__c.isUpdateable() || !Schema.sObjectType.AwsAuthProviderSettings__c.fields.WorkingStatus__c.isUpdateable() || !Schema.sObjectType.AwsAuthProviderSettings__c.fields.NamedCredential__c.isCreateable() || !Schema.sObjectType.AwsAuthProviderSettings__c.fields.WorkingStatus__c.isCreateable()){
+                settings.MVDG__BucketName__c = '';
+                settings.MVDG__ClientId__c = '';
+                settings.MVDG__ClientSecret__c = '';
+                settings.MVDG__LinkedDate__c = '';
+                settings.MVDG__WorkingStatus__c = false;
+                settings.MVDG__NickName__c = '';
+                settings.MVDG__NamedCredential__c = '';
+                if(!Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__NamedCredential__c.isUpdateable() || !Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() || !Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__NamedCredential__c.isCreateable() || !Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()){
                 return null;
             }
                 upsert settings;
-                // System.debug(settings.ClientId__c);
+                // System.debug(settings.MVDG__ClientId__c);
                 return true;
             }
             return false;
@@ -81,52 +81,52 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Boolean verifyAuth(){
         try {
-            AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getOrgDefaults(); 
-            if(settings.NamedCredential__c == '' || settings.NamedCredential__c == null){
+            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults(); 
+            if(settings.MVDG__NamedCredential__c == '' || settings.MVDG__NamedCredential__c == null){
                 AuthHeaderParams params = new AuthHeaderParams();
                 params.methodName = 'GET';
-                params.bucketName = settings.BucketName__c;
-                params.awsKey = settings.ClientId__c;
-                params.awsSecret = settings.ClientSecret__c;
+                params.bucketName = settings.MVDG__BucketName__c;
+                params.awsKey = settings.MVDG__ClientId__c;
+                params.awsSecret = settings.MVDG__ClientSecret__c;
                 params.contentType = '';
                 params.formatedDateString = Datetime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss \'GMT\'');
 
                 HttpRequest req = new HttpRequest();
-                req.setEndpoint('https://'+settings.BucketName__c+ '.s3.amazonaws.com');
+                req.setEndpoint('https://'+settings.MVDG__BucketName__c+ '.s3.amazonaws.com');
                 req.setMethod('GET');
                 req.setHeader('Content-Type', '');
                 req.setHeader('authorization', createSimpleAuthHeader(params));
-                req.setHeader('Host', settings.BucketName__c + '.s3.amazonaws.com');
+                req.setHeader('Host', settings.MVDG__BucketName__c + '.s3.amazonaws.com');
                 req.setHeader('Date', Datetime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss \'GMT\''));
                 req.setHeader('Connection', 'keep-alive');
                 req.setHeader('accept', '*/*');
                 Http http = new Http();
                 HttpResponse res = http.send(req);
-                // System.debug(res.getBody());
+                System.debug(res.getBody());
                 if(res.getStatusCode() == 200){
-                    settings.WorkingStatus__c = true;
+                    settings.MVDG__WorkingStatus__c = true;
                     update settings;
                     return true;
                 }
                 else{
-                    settings.WorkingStatus__c = false;
+                    settings.MVDG__WorkingStatus__c = false;
                     Response_Handler.store_Callout_Response(res, 'AwsAuthorizationController', 'verifyAuth');
                     update settings;
                     return true;
                 }
             }else{
                 HttpRequest req = new HttpRequest();
-                req.setEndpoint('callout:'+settings.NamedCredential__c);
+                req.setEndpoint('callout:'+settings.MVDG__NamedCredential__c);
                 req.setMethod('GET');
                 Http http = new http();
                 HttpResponse res = http.send(req);
                 if(res.getStatusCode() == 200){
-                    settings.WorkingStatus__c = true;
+                    settings.MVDG__WorkingStatus__c = true;
                     update settings;
                     return true;
                 }
                 else{
-                    settings.WorkingStatus__c = false;
+                    settings.MVDG__WorkingStatus__c = false;
                     update settings;
                     Response_Handler.store_Callout_Response(res, 'AwsAuthorizationController', 'verifyAuth');
                     return true;
@@ -143,25 +143,37 @@ public with sharing class AwsAuthorizationController {
     public static String authorizeNamed(String named){
         try{
             if(named != null || named != ''){
-                // System.debug('authorize named');
+                System.debug('authorize named');
                 Integer checkNamed = [SELECT Count() FROM NamedCredential WHERE DeveloperName = :named WITH SECURITY_ENFORCED LIMIT 1];
                 if(Test.isRunningTest()){
                     checkNamed = 1;
                 }
                 if(checkNamed == 1){
-                    AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getOrgDefaults();
+                    MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
                     if (settings == null) {
-                        settings = new AwsAuthProviderSettings__c();
+                        settings = new MVDG__AwsAuthProviderSettings__c();
                     }
-                    settings.NamedCredential__c = named;
-                    settings.NickName__c = named;
-                    settings.BucketName__c = 'Unknown';
+                    HttpRequest req = new HttpRequest();
+                    req.setEndpoint('callout:'+named);
+                    req.setMethod('GET');
+                    Http http = new http();
+                    HttpResponse res = http.send(req);
+                    if(res.getStatusCode() == 200){
+                        settings.MVDG__WorkingStatus__c = true;
+                    }
+                    else {
+                        return 'Failure';
+                    }
+                    
+                    settings.MVDG__NamedCredential__c = named;
+                    settings.MVDG__NickName__c = named;
+                    settings.MVDG__BucketName__c = 'Unknown';
                     Date todaysDate = Date.today();
                     Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
                     String formattedDate = datetimeToday.format('dd/MM/yyyy');
                     // System.debug('Today\'s Date ==>'+formattedDate);
-                    settings.LinkedDate__c = formattedDate;
-                    settings.WorkingStatus__c = true;
+                    settings.MVDG__LinkedDate__c = formattedDate;
+                    settings.MVDG__WorkingStatus__c = true;
                     upsert settings;
                     return 'Success';
                 }
@@ -179,24 +191,24 @@ public with sharing class AwsAuthorizationController {
     public static String authorize(String clientId, String clientSecret, String bucket, String awsNickname) {
         try {
             if (String.isBlank(clientId) || String.isBlank(clientSecret) || String.isBlank(bucket) || String.isBlank(awsNickname)) {
-                // System.debug('looks fishy');
+                System.debug('looks fishy');
                 return 'All Details are compulsory';
             }
 
-            AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getOrgDefaults();
+            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
             if (settings == null) {
-                settings = new AwsAuthProviderSettings__c();
+                settings = new MVDG__AwsAuthProviderSettings__c();
             }
-            settings.ClientId__c = clientId;
-            settings.ClientSecret__c = clientSecret;
-            settings.BucketName__c = bucket;
-            settings.NickName__c = awsNickname;
+            settings.MVDG__ClientId__c = clientId;
+            settings.MVDG__ClientSecret__c = clientSecret;
+            settings.MVDG__BucketName__c = bucket;
+            settings.MVDG__NickName__c = awsNickname;
             Date todaysDate = Date.today();
             Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
             String formattedDate = datetimeToday.format('dd/MM/yyyy');
             // System.debug('Today\'s Date ==>'+formattedDate);
-            settings.LinkedDate__c = formattedDate;
-            settings.WorkingStatus__c = true;
+            settings.MVDG__LinkedDate__c = formattedDate;
+            settings.MVDG__WorkingStatus__c = true;
             Boolean status = uploadDocuments(bucket, clientId, clientSecret);
             if(status)
             {
@@ -233,20 +245,20 @@ public with sharing class AwsAuthorizationController {
 
     public static string createAuthHeader(AuthHeaderParams params){
         try{
-            // System.debug('1-->'+params.contentType);
-            // System.debug('2-->'+params.filename);
-            // System.debug('3-->'+params.formatedDateString);
-            // System.debug('4-->'+params.fileExtension);
-            // System.debug('5-->'+params.methodName);
-            // System.debug('6-->'+params.bucketName);
-            // System.debug('7-->'+params.awsKey);
-            // System.debug('8-->'+params.awsSecret);
+            System.debug('1-->'+params.contentType);
+            System.debug('2-->'+params.filename);
+            System.debug('3-->'+params.formatedDateString);
+            System.debug('4-->'+params.fileExtension);
+            System.debug('5-->'+params.methodName);
+            System.debug('6-->'+params.bucketName);
+            System.debug('7-->'+params.awsKey);
+            System.debug('8-->'+params.awsSecret);
             string auth;
             string stringToSign = params.methodName+'\n\n'+params.contentType+'\n'+params.formatedDateString+'\n/'+params.bucketName+'/'+params.fileName.toLowerCase()+'.'+params.fileExtension.toLowerCase();
             Blob mac = Crypto.generateMac('HMACSHA1', blob.valueOf(stringToSign), blob.valueOf(params.awsSecret));
             string sig = EncodingUtil.base64Encode(mac);
             auth = 'AWS'+' '+params.awsKey+':'+sig;
-            // System.debug('Auth header created');
+            System.debug('Auth header created');
             return auth;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsAuthorizationController', 'createAuthHeader');
@@ -265,6 +277,7 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Boolean uploadDocuments(String bucketName, String clientid, String clientsecret){
         try{
+            System.debug('Upload Documents');
             String hostName = 's3.amazonaws.com';
             String methodName = 'PUT';
             Blob fileData = generateDummyFileData();
@@ -324,6 +337,7 @@ public with sharing class AwsAuthorizationController {
 
     public static void deleteFile(String bucketName, String secret, String access) {
         try{
+            System.debug('Deleting file');
             HttpRequest request = new HttpRequest();
             request.setEndpoint('https://' + bucketName + '.' + 's3.amazonaws.com' + '/' + 'dummyfile' + '.txt');
             request.setMethod('DELETE');

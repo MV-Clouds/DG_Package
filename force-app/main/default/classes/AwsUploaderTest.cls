@@ -3,20 +3,20 @@ public class AwsUploaderTest {
     @TestSetup
     static void makeData(){
 
-        // AwsAuthProviderSettings__c settings = AwsAuthProviderSettings__c.getOrgDefaults();
-        AwsAuthProviderSettings__c settings = new AwsAuthProviderSettings__c();
+        // MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+        MVDG__AwsAuthProviderSettings__c settings = new MVDG__AwsAuthProviderSettings__c();
         settings.SetupOwnerId = UserInfo.getOrganizationId();
-        settings.BucketName__c = 'S3';
-        settings.ClientId__c = 'testClientId';
-        settings.ClientSecret__c = 'testClientSecret';
-        settings.NamedCredential__c = 'namedCredentials';
+        settings.MVDG__BucketName__c = 'S3';
+        settings.MVDG__ClientId__c = 'testClientId';
+        settings.MVDG__ClientSecret__c = 'testClientSecret';
+        settings.MVDG__NamedCredential__c = 'namedCredentials';
         upsert settings;
 
-        // AwsAuthProviderSettings__c settings2 = new AwsAuthProviderSettings__c();
-        // settings2.BucketName__c = 'S3';
-        // settings2.ClientId__c = 'testClientId';
-        // settings2.ClientSecret__c = 'testClientSecret';
-        // settings2.NamedCredential__c = 'namedCredentials';
+        // MVDG__AwsAuthProviderSettings__c settings2 = new MVDG__AwsAuthProviderSettings__c();
+        // settings2.MVDG__BucketName__c = 'S3';
+        // settings2.MVDG__ClientId__c = 'testClientId';
+        // settings2.MVDG__ClientSecret__c = 'testClientSecret';
+        // settings2.MVDG__NamedCredential__c = 'namedCredentials';
         // insert settings2;
         
         Account acc = new Account();
