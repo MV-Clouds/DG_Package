@@ -103,7 +103,7 @@
                 }
 
                 function redirectToSalesforce() {
-                        var action = '{!$RemoteAction.MVDG__DropboxSuccessController.redirectToSalesforcePage}';
+                        var action = '{!$RemoteAction.DropboxSuccessController.redirectToSalesforcePage}';
                             Visualforce.remoting.Manager.invokeAction(
                                 action,
                                 function(result, event) {

@@ -12,7 +12,7 @@ private class KeyMappingControllerTest {
         KeyMappingController.getFieldMappingKeys(sourceObjectAPI, true);
         KeyMappingController.getChildObjects(sourceObjectAPI);
         KeyMappingController.getMerginTemplateKeys(sourceObjectAPI);
-        KeyMappingController.getAllContentVersionImgs();
+        KeyMappingController.getAllContentVersionImgs('TEST');
         KeyMappingController.getGeneralFields();
         KeyMappingController.formattingFieldKeys();
         KeyMappingController.getSignatureInfo(temp.Id);
@@ -96,7 +96,7 @@ private class KeyMappingControllerTest {
         KeyMappingController.RetrunWrapper returnValue = new KeyMappingController.RetrunWrapper();
         Account acc = createAccountRecord();
         createContentVersion(acc.Id);
-        returnValue = KeyMappingController.getAllContentVersionImgs();
+        returnValue = KeyMappingController.getAllContentVersionImgs('Google Doc Template');
         Test.stopTest();
 
         System.assertEquals(true, returnValue.isSuccess, 'success');
