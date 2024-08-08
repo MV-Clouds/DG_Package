@@ -42,18 +42,20 @@ public with sharing class HomePageController {
                     tempObj.label = (String)Schema.getGlobalDescribe().get(objectApi).getDescribe().getLabel();
                     objectList.add(tempObj);
                 }
+
+                // Get all Templaet Tyeps...
+                returnValue.templateTypes = getAllTemplateTypes();
     
                 // Create List of Only Date Field form Templare Object...
-                List<TempDateFields> tempDateFields = createTempFieldInstance('MVDG__Template__c');
+                returnValue.dateFields = createTempFieldInstance('MVDG__Template__c');
 
-                // 
                 // returnValue.isGoogleDocEnable = MVDG__AuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c || MVDG__AuthProviderSettings__c.getInstance().MVDG__WorkingStatus__c;
-                returnValue.isGoogleDocEnable = MVDG__AuthProviderSettings__c.getInstance().MVDG__WorkingStatus__c;
+                // returnValue.isGoogleDocEnable = MVDG__AuthProviderSettings__c.getInstance().MVDG__WorkingStatus__c;
+                returnValue.isGoogleDocEnable = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1]?.MVDG__WorkingStatus__c;
                 
                 // Assign Values to returnValue Object...
                 returnValue.isSuccess = true;
                 returnValue.objectList = objectList;
-                returnValue.dateFields = tempDateFields;
                 returnValue.returnMessage = 'Success';
                 returnValue.templateList = tempList;
             }
@@ -73,8 +75,34 @@ public with sharing class HomePageController {
         }
     }
 
-    public static List<TempDateFields> createTempFieldInstance(String objectAPINAme){
-        List<TempDateFields> tempDateFields = new List<TempDateFields>();
+    public static List<TemFieldInstance> getAllTemplateTypes(){
+        List<TemFieldInstance> templateTypes = new List<TemFieldInstance>();
+        try {
+            
+            Schema.DescribeSObjectResult objectDescribe = Schema.getGlobalDescribe().get('MVDG__Template__c').getDescribe();
+            for (Schema.SObjectField field : objectDescribe.fields.getMap().values()) {
+                if (field.getDescribe().getName() == 'MVDG__Template_Type__c') {
+                    Schema.DescribeFieldResult fieldDescribe = field.getDescribe();
+                    List<Schema.PicklistEntry> picklistEntries = fieldDescribe.getPicklistValues();
+                    for (Schema.PicklistEntry picklistEntry : picklistEntries) {
+                        TemFieldInstance picklistValue = new TemFieldInstance();
+                        picklistValue.label = picklistEntry.getLabel();
+                        picklistValue.value = picklistEntry.getValue();
+                        templateTypes.add(picklistValue);
+                    }
+                }
+            }
+
+            return templateTypes;
+
+        } catch (Exception e) {
+            system.debug('exception in createTempFieldInstance : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            return templateTypes;
+        }
+    }
+
+    public static List<TemFieldInstance> createTempFieldInstance(String objectAPINAme){
+        List<TemFieldInstance> templateField = new List<TemFieldInstance>();
         try {
             Map<String, Schema.SObjectField> mapofAllField = Schema.getGlobalDescribe().get(objectAPINAme).getDescribe().fields.getMap();
                 for(String fieldName : mapofAllField.keySet()){
@@ -82,16 +110,16 @@ public with sharing class HomePageController {
                     Schema.DescribeFieldResult fd = field.getDescribe();
                     if( (String.valueOf(fd.getType()) == 'DATETIME' || String.valueOf(fd.getType()) == 'DATE') && 
                         (String.valueOf(fd.getName()) != 'LastReferencedDate' &&  String.valueOf(fd.getName()) != 'System Modstamp' && String.valueOf(fd.getName()) != 'SystemModstamp' && String.valueOf(fd.getName()) != 'LastViewedDate')){
-                        TempDateFields dateField = new TempDateFields();
+                        TemFieldInstance dateField = new TemFieldInstance();
                         dateField.label = String.valueOf(fd.getLabel());
                         dateField.value = String.valueOf(fd.getName());
-                        tempDateFields.add(dateField);
+                        templateField.add(dateField);
                     }
                 }
-            return tempDateFields;
+            return templateField;
         } catch (Exception e) {
             system.debug('exception in createTempFieldInstance : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
-            return tempDateFields;
+            return templateField;
         }
     }
 
@@ -124,10 +152,11 @@ public with sharing class HomePageController {
     public class ReturnValues{
         @AuraEnabled public list<MVDG__Template__c> templateList;
         @AuraEnabled public list<TempObject> objectList;
-        @AuraEnabled public list<TempDateFields> dateFields;
+        @AuraEnabled public list<TemFieldInstance> dateFields;
         @AuraEnabled public boolean isSuccess;
         @AuraEnabled public String returnMessage;
         @AuraEnabled public boolean isGoogleDocEnable;
+        @AuraEnabled public list<TemFieldInstance> templateTypes;
     }
 
     public class TempObject{
@@ -135,7 +164,7 @@ public with sharing class HomePageController {
         @AuraEnabled public String value;
     }
 
-    public class TempDateFields{
+    public class TemFieldInstance{
         @AuraEnabled public String label;
         @AuraEnabled public String value;
     }

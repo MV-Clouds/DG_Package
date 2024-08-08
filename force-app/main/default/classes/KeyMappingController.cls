@@ -166,7 +166,9 @@ public with sharing class KeyMappingController {
             for(String fieldName : fieldsList){
                 Schema.SObjectField field = mapOfFields.get(fieldName);
                 Schema.DescribeFieldResult f = field.getDescribe();
-                objectFields.add(f);
+                if(String.valueOf(f.getType()) != 'BASE64'){
+                    objectFields.add(f);
+                }
             }
 
             return objectFields;
