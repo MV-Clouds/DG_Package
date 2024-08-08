@@ -32,6 +32,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     @track isCancelTemplate = false;
     @track isReset = false;
     @track isClear = false;
+    @track isEditorClose = false;
 
 
     //-=-=- To run a function only once, when we want in rendered callback -=-=-
@@ -275,9 +276,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         try {
             this.showSpinner = true;
 
-            console.log('this.isChild : ', this.isChild);
-            this.isChild
-
             this.limit = this.isChild ? this.childMaxLimit : 1000000;
             this.existingLimit = this.limit;
 
@@ -296,10 +294,15 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         try {
             getTemplateDetails({ templateId: this.templateId })
             .then((data) => {
-                this.existingTemplateData = JSON.parse(JSON.stringify(data));
-                this.newTemplateData = JSON.parse(JSON.stringify(this.existingTemplateData));
-                this.resolvedPromise++;
-                console.log('Template Details ::', this.newTemplateData);
+                if(data){
+                    this.existingTemplateData = JSON.parse(JSON.stringify(data));
+                    this.newTemplateData = JSON.parse(JSON.stringify(this.existingTemplateData));
+                    this.resolvedPromise++;
+                }else{
+                    console.log('Template details not found...');
+                    this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
+                    this.isEditorClose = true;
+                }
             })
             .catch(e => {
                 this.resolvedPromise++;
@@ -318,7 +321,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.allListViews = data.map(listView => ({ label: listView.Name, value: listView.Id }));
                 this.showListViewPopup = this.isNew && this.allListViews.length>0 ?  true : false;
                 this.resolvedPromise++;
-                console.log('All the List Views Are::', this.allListViews);
             })
             .catch(e => {
                 this.resolvedPromise++;
@@ -363,9 +365,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.setSelectionFields();
                     this.setFilterFields();
                     this.resolvedPromise++;
-                    console.log('All Related Objects Are ::', this.relatedObjects);
-                    console.log('All Fields Are ::', this.allRetrievedFields);
-                    
                 }
                 else{
                     this.resolvedPromise++;
@@ -384,6 +383,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     setSelectionFields(){
         try {
+            console.log('Selected Related Object ::', this.selectedRelatedObject);
             this.fieldOptions = this.fieldMappingsWithObj.find(ele =>  ele.name == this.selectedRelatedObject).fieldMappings ;
         } catch (error) {
             console.log('error in templateBuilder.setSelectionFields : ', error.stack)
@@ -409,8 +409,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.parseFilterString();
                 }
                 this.resolvedPromise++;
-                console.log('Template Fields Data::', this.separatedData);
-                
             })
             .catch(e => {
                 this.resolvedPromise++;
@@ -552,6 +550,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.showBasicDetailTab = true;
                 this.showEditTemplateTab = false;
                 this.showDefaultsTab = false;
+                this.newTemplateData.MVDG__Template_Name__c = this.existingTemplateData.MVDG__Template_Name__c ;
+                this.newTemplateData.MVDG__Template_Status__c =this.existingTemplateData.MVDG__Template_Status__c;
+                this.newTemplateData.MVDG__Description__c = this.existingTemplateData.MVDG__Description__c;
+                this.selectedListView = this.existingTemplateData.MVDG__List_View__c;
             }else if(activeTabName === 'defaultsTab'){
                 this.showDefaultsTab = true;
                 this.showBasicDetailTab = false;
@@ -2130,7 +2132,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     handleConfirmation(event){
         try {            
             console.log('Got Event Details::', event.detail);
-            
             if(event.detail){
                 if(this.isClose){
                     this.navigateToComp(navigationComps.home);
@@ -2148,6 +2149,8 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }else{
                 if(this.isListViewUpdate){
                     this.selectedListView = this.tempListView;
+                }else if(this.isEditorClose){
+                    this.navigateToComp(navigationComps.home);
                 }
             }
             this.isClose = false;
@@ -2156,6 +2159,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             this.isCancelTemplate = false;
             this.isReset = false;
             this.isClear = false;
+            this.isEditorClose = false;
         } catch (e) {
             console.error('Error in handleConfirmation:', e.message);
         }
@@ -2264,7 +2268,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     handleDescriptionChange(event){
         this.newTemplateData.MVDG__Description__c = event.target.value;
         this.isBasicTabChanged = true;
-        // console.log('Description Updated to , ' , this.newTemplateData.MVDG__Description__c);
     }
 
     handleListViewChange(event){
@@ -2279,7 +2282,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         this.tempListView = this.selectedListView;
         this.selectedListView = event.detail[0];
         !this.selectedListView ? this.isListViewUpdated = false : undefined;
-        if(this.selectedListView && this.tempListView!==this.selectedListView){
+        if(this.selectedListView && this.tempListView!==this.selectedListView && ((this.filters?.length > 0 && this.filters[0].fieldName) || (this.sorts?.length > 0 && this.sorts[0].field) ||(this.selectedFields?.length > 0))){
             this.showWarningPopup('warning', 'Are you sure to change list view?', 'Changing the list view may override the current changes.');
         }
         this.isListViewUpdate = true;
@@ -2338,10 +2341,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleUpdateTemplate(){
         try {
-            if(this.selectedListView){
-                this.handleListView();
-                this.isBasicTabChanged = false;
-            }
             if (this.isBasicTabChanged){
                 this.showSpinner = true;
                 let templateData = {
@@ -2364,6 +2363,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     console.log('Error updating the existing template :' , e.message);
                     this.showToast('error', 'Oops! Couldn\'t save changes!' , 'Please try updating the data again...', 5000);
                 })
+            }
+            if(this.selectedListView){
+                this.handleListView();
+                this.isBasicTabChanged = false;
             }
         } catch (e) {
             console.log('Error in handleUpdateTemplate , ', e.stack);
@@ -2483,8 +2486,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     
                             this.filters = this.getAllConditions(fetchedFilters);
                             // console.log('Filters before all ::', this.filters);
-                            // to combine similar field, operator filters, but not so useful, because it can mis-interpret the original filters
-                            // this.filters = this.combineSameFilters();
     
                             // console.log('Filters after all ::', this.filters);
             
@@ -2567,26 +2568,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         }catch(e){
             console.log('Error in changing the list View ::  ', e.stack);
         }
-    }
-
-    combineSameFilters() {
-        const combinedData = {};
-        for (const obj of this.filters) {
-            const { fieldName, operator, value, type } = obj;
-            // Check for LIKE or notLIKE operators and same field and operator
-            if (["LIKE", "notLIKE"].includes(operator)) {
-                const key = `${fieldName}-${operator}`;
-                if (combinedData.hasOwnProperty(key)) {
-                    combinedData[key].value = `${combinedData[key].value},${value}`;
-                    combinedData[key].operator = operator.replace('LIKE', 'IN');
-                } else {
-                    combinedData[key] = { ...obj };
-                }
-            } else {
-                combinedData[`${fieldName}-${operator}`] = obj;
-            }
-        }
-        return Object.values(combinedData);
     }
 
     handleObjectChange(event){

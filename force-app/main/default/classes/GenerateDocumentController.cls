@@ -184,21 +184,22 @@ public with sharing class GenerateDocumentController {
 /*
 *********************************************************
 @description     : Method is used to send the email with newly generated document
-@param           : SaveDataWrapper {Wrapper} - wrapper containing needed data to store the file
+@param           : allEmails {Map<String, List<String>>} - Map containing to, cc and bcc email addresses
+@param           : emaildata {Map<String,String>} - Map containing other data like CV Id, subject and body
 @return          : String - status of complition
 ********************************************************
 */
     @AuraEnabled
-    public static String sendEmail(SaveDataWrapper saveDataWrapper){
+    public static String sendEmail(Map<String, List<String>> allEmails, Map<String,String> emailData){
         try {
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             String[] attachments =  new String[] {};
-            attachments.add(saveDataWrapper.contentVersionId);
-            mail.setToAddresses(saveDataWrapper.toEmails);
-            mail.setCcAddresses(saveDataWrapper.ccEmails);
-            mail.setBccAddresses(saveDataWrapper.bccEmails);
-            mail.setSubject(saveDataWrapper.emailSubject);
-            mail.setHtmlBody(saveDataWrapper.emailBody);
+            attachments.add(emailData.get('contentVersionId'));
+            mail.setToAddresses(allEmails.get('toEmails'));
+            mail.setCcAddresses(allEmails.get('ccEmails'));
+            mail.setBccAddresses(allEmails.get('bccEmails'));
+            mail.setSubject(emailData.get('emailSubject'));
+            mail.setHtmlBody(emailData.get('emailBody'));
             mail.setEntityAttachments(attachments);
 
             Messaging.SendEmailResult[] result = Messaging.sendEmail(
@@ -322,9 +323,9 @@ public with sharing class GenerateDocumentController {
 */  
     @AuraEnabled
     public static DefaultDataWrapper getTemplateDefaultValues(String templateId){
-        DefaultDataWrapper ddw = new DefaultDataWrapper();
         try {
-            List<MVDG__Template__c> templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Object_API_Name__c, MVDG__Email_Addresses__c,	MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+            DefaultDataWrapper ddw = new DefaultDataWrapper();
+            List<MVDG__Template__c> templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c,	MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
             if(templates.size() > 0){
                 ddw.templateId = templates[0].Id;
                 ddw.templateName = templates[0].MVDG__Template_Name__c;
@@ -333,49 +334,49 @@ public with sharing class GenerateDocumentController {
                 ddw.docType = templates[0].MVDG__Document_Type__c;
                 ddw.iStorage = templates[0].MVDG__Internal_Storage__c;
                 ddw.eStorage = templates[0].MVDG__External_Storage__c;
-                ddw.oChannel = templates[0].MVDG__Object_API_Name__c;
+                ddw.oChannel = templates[0].MVDG__Output_Channel__c;
                 ddw.emailAddresses = templates[0].MVDG__Email_Addresses__c;
                 ddw.emailSubject = templates[0].MVDG__Email_Subject__c;
                 ddw.emailBody = templates[0].MVDG__Email_Body__c;
                 ddw.templateType = templates[0].MVDG__Template_Type__c;
                 ddw.emailTemplate = templates[0].MVDG__Email_Template__c;
+                return ddw;
+            }else{
+                return null;
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateDefaultValues');
-            throw new AuraHandledException(e.getMessage());
+            return null;
         }
-        return ddw;
     }
 
 
 /*
 *********************************************************
 @description     : Method is used to store the default values for the generation options
-@param          : DefaultDataWrapper {Wrapper} - wrapper containing with default data for the template
+@param          : defaultData {Map<String,String>} - map containing with default data for the template
 @return           : void - won't return anything
 ********************************************************
 */  
     @AuraEnabled
-    public static void setDefaultOptions(DefaultDataWrapper defaultData){
+    public static void setDefaultOptions(Map<String,String> defaultData){
         try {
             MVDG__Template__c template = new MVDG__Template__c(
-                Id = defaultData.templateId,
-                MVDG__Button_Label__c = defaultData.buttonLabel,
-                MVDG__Button_Api_Name__c = defaultData.buttonName,
-                MVDG__Document_Type__c = defaultData.docType,
-                MVDG__Internal_Storage__c = defaultData.iStorage,
-                MVDG__External_Storage__c = defaultData.eStorage,
-                MVDG__Object_API_Name__c = defaultData.oChannel,
-                MVDG__Email_Addresses__c = defaultData.emailAddresses,
-                MVDG__Email_Subject__c = defaultData.emailSubject,
-                MVDG__Email_Body__c = defaultData.emailBody,
-                MVDG__Email_Template__c = defaultData.emailTemplate
+                Id = defaultData.get('templateId'),
+                MVDG__Button_Label__c  = defaultData.get('buttonLabel'),
+                MVDG__Button_Api_Name__c  = defaultData.get('buttonName'),
+                MVDG__Document_Type__c  = defaultData.get('docType'),
+                MVDG__Internal_Storage__c  = defaultData.get('iStorage'),
+                MVDG__External_Storage__c  = defaultData.get('eStorage'),
+                MVDG__Output_Channel__c  = defaultData.get('oChannel'),
+                MVDG__Email_Addresses__c  = defaultData.get('emailAddresses'),
+                MVDG__Email_Subject__c  = defaultData.get('emailSubject'),
+                MVDG__Email_Body__c  = defaultData.get('emailBody'),
+                MVDG__Email_Template__c = defaultData.get('emailTemplate')
             );
-
             if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
                 update template;
             }
-
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'setDefaultOptions');
             system.debug('exception in setDefaultOptions : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
@@ -415,26 +416,6 @@ public with sharing class GenerateDocumentController {
 
 /*
 *********************************************************
-@description     : wrapper containing needed data to store the file
-@param           : contentVersionId {String} - Id of generated content version from API
-@param           : toEmails {List<String>} - list of to emails
-@param           : ccEmails {List<String>} - list of cc emails
-@param           : bccEmails {List<String>} - list of bcc emails
-@param           : emailSubject {String} - Subject of email
-@param           : emailBody {String} - Subject of email
-********************************************************
-*/
-    public class SaveDataWrapper{
-        @AuraEnabled public String contentVersionId  { get; set; }
-        @AuraEnabled public List<String> toEmails  { get; set; }
-        @AuraEnabled public List<String> ccEmails  { get; set; }
-        @AuraEnabled public List<String> bccEmails  { get; set; }
-        @AuraEnabled public String emailSubject { get; set;}
-        @AuraEnabled public String emailBody { get; set;}
-    }
-
-/*
-*********************************************************
 @description     : wrapper containing with default data for the template
 @param           : templateId {String} - Id of the template to update
 @param           : templateName {String} - name of the template
@@ -452,19 +433,19 @@ public with sharing class GenerateDocumentController {
 ********************************************************
 */
     public class DefaultDataWrapper{
-        @AuraEnabled public String templateId  { get; set; }
-        @AuraEnabled public String templateName  { get; set; }
-        @AuraEnabled public String buttonLabel { get; set; }
-        @AuraEnabled public String buttonName  { get; set; }
-        @AuraEnabled public String docType  { get; set; }
-        @AuraEnabled public String iStorage  { get; set; }
-        @AuraEnabled public String eStorage  { get; set; }
-        @AuraEnabled public String oChannel  { get; set; }
-        @AuraEnabled public String emailAddresses  { get; set; }
-        @AuraEnabled public String emailSubject { get; set;}
-        @AuraEnabled public String emailBody { get; set;}
-        @AuraEnabled public String templateType { get; set; }
-        @AuraEnabled public String emailTemplate { get; set; }
+        @AuraEnabled public String templateId;
+        @AuraEnabled public String templateName;
+        @AuraEnabled public String buttonLabel;
+        @AuraEnabled public String buttonName;
+        @AuraEnabled public String docType;
+        @AuraEnabled public String iStorage;
+        @AuraEnabled public String eStorage;
+        @AuraEnabled public String oChannel;
+        @AuraEnabled public String emailAddresses;
+        @AuraEnabled public String emailSubject;
+        @AuraEnabled public String emailBody;
+        @AuraEnabled public String templateType;
+        @AuraEnabled public String emailTemplate;
     }
 
 
@@ -473,15 +454,14 @@ public with sharing class GenerateDocumentController {
 @description     : Wrapper combining the integration status, folders and template data
 @param           : integrationWrapper {IntegrationWrapper} - wrapper containing integration status of different storage options
 @param           : folderWrapper {FolderWrapper} - wrapper containing label and Id of the folders for the document storing
-@param           : defaultDataWrapper {DefaultDataWrapper} - wrapper containing with default data for the template
-@param           : templates {List<MVDG__Template__c>} - List of the templates
+@param           : templates {List<Template__c>} - List of the templates
+@param           : isSuccess {Boolean} - Boolean to show if the process was successfull or
 ********************************************************
 */
 
     public class CombinedDataWrapper{
         @AuraEnabled public IntegrationWrapper integrationWrapper;
         @AuraEnabled public List<FolderWrapper> folderWrapper;
-        // @AuraEnabled public DefaultDataWrapper defaultDataWrapper;
         @AuraEnabled public List<MVDG__Template__c> templates;
         @AuraEnabled public Boolean isSuccess;
     }

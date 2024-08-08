@@ -115,30 +115,34 @@ export default class ButtonGenerator extends LightningElement {
         this.showSpinner = true;
         try {
             let type = event.target.dataset.type;
-            console.log('type is ', type);
-            if(type === 'listView'){
-                if(this.selectedLVObjects.length < 1){
-                    this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
-                    return;
+            if(type){
+                console.log('type is ', type);
+                if(type === 'listView'){
+                    if(this.selectedLVObjects.length < 1){
+                        this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
+                        return;
+                    }
+                    this.handleCreateWebLinkButton('listView');
+                }else if(type === 'quickAction'){
+                    if(this.selectedQAObjects.length < 1){
+                        this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
+                        return;
+                    }
+                    this.handleCreateQuickAction();
+                }else if(type === 'basicPrint'){
+                    if(this.selectedBPObjects.length < 1){
+                        this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
+                        return;
+                    }
+                    this.handleCreateWebLinkButton('basicPrint')
                 }
-                this.handleCreateWebLinkButton('listView');
-            }else if(type === 'quickAction'){
-                if(this.selectedQAObjects.length < 1){
-                    this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
-                    return;
-                }
-                this.handleCreateQuickAction();
-            }else if(type === 'basicPrint'){
-                if(this.selectedBPObjects.length < 1){
-                    this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
-                    return;
-                }
-                this.handleCreateWebLinkButton('basicPrint')
+    
+                this.template.querySelector('.list-view-btn').classList.add('disabled-btn');  
+                this.template.querySelector('.quick-action-btn').classList.add('disabled-btn');
+                this.template.querySelector('.basic-print-btn').classList.add('disabled-btn');
+            }else{
+                this.showToast('error','Something went wrong!','Action Could not be performed, please try again...', 5000);
             }
-
-            this.template.querySelector('.list-view-btn').classList.add('disabled-btn');  
-            this.template.querySelector('.quick-action-btn').classList.add('disabled-btn');
-            this.template.querySelector('.basic-print-btn').classList.add('disabled-btn');
         } catch (e) {
             this.showSpinner = false;
             this.showToast('error','Something went Wrong!','Buttons couldn\'t be created please try again.', 5000);
@@ -150,23 +154,23 @@ export default class ButtonGenerator extends LightningElement {
         console.log('Creating Web Link Button');
         try {
             let buttonData = {
-                objects : null,
                 buttonLabel: null,
                 buttonName: null,
                 buttonEndURL: null
             }
+            let objects = null;
             if(type === 'listView'){
-                buttonData.objects = this.selectedLVObjects;
+                objects = this.selectedLVObjects;
                 buttonData.buttonLabel = 'DG Generate CSV';
                 buttonData.buttonName = 'DG_Generate_CSV';
-                buttonData.buttonEndURL = '&MVDG__isCSVOnly=true';
+                buttonData.buttonEndURL = '&c__isCSVOnly=true';
             }
             else if(type === 'basicPrint'){
-                buttonData.objects  = this.selectedBPObjects;
+                objects  = this.selectedBPObjects;
                 buttonData.buttonLabel = 'DG Basic Print';
                 buttonData.buttonName = 'DG_Basic_Print';
             }
-            createListViewButtons({bdw : buttonData})
+            createListViewButtons({objects: objects ,buttonData : buttonData})
             .then(()=>{
                 console.log('Successfully created list view buttons.');
                 this.showSpinner = false;
@@ -205,11 +209,11 @@ export default class ButtonGenerator extends LightningElement {
                         label: "DG Generate Document",
                         optionsCreateFeedItem: false,
                         type: "LightningWebComponent",
-                        lightningWebComponent: "MVDG__generateDocument"
+                        lightningWebComponent: "generateDocument"
                     },
                     FullName: `${record}.DG_Generate_Document`
                 }));
-                requestBodyExpanded.forEach(requestBody => {
+                requestBodyExpanded.forEach((requestBody, i) => {
                     console.log('the requestBody :::  ', requestBody);
                     let requestOptions = {
                         method: 'POST',
@@ -220,12 +224,11 @@ export default class ButtonGenerator extends LightningElement {
                         fetch(encodeURI(endpoint), requestOptions)
                         .then(response => response.json())
                         .then(result => {
-                            this.showSpinner = false;
+                            (i == requestBodyExpanded.length - 1) ? this.fetchAlreadyCreatedObjects() : undefined;
                             console.log(result);
-                            this.fetchAlreadyCreatedObjects();
                         })
                         .catch(error => {
-                            this.showSpinner = false;
+                            (i == requestBodyExpanded.length - 1) ? this.fetchAlreadyCreatedObjects() : undefined;
                             console.log('error', error);
                             this.showToast('error','Something went Wrong!','Buttons couldn\'t be created please try again.', 5000);
                         });

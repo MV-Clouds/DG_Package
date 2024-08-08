@@ -1,7 +1,7 @@
 <template>
     <div class="main-div">
         <c-message-popup onconfirmation={handleConfirmation}></c-message-popup>
-        <c-document-loader display={showSpinner} style="--docTop:0;" full-size="true"></c-document-loader>
+        <c-document-loader display={showSpinner} style="--docTop:0;" full-size={isChild}></c-document-loader>
         <template if:true={showListViewPopup}>
             <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="section-div slds-modal slds-fade-in-open">
                 <div class="show-list-view-div">
@@ -123,12 +123,12 @@
                         {selectFieldLabel}
                     </div>
                     <button data-name="fields" class="clear-btn" onclick={handleClear}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
+                        <svg data-name="fields" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path data-name="fields" d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
                         Clear
                     </button>
                     <button data-name="fields" class="reset-btn" onclick={handleReset}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
+                        <svg data-name="fields" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path data-name="fields" d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
                         </svg>Reset
                     </button> 
                 </div>
@@ -224,12 +224,12 @@
                                 Apply Filters
                             </div>
                             <button data-name="filters" class="clear-btn" onclick={handleClear}>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
+                                <svg data-name="filters" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path data-name="filters" d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
                                 Clear
                             </button>
                             <button data-name="filters" class="reset-btn" onclick={handleReset}>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
+                                <svg data-name="filters" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path data-name="filters" d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
                                 </svg>Reset
                             </button> 
                         </div>
@@ -364,12 +364,12 @@
                                 {orderByLabel}
                             </div>
                             <button data-name="orders" class="clear-btn" onclick={handleClear}>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
+                                <svg data-name="orders" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path data-name="orders" d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
                                 Clear
                             </button>
                             <button data-name="orders" class="reset-btn" onclick={handleReset}>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
+                                <svg data-name="orders" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path data-name="orders" d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
                                 </svg>Reset
                             </button> 
                         </div>
@@ -418,12 +418,12 @@
                                 {limitLabel}
                             </div>
                             <button data-name="limit" class="clear-btn" onclick={handleClear}>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
+                                <svg data-name="limit" xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path data-name="limit" d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
                                 Clear
                             </button>
                             <button data-name="limit" class="reset-btn" onclick={handleReset}>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
+                                <svg data-name="limit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path data-name="limit" d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
                                 </svg>Reset
                             </button>
                         </div>
