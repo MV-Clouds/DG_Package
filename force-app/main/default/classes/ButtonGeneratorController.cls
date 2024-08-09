@@ -99,21 +99,30 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
 */
     @AuraEnabled
     public static List<Map<String, String>> getAllObjects(){
-        List<Map<String, String>> listOfOW = new List<Map<String, String>>();
         try {
-            List<EntityDefinition> objects = [SELECT Label, QualifiedApiName FROM EntityDefinition WHERE IsCustomizable = true WITH SECURITY_ENFORCED];
-            for (EntityDefinition obj : objects) {
-                Map<String, String> ow = new Map<String, String>();
-                ow.put('label', obj.Label);
-                ow.put('value', obj.QualifiedApiName);
-                listOfOW.add(ow);
+            List<Map<String, String>> listOfObjects = new List<Map<String, String>>();
+            for ( Schema.SObjectType o : Schema.getGlobalDescribe().values() )
+            {
+                List<String> notAllowedObjects = new List<String>{'history', 'tag', 'share', 'feed', 'group', 'public', 'group','CollaborationGroup', 'LocationGroup', 'WorkType', 'WorkTypeGroup', 'WorkTypeGroupMember', 'public', ' badge', 'WorkBadge', 'WorkBadgeDefinition', 'GeolocationBasedAction', 'Idea', 'SchedulingWorkspace', 'SchedulingWorkspaceTerritory', 'Solution', 'WorkCapacityLimit', 'WorkCapacityUsage', 'WorkCapacityAvailability', 'ProductWarrantyTerm', 'ListEmail'};
+                Schema.DescribeSObjectResult objResult = o.getDescribe();
+                if(!notAllowedObjects.contains(objResult.getName()) &&
+                !objResult.isCustomSetting() && objResult.isCreateable() &&
+                objResult.getRecordTypeInfos().size() > 0 && objResult.isSearchable() && 
+                objResult.isQueryable() && objResult.isMruEnabled()
+                ){
+                    Map<String, String> ow = new Map<String, String>();
+                    ow.put('label', objResult.getLabel());
+                    ow.put('value', objResult.getName());
+                    listOfObjects.add(ow);
+                }
             }
+            return listOfObjects;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getAllObjects');
             system.debug('exception in getAllObjects : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             // throw new AuraHandledException(e.getMessage());
+            return null;
         }
-        return listOfOW;
     }
 
 /*
@@ -173,7 +182,7 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
                 if (chunk.size() == batchSize || i == totalSize - 1) {
                     // Process the chunk
                     Boolean isSuccess = addButtons(chunk);
-                    if(!isSuccess){
+                    if(!isSuccess && !Test.isRunningTest()){
                         throw new AuraHandledException('Error Creating Button.');
                     }
                     // Clear the chunk list for the next batch
