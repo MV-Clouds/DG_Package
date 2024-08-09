@@ -43,7 +43,7 @@ export default class ButtonGenerator extends LightningElement {
                 console.log('Data fetched ::', data);
                 if(data.isSuccess){
                     this.allObjects = data.allObjects;
-                    this.allObjects = this.allObjects.slice().sort((a, b) => a.label.localeCompare(b.label));
+                    this.allObjects = this.allObjects.slice().sort((a, b) => a.label.localeCompare(b.label)).filter((obj) => obj.value!='Pricebook2');
 
                     let listViewData = this.handleObjectSeparation(data.listViewButtonObj);
                     this.objOptionsForLVButton = listViewData?.options;

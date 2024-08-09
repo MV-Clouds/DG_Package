@@ -103,13 +103,9 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
             List<Map<String, String>> listOfObjects = new List<Map<String, String>>();
             for ( Schema.SObjectType o : Schema.getGlobalDescribe().values() )
             {
+                List<String> notAllowedObjects = new List<String>{'history', 'tag', 'share', 'feed', 'group', 'public', 'group','CollaborationGroup', 'LocationGroup', 'WorkType', 'WorkTypeGroup', 'WorkTypeGroupMember', 'public', ' badge', 'WorkBadge', 'WorkBadgeDefinition', 'GeolocationBasedAction', 'Idea', 'SchedulingWorkspace', 'SchedulingWorkspaceTerritory', 'Solution', 'WorkCapacityLimit', 'WorkCapacityUsage', 'WorkCapacityAvailability', 'ProductWarrantyTerm', 'ListEmail'};
                 Schema.DescribeSObjectResult objResult = o.getDescribe();
-                if(!objResult.getName().containsignorecase('history') && !objResult.getName().containsignorecase('tag') &&
-                !objResult.getName().containsignorecase('share') && !objResult.getName().containsignorecase('feed') && 
-                !objResult.getName().containsignorecase('group') && !objResult.getName().containsignorecase('public') &&
-                !objResult.getName().containsignorecase('Badge') &&
-                !objResult.getName().containsignorecase('GeolocationBasedAction') && !objResult.getName().containsignorecase('Idea') &&
-                !objResult.getName().containsignorecase('Solution') && !objResult.getName().containsignorecase('SchedulingWorkspace') &&
+                if(!notAllowedObjects.contains(objResult.getName()) &&
                 !objResult.isCustomSetting() && objResult.isCreateable() &&
                 objResult.getRecordTypeInfos().size() > 0 && objResult.isSearchable() && 
                 objResult.isQueryable() && objResult.isMruEnabled()
@@ -120,13 +116,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
                     listOfObjects.add(ow);
                 }
             }
-            // List<EntityDefinition> objects = [SELECT Label, QualifiedApiName FROM EntityDefinition WHERE IsCustomizable = true WITH SECURITY_ENFORCED];
-            // for (EntityDefinition obj : objects) {
-            //     Map<String, String> ow = new Map<String, String>();
-            //     ow.put('label', obj.Label);
-            //     ow.put('value', obj.QualifiedApiName);
-            //     listOfObjects.add(ow);
-            // }
             return listOfObjects;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getAllObjects');
