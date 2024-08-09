@@ -595,7 +595,7 @@ export default class KeyMappingContainer extends LightningElement {
 
             if(this.searchFieldValue){
                 this.contentVersionToDisplay = this.contentVersionImages.filter((ele) => {
-                    return ele.Title.toLowerCase.includes(this.searchFieldValue) || ele.FileType.toLowerCase.includes(this.searchFieldValue)
+                    return ele.Title.toLowerCase().includes(this.searchFieldValue.toLowerCase()) || ele.FileType.toLowerCase().includes(this.searchFieldValue.toLowerCase())
                 })
             }
         } catch (error) {
