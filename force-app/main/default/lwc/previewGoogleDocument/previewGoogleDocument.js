@@ -1,6 +1,7 @@
 import { LightningElement, api, track } from "lwc";
 import pdfLibs from "@salesforce/resourceUrl/pdfLibs";
 import { loadScript } from "lightning/platformResourceLoader";
+import { errorDebugger } from "c/globalProperties";
 
 export default class PreviewGoogleDocument extends LightningElement {
     @api templateid;
@@ -44,7 +45,7 @@ export default class PreviewGoogleDocument extends LightningElement {
                 }
             }
         } catch (error) {
-            console.error("Error in rendered callback:", error);
+            errorDebugger("PreviewGoogleDocument", "renderedCallback", error, 'error', 'Error in rendered Callback. Please try again later');
         }
     }
 
@@ -63,7 +64,7 @@ export default class PreviewGoogleDocument extends LightningElement {
                 console.error("Error in getting files");
             }
         } catch (error) {
-            console.error("Error in previewDocument:", error);
+            errorDebugger("PreviewGoogleDocument", "previewDocument", error, 'error', 'Error in preview Document. Please try again later');
         }
     }
 
@@ -94,7 +95,7 @@ export default class PreviewGoogleDocument extends LightningElement {
         } catch (error) {
             this.isSpinner = false;
             this.handleError({ detail: { title: "Error", message: error } });
-            console.log("error in downloading file==>", error);
+            errorDebugger("PreviewGoogleDocument", "handleError", error, 'error', 'Error in handleError. Please try again later');
         }
     }
 
@@ -116,7 +117,7 @@ export default class PreviewGoogleDocument extends LightningElement {
 
             console.log("messagePopup==>", messagePopup);
         } catch (error) {
-            console.log("Error in handleError:", error);
+            errorDebugger("PreviewGoogleDocument", "handleError", error, 'error', 'Error in handleError. Please try again later');
         }
     }
 
@@ -133,7 +134,7 @@ export default class PreviewGoogleDocument extends LightningElement {
                 this.isPreview = true;
             }
         } catch (error) {
-            console.log("Error in handleFileProcess:", error);
+            errorDebugger("PreviewGoogleDocument", "handleFileProcess", error, 'error', 'Error in handleFileProcess. Please try again later');
         }
     }
 
@@ -187,7 +188,7 @@ export default class PreviewGoogleDocument extends LightningElement {
                 this.isSpinner = false;
             });
         } catch (error) {
-            console.log("Error in displayPDF:", error);
+            errorDebugger("PreviewGoogleDocument", "displayPDF", error, 'error', 'Error in displayPDF. Please try again later');
         }
     }
 
@@ -222,7 +223,7 @@ export default class PreviewGoogleDocument extends LightningElement {
             const zoomInfo = this.template.querySelector(".zoomInfo");
             zoomInfo.innerText = this.zoomLevel + "%";
         } catch (error) {
-            console.log('Error in setZoomLevel', error);
+            errorDebugger("previewGoogleDocument", "setZoomLevel", error, 'error', 'Error in setZoomLevel. Please try again later');
         }
     }
         // ************** Zoom ality Method -- END -- ***************
@@ -252,7 +253,7 @@ export default class PreviewGoogleDocument extends LightningElement {
                 
                 this.setPageBtnStatus();
             } catch (error) {
-                console.log('Error in onscroll:', error);
+                errorDebugger("previewGoogleDocument", "onscroll", error, 'error', 'Error in onscroll. Please try again later');
             }
     }
 
@@ -283,7 +284,7 @@ export default class PreviewGoogleDocument extends LightningElement {
             
             this.setPageBtnStatus();
         } catch (error) {
-            console.log('Error in onPageChange:', error);
+            errorDebugger("previewGoogleDocument", "onPageChange", error, 'error', 'Error in onPageChange. Please try again later');
         }
     }
 
@@ -302,7 +303,7 @@ export default class PreviewGoogleDocument extends LightningElement {
                 this.pagePlus.removeAttribute("disabled");
             }
         } catch (error) {
-            console.log('Error in setPageBtnStatus:', error);
+            errorDebugger("previewGoogleDocument", "setPageBtnStatus", error, 'error', 'Error in setPageBtnStatus. Please try again later');
             
         }
     }
