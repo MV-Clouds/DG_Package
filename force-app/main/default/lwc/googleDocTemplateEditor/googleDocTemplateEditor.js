@@ -8,6 +8,7 @@ import editTemplate from "@salesforce/apex/GoogleDocTemplateEditorController.edi
 import new_template_bg from "@salesforce/resourceUrl/new_template_bg";
 import homePageImgs from "@salesforce/resourceUrl/homePageImgs";
 import { NavigationMixin } from "lightning/navigation";
+import { errorDebugger } from 'c/globalProperties';
 
 export default class GoogleDocTemplateEditor extends NavigationMixin(LightningElement) {
     @api templateId;
@@ -63,7 +64,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             window.addEventListener("resize", this.resizeFunction);
             this.getAllRelatedData();
         } catch (error) {
-            console.log("Error connectedCallBack==> ", error.stack);
+            errorDebugger("googleDocTemplateEditor", 'connectedCallback', error, 'error', 'Error in connectedCallback. Please try again later');
         }
     }
 
@@ -78,7 +79,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 this.initialRender = false;
             }
         } catch (error) {
-            console.error("Error in renderedCallback", error);
+            errorDebugger('googleDocTemplateEditor', 'renderedCallback', error, 'error', 'Error in renderedCallback. Please try again later');
         }
     }
 
@@ -144,7 +145,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     this.isSpinner = false;
                 });
         } catch (error) {
-            console.log("Error in getAllRelatedData:", error);
+            errorDebugger('googleDocTemplateEditor', 'getAllRelatedData', error, 'error', 'Error in getAllRelatedData. Please try again later');
         }
     }
 
@@ -189,7 +190,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 next.removeAttribute("disabled");
             }
         } catch (error) {
-            console.error("handleTemplateClick", error);
+            errorDebugger('googleDocTemplateEditor', 'handleTemplateClick', error, 'error', 'Error in handleTemplateClick. Please try again later');
         }
     }
 
@@ -199,7 +200,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             this.isSpinner = true;
             this.getAllRelatedData();
         } catch (error) {
-            console.error("refreshDocs", error);
+            errorDebugger('googleDocTemplateEditor','refreshDocs', error, 'error', 'Error in refreshDocs. Please try again later');
         }
     }
 
@@ -214,7 +215,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             this.closePopup();
             this.save();
         } catch (error) {
-            console.error("next", error);
+            errorDebugger('googleDocTemplateEditor', 'next', error, 'error', 'Error in next. Please try again later');
         }
     }
 
@@ -240,7 +241,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 return template;
             });
         } catch (error) {
-            console.error("error in setDateAndSize", error);
+            errorDebugger('googleDocTemplateEditor','setDateAndSize', error, 'error', 'Error in setDatAndSize. Please try again later');
         }
     }
 
@@ -258,7 +259,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 }
             }
         } catch (error) {
-            console.error("handleSearch", error);
+            errorDebugger('googleDocTemplateEditor', 'handleSearch', error, 'error', 'Error in handleSearch. Please try again later');
         }
     }
 
@@ -280,7 +281,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     console.log("Error saving template data ==> ", error);
                 });
         } catch (error) {
-            console.log("Error in save:", error);
+            errorDebugger('googleDocTemplateEditor','save', error, 'error', 'Error in save. Please try again later');
         }
     }
 
@@ -310,7 +311,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 }
             });
         } catch (error) {
-            console.log("error in navigateToComp : ", error.stack);
+            errorDebugger('googleDocTemplateEditor','navigateToComp', error, 'error', 'Error in navigateToComp. Please try again later');
         }
     }
 
@@ -371,7 +372,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             }
             this.setActiveTab();
         } catch (error) {
-            console.log("error in templateBuilder.activeTab : ", error.stack);
+            errorDebugger('googleDocTemplateEditor','activeTab', error, 'error', 'Error in activeTab. Please try again later');
         }
     }
 
@@ -401,7 +402,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 }
             });
         } catch (error) {
-            console.log("error in setActive Tab : ", error.stack);
+            errorDebugger('googleDocTemplateEditor','setActiveTab', error, 'error', 'Error in setActiveTab. Please try again later');
         }
     }
 
@@ -437,7 +438,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 this.templateRecord[targetInput] = !event.target.checked;
             }
         } catch (error) {
-            console.log("error in handleEditDetail : ", error.stack);
+            errorDebugger('googleDocTemplateEditor','handleEditDetail', error, 'error', 'Error in handleEditDetail. Please try again later');
         }
     }
 
@@ -462,7 +463,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     console.log("Error in editTemplateDetails==> ", error);
                 });
         } catch (error) {
-            console.log("Error in editTemplateDetails: ", error);
+            errorDebugger('googleDocTemplateEditor','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
         }
     }
 
@@ -478,7 +479,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             this.activeTabName = "contentTab";
             this.setActiveTab();
         } catch (error) {
-            console.log("Error in cancelEditTemplate");
+            errorDebugger('googleDocTemplateEditor','cancelEditTemplate', error, 'error', 'Error in cancelEditTemplate. Please try again later');
         }
     }
 }
