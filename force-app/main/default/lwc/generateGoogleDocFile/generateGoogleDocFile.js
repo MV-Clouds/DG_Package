@@ -163,13 +163,20 @@ export default class GenerateGoogleDocFile extends LightningElement {
                         if (element.paragraph) {
                             // Replace all the signature anywhere texts with the content document image
                             let stringBody = JSON.stringify(element);
-                            let resultElement = stringBody.includes(this.signatureKey);
-                            if (resultElement) {
-                                this.processSignatureImage(element, signatureImageValues);
+                            if (stringBody.includes(this.signatureKey)) {
+                                this.processSignatureImage({startIndex: element.startIndex}, signatureImageValues);
+                                stringBody = stringBody.replace(this.signatureKey, ' ');
                             }
                         } else if (element.table) {
                             // Process table one by one
                             let stringBody = JSON.stringify(element);
+                            let matchedBody = JSON.stringify(element);
+                            if (matchedBody.includes(this.signatureKey)) {
+                                matchedBody = matchedBody.split(this.signatureKey);
+                                let smallBody = matchedBody[0].substring(matchedBody[0].lastIndexOf('"startIndex":'));
+                                let startIndex = this.substringBetween(smallBody, '"startIndex":', ",");
+                                this.processSignatureImage({startIndex: startIndex}, signatureImageValues);                                
+                            }
                             if (stringBody.match(/{{!(.*?)}}/g)) {
                                 let tableLocation = element.startIndex; //table's start index
                                 let tableEndIndex = element.table.tableRows[0].endIndex; // End of first row's index of the table
@@ -215,7 +222,6 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                                 this.tableOffset++;
                                             }
 
-                                            // eslint-disable-next-line no-loop-func
                                             objFields.fieldName.forEach((e) => {
                                                 if (stringBody.includes("{{!" + e + "}}")) {
                                                     tableEndIndex = tableEndIndex + 2;
@@ -252,6 +258,17 @@ export default class GenerateGoogleDocFile extends LightningElement {
                         this.createReplaceRequest(actualStringBody, /{{Doc.(.*?)}}/g, generalFieldvalues["General Fields"]);
                     }
 
+                    let removeSignRequest = {
+                        replaceAllText: {
+                            containsText: {
+                                text: this.signatureKey,
+                                matchCase: true
+                            },
+                            replaceText: " "
+                        }
+                    };
+                    this.changeRequests.push(removeSignRequest);
+
                     console.log("this.changeRequests==>", this.changeRequests);
                     this.doPreview();
                 })
@@ -265,8 +282,9 @@ export default class GenerateGoogleDocFile extends LightningElement {
     }
 
     processSignatureImage(element, signatureImageValues) {
-        let startIndex = this.tableOffset + element.startIndex;
-        let endIndex = this.tableOffset + element.endIndex - 1;
+        let startIndex = this.tableOffset + Number(element.startIndex);
+        // let endIndex = this.tableOffset + Number(element.endIndex) - 1;
+        let endIndex = startIndex + this.signatureKey.length;
 
         if (signatureImageValues && signatureImageValues["Signature Image"] && signatureImageValues["Signature Image"][0].ContentDownloadUrl) {
             let imageLink = signatureImageValues["Signature Image"][0].ContentDownloadUrl;
@@ -281,7 +299,6 @@ export default class GenerateGoogleDocFile extends LightningElement {
             this.tableOffset -= this.signatureKey.length;
         }
     }
-
     // Creates find and replace requests
     createReplaceRequest(stringBody, regex, fieldMap) {
         try {
@@ -306,7 +323,6 @@ export default class GenerateGoogleDocFile extends LightningElement {
             console.log("Error in createReplaceRequest:", error);
         }
     }
-
     // Creates new table rows - empty
     createRowInsertRequest(index, rowIndex) {
         try {

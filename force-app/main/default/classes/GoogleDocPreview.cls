@@ -466,7 +466,7 @@ public with sharing class GoogleDocPreview {
     public static MVDG__AuthProviderSettings__c getAuthProviderSettings() {
         try {
             List<MVDG__AuthProviderSettings__c> aps = new List<MVDG__AuthProviderSettings__c>();
-            aps = [SELECT Id, IsDeleted, Name, SetupOwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if (aps.size() > 0) {
                 return aps[0];
             }
