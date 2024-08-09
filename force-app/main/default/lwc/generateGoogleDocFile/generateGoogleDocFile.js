@@ -164,8 +164,15 @@ export default class GenerateGoogleDocFile extends LightningElement {
                             // Replace all the signature anywhere texts with the content document image
                             let stringBody = JSON.stringify(element);
                             if (stringBody.includes(this.signatureKey)) {
-                                this.processSignatureImage({startIndex: element.startIndex}, signatureImageValues);
-                                stringBody = stringBody.replace(this.signatureKey, ' ');
+                                element.paragraph.elements.forEach(e => {
+                                    let stringE = JSON.stringify(e);
+                                    if (stringE.includes(this.signatureKey)) {
+                                        let content = this.substringBetween(stringE, '"content":"', '",');
+                                        let startIndex = content.indexOf(this.signatureKey);
+                                        this.processSignatureImage(Number(e.startIndex) + Number(startIndex), signatureImageValues);
+                                        stringBody = stringBody.replace(this.signatureKey, ' ');
+                                    } 
+                                });
                             }
                         } else if (element.table) {
                             // Process table one by one
@@ -173,9 +180,11 @@ export default class GenerateGoogleDocFile extends LightningElement {
                             let matchedBody = JSON.stringify(element);
                             if (matchedBody.includes(this.signatureKey)) {
                                 matchedBody = matchedBody.split(this.signatureKey);
-                                let smallBody = matchedBody[0].substring(matchedBody[0].lastIndexOf('"startIndex":'));
+                                let smallBody = matchedBody[0].substring(matchedBody[0].lastIndexOf('"startIndex":')) + this.signatureKey + '",';
                                 let startIndex = this.substringBetween(smallBody, '"startIndex":', ",");
-                                this.processSignatureImage({startIndex: startIndex}, signatureImageValues);                                
+                                let content = this.substringBetween(smallBody, '"content":"', '",');
+                                startIndex = Number(startIndex) + content.indexOf(this.signatureKey);
+                                this.processSignatureImage(startIndex, signatureImageValues);
                             }
                             if (stringBody.match(/{{!(.*?)}}/g)) {
                                 let tableLocation = element.startIndex; //table's start index
@@ -283,7 +292,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
     processSignatureImage(element, signatureImageValues) {
         try {
-            let startIndex = this.tableOffset + Number(element.startIndex);
+            let startIndex = this.tableOffset + Number(element);
             // let endIndex = this.tableOffset + Number(element.endIndex) - 1;
             let endIndex = startIndex + this.signatureKey.length;
             
