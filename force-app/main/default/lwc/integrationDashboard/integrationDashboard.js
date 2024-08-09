@@ -427,41 +427,41 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
 
     handleSetActive(event){
-        this.isSpinner = true;
-        this.loadedResources = 0;
         const tabName = event.currentTarget.dataset.name;
-        this.activeTab = tabName;
-        this.isIntegration = false;
-        this.isSetup = false;
-        this.isUserguide = false;
-        this.isLimitations = false;
-
-        const cursor = this.template.querySelectorAll('.cursor');
-        cursor?.forEach(ele => {
-            if(ele.dataset.name == tabName){
-                ele.classList.add('enable');
-                if(tabName == 'text0'){
-                    this.isSetup = true;
-                    this.isSpinner = false;
+        if(this.activeTab != tabName){
+            this.isSpinner = true;
+            this.loadedResources = 0;
+            this.activeTab = tabName;
+            this.isIntegration = false;
+            this.isSetup = false;
+            this.isUserguide = false;
+            this.isLimitations = false;
+            const cursor = this.template.querySelectorAll('.cursor');
+            cursor?.forEach(ele => {
+                if(ele.dataset.name == tabName){
+                    ele.classList.add('enable');
+                    if(tabName == 'text0'){
+                        this.isSetup = true;
+                        this.isSpinner = false;
+                    }
+                    else if(tabName == "text1"){
+                        this.isIntegration  = true;
+                        this.connectedCallback();
+                    }
+                    else if(tabName == "text2"){
+                        this.isLimitations = true;
+                        this.isSpinner = false;
+                    }
+                    else if(tabName == "text3"){
+                        this.isUserguide = true;
+                        this.isSpinner = false;
+                    }
                 }
-                else if(tabName == "text1"){
-                    this.isIntegration  = true;
-                    this.checkauth();
-                    this.renderedCallback();
+                else{
+                    ele.classList.remove('enable');
                 }
-                else if(tabName == "text2"){
-                    this.isLimitations = true;
-                    this.isSpinner = false;
-                }
-                else if(tabName == "text3"){
-                    this.isUserguide = true;
-                    this.isSpinner = false;
-                }
-            }
-            else{
-                ele.classList.remove('enable');
-            }
-        })
+            })
+        }
         // this.isSpinner = false;
     }
 

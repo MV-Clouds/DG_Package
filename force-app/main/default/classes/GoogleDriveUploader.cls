@@ -58,16 +58,19 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
         System.debug('GoogleDrive file upload batch finished');
     }
 
-    global static String getToken(){
-        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+    public static String getToken(){
+        List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            System.debug('This is client id'+mdata[0].MVDG__CID__c);
+            System.debug('This is client secret'+mdata[0].MVDG__CSEC__c);
+        AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
         String endpoint = 'https://oauth2.googleapis.com/token';
         HttpRequest request = new HttpRequest();
         request.setEndpoint(endpoint);
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-                        '&client_id=' + settings.MVDG__ClientId__c +
-                        '&client_secret=' + settings.MVDG__ClientSecret__c +
+        request.setBody('refresh_token=' + settings.refresh_token__c +
+                        '&client_id=' + mdata[0].MVDG__CID__c +
+                        '&client_secret=' + mdata[0].MVDG__CSEC__c +
                         '&grant_type=refresh_token');
 
         Http http = new Http();
