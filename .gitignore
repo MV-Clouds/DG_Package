@@ -8,6 +8,7 @@
 .localdevserver/
 deploy-options.json
 manifest/originalPackage.xml
+manifest/package.xml
 
 # LWC VSCode autocomplete
 **/lwc/jsconfig.json

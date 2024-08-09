@@ -75,10 +75,16 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
         List<String> objects = new List<String>();
         if(allObjects.size() > 0){
             for (Map<String,String> ow : allObjects) {
-                List<String> actionButtonsList = new List<String>();
-                actionButtonsList.add(ow.get('value')+ '.DG_Generate_Document');
-                if(QuickAction.DescribeQuickActions(actionButtonsList).size() > 0) {
-                    objects.add(ow.get('value'));
+                // List<String> actionButtonsList = new List<String>();
+                // actionButtonsList.add(ow.get('value')+ '.DG_Generate_Document');
+                // if(QuickAction.DescribeQuickActions(actionButtonsList).size() > 0) {
+                //     objects.add(ow.get('value'));
+                // }
+                List<QuickAction.DescribeAvailableQuickActionResult> result1 = QuickAction.DescribeAvailableQuickActions(ow.get('value'));  
+                for(QuickAction.DescribeAvailableQuickActionResult action : result1){
+                    if(action.getType() == 'LightningWebComponent' && action.getName().contains('.DG_Generate_Document')){
+                        objects.add(ow.get('value'));
+                    }
                 }
             }
         }
