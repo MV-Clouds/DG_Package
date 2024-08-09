@@ -61,7 +61,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @track activeTemplates = [];
     @track templateList = [];
 
-    @track selectedTemplate;
+    @track selectedTemplate = null;
     @track showEmailSection = false;
     @track showCC = false;
     @track showBCC = false;
@@ -323,7 +323,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     @track isClosableError = false;
 
-    closeEnabled = false;
     @track isNotGoogleNotGenerable = false;
 
     get showCloseButton(){
@@ -435,6 +434,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.template.host.classList.add('pou-up-view');
                 this.selectedTemplate = urlParams.get('c__templateIdToGenerate');
             }
+            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             Promise.resolve(this.objectApiName)
             .then(() => {
                 return Promise.all([
@@ -463,6 +463,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = false;
             console.log('Error in connectedCallback ::', e.message);
         }
+    }
+
+    disconnectedCallback(){
+        window.removeEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
     }
 
     handleCalledFromPreview() {
@@ -626,7 +630,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     handleAutoGeneration() {
         this.showSpinner = true;
-        this.closeEnabled = true;
         try {
             console.log('selectedTemplate ::', this.selectedTemplate);
             getTemplateDefaultValues({ templateId : this.selectedTemplate})
@@ -1201,6 +1204,23 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             if(this.isCalledFromPreview){
                 this.dispatchEvent(new CustomEvent('close'));
             }else{
+                this.selectedTemplate = null;
+                this.internalStorageOptions.forEach(o=>{
+                    o.isSelected = false;
+                })
+                this.externalStorageOptions.forEach(o=>{
+                    o.isSelected = false;
+                })
+                this.outputChannels.forEach(o=>{
+                    o.isSelected = false;
+                })
+                this.toEmails = [];
+                this.ccEmails = [];
+                this.bccEmails = [];
+                this.emailSubject = '';
+                this.emailBody = '';
+                this.selectedEmailTemplate = null;
+                this.showEmailSection = false;
                 window.history.back();
             }
         }else{
@@ -1214,7 +1234,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         }else if(this.templateType === 'Google Doc Template'){
             this.showSimplePreview = true;
         }else if(this.templateType === 'Simple Template'){
-            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             this.showSimplePreview = true;
         }
 
@@ -1260,7 +1279,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         // Handle Simple Template
         if (this.templateType === 'Simple Template') {
             this.showSpinner = true;
-            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             this.generateSimpleTemplateFile();
         }
     }
@@ -1781,7 +1799,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.failed = this.selectedChannels.filter((item) => !this.succeeded.includes(item));
             this.simpleTemplate = false;
             this.completedSimTempPros = 0;
-            window.removeEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
         }
     }
 
@@ -1934,7 +1951,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             this.showSpinner = true;
             this.labelOfLoader = 'Saving in Internal Storage...';
-            let bodyString = 'Generated "' + this.fileName + this.selectedExtension + '" using docGenius.';
+            let bodyString = 'Generated "' + this.fileName + this.selectedExtension + '".';
             postToChatter({ contentVersionId: cvId, recordId: this.recordId, body: bodyString })
             .then(() => {
                 console.log('Post to chatter successfully.');
@@ -2089,15 +2106,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             console.log('Promises :::', this.resultPromises);
             Promise.all(this.resultPromises)
                 .then(() => {
-                    // console.log('All selected actions completed!');
-                    // console.log('Succeeded ::::', this.succeeded);
-                    // // console.log('Results are::: ', this.resultList);
-                    // this.failed = this.selectedChannels.filter((item) => !this.succeeded.includes(item));
-                    // this.vfGeneratePageSRC = null;
-                    // this.backToGenerate();
-                    if (this.closeEnabled) {
-                        this.handleClose();
-                    }
+                    this.handleClose();
                     this.showSpinner = false;
                 })
                 .catch(e => {
