@@ -611,8 +611,9 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
 
                   // Customized Toolbar 
                   // ['custom_backup', ['undo','redo']],
+                  // 'fontsize'
                   ['custom_pageSetup', ['pageSetup']],
-                  ['custom_fontFormattings', ['fontname', 'fontsize', 'fontResizer','forecolor', 'backcolor', 'bold','italic', 'underline', 'strikethrough','superscript', 'subscript']],
+                  ['custom_fontFormattings', ['fontname', 'fontResizer','forecolor', 'backcolor', 'bold','italic', 'underline', 'strikethrough','superscript', 'subscript']],
                   ['custom_paragraphFormatting', ['ul', 'ol', 'paragraph', 'height']],
                   ['custom_style', ['style']],
                   ['custom_insert', ['table','link', 'picture', 'hr']],
