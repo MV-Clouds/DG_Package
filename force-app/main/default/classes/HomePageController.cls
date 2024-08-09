@@ -33,13 +33,22 @@ public with sharing class HomePageController {
                 for(MVDG__Template__c temp : tempList){
                     objectListSet.add(temp.MVDG__Object_API_Name__c);
                 }
+
+                // List<EntityDefinition> objects = [SELECT DeveloperName, Label FROM EntityDefinition WHERE DeveloperName IN :objectListSet ORDER BY Label ASC];
+
+                List<TempObject> objectList = new List<TempObject>();
+                // for(EntityDefinition obj : objects){
+                //     TempObject tempObj = new TempObject();
+                //     tempObj.value = obj.DeveloperName;
+                //     tempObj.label = obj.Label;
+                //     objectList.add(tempObj);
+                // }
     
                 // Create List Of Object of create Templates with API and Label...
-                List<TempObject> objectList = new List<TempObject>();
                 for(String objectApi : objectListSet){
                     TempObject tempObj = new TempObject();
                     tempObj.value = objectApi;
-                    tempObj.label = (String)Schema.getGlobalDescribe().get(objectApi).getDescribe().getLabel();
+                    tempObj.label = (String)Schema.getGlobalDescribe()?.get(objectApi)?.getDescribe()?.getLabel();
                     objectList.add(tempObj);
                 }
 
