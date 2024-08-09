@@ -93,7 +93,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
     @track dropboxlinkdate;
     @track isSpinner = true;
     @track invoke; //used to track who called the popup
-    @track startchat = true;
 
 
     get googledrive_(){
@@ -234,6 +233,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                 awsimg.style.opacity = '0.5';
                 const awsintegration = this.template.querySelector('.ac');
                 awsintegration.removeAttribute('draggable');
+                const awsintegrationhover = this.template.querySelector('.ac');
+                awsintegrationhover.style.pointerEvents = "none";
                 this.isActiveAwsAuth = true;
             }
             else{
@@ -243,6 +244,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                 awsimg.style.opacity = '1';
                 const awsintegration = this.template.querySelector('.ac');
                 awsintegration.setAttribute('draggable', 'true');
+                const awsintegrationhover = this.template.querySelector('.ac');
+                awsintegrationhover.style.pointerEvents = "auto";
             }
             this.loaded();
         })
@@ -294,6 +297,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             integrationimg.style.opacity = '0.5';
             const integrations = this.template.querySelector('.'+cssname);
             integrations.removeAttribute('draggable');
+            const integrationhover = this.template.querySelector('.'+cssname);
+            integrationhover.style.pointerEvents = "none";
             }
         }
         else{
@@ -313,6 +318,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             integrationimg.style.opacity = '1';
             const integrations = this.template.querySelector('.'+cssname);
             integrations.setAttribute('draggable', 'true');
+            const integrationhover = this.template.querySelector('.'+cssname);
+            integrationhover.style.pointerEvents = "auto";
             }
         }
     }
