@@ -10,6 +10,9 @@ deploy-options.json
 manifest/originalPackage.xml
 manifest/package.xml
 
+# custom-metadata-type
+customMetadata/AuthProviderSetup.GoogleAuthenticationKeys.md-meta.xml
+
 # LWC VSCode autocomplete
 **/lwc/jsconfig.json
 
