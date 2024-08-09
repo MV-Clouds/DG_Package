@@ -12,7 +12,7 @@ import { LightningElement, track, wire, api } from 'lwc';
  * name space change globally after packed building,
  * used for navigation...
  */
-export var nameSpace = 'c';
+export var nameSpace = 'MVDG';
 
 
 /**
