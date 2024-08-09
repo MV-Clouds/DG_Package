@@ -1,5 +1,5 @@
 import { LightningElement , api, track} from 'lwc';
-import getObjects from '@salesforce/apex/NewTemplateCreationController.getObjects';
+import getAllObjects from '@salesforce/apex/ButtonGeneratorController.getAllObjects';
 import getTemplateTypes from '@salesforce/apex/NewTemplateCreationController.getTemplateTypes';
 import saveTemplate from '@salesforce/apex/NewTemplateCreationController.saveTemplate';
 import isGoogleIntegrated from '@salesforce/apex/NewTemplateCreationController.isGoogleIntegrated';
@@ -66,15 +66,12 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     fetchData() {
         try {
             this.showSpinner = true; // Start spinner
-            getObjects()
+            getAllObjects()
             .then((data) => {
                 if (data) {
 
                     // Process object names
-                    this.objectNames = data.slice().sort((a, b) => a.name.localeCompare(b.name)).map(obj => ({
-                        label: obj.name,
-                        value: obj.apiName,
-                    }));
+                    this.objectNames = data.slice().sort((a, b) => a.label.localeCompare(b.label))
 
                     isGoogleIntegrated()
                     .then((isIntegrated) => {

@@ -4,8 +4,6 @@ public with sharing class NewTemplateCreationControllerTest {
     public static void testNewTemplate(){
         Map<String, String> testObj = new Map<String, String>{'templateName' => 'Test Template','templateDescription' => 'Test Description','sourceObject' => 'Account','templateType' => 'Simple Template'};
         Test.startTest();
-        
-        List<NewTemplateCreationController.ObjectInfo> objects = NewTemplateCreationController.getObjects();
 
         List<String> types = NewTemplateCreationController.getTemplateTypes();
 
@@ -13,8 +11,6 @@ public with sharing class NewTemplateCreationControllerTest {
 
         Test.stopTest();
 
-
-        System.assert(objects.size() > 0, 'There are no Objects Returned by the class!!!!');
         System.assert(types.size() > 0, 'There are no Types Returned by the class!!!!');
 
         MVDG__Template__c template = [SELECT Id, MVDG__Template_Name__c FROM MVDG__Template__c LIMIT 1];

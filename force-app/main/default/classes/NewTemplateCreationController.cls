@@ -1,32 +1,4 @@
 public with sharing class NewTemplateCreationController {
-    
-    @AuraEnabled
-    public static List<ObjectInfo> getObjects() {
-        List<ObjectInfo> objectsInfo = new List<ObjectInfo>();
-        try {
-            for ( Schema.SObjectType o : Schema.getGlobalDescribe().values() )
-            {
-                Schema.DescribeSObjectResult objResult = o.getDescribe();
-                ObjectInfo info = new ObjectInfo();
-                info.name = objResult.getLabel();
-                info.apiName = objResult.getName();
-                if(!info.apiName.containsignorecase('history') && !info.apiName.containsignorecase('tag') &&
-                !info.apiName.containsignorecase('share') && !info.apiName.containsignorecase('feed') && 
-                !info.apiName.containsignorecase('group') && !info.apiName.containsignorecase('public') &&
-                !objResult.isCustomSetting() && objResult.isCreateable() &&
-                objResult.getRecordTypeInfos().size() > 0){
-                    objectsInfo.add(info);
-                }
-            }
-    
-            System.debug('All objects size:: ' + objectsInfo.size());
-            System.debug('All objects :: ' + objectsInfo);
-        } catch (Exception e) {
-            System.debug('Error in getObjects =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'NewTemplateCreationController', 'getObjects');
-        }
-        return objectsInfo;
-    }
 
     @AuraEnabled
     public static List<String> getTemplateTypes() {
@@ -99,11 +71,6 @@ public with sharing class NewTemplateCreationController {
             throw new AuraHandledException('error saving template.');
         }
         return templateId;
-    }
-    
-    public class ObjectInfo {
-        @AuraEnabled public String name;
-        @AuraEnabled public String apiName;
     }
 
     public class TemplateData{
