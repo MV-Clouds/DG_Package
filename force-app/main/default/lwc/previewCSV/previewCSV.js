@@ -1,6 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import fetchPreviewData from '@salesforce/apex/PreviewCSVController.fetchPreviewData';
-import {navigationComps, nameSpace} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class previewCSV extends NavigationMixin(LightningElement) {
@@ -11,15 +11,8 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     _popup;
     @api get isPopup(){ return this._popup }
     set isPopup(value){ this._popup= value === "true" ?  true : false }
-    // @api isPopup = false; 
     @api showAdditionalInfo = false;
-
-
-    // @track showModel= true;
     @track noResultsFound = false;
-
-
-    //to show spinner
     @track showSpinner = false;
 
     // Preview Data
@@ -58,7 +51,6 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
         fetchPreviewData({templateId: this.templateId})
         .then((result) =>{
             this.noResultsFound = true;
-            console.log('Received preview data::', result);
             this.previewData = result.records;
             this.fields = result.fields?.split(',');
             this.additionalData['Name'] = result.templateName;
@@ -72,7 +64,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             this.showSpinner = false;
         })
         .catch(e=>{
-            console.log('error fetching preview data::', e.message);
+            errorDebugger('previewCSV', 'getPreviewData', e, 'warn');
             this.showSpinner = false;
         })
     }
@@ -90,7 +82,6 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
 
             // Display additional fields if checkbox is ticked
             if(this.showAdditionalInfo){
-                console.log('in the additional fields');
                 this.additionalFields.forEach(field => {
                     const tableRow = document.createElement('tr');
                     tableRow.style.cssText = `
@@ -181,7 +172,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             });
         
         }catch(e){
-            console.log('Error in setData :', e.message);
+            errorDebugger('previewCSV', 'setData', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -194,12 +185,11 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     // Get Back to the Document Generator
     handleBackClick(){
         try{
-            console.log('Event Dispatched::');
             this.dispatchEvent(new CustomEvent('close',{
                 detail : true
             }));
         }catch(e){
-            console.log('Error in handleBackClick ,' , e.message);
+            errorDebugger('previewCSV', 'handleBackClick', e, 'warn');
         }
     }
 
@@ -213,7 +203,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             }
             this.navigateToComp(navigationComps.csvTemplateBuilder, paramToPass);
         }catch(e){
-            console.log('Error in Edit Navigation ', e.stack);
+            errorDebugger('previewCSV', 'handleEditClick', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -224,7 +214,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
         try{
             this.isGenerate = true;
         }catch(e){
-            console.log('Error in Generate Navigation ', e.stack);
+            errorDebugger('previewCSV', 'handleGenerateClick', e, 'warn');
         }
     }
 
@@ -249,15 +239,14 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             }
             
             let encodedDef = btoa(JSON.stringify(cmpDef));
-            // console.log('encodedDef : ', encodedDef);
             this[NavigationMixin.Navigate]({
                 type: "standard__webPage",
                 attributes: {
                 url:  "/one/one.app#" + encodedDef
                 }
             });
-        } catch (error) {
-            console.log('error in navigateToComp : ', error.stack);
+        } catch (e) {
+            errorDebugger('previewCSV', 'navigateToComp', e, 'error');
         }
     }
 }

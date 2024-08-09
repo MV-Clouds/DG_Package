@@ -218,7 +218,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
         // Combine the prioritized fields and the remaining fields
         let updatedFieldOptions = [...fieldOptionsUpdated, ...alreadySelectedRemainingOptions]
-        return fieldOptionsUpdated.length ===0 ? optionsNotSelected : updatedFieldOptions ;
+        return updatedFieldOptions ;
     }
 
 //-=-=- Specially to show Index from 1, instead of 0 for the Sorts -=-=-
@@ -1095,7 +1095,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         try {
             const index = event.target.dataset.index;
             // console.log(this.filters[index].operator != "=" && this.filters[index].operator != "!=" && (this.filters[index].type.toUpperCase() !== 'DATETIME' || this.filters[index].type.toUpperCase() !=='DATE'));
-            if((['ID','REFERENCE'].includes(this.filters[index].type.toUpperCase())) || this.filters[index].operator != "=" && this.filters[index].operator != "!=" && !['DATETIME', 'DATE'].includes(this.filters[index].type.toUpperCase())){
+            if(this.filters[index].operator != "=" && this.filters[index].operator != "!=" && !['DATETIME', 'DATE'].includes(this.filters[index].type.toUpperCase())){
                 return;
             }
             if(this.filters[index].type !== 'DATETIME' && this.filters[index].type !== 'DATE'){
@@ -2017,11 +2017,12 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                             invalidData = {type: 'error', message: 'Oops! You missed to fill data!', description: 'Please fill the valid data to filter records..', duration: 5000};
                             foundError = true;
                         }
-                    } else if (filter.fieldName && filter.operator && (filter.type.toUpperCase() === 'REFERENCE' || filter.type.toUpperCase() === 'ID')) {
+                    } else if (filter.fieldName && filter.operator && ((filter.type.toUpperCase() === 'REFERENCE' || filter.type.toUpperCase() === 'ID') && filter.value.toUpperCase()!=='NULL')) {
                         let promise = validateRelatedObject({ objName: this.objectName, apiName: filter.fieldName.toUpperCase() })
                         .then(objPrefix => {
                             if (!(objPrefix && filter.value.slice(0, 3) === objPrefix && (filter.value.length === 15 || filter.value.length === 18))) {
                                 filterIndexDiv[i]?.classList.add('error-in-row');
+                                this.template.querySelectorAll('.value-select-div')[i]?.classList.add('error-in-value-input');
                                 if (!foundError) {
                                     invalidData = {type: 'error', message: 'Oops! You Filled Incorrect data!', description: 'Please correct the id in the record ID fields..', duration: 5000};
                                     foundError = true;
