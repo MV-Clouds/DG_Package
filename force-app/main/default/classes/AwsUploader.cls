@@ -183,6 +183,7 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
                    'To resolve this issue, please check the following:\n\n' +
                    '1. Ensure that you have the correct permissions to upload files to the specified AWS folder.\n' +
                    '2. Verify that your AWS account has the appropriate access rights.\n\n' +
+                   'If you face any issue you can use NAMED CREDENTIAL. \n'+
                    'If you continue to experience difficulties, please don\'t hesitate to reach out to our support team for further assistance.\n\n' +
                    'Thank you for your attention to this matter.\n\n' +
                    'Best regards,\n' +
