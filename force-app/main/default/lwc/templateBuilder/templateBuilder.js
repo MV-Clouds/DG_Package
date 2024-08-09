@@ -12,37 +12,40 @@ import {navigationComps, nameSpace, pageFormats, unitMultiplier, unitConverter, 
 
 export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
-    @api templateId;
-    @api objectName;
-    @api activeTabName;
+    @api templateId;                                // Template Id 
+    @api objectName;                                // Source Object API name
+    @api activeTabName;                             // To define active tab
 
-    @track defaultTab = 'contentTab';
-    @track startchat = true; // chatbot variable
-    @track isSpinner = false;
-    @track isPreview = false;
-    isIntialRender = true;
+    @track defaultTab = 'contentTab';               // To open default on component load
+    @track startchat = true;                        // To used in chatbot
+    @track isSpinner = false;                       // To show hide spinner
+    @track isPreview = false;                       // To Show hide preview modal
+    isInitialRender = true;                         // To check dom and editor rended or not
 
-    @track bodyData = '';
-    @track headerData = '';
-    @track headerData = '';
+    @track bodyData = '';                           // To store template main content data.
+    @track headerData = '';                         // To store template header data.
+    @track headerData = '';                         // To store template footer data.
 
-    @track templateRecord = {}
-    @track tempRecordBackup = {}
+    @track templateRecord = {}                      // Store template record field data,
+    @track tempRecordBackup = {}                    // for backup to revert template data on cancel click,
 
-    @track vfPageSRC = ''
-    successCount = 1;
+    @track vfPageSRC = ''                           // DocGenerate VF page src to generate preview or file,
 
     @track isMappingContainerExpanded = false;      // #fieldMapping...
 
-    contentEditor;
-    headerEditor;
-    footerEditor;
-    bodyData;
-    valueInserted = false;
-    dataLoaded = false;
-    searchFieldValue = '';
-    @track loaderLabel = null;
+    contentEditor;                                  // store initialize main content editor for further process
+    headerEditor;                                   // store initialize header editor for further process
+    footerEditor;                                   // store initialize footer editor for further process
 
+    valueInserted = false;                          // To check template content data insert or not in editor to stop spinner,
+    dataLoaded = false;                             // To check data fetch or not from backed to stop spinner,
+    searchFieldValue = '';                          
+    @track loaderLabel = null;                      // To set label of loaded based on on-going process
+
+    /**
+     * variable to store page configuration to display on UI, used in HTML
+     * value into this variable assigned from MVDG__Template_Page__c record fetched from backed..
+     */
     @track pageConfigs = {
         pageMargins : [
             {name : 'top', value : 1},
@@ -82,23 +85,26 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     }
 
+    /**
+     * Used to store value fetched from MVDG__Template_Page__c record.
+     */
     @track pageConfigRecord = {};
     currentPageWidth = 792;             // in PX...
     currentPageHeight = 1120;           // in PX...
 
-    lastRelatedListTableCount = 0;
-    maxRelatedLIstTableLimit = 10;
+    lastRelatedListTableCount = 0;      // Count of inserted relate list (child object) table
+    maxRelatedLIstTableLimit = 10;      // Maximum limit of relate list (child object) table
 
-    allowFontFamily = ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana'];
-    maxImageSize = 3*1024*1024;
-    allowFileExtensions = ".png,.jpg,.jpeg,.avif,.webp,.heic,.ico,.jfif,.jps,.jpe";
+    maxImageSize = 3*1024*1024;         // Max image size to upload using editor
+    allowFileExtensions = ".png,.jpg,.jpeg,.avif,.webp,.heic,.ico,.jfif,.jps,.jpe";       // Allow file extension using editor  
 
-    // watermark options
+    /**
+     * Option for watermark [Currently it is not available]
+     */
     @track watermarkOptsTabs = {
         watermarkImage : true,
         watermarkText : false
     }
-
     @track watermark = {
         text : {
             text : '',
@@ -124,8 +130,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         },
     }
 
-    isPageSetup = false;
-    @track activePageConfigs = [];
+    isPageSetup = false;                    // To defined page setup is open or not
+    @track activePageConfigs = [];          // To set by default open page config accordions
 
    get setdocGeniusLogoSvg(){
     return docGeniusLogoSvg;
@@ -174,7 +180,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     renderedCallback(){
         try {
-            if(this.isIntialRender){
+            if(this.isInitialRender){
                 // this.isSpinner = true;
                 // ------------------------------------- Editor  -------------------------------------------
                 Promise.all([
@@ -193,7 +199,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         loadScript(this, summerNote_Editor + '/codeMirror/xml.js'),
                     ])
                     .then(res => {
-                        this.isIntialRender = false;
+                        this.isInitialRender = false;
                         console.log('library loaded SuccessFully', {res});
                         this.initialize_Content_Editor();
                         this.initialize_Header_Editor();

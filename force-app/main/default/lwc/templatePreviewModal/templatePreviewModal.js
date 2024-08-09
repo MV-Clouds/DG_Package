@@ -167,8 +167,7 @@ export default class TemplatePreviewModal extends LightningElement {
                     'useMode' : 'preview',
                 }
                 var paraDataStringify = JSON.stringify(paraData);
-    
-                // var newSRC = '/apex/DocPreviewPage?paraData=' + paraDataStringify;
+
                 // var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
                 var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify;
     

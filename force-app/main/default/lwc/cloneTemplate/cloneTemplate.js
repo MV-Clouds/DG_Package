@@ -26,7 +26,7 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
     @track templateBody = true;
     @track header = true;
     @track footer = true;
-    @track watermark = true;
+    // @track watermark = true;
     @track pageConfiguration = true;
     @track templateTypeSimple = false;
     @track templateTypeCSV = false;
@@ -106,9 +106,9 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
             if(this.templateType == 'Simple Template'){
                 let templateBody = this.template.querySelector(`[data-name="templateBody"]`).checked;
                 console.log('templateBody *** : ',templateBody);
-                let watermark = this.template.querySelector(`[data-name="watermark"]`).checked;
-                console.log('watermark *** : ',watermark);
-                let header = this.template.querySelector(`[data-name="watermark"]`).checked;
+                // let watermark = this.template.querySelector(`[data-name="watermark"]`).checked;
+                // console.log('watermark *** : ',watermark);
+                let header = this.template.querySelector(`[data-name="header"]`).checked;
                 console.log('header *** : ',header);
                 let pageConfiguration = this.template.querySelector(`[data-name="pageConfiguration"]`).checked;
                 console.log('pageConfiguration *** : ',pageConfiguration);
@@ -117,7 +117,7 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
                 const newTemplateOption = {
                     templateType:this.templateType,
                     templateBody: templateBody,
-                    watermark: watermark,
+                    // watermark: watermark,
                     header: header,
                     pageConfiguration: pageConfiguration,
                     footer:footer
