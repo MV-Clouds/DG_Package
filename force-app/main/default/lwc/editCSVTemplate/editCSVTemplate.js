@@ -1184,11 +1184,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     filter.inputType = 'number';
                 }else if(fieldType == 'date' && !this.allPreDefinedValues.includes(filter.value.trim())){
                     filter.inputType = 'date';
-                // }else if(fieldType == 'boolean'){
-                //     filter.inputType = 'toggle';
-                //     // console.log('this is a boolean field' + index);
-                //     this.template.querySelectorAll('.value-select-for-toggle')[index].checked = (filter.value=='true' ? true : false);
-                }else if(fieldType == 'datetime' && !this.allPreDefinedValues.includes(filter.value.trim())){
+                }else if(fieldType == 'datetime' && !this.allPreDefinedValues.includes(filter.value.trim().replace('_',' '))){
                     filter.inputType = 'datetime';
                 }else if(fieldType == 'email' && !this.allPreDefinedValues.includes(filter.value.trim())){
                     filter.inputType = 'email';
@@ -1198,7 +1194,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     filter.inputType = 'text';
                 }
             }else{
-                // console.log('This Field type ::', fieldType);
                 if(fieldType == 'picklist' || fieldType == 'multipicklist'){
     
                     // console.log('this field is :::  ' , this.allRetrievedFields.filter((option) => option.apiName==filter.fieldName)[0].picklistValues[0]);
@@ -2270,9 +2265,12 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         try{
             if(this.isNew && !this.showBasicDetailTab){
                 this.selectedListView = event.currentTarget.dataset.value;
-                this.newTemplateData.selectedListView = this.selectedListView;
+                this.newTemplateData.MVDG__List_View__c = this.selectedListView;
+                this.existingTemplateData.MVDG__List_View__c = this.selectedListView;
                 this.isListViewUpdated = true;
                 this.handleListView();
+                console.log('Selected list view in selection::', this.selectedListView);
+                
                 return;
             }
             this.tempListView = this.selectedListView;
