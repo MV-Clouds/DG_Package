@@ -6,7 +6,6 @@ public with sharing class CloneTemplateDataController {
 
         String templateType = dataMap.get('templateType');
         String templateBody;
-        // String watermark;
         String header;
         String pageConfiguration;
         String footer;
@@ -81,7 +80,7 @@ public with sharing class CloneTemplateDataController {
                 insert newTempDataSimpel;
             }
             else if(templateType == 'CSV Template'){
-                List<MVDG__Template_Data__c> cloneTemplateData;
+                List<MVDG__Template_Data__c> cloneTemplateData = new List<MVDG__Template_Data__c>();
                 cloneTemplateData = [SELECT Id, Name, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c, MVDG__Template__c, MVDG__Template_Page__c, MVDG__Order_No_Simple__c, MVDG__Value_Type__c ,MVDG__CSV_Orders__c,MVDG__CSV_Limit__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =: templateId];
                 selectedFields = dataMap.get('newSelectedFields');
                 fieldsFilters = dataMap.get('newFieldsFilters');
