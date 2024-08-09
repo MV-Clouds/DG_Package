@@ -585,11 +585,7 @@ export default class ChatBot extends LightningElement {
         this.rendered = false;
         this.popupOpen = false;
         this.isFeedbackPopup = false;
-        this.dispatchEvent(new CustomEvent('toggleclose', {
-            detail: {
-                message: this.startchat
-            }
-        }));
+        
     }
 
     updateScroll(){
@@ -668,11 +664,6 @@ export default class ChatBot extends LightningElement {
     handleClearClose(){
         this.rendered = false;
         this.popupOpen = false;
-        this.dispatchEvent(new CustomEvent('toggleclose', {
-            detail: {
-                message: this.startchat
-            }
-        }));
         this.handleChat();
     }
 
