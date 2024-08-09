@@ -93,14 +93,9 @@ public with sharing class GenerateDocumentControllerTest {
     @isTest
     static void testGetTemplateData(){
         MVDG__Template__c t = [SELECT Id FROM MVDG__Template__c LIMIT 1];
-        MVDG__Template_Page__c tp = new MVDG__Template_Page__c(
-            MVDG__Page_Number__c =001,
-            MVDG__Template__c = t.Id
-        );
-        insert tp;
+
         MVDG__Template_Data__c td= new MVDG__Template_Data__c(
             MVDG__Template__c = t.Id,
-            MVDG__Template_Page__c = tp.Id,
             MVDG__CSV_Query__c = 'SELECT Id FROM Account',
             MVDG__CSV_Fields__c = 'Id, Name'
         );

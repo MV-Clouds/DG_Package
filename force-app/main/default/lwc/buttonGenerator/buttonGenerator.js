@@ -229,7 +229,7 @@ export default class ButtonGenerator extends LightningElement {
                                 this.fetchAlreadyCreatedObjects();
                                 console.log('failedButtonsNumber ::: ', failedButtonsNumber);
                                 if(failedButtonsNumber > 0){
-                                    this.showToast('error','Something went Wrong!','There was error creating '+ failedButtonsNumber + (failedButtonsNumber==1?' button,' : 'buttons,') + 'please try again...', 5000);
+                                    this.showToast('error','Something went Wrong!','There was error creating '+ failedButtonsNumber + (failedButtonsNumber==1?' button,' : ' buttons,') + 'please try again...', 5000);
                                 }
                             }
                             console.log(result);

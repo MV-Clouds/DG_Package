@@ -1,16 +1,40 @@
 public with sharing class EditCSVTemplateController {
 
-/*
-*********************************************************
-@description    : Method is used to test the query generated, using executing the query once
-@param query    : {String} - Generated query string based on the Selections
-@return         : (Nothing will be returned)
-********************************************************
-*/
+    /*
+    *********************************************************
+    @description        : Method is used to redcuce apex callout and faster the process by combining multiple results
+    @param templateId   : {String} - Id for the template to fetch
+    @param objName      : {String} - name of the object
+    @return             : {CombinedDataWrapper} - wrapper combining all the data
+    ********************************************************
+    */
+    @AuraEnabled
+    public static CombinedDataWrapper getCombinedData(String templateId, String objName){
+        CombinedDataWrapper cdw = new CombinedDataWrapper();
+        try {
+            cdw.template = getTemplateDetails(templateId);
+            cdw.templateData = getTemplateFieldsData(templateId);
+            cdw.listViews = getListViews(objName);
+            cdw.isSuccess = cdw.template != null && cdw.templateData != null && cdw.listViews != null ? true : false;
+        }catch (Exception e) {
+            Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'getCombinedData');
+            cdw.isSuccess = false;
+        }
+        return cdw;
+    }
+
+    /*
+    *********************************************************
+    @description    : Method is used to test the query generated, using executing the query once
+    @param templateId    : {String} - Id for the template to fetch
+    @return         : (Nothing will be returned)
+    ********************************************************
+    */
     @AuraEnabled
     public static MVDG__Template__c getTemplateDetails(String templateId){
         try {
-            List<MVDG__Template__c> templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c, MVDG__List_View__c, MVDG__Object_API_Name__c, CreatedDate, CreatedBy.Name, MVDG__Template_Status__c, MVDG__Template_Type__c, LastModifiedDate, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id =:templateId lIMIT 1];
+            List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
+            templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c, MVDG__List_View__c, MVDG__Object_API_Name__c, CreatedDate, CreatedBy.Name, MVDG__Template_Status__c, MVDG__Template_Type__c, LastModifiedDate, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id =:templateId WITH SECURITY_ENFORCED lIMIT 1];
             if(templates.size() > 0){
                 return templates[0];
             }
@@ -22,13 +46,13 @@ public with sharing class EditCSVTemplateController {
     }
 
     // -=-=- This method is used for to get the Template fields records if there are any for any template -=-=- 
-/*
-*********************************************************
-@description     : Method is used to fetch data from the template fields records associated with template (if there are any)
-@param templateId: {String} - Id of the current  template
-@return          : TemplateDataWrapper - including the Selected Fields and the custom Separator Separated Filters String
-********************************************************
-*/
+    /*
+    *********************************************************
+    @description     : Method is used to fetch data from the template fields records associated with template (if there are any)
+    @param templateId: {String} - Id of the current  template
+    @return          : TemplateDataWrapper - including the Selected Fields and the custom Separator Separated Filters String
+    ********************************************************
+    */
     @AuraEnabled
     public static TemplateDataWrapper getTemplateFieldsData(String templateId){
         TemplateDataWrapper allData = new TemplateDataWrapper();
@@ -51,61 +75,63 @@ public with sharing class EditCSVTemplateController {
                 allData.fields = tf[0].MVDG__CSV_Fields__c;
             }
             System.debug('Template Fields Data Fetched: ' + allData);
+            return allData;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'getTemplateField');
+            return null;
         }
-        return allData;
     }
     
-/*
-*********************************************************
-@description    : Method is used to save all the Selected fields and the filters on the template fields associated with the selected template
-@param allFields   : {String} - name of the object
-@param templateId  : {String} - Id of the current template
-@param query       : {String} - Generated query string based on the Selections
-@param filters     : {String} - Generated Custom separator separated String, to store all sorts, filters, logic and Limit
-@return         : (Nothing will be returned)
-********************************************************
-*/
+    /*
+    *********************************************************
+    @description    : Method is used to fetch all the list views of the object 
+    @param objName  : {String} - name of the object
+    @return         : {List<ListView>} - Will return the list of  Id and Name of all the list views of the object
+    ********************************************************
+    */
     @AuraEnabled
-    public static void saveTemplateFields(String templateId, String query, TemplateDataWrapper configData){
+    public static List<ListView> getListViews(String objName){
         try {
-            List<MVDG__Template_Data__c> existingData = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c, MVDG__Template_Page__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
-            List<MVDG__Template_Page__c> existingPage = [SELECT Id FROM MVDG__Template_Page__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED];
-            // List<String> filterParts = new List<String>();
+            List<ListView> listViews = new List<ListView>();
+            listViews = [SELECT Id,Name FROM ListView WHERE SobjectType =:objName WITH SECURITY_ENFORCED];
+            return listViews;
+        }catch (Exception e) {
+            Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'getListViews');
+            return null;
+        }
+    }
 
-            System.debug('Config Data : ' + configData);
-            System.debug('Template : ' + templateId);
-            System.debug('Fields Count :: ' + existingData.size());
-            System.debug('Pages Count :: ' + existingPage.size());
+
+    /*
+    *********************************************************
+    @description    : Method is used to save all the Selected fields and the filters on the template fields associated with the selected template
+    @param configData   : {Map<String,String>} - all the data that needs to be saved in the template data object
+    @return         : (Nothing will be returned)
+    ********************************************************
+    */
+    @AuraEnabled
+    public static void saveTemplateFields(Map<String,String> configData){
+        try {
+            List<MVDG__Template_Data__c> existingData = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:configData.get('templateId') WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
 
             MVDG__Template__c template = new MVDG__Template__c(
-                Id = templateId,
-                MVDG__List_View__c = configData.listView
+                Id = configData.get('templateId'),
+                MVDG__List_View__c = configData.get('listView')
             );
+            if(!Schema.sObjectType.MVDG__Template__c.isUpdateable()){
+                throw new AuraHandledException('You can not update the object Template.');
+            }
             update template;
 
-            MVDG__Template_Page__c tp = new MVDG__Template_Page__c();
-            tp.MVDG__Page_Number__c =001;
-            tp.MVDG__Template__c = templateId;
-            if(existingPage.size() > 0){
-                tp.Id = existingPage[0].Id;
-            }
-
-            if(Schema.sObjectType.MVDG__Template_Page__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){
-                upsert tp;
-            }
-
             MVDG__Template_Data__c td = new MVDG__Template_Data__c();
-            td.MVDG__Template__c = templateId;
-            td.MVDG__Template_Page__c = tp.id;
-            td.MVDG__CSV_Fields__c = configData.fields;
-            td.MVDG__CSV_Filter__c = configData.filters;
-            td.MVDG__CSV_Orders__c = configData.orders;
-            td.MVDG__CSV_Query__c = query;
-            td.MVDG__CSV_Logic__c = configData.logic;
-            // td.MVDG__CSV_List_View__c = configData.listView;
-            td.MVDG__CSV_Limit__c = configData.maxLimit;
+            td.MVDG__Template__c = configData.get('templateId');
+            td.MVDG__CSV_Fields__c = configData.get('fields');
+            td.MVDG__CSV_Filter__c = configData.get('filters');
+            td.MVDG__CSV_Orders__c = configData.get('orders');
+            td.MVDG__CSV_Query__c = configData.get('query');
+            td.MVDG__CSV_Logic__c = configData.get('logic');
+            // td.MVDG__CSV_List_View__c = configData.get('listView');
+            td.MVDG__CSV_Limit__c = Integer.valueOf(configData.get('maxLimit'));
 
             if(existingData.size() > 0){
                 td.Id = existingData[0].Id;
@@ -116,17 +142,18 @@ public with sharing class EditCSVTemplateController {
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'saveTemplateFields');
+            throw new AuraHandledException(e.getMessage());
         }
     }
 
-/*
-*********************************************************
-@description    : Method is used to validate the Id entered in the field of ID and the lookups
-@param objName  : {String} - name of the object
-@param apiName  : {String} - api name of the field
-@return         : {String} - Will return the Object Id prefix
-********************************************************
-*/
+    /*
+    *********************************************************
+    @description    : Method is used to validate the Id entered in the field of ID and the lookups
+    @param objName  : {String} - name of the object
+    @param apiName  : {String} - api name of the field
+    @return         : {String} - Will return the Object Id prefix
+    ********************************************************
+    */
     @AuraEnabled
     public static String validateRelatedObject(String objName, String apiName){
         String prefix = '';
@@ -158,85 +185,89 @@ public with sharing class EditCSVTemplateController {
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'validateRelatedObject');
+            throw new AuraHandledException(e.getMessage());
         }
         return prefix;
     }
 
-/*
-*********************************************************
-@description    : Method is used to fetch all the list views of the object 
-@param objName  : {String} - name of the object
-@return         : {List<ListView>} - Will return the list of  Id and Name of all the list views of the object
-********************************************************
-*/
+    /*
+    *********************************************************
+    @description    : Method is used to update the basic details of the template
+    @param templateInfo  : {Map<String, String>} - Data Needed to update for the template
+    @return         : (Nothing will be returned)
+    ********************************************************
+    */
     @AuraEnabled
-    public static List<ListView> getListViews(String objName){
-        List<ListView> listViews = new List<ListView>();
-        try {
-            listViews = [SELECT Id,Name FROM ListView WHERE SobjectType =:objName WITH SECURITY_ENFORCED];
-            System.debug(listViews);
-        }catch (Exception e) {
-            Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'getListViews');
-        }
-        return listViews;
-    }
-
-/*
-*********************************************************
-@description    : Method is used to update the basic details of the template
-@param templateId  : {String} - Id of the current template
-@param templateName : {String} - Name of the current template to update
-@param templateDescription : {String} - Type of the current template to update
-@param templateStatus  : {Boolean} - Status of the current template to update
-@param listView  : {String } - List view selected on the template
-@return         : (Nothing will be returned)
-********************************************************
-*/
-    @AuraEnabled
-    public static void updateTemplate(TemplateInfo templateInfo){
+    public static void updateTemplate(Map<String, String> templateInfo){
         try{
             MVDG__Template__c updatedTemplate = new MVDG__Template__c(
-                Id = templateInfo.templateId,
-                MVDG__Template_Name__c = templateInfo.templateName,
-                MVDG__Description__c = templateInfo.templateDescription,
-                MVDG__Template_Status__c = templateInfo.templateStatus,
-                MVDG__List_View__c = templateInfo.listView
+                Id = templateInfo.get('templateId'),
+                MVDG__Template_Name__c = templateInfo.get('templateName'),
+                MVDG__Description__c = templateInfo.get('templateDescription'),
+                MVDG__Template_Status__c = Boolean.valueOf(templateInfo.get('templateStatus')),
+                MVDG__List_View__c = templateInfo.get('listView')
             );
-
-            if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
-                update updatedTemplate;
+            if(!Schema.sObjectType.MVDG__Template__c.isUpdateable()){
+                throw new AuraHandledException('you can not update the template object.');
             }
+            update updatedTemplate;
         }catch(Exception e){
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'updateTemplate');
+            throw new AuraHandledException(e.getMessage());
         }
     }
 
-    // -=-=- this wrapper is used to store the fieldName, apiName and fieldType of an Object selected -=-=- 
-    // -=-=-  this wrapper is used in a method getFields -=-=- 
-    public class FieldInfoWrapper {
-        @AuraEnabled public String fieldName { get; set; }
-        @AuraEnabled public String apiName { get; set; }
-        @AuraEnabled public String fieldType { get; set; }
-        @AuraEnabled public List<String> picklistValues { get; set; }
-        @AuraEnabled public Boolean isSearchable { get; set; }
-    }
-
-    // -=-=- this wrapper is used to store the fields and filters strings containing data from existing template Fields for any template -=-=-
-    // -=-=- this wrapper is used in a method getTemplateFieldsData -=-=-
+    /*
+    *********************************************************
+    @description    : Wrapper class to contain all the data about the template Data record
+    @param fields  : {String} - selected column fields for the csv
+    @param filters : {String} - Created filters for the csv
+    @param listView : {String} - applied list view
+    @param logic  : {String} - applied logic
+    @param orders  : {String } - applied sort orders
+    @param maxLimit  : {Integer} - Max number of records in the csv
+    ********************************************************
+    */
     public class TemplateDataWrapper {
-        @AuraEnabled public String fields { get; set; }
-        @AuraEnabled public String filters { get; set; }
-        @AuraEnabled public String listView { get; set; }
-        @AuraEnabled public String logic { get; set; }
-        @AuraEnabled public String orders { get; set; }
-        @AuraEnabled public Decimal maxLimit { get; set; }
+        @AuraEnabled public String fields;
+        @AuraEnabled public String filters;
+        @AuraEnabled public String listView;
+        @AuraEnabled public String logic;
+        @AuraEnabled public String orders;
+        @AuraEnabled public Decimal maxLimit;
     }
 
+    /*
+    *********************************************************
+    @description    : Wrapper class to contain all data about the template
+    @param templateId  : {String} - Id of the current template
+    @param templateName : {String} - Name of the current template to update
+    @param templateDescription : {String} - Type of the current template to update
+    @param templateStatus  : {Boolean} - Status of the current template to update
+    @param listView  : {String } - List view selected on the template
+    ********************************************************
+    */
     public class TemplateInfo{
-        @AuraEnabled public String templateId { get; set; }
-        @AuraEnabled public String templateName { get; set; }
-        @AuraEnabled public String templateDescription { get; set; }
-        @AuraEnabled public Boolean templateStatus { get; set; }
-        @AuraEnabled public String listView { get; set; }
+        @AuraEnabled public String templateId;
+        @AuraEnabled public String templateName;
+        @AuraEnabled public String templateDescription;
+        @AuraEnabled public Boolean templateStatus;
+        @AuraEnabled public String listView;
+    }
+
+    /*
+    *********************************************************
+    @description         : Wrapper class to contain combined data of three other methods
+    @param template      : {MVDG__Template__c} - template related data
+    @param templateData  : {TemplateDataWrapper} - template data record related to template
+    @param listViews     : {List<ListView>} - List of the list view on an object
+    @param isSuccess     : {Boolean} - flag to determine if the process was successfull or not
+    ********************************************************
+    */
+    public class CombinedDataWrapper{
+        @AuraEnabled public MVDG__Template__c template;
+        @AuraEnabled public TemplateDataWrapper templateData;
+        @AuraEnabled public List<ListView> listViews;
+        @AuraEnabled public Boolean isSuccess;
     }
 }
