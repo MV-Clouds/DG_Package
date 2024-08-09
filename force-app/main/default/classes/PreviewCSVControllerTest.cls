@@ -17,14 +17,8 @@ public with sharing class PreviewCSVControllerTest {
         );
         insert a;
 
-        MVDG__Template_Page__c tp = new MVDG__Template_Page__c(
-            MVDG__Page_Number__c =001,
-            MVDG__Template__c = template.Id
-        );
-        insert tp;
         MVDG__Template_Data__c td= new MVDG__Template_Data__c(
             MVDG__Template__c = template.Id,
-            MVDG__Template_Page__c = tp.Id,
             MVDG__CSV_Query__c = 'SELECT Id FROM Account',
             MVDG__CSV_Fields__c = 'Id, Name'
         );

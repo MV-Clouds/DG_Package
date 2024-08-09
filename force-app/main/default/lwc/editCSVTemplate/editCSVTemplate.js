@@ -5,6 +5,7 @@ import saveTemplateFields from '@salesforce/apex/EditCSVTemplateController.saveT
 import getTemplateFieldsData from '@salesforce/apex/EditCSVTemplateController.getTemplateFieldsData';
 import validateRelatedObject from '@salesforce/apex/EditCSVTemplateController.validateRelatedObject';
 import getListViews from '@salesforce/apex/EditCSVTemplateController.getListViews';
+import getCombinedData from '@salesforce/apex/EditCSVTemplateController.getCombinedData';
 import getSessionId from '@salesforce/apex/GenerateDocumentController.getSessionId';
 import updateTemplate from '@salesforce/apex/EditCSVTemplateController.updateTemplate';
 import {NavigationMixin} from 'lightning/navigation';
@@ -267,7 +268,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     _resolvedPromise = 0;
     get resolvedPromise(){ return this._resolvedPromise;}
     set resolvedPromise(value){
-        let totalProcess = this.isChild ? 1 : 4;
+        let totalProcess = this.isChild ? 1 : 2;
         (value == totalProcess) && (this.showSpinner = false);
         this._resolvedPromise = value;
     }
@@ -279,56 +280,69 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             this.limit = this.isChild ? this.childMaxLimit : 1000000;
             this.existingLimit = this.limit;
 
-            !this.isChild && this.fetchTemplateDetails();
-            !this.isChild && this.fetchListViews();
             this.fetchFields();
-            !this.isChild && this.fetchTemplateFieldsData();
+            !this.isChild && this.fetchCombinedData();
         } catch (e) {
             console.error('Error in connectedCallback:', e.stack);
         }
     }
-    testLoading(){
-        console.log('Content loaded !!!');
-    }
-    fetchTemplateDetails(){
+
+
+    fetchCombinedData(){
         try {
-            getTemplateDetails({ templateId: this.templateId })
-            .then((data) => {
-                if(data){
-                    this.existingTemplateData = JSON.parse(JSON.stringify(data));
-                    this.newTemplateData = JSON.parse(JSON.stringify(this.existingTemplateData));
-                    this.resolvedPromise++;
+            getCombinedData({templateId: this.templateId, objName: this.objectName})
+            .then((combinedData) => {
+                console.log('Combined Data is ::', combinedData);
+                if(combinedData.isSuccess){
+                    combinedData.template ? this.setupTemplateDetails(combinedData.template) : undefined;
+                    combinedData.templateData ? this.setupTemplateDataDetails(combinedData.templateData) : undefined;
+                    combinedData.listViews ? this.setUpListViews(combinedData.listViews) : undefined;
                 }else{
-                    console.log('Template details not found...');
-                    this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
+                    this.showWarningPopup('error','Something went wrong!', 'Couldn\'t fetch the required data for this template, please try again...');
                     this.isEditorClose = true;
                 }
             })
-            .catch(e => {
-                this.resolvedPromise++;
-                console.log('Error in getTemplateDetails ::', e.message);
+            .catch((e) => {
+                console.error('Error in getCombinedData:', e.stack);
+                this.showWarningPopup('error','Something went wrong!', 'Couldn\'t fetch the required data for this template, please try again...');
+                this.isEditorClose = true;
             })
+            .finally(()=>{
+                this.resolvedPromise++;
+            })
+        } catch (e) {
+            console.log('Error in function fetchCombinedData:::', e.message);
+            this.showWarningPopup('error','Something went wrong!', 'Couldn\'t fetch the required data for this template, please try again...');
+            this.isEditorClose = true;
+        }
+    }
+    setupTemplateDetails(data){
+        try {
+            console.log('Setting up template ', data);
+            this.existingTemplateData = JSON.parse(JSON.stringify(data));
+            this.newTemplateData = JSON.parse(JSON.stringify(this.existingTemplateData));
         } catch (error) {
-            this.resolvedPromise++;
             this.handleError('Error fetching details from template:', error.stack);
         }
     }
-    
-    fetchListViews() {
+
+    setupTemplateDataDetails(data) {
         try {
-            getListViews({ objName: this.objectName })
-            .then(data => {
-                this.allListViews = data.map(listView => ({ label: listView.Name, value: listView.Id }));
-                this.showListViewPopup = this.isNew && this.allListViews.length>0 ?  true : false;
-                this.resolvedPromise++;
-            })
-            .catch(e => {
-                this.resolvedPromise++;
-                console.log('Error in getListViews ::', e.message);
-            })
+            console.log('Setting up template data ', data);
+            this.separatedData = data;
+            this.parseFilterString();
         } catch (err) {
-            this.resolvedPromise++;
-            this.handleError('Error fetching list views:', err);
+            this.handleError('Error setting up template field data values:', err);
+        }
+    }
+    
+    setUpListViews(data) {
+        try {
+            console.log('Setting up list view ', data);
+            this.allListViews = data.map(listView => ({ label: listView.Name, value: listView.Id }));
+            this.showListViewPopup = this.isNew && this.allListViews.length>0 ?  true : false;
+        } catch (err) {
+            this.handleError('Error setting up list views:', err);
         }
     }
     
@@ -400,30 +414,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         }
     }
     
-    fetchTemplateFieldsData() {
-        try {
-            getTemplateFieldsData({ templateId: this.templateId })
-            .then(data => {
-                if (data) {
-                    this.separatedData = data;
-                    this.parseFilterString();
-                }
-                this.resolvedPromise++;
-            })
-            .catch(e => {
-                this.resolvedPromise++;
-                console.log('Error in getTemplateFieldsData ::', e.message);
-            })
-        } catch (err) {
-            this.resolvedPromise++;
-            this.handleError('Error fetching template field data values:', err);
-        }
-    }
-    
     handleError(message, error) {
         this.showSpinner = false;
         console.error(message, error);
-        this.showToast('error', 'Oops! Something went wrong', message, 5000);
+        this.showToast('error', 'Something went wrong!', message, 5000);
     }
 
 // -=-=- To override the style of the standard Input fields and the comboboxes -=-=-
@@ -554,6 +548,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.newTemplateData.MVDG__Template_Status__c =this.existingTemplateData.MVDG__Template_Status__c;
                 this.newTemplateData.MVDG__Description__c = this.existingTemplateData.MVDG__Description__c;
                 this.selectedListView = this.existingTemplateData.MVDG__List_View__c;
+                this.isBasicTabChanged = false;
             }else if(activeTabName === 'defaultsTab'){
                 this.showDefaultsTab = true;
                 this.showBasicDetailTab = false;
@@ -2057,7 +2052,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                         this.dispatchEvent(new CustomEvent('save', {detail : {selectedFields: this.selectedFields , query: this.generatedQuery, generatedData : {fields : fields, filters :this.separatedDat }}}));
                     }
                     else{
-                        saveTemplateFields({templateId : this.templateId, query: this.generatedQuery, configData : this.separatedData})
+                        saveTemplateFields({configData : {templateId: this.templateId , query: this.generatedQuery ,...this.separatedData}})
                         .then(()=>{
                             // console.log('Template Fields saved successfully');
                             this.showToast('success', 'Yay! Everything worked!', 'The template fields were saved successfully', 5000);
@@ -2271,29 +2266,30 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     }
 
     handleListViewChange(event){
-        if(this.isNew && !this.showBasicDetailTab){
-            this.selectedListView = event.currentTarget.dataset.value;
-            this.newTemplateData.selectedListView = this.selectedListView;
-            this.isListViewUpdated = true;
-            // console.log('Selected list view ::: ' + this.selectedListView);
-            this.handleListView();
-            return;
+        try{
+            if(this.isNew && !this.showBasicDetailTab){
+                this.selectedListView = event.currentTarget.dataset.value;
+                this.newTemplateData.selectedListView = this.selectedListView;
+                this.isListViewUpdated = true;
+                this.handleListView();
+                return;
+            }
+            this.tempListView = this.selectedListView;
+            this.selectedListView = event.detail[0];
+            if(!this.selectedListView){
+                this.isListViewUpdated = true;
+            }else if(this.selectedListView && this.tempListView!==this.selectedListView && ((this.filters?.length > 0 && this.filters[0].fieldName) || (this.sorts?.length > 0 && this.sorts[0].field) ||(this.selectedFields?.length > 0))){
+                this.showWarningPopup('warning', 'Are you sure to change list view?', 'Changing the list view may override the current changes.');
+                this.isListViewUpdate = true;
+            }
+            this.isBasicTabChanged = true;
+        }catch(e){
+            console.log('Error in handleListViewChange::', e.message);   
         }
-        this.tempListView = this.selectedListView;
-        this.selectedListView = event.detail[0];
-        !this.selectedListView ? this.isListViewUpdated = false : undefined;
-        if(this.selectedListView && this.tempListView!==this.selectedListView && ((this.filters?.length > 0 && this.filters[0].fieldName) || (this.sorts?.length > 0 && this.sorts[0].field) ||(this.selectedFields?.length > 0))){
-            this.showWarningPopup('warning', 'Are you sure to change list view?', 'Changing the list view may override the current changes.');
-        }
-        this.isListViewUpdate = true;
-        this.isBasicTabChanged = true;
-
-        console.log('Is List view Updated ?? ::', this.isListViewUpdated);
     }
 
     handleListViewSearch(event){
         this.listViewSearchKey = event.target.value;
-        // console.log('Searched List view ::: ' + this.listViewSearchKey);
     }
 
     handleDetailsCancel(){
@@ -2362,6 +2358,14 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 .catch((e)=>{
                     console.log('Error updating the existing template :' , e.message);
                     this.showToast('error', 'Oops! Couldn\'t save changes!' , 'Please try updating the data again...', 5000);
+                })
+                .finally(()=>{
+                    console.log('What is isListViewUpdated ::', this.isListViewUpdated);
+                    if(!this.selectedListView || !this.isListViewUpdated){
+                        this.showSpinner = false;
+                        this.showToast('success', 'Everything worked!', 'The Template Details are updated successfully!', 5000);
+                        this.isBasicTabChanged = false;
+                    }
                 })
             }
             if(this.selectedListView){
