@@ -1725,14 +1725,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 'selectedFolder' : this.selectedFolder,
             }
             let paraDataStringify2 = JSON.stringify(paraData2);
-            let newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
+            let newSRC = '/apex/DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
 
             if(newSRC !== previousSRC){
                 this.vfGeneratePageSRC = newSRC;
                 this.simpleTemplate = true;
             }
             else{
-                this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
+                this.vfGeneratePageSRC = '/apex/DocGeneratePage';
                 setTimeout(() => {
                     this.vfGeneratePageSRC = newSRC;
                     this.simpleTemplate = true;

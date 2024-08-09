@@ -668,6 +668,7 @@
                         }
     
                         function generatePDF(node){
+                            
                             const opt = {
                                 // margin : [top, left, bottom, right]
                                 margin: [   marginTop, 
