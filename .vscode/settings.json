@@ -6,5 +6,10 @@
   },
   "cSpell.words": [
     "MVDG"
-  ]
+  ],
+  "salesforce.einsteinForDevelopers.enableDebugLogging": true,
+  "salesforce.einsteinForDevelopers.autocompletionLength": "Short",
+  "salesforce.einsteinForDevelopers.advanced": {
+    
+  }
 }
