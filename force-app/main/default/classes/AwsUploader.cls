@@ -53,7 +53,7 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
 
                 if (fileSize < maxSize) {
                     System.debug('Uploading small file');
-                    uploadObject(fileName, attach.FileExtension, attach.VersionData);
+                    uploadObject(fileName.toLowerCase(), attach.FileExtension, attach.VersionData);
                 } else {
                     if(namedCredential != ''){
                     System.debug('Uploading large file');
