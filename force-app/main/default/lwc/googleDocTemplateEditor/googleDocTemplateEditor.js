@@ -8,7 +8,7 @@ import editTemplate from "@salesforce/apex/GoogleDocTemplateEditorController.edi
 import new_template_bg from "@salesforce/resourceUrl/new_template_bg";
 import homePageImgs from "@salesforce/resourceUrl/homePageImgs";
 import { NavigationMixin } from "lightning/navigation";
-import { errorDebugger } from 'c/globalProperties';
+import { errorDebugger, nameSpace } from 'c/globalProperties';
 
 export default class GoogleDocTemplateEditor extends NavigationMixin(LightningElement) {
     @api templateId;
@@ -94,6 +94,13 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
                     if (result.error) {
                         console.log("Error in getAllRelatedData : ", result.error);
+                        let errorList = result.error.split(":");
+                        const popup = this.template.querySelector("c-message-popup");
+                            popup.showMessagePopup({
+                                title: "Error",
+                                message: errorList[2],
+                                status: "error"
+                            });
                         return;
                     }
 
@@ -125,19 +132,20 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                         this.webViewLink = templateData.MVDG__Google_Doc_WebViewLink__c;
                         this.MVDG__Google_Doc_Template_Id__c = templateData.MVDG__Google_Doc_Template_Id__c;
                         this.documentName = templateData.MVDG__Google_Doc_Name__c;
+                    }
+
+                    if (result.templateData == null && this.allTemplates == null) {
+                        this.isSpinner = false;
+                        this.showPopup = false;
+                        const popup = this.template.querySelector("c-message-popup");
+                        popup.showMessagePopup({
+                            title: "No Google Integration Found",
+                            message: "To create a new template, Google Drive integration is neccessary.",
+                            status: "error"
+                        });
                     } else {
                         this.isSpinner = false;
-                        if (this.profile == null && result.templateData == null && this.allTemplates == null) {
-                            this.showPopup = false;
-                            const popup = this.template.querySelector("c-message-popup");
-                            popup.showMessagePopup({
-                                title: "No Google Integration Found",
-                                message: "To create a new template, Google Drive integration is neccessary.",
-                                status: "error"
-                            });
-                        } else {
-                            this.showPopup = true;
-                        }
+                        this.showPopup = true;
                     }
                 })
                 .catch((error) => {
@@ -289,7 +297,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     navigateToComp(componentName, paramToPass) {
         try {
             console.log("navigateToComp : ", componentName, paramToPass);
-            let nameSpace = "c";
             let cmpDef;
             if (paramToPass && Object.keys(paramToPass).length > 0) {
                 cmpDef = {

@@ -260,7 +260,7 @@ c-key-mapping-container {
     transform: rotate(-90deg);
 }
 
-svg.refresh:hover {
+.refresh-div:hover svg.refresh {
     transform: rotate(-360deg);
     transition: 0.5s;
 }

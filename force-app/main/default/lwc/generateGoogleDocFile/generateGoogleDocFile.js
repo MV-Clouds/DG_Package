@@ -66,7 +66,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                 })
                 .catch((error) => {
                     console.log("error in copyGoogleDoc - LWC", error);
-                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Error in Generating Template. Please try again." } }));
+                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Something went wrong. Please refresh the page and try again." } }));
                 });
         } catch (error) {
             errorDebugger("generateGoogleDocFile", "generateDocument", error, 'error', "Error in generating template. Please try again.");
@@ -144,7 +144,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             this.mapFieldValues(content, objectDetails);
         } catch (error) {
             errorDebugger("generateGoogleDocFile", "generateDocument", error, 'error', "Error in formatting template. Please try again.");
-            this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Error in previewing result. Please try again" } }));
+            this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Something went wrong. Please refresh the page and try again" } }));
         }
     }
 
@@ -227,8 +227,8 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                                 tableEndIndex = tableEndIndex + 2;
                                                 this.tableOffset = this.tableOffset + 2;
                                                 this.createRowUpdateRequest(tableEndIndex, "{{No.Index}}", { "{{No.Index}}": i.toString() });
-                                                tableEndIndex++;
-                                                this.tableOffset++;
+                                                tableEndIndex += i.toString().length;
+                                                this.tableOffset += i.toString().length;
                                             }
 
                                             objFields.fieldName.forEach((e) => {
@@ -266,30 +266,21 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     if (generalFieldvalues) {
                         this.createReplaceRequest(actualStringBody, /{{Doc.(.*?)}}/g, generalFieldvalues["General Fields"]);
                     }
-
-                    let removeSignRequest = {
-                        replaceAllText: {
-                            containsText: {
-                                text: this.signatureKey,
-                                matchCase: true
-                            },
-                            replaceText: " "
-                        }
-                    };
-                    this.changeRequests.push(removeSignRequest);
+                    this.SignatureKeyReplaceRequest();
 
                     console.log("this.changeRequests==>", this.changeRequests);
                     this.doPreview();
                 })
                 .catch((error) => {
                     console.log("error in mapFieldValues==>", error);
-                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Error in previewing result. Please try again" } }));
+                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Something went wrong. Please refresh the page and try again" } }));
                 });
         } catch (error) {
             errorDebugger("generateGoogleDocFile", "mapFieldValues", error, 'error', "Error in mapFieldValues. Please try again.");
         }
     }
 
+    // Replaces the image with the signature image
     processSignatureImage(element, signatureImageValues) {
         try {
             let startIndex = this.tableOffset + Number(element);
@@ -304,9 +295,6 @@ export default class GenerateGoogleDocFile extends LightningElement {
                 this.deleteContentRequest(startIndex, endIndex);
                 this.insertImageRequest(startIndex, imageLink, width);
                 this.tableOffset -= this.signatureKey.length - 1;
-            } else {
-                this.deleteContentRequest(startIndex, endIndex);
-                this.tableOffset -= this.signatureKey.length;
             }
         } catch (error) {
             errorDebugger("generateGoogleDocFile", "processSignatureImage", error, 'error', "Error in processSignatureImage. Please try again later");
@@ -415,6 +403,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
         }
     }
 
+    // Used to insert the image
     insertImageRequest(index, link, width) {
         try {
             let insertImageRequest = {
@@ -438,6 +427,20 @@ export default class GenerateGoogleDocFile extends LightningElement {
         }
     }
 
+    // Removes signatureKey tags if there is no signature for the object
+    SignatureKeyReplaceRequest() {
+        let removeSignatureKeyRequest = {
+          replaceAllText: {
+            containsText: {
+              text: this.signatureKey,
+              matchCase: true
+            },
+            replaceText: " "
+          }
+        };
+        this.changeRequests.push(removeSignatureKeyRequest);
+    }
+
     // Preview the result - make apex call to get body blob
     doPreview() {
         try {
@@ -454,7 +457,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                 })
                 .catch((error) => {
                     console.log("error in doPreview - LWC", error);
-                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Error in previewing result. Please try again" } }));
+                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Something went wrong. Please refresh the page and try again" } }));
                 });
         } catch (error) {
             errorDebugger("generateGoogleDocFile", "doPreview", error, 'error', "Error in doPreview. Please try again.");

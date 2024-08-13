@@ -119,6 +119,10 @@ public with sharing class GoogleDocPreview {
             if (refreshToken == null) {
                 authProvider = getAuthProviderSettings();
             }
+            if (String.isBlank(authProvider.MVDG__access_token__c)) {
+                responseWrapper.error = 'error:CopyGoogleDoc:No Google Integration Found.:-';
+                return responseWrapper;
+            }
             templateData = [SELECT MVDG__Google_Doc_Template_Id__c, MVDG__Template__r.MVDG__Signature_Size__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c = :templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c ASC];
 
             if (templateData.size() == 0) {
@@ -149,6 +153,8 @@ public with sharing class GoogleDocPreview {
                 Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 String documentID = String.valueOf(responseMap.get('id'));
                 responseWrapper.document = getDocument(documentID, templateId);
+                updateAuthProvider();
+                insertResponses();
                 return responseWrapper;
 
             } else if (response.getStatusCode() == 401) {
@@ -166,8 +172,6 @@ public with sharing class GoogleDocPreview {
             
             System.debug('Error In copyGoogleDoc ==> ' + e.getMessage() + e.getLineNumber());
         }
-        updateAuthProvider();
-        insertResponses();
         return responseWrapper;
     }
 
