@@ -1,4 +1,4 @@
-public class Response_Handler {
+public with sharing class Response_Handler{
     public static void store_Callout_Response(HttpResponse res,String classname, String methodname) {
         try{
             MVDG__API_Responses__c response = new MVDG__API_Responses__c();

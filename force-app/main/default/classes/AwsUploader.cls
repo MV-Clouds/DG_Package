@@ -17,7 +17,8 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
         return Database.getQueryLocator([
             SELECT Id, VersionData, Title, ContentDocumentId, FileExtension, ContentSize 
             FROM ContentVersion 
-            WHERE Id = :contentVersionId
+            WHERE Id = :contentVersionId 
+            WITH SECURITY_ENFORCED
         ]);
     }
 
@@ -139,7 +140,7 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
 
     @AuraEnabled
     public static void emailUser(String message) {
-        User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+        User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
         String subject = 'Issue in uploading file to AWS';
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         mail.setToAddresses(new String[] { currentUser.Email });

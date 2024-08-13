@@ -9,28 +9,24 @@
 *******************************************************/
 public with sharing class OneDriveSuccessController {
 
-    public OneDriveSuccessController(ApexPages.StandardController c) {
-    }
-
 
     @RemoteAction
     public static String gettoken(String currentUrl){
         try{
             String initialurl = currentUrl;
             String authcode = extractCodeParameter(initialurl);
-            MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() LIMIT 1];
+                MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1
+                ];
+            
             if (settings != null) {
-                System.debug('setting: '+ settings);
                 String clientid = settings.MVDG__ClientId__c;
-                System.debug('ClientId: ' + clientid);
                 String clientsecret = settings.MVDG__ClientSecret__c;
-                System.debug('ClientSecret: ' + clientsecret);
                 String url = ''+System.Url.getOrgDomainUrl();
-                String REDIRECT_URI = redirect(url);
+                String redirectUri = redirect(url);
                 
-                System.debug('redirect_uri-->'+REDIRECT_URI);
+                System.debug('redirectUri-->'+redirectUri);
                 System.debug('Lets generate refresh token');
-                Map<String, String> tokens = generaterefreshtoken(clientid, clientsecret, REDIRECT_URI, authcode);
+                Map<String, String> tokens = generaterefreshtoken(clientid, clientsecret, redirectUri, authcode);
                 String refreshToken = tokens.get('refresh_token');
                 List<String> parts2 = new List<String>();
                 Integer firstpartlength = 254;
@@ -46,11 +42,9 @@ public with sharing class OneDriveSuccessController {
                 String userdetails = fetchUserDetails(accessToken);
                 Map<String, Object> parsedResponse = (Map<String, Object>) JSON.deserializeUntyped(userdetails);
                 String emailAddress = (String) parsedResponse.get('mail');
-                System.debug('Email Address: ' + emailAddress);
                 String displayName = (String) parsedResponse.get('displayName');
-                System.debug('Display Name: ' + displayName);
                 settings.MVDG__username__c = displayName;
-                settings.MVDG__email__c = emailAddress;
+                settings.MVDG__access_token1__c = emailAddress;
                 List<String> parts1 = new List<String>();
 
                 if (accessToken != null && accessToken.length() > 254) {
@@ -67,13 +61,26 @@ public with sharing class OneDriveSuccessController {
                 String accessToken3 = parts1[2];
                 String accessToken4 = parts1[3];
                 String accessToken5 = parts1[4];
-                System.debug(refreshToken);
-                System.debug(accessToken);
                 if(refreshToken1 != null){
-                    settings.MVDG__refresh_token__c = refreshToken1;
-                    settings.MVDG__refresh_token1__c = refreshToken2;
-                    System.debug('ref');
-                    upsert settings;
+                    settings.MVDG__access_token3__c = refreshToken1;
+                    settings.MVDG__access_token2__c = refreshToken2;
+                    if (Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isUpdateable() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isAccessible() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isAccessible() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isCreateable() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isCreateable()) {
+                            upsert settings;
+                        }
+                    else{
+                        return 'error';
+                    }
                 }
                 if(accessToken1 != null){
                     settings.MVDG__access_token__c = accessToken1;
@@ -81,15 +88,29 @@ public with sharing class OneDriveSuccessController {
                     settings.MVDG__access_token2__c = accessToken3;
                     settings.MVDG__access_token3__c = accessToken4;
                     settings.MVDG__access_token4__c = accessToken5;
-                    System.debug('ref');
                     Date todaysDate = Date.today();
                     Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
                     String formattedDate = datetimeToday.format('dd/MM/yyyy');
-                    System.debug('Today\'s Date ==>'+formattedDate);
                     settings.MVDG__LinkedDate__c = formattedDate;
                     settings.MVDG__WorkingStatus__c = true;
-                    upsert settings;
-                    return 'Success';
+                    if (Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isUpdateable() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isAccessible() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isAccessible() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isAccessible() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isCreateable() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isCreateable() && 
+                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isCreateable()) {
+                            upsert settings;
+                            return 'Success';
+                        }
                 }
                 else{
                     return 'Maybe';
@@ -105,29 +126,29 @@ public with sharing class OneDriveSuccessController {
 
     public static String redirect(String url){
         try{
-            String REDIRECT_URI = '';
+            String redirectUri = '';
             if(url.contains('develop.my.salesforce.com')){
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage';
+            redirectUri = baseUrl + '--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage';
+                redirectUri = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage';
+                redirectUri = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }else {
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/MVDG__oneDriveSuccessPage';
+                redirectUri = baseUrl + '--c.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }
-            return REDIRECT_URI;
+            return redirectUri;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'redirect');
             System.debug('Exception of gettoken got invoked');
@@ -137,30 +158,30 @@ public with sharing class OneDriveSuccessController {
 
     public static String referenceUrl(String url){
         try{
-        String REFRENCEURL = '';
+        String refrenceUrl = '';
         if(url.contains('develop.my.salesforce.com')) {
         System.debug('System org url -->'+url);
         String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
         baseUrl = baseUrl.substringAfter('Url:[delegate=');
-        REFRENCEURL = baseUrl + '.develop.lightning.force.com/lightning/n/MVDG__User_Configuration';
+        refrenceUrl = baseUrl + '.develop.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }else if(url.contains('sandbox.my.salesforce.com')){
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REFRENCEURL = baseUrl + '.sandbox.lightning.force.com/lightning/n/MVDG__User_Configuration';
+            refrenceUrl = baseUrl + '.sandbox.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }
         else if(url.contains('scratch.my.salesforce.com')){
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REFRENCEURL = baseUrl + '.scratch.lightning.force.com/lightning/n/MVDG__User_Configuration';
+            refrenceUrl = baseUrl + '.scratch.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }else {
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REFRENCEURL = baseUrl + '.force.com/lightning/n/MVDG__User_Configuration';
+            refrenceUrl = baseUrl + '.force.com/lightning/n/MVDG__User_Configuration';
         }
-        return REFRENCEURL;
+        return refrenceUrl;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'referenceUrl');
             System.debug('Exception of gettoken got invoked');
@@ -173,9 +194,9 @@ public with sharing class OneDriveSuccessController {
         public static PageReference redirectToSalesforcePage() {
             try {
                 String url = ''+System.Url.getOrgDomainUrl();
-                String REFRENCEURL = referenceUrl(url);
-                System.debug(REFRENCEURL);
-                PageReference pageRef = new PageReference(REFRENCEURL); // Replace 'TargetPageName' with the name of your target Visualforce page
+                String refrenceUrl = referenceUrl(url);
+                System.debug(refrenceUrl);
+                PageReference pageRef = new PageReference(refrenceUrl); // Replace 'TargetPageName' with the name of your target Visualforce page
                 return pageRef;
             } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'redirectToSalesforcePage');
@@ -186,14 +207,13 @@ public with sharing class OneDriveSuccessController {
 
 
     public static String extractCodeParameter(String url) {
-        try{
-            // Replace the base URL with an empty string to get the relative path
-            String relativePath = url.replace(System.Url.getSalesforceBaseUrl().toExternalForm(), '');
-            // Use the PageReference class to extract query parameters
-            PageReference pageRef = new PageReference(relativePath);
-            String codeParameter = pageRef.getParameters().get('code');
-            System.debug(codeParameter);
-            return codeParameter;
+        try {
+            if(ApexPages.currentPage().getParameters().get('code') != null){
+                String codeParameter = ApexPages.currentPage().getParameters().get('code');
+                String sanitizedCodeParameter = String.escapeHtml4(codeParameter);
+                return sanitizedCodeParameter;
+            }
+            return null;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'extractCodeParameter');
             System.debug('Exception of extractCodeParameter got invoked');
@@ -202,19 +222,18 @@ public with sharing class OneDriveSuccessController {
     }
 
 
-    public static Map<String, String> generaterefreshtoken(String client_id, String client_secret, String REDIRECT_URI, String authcode){
+    public static Map<String, String> generaterefreshtoken(String clientId, String clientSecret, String redirectUri, String authcode){
         try{
-            String SCOPE = 'files.readwrite.All offline_access User.Read';
-            String ENDPOINT = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
+            String scope = 'files.readwrite.All offline_access User.Read';
+            String endpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
             HttpRequest request = new HttpRequest();
-            request.setEndpoint(ENDPOINT);
+            request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            System.debug(authcode);
             request.setBody('code=' + authcode +
-                            '&client_id=' + client_id +
-                            '&client_secret=' + client_secret +
-                            '&redirect_uri=' + REDIRECT_URI +
+                            '&client_id=' + clientId +
+                            '&client_secret=' + clientSecret +
+                            '&redirect_Uri=' + redirectUri +
                             '&grant_type=authorization_code');
 
             Http http = new Http();
