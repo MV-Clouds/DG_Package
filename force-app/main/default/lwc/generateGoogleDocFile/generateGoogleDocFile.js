@@ -150,7 +150,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
     // Make apex call to get the map and create requests
     mapFieldValues(content, objectDetails) {
-        var tableNo = 1;
+        var tableNo = 0;
         try {
             mapFieldValues({ queryObject: JSON.stringify(objectDetails), objectApiName: this.objectname, recordId: this.recordId })
                 .then((result) => {
@@ -176,6 +176,8 @@ export default class GenerateGoogleDocFile extends LightningElement {
                             }
                         } else if (element.table) {
                             // Process table one by one
+                            tableNo++;
+                            let columns = element.table.columns;
                             let stringBody = JSON.stringify(element);
                             let matchedBody = JSON.stringify(element);
                             if (matchedBody.includes(this.signatureKey)) {
@@ -193,14 +195,18 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                 tableLocation = tableLocation + this.tableOffset;
                                 tableEndIndex = tableEndIndex + this.tableOffset;
                                 let fieldName = this.substringBetween(stringBody, "$objApi:", "$");
+                                let objFields = objectDetails.find((el) => el.objApi === fieldName && el.tableNo === tableNo);
                                 let IndexedFieldName = "";
 
                                 // Insert empty rows
                                 if (fieldName && fieldName !== "") {
+                                    let extraColumns = false;
+                                    if ((stringBody.includes("{{No.Index}}") && columns > (objFields.fieldName.length + 1)) || (!stringBody.includes("{{No.Index}}") && columns > objFields.fieldName.length)) {
+                                        extraColumns = true;
+                                    }
                                     IndexedFieldName = fieldName + tableNo;
                                     let childFieldValues = this.resultSet.find((el) => el[IndexedFieldName] != null);
-                                    let objFields = objectDetails.find((el) => el.objApi === fieldName && el.tableNo === tableNo);
-                                    if (childFieldValues != null && childFieldValues[IndexedFieldName] != null) {
+                                    if (childFieldValues != null && childFieldValues[IndexedFieldName] != null && !extraColumns) {
                                         for (let i = 1; i <= childFieldValues[IndexedFieldName].length; i++) {
                                             this.createRowInsertRequest(tableLocation, i);
                                         }
@@ -211,12 +217,16 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                     this.tableOffset = this.tableOffset - (element.table.tableRows[1].endIndex - element.table.tableRows[1].startIndex);
 
                                     // Delete last row of table - contains details like objAPI, filters
-                                    if (childFieldValues != null && childFieldValues[IndexedFieldName] != null) {
+                                    if (childFieldValues != null && childFieldValues[IndexedFieldName] != null && !extraColumns) {
                                         this.createRowDeleteRequest(tableLocation, childFieldValues[IndexedFieldName].length + 1);
                                     } else {
                                         this.createRowDeleteRequest(tableLocation, 1);
                                     }
                                     this.tableOffset = this.tableOffset - (element.table.tableRows[2].endIndex - element.table.tableRows[2].startIndex);
+
+                                    if (extraColumns) {
+                                        return;
+                                    }
 
                                     // Insert the table data
                                     if (childFieldValues != null && childFieldValues[IndexedFieldName] != null) {
@@ -230,7 +240,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                                 tableEndIndex += i.toString().length;
                                                 this.tableOffset += i.toString().length;
                                             }
-
+                                            
                                             objFields.fieldName.forEach((e) => {
                                                 if (stringBody.includes("{{!" + e + "}}")) {
                                                     tableEndIndex = tableEndIndex + 2;
@@ -249,7 +259,6 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                             this.tableOffset++;
                                         }
                                     }
-                                    tableNo++;
                                 }
                             }
                         }

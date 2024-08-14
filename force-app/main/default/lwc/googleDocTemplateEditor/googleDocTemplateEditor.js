@@ -93,14 +93,15 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     console.log("result==>", result);
 
                     if (result.error) {
-                        console.log("Error in getAllRelatedData : ", result.error);
                         let errorList = result.error.split(":");
+                        console.log("Error in getAllRelatedData : ", errorList);
                         const popup = this.template.querySelector("c-message-popup");
                             popup.showMessagePopup({
                                 title: "Error",
                                 message: errorList[2],
                                 status: "error"
                             });
+                        this.isSpinner = false;
                         return;
                     }
 
@@ -134,19 +135,23 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                         this.documentName = templateData.MVDG__Google_Doc_Name__c;
                     }
 
+                    // Showing the popup when the template is not selected
+                    if (this.allTemplates != null && this.profile != null && result.templateData === null) {
+                        this.isSpinner = false;
+                        this.showPopup = true;
+                    }
+
+                    // Showing error
                     if (result.templateData == null && this.allTemplates == null) {
                         this.isSpinner = false;
-                        this.showPopup = false;
                         const popup = this.template.querySelector("c-message-popup");
                         popup.showMessagePopup({
                             title: "No Google Integration Found",
                             message: "To create a new template, Google Drive integration is neccessary.",
                             status: "error"
                         });
-                    } else {
-                        this.isSpinner = false;
-                        this.showPopup = true;
                     }
+
                 })
                 .catch((error) => {
                     console.log("Error in getAllData:", error);

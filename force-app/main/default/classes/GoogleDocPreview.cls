@@ -37,16 +37,16 @@ public with sharing class GoogleDocPreview {
     public static String refreshAccessToken() {
         try {
             String endpoint = 'https://oauth2.googleapis.com/token';
-            List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            // List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + authProvider.MVDG__ClientId__c + '&client_secret=' + authProvider.MVDG__ClientSecret__c + '&grant_type=refresh_token');
-            request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
+            request.setTimeout(120000);
+            request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + authProvider.MVDG__ClientId__c + '&client_secret=' + authProvider.MVDG__ClientSecret__c + '&grant_type=refresh_token');
+            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
-            responseList.put('refreshAccessToken', response);
             System.debug('Response of refreshAccessToken: ' + response.getBody());
             if (response.getStatusCode() == 200) {
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
@@ -56,6 +56,7 @@ public with sharing class GoogleDocPreview {
                 }
                 return newToken;
             }
+            responseList.put('refreshAccessToken', response);
             return 'error:Access Token Error:Error in getting access token:' + String.valueOf(response.getStatusCode());
         } catch (Exception e) {
             System.debug('Error In refreshAccessToken ==> ' + e.getMessage() + e.getLineNumber());
@@ -73,10 +74,9 @@ public with sharing class GoogleDocPreview {
             request.setEndpoint(endpoint);
             request.setMethod('GET');
             request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
-            request.setTimeout(20000);
+            request.setTimeout(120000);
             Http http = new Http();
             HttpResponse response = http.send(request);
-            responseList.put('getDocument', response);
             if (response.getStatusCode() == 200) {
                 // Schedule apex class
                 Datetime now = Datetime.now();
@@ -102,6 +102,7 @@ public with sharing class GoogleDocPreview {
                     return returnvalue;
                 }
             }
+            responseList.put('getDocument', response);
             return 'error:Get Document Error:Error in getting document:' + String.valueOf(response.getStatusCode());
             
         } catch (Exception e) {
@@ -144,9 +145,9 @@ public with sharing class GoogleDocPreview {
             request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             request.setHeader('Content-Type', 'application/json');
             request.setBody(jsonBody);
+            request.setTimeout(120000);
             Http http = new Http();
             HttpResponse response = http.send(request);
-            responseList.put('copyGoogleDoc', response);
             System.debug('Response of copyGoogleDoc==>' + response);
             if (response.getStatusCode() == 200) {
 
@@ -164,6 +165,7 @@ public with sharing class GoogleDocPreview {
                     return responseWrapper;
                 }
             }
+            responseList.put('copyGoogleDoc', response);
             responseWrapper.error = 'error:Copy Google Doc:Error in processing the document:' + String.valueOf(response.getStatusCode());
             return responseWrapper;
         } catch (Exception e) {
@@ -187,11 +189,11 @@ public with sharing class GoogleDocPreview {
             request.setMethod('POST');
             request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             request.setHeader('Content-Type', 'application/json');
+            request.setTimeout(120000);
             request.setBody(jsonBody);
             
             Http http = new Http();
             HttpResponse response = http.send(request);
-            responseList.put('updateGoogleDoc', response);
             System.debug('Response of UpdateGoogleDoc==>' + response.getBody());
 
             if (response.getStatusCode() == 401) {
@@ -199,6 +201,9 @@ public with sharing class GoogleDocPreview {
                 if (refreshToken != null) {
                     updateGoogleDoc(googleDocId, requests);
                 }
+            }
+            if (response.getStatusCode() != 200 && response.getStatusCode() != 201 && response.getStatusCode() != 202 && response.getStatusCode() != 204 && response.getStatusCode() != 206) {
+                responseList.put('updateGoogleDoc', response);
             }
         } catch (Exception e) {
             System.debug('Error In updateDoc ==> ' + e.getMessage());
@@ -227,9 +232,9 @@ public with sharing class GoogleDocPreview {
             request.setEndpoint(endpoint + '?' + paramString);
             request.setMethod('GET');
             request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
+            request.setTimeout(120000);
             Http http = new Http();
             HttpResponse response = http.send(request);
-            responseList.put('getPDF', response);
             if (response.getStatusCode() == 200) {
                 return response.getBodyAsBlob();
             } else if (response.getStatusCode() == 401) {
@@ -240,6 +245,7 @@ public with sharing class GoogleDocPreview {
                     return returnValue;
                 }
             }
+            responseList.put('getPDF', response);
             return null;
             // return Blob.valueOf('error: Get PDF error: Unable to fetch the PDF from Google Drive: ' + String.valueOf(response.getStatusCode()));
         } catch (Exception e) {
@@ -266,9 +272,9 @@ public with sharing class GoogleDocPreview {
             request.setEndpoint(endpoint + '?' + paramString);
             request.setMethod('DELETE');
             request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
+            request.setTimeout(120000);
             Http http = new Http();
             HttpResponse response = http.send(request);
-            responseList.put('deleteGoogleDoc', response);
             System.debug('ResponseBody of delete google doc=>' + response.getBody());
             if (response.getStatusCode() == 204) {
                 //document deleted
@@ -281,6 +287,7 @@ public with sharing class GoogleDocPreview {
                     return returnValue;
                 }
             }
+            responseList.put('deleteGoogleDoc', response);
             return false;
         } catch (Exception e) {
             System.debug('Error In deleteGoogleDoc ==> ' + e.getMessage() + e.getLineNumber());
@@ -336,7 +343,8 @@ public with sharing class GoogleDocPreview {
                         subQuery = '(SELECT ' + String.escapeSingleQuotes(String.join(mappingFields, ',')) + ' FROM ' + String.escapeSingleQuotes(obj.childRelation);
 
                         if (obj.filter != null) {
-                            subQuery += ' WHERE ' + String.escapeSingleQuotes(obj.filter);
+                            subQuery += ' ';
+                            subQuery += String.escapeSingleQuotes(obj.filter);
                         }
 
                         if (obj.queryLimit != null) {
