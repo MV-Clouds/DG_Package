@@ -1,11 +1,32 @@
+/**
+* Class Name: GoogleDocPreview
+* Test Class: GoogleDocPreviewTest
+* @description: Used to generate the Final Google Document after replacing the merge fields 
+* Date: 14/08/2024
+* Created By: Dhairya Koshti
+*/
 public with sharing class GoogleDocPreview {
     public static MVDG__AuthProviderSettings__c authProvider;
     public static List<MVDG__Template_Data__c> templateData = new List<MVDG__Template_Data__c>();
     public static Map<String, HttpResponse> responseList = new Map<String, HttpResponse>();
     public static String refreshToken;
 
+    /**
+    * Method Name : doPreview
+    * @description : Call this method to get pdf of google doc.
+    * @param googleDocId google Document Id - String
+    * @param format file format - String
+    * @param requests list of document modification requests - List<Object>
+    * @return Blob of the Google Doc - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     @AuraEnabled
-    //main method call this method to get pdf of google doc
     public static String doPreview(String googleDocId, String format, List<Object> requests) {
         Blob pdfBlob;
         try {
@@ -33,7 +54,18 @@ public with sharing class GoogleDocPreview {
         return EncodingUtil.base64Encode(pdfBlob);
     }
 
-    //get new access token using refresh token
+    /**
+    * Method Name : refreshAccessToken
+    * @description : get new access token using refresh token.
+    * @return The new access Token - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static String refreshAccessToken() {
         try {
             String endpoint = 'https://oauth2.googleapis.com/token';
@@ -65,8 +97,20 @@ public with sharing class GoogleDocPreview {
         }
     }
 
-    //get google doc  in json format
-    @AuraEnabled
+    /**
+    * Method Name : getDocument
+    * @description : get google doc  in json format.
+    * @param googleDocId google Document Id - String
+    * @param templateId Id for the MVDG__Template__c - String
+    * @return JSON format for the Google Document.
+    */ 
+    /***********************************************************************
+     MODIFICATION LOG* 
+     * Last Update Date : 03/06/2024
+     * Updated By : Developer name
+     * Name of methods changed (Comma separated if more then one) : method1 
+     * Change Description : 
+     ***********************************************************************/
     public static String getDocument(String googleDocId, String templateId) {
         try {
             String endpoint = 'https://docs.googleapis.com/v1/documents/' + googleDocId;
@@ -86,16 +130,16 @@ public with sharing class GoogleDocPreview {
                 Integer year = runTime.year();
                 Integer hour = runTime.hour();
                 Integer minute = runTime.minute();
-
+                
                 String cronExp = String.format( '0 {0} {1} {2} {3} ? {4}', new List<String>{String.valueOf(minute), String.valueOf(hour), String.valueOf(day), String.valueOf(month), String.valueOf(year)});
-
+                
                 DeleteGoogleDocument deleteGoogleDocument = new DeleteGoogleDocument(templateId, googleDocId);
                 // String scheduleId = System.schedule(String.valueOf(Math.random()) + String.valueOf(System.now()), cronExp, deleteGoogleDocument);
                 String scheduleId = System.schedule(String.valueOf(System.now()), cronExp, deleteGoogleDocument);
-
+                
                 return response.getBody();
             } else if (response.getStatusCode() == 401) {
-
+                
                 String refreshToken = refreshAccessToken();
                 if (refreshToken != null) {
                     String returnvalue = getDocument(googleDocId, templateId); 
@@ -111,8 +155,20 @@ public with sharing class GoogleDocPreview {
             return 'error:Get Document Error:Error in getting document:' + e.getMessage();
         }
     }
-
-    //clone google doc in users account
+    
+    /**
+     * Method Name : copyGoogleDoc
+     * @description : Clone google doc in users account.
+     * @param templateId Id for the MVDG__Template__c - String
+     * @return wrapper having the JSON Format for the document and error in case - ResponseDocumentWrapper.
+     */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     @AuraEnabled
     public static ResponseDocumentWrapper copyGoogleDoc(String templateId) {
         ResponseDocumentWrapper responseWrapper = new ResponseDocumentWrapper();
@@ -177,7 +233,19 @@ public with sharing class GoogleDocPreview {
         return responseWrapper;
     }
 
-    //update google doc api callout
+    /**
+    * Method Name : updateGoogleDoc
+    * @description : update google doc api callout.
+    * @param googleDocId google Document Id - String
+    * @param requests list of document modification requests - List<Object>
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static void updateGoogleDoc(String googleDocId, List<Object> requests) {
         try {
             String endpoint = 'https://docs.googleapis.com/v1/documents/' + googleDocId + '/:batchUpdate';
@@ -211,7 +279,20 @@ public with sharing class GoogleDocPreview {
         }
     }
 
-    //get pdf blob of updated google doc
+    /**
+    * Method Name : getPDF
+    * @description : get pdf blob of updated google doc.
+    * @param googleDocId google Document Id - String
+    * @param format file format - String
+    * @return Blob of the Google Doc - Blob.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static Blob getPDF(String googleDocId, String format) {
         try {
             String endpoint = 'https://www.googleapis.com/drive/v3/files/' + googleDocId + '/export';
@@ -256,7 +337,19 @@ public with sharing class GoogleDocPreview {
         }
     }
 
-    //delete cloned google doc
+    /**
+    * Method Name : deleteGoogleDoc
+    * @description : Delete cloned google doc.
+    * @param googleDocId google Document Id - String
+    * @return Status if the document was deleted or not - Boolean.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static Boolean deleteGoogleDoc(String googleDocId) {
         try {
             String endpoint = 'https://www.googleapis.com/drive/v3/files/' + googleDocId;
@@ -296,6 +389,21 @@ public with sharing class GoogleDocPreview {
         }
     }
 
+    /**
+    * Method Name : mapFieldValues
+    * @description : Gets the values of all the fields present in the Google Document
+    * @param queryObject WrapperClass containing the fields present in the Google Document - String
+    * @param objectApiName API name of the Object - String
+    * @param recordId recordId of the record - List<Object>
+    * @return List of fields mapped with thier values - List<Object>.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     @AuraEnabled
     public static List<Object> mapFieldValues(String queryObject, String objectApiName, String recordId) {
         List<Object> returnList = new List<Object>();
@@ -331,6 +439,9 @@ public with sharing class GoogleDocPreview {
                     if (obj.fieldName.size() > 0) {
                         Set<String> mappingFields = new Set<String>();
                         Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
+                        if (!schemaMap.containsKey(obj.objApi)) {
+                            continue;
+                        }
                         Map<String, Schema.SObjectField> fieldMap = schemaMap.get(obj.objApi).getDescribe().fields.getMap();
 
                         for (String fieldName : obj.fieldName) {
@@ -346,13 +457,11 @@ public with sharing class GoogleDocPreview {
                             subQuery += ' ';
                             subQuery += String.escapeSingleQuotes(obj.filter);
                         }
-
-                        if (obj.queryLimit != null) {
-                            subQuery += ' LIMIT ' + String.escapeSingleQuotes(obj.queryLimit);
+                        if (obj.queryLimit != null && obj.queryLimit < 50) {
+                            subQuery += ' LIMIT ' + String.valueOf(obj.queryLimit);
                         } else {
                             subQuery += ' LIMIT 50';
                         }
-
                         subQuery += ')';
                         
                         query = 'SELECT ' + String.escapeSingleQuotes(subQuery) + ' FROM ' + String.escapeSingleQuotes(objectApiName) + ' WHERE Id =: recordId';
@@ -360,7 +469,7 @@ public with sharing class GoogleDocPreview {
 
                         if (childRecords.size() > 0 && childRecords[0].getPopulatedFieldsAsMap().get(obj.childRelation) != null) {
                             Map<String, List<Object>> allRecords = new Map<String, List<Object>>();
-                            allRecords.put(obj.objApi + String.valueOf(tableCount), (List<Object>) childRecords[0].getPopulatedFieldsAsMap().get(obj.childRelation));
+                            allRecords.put(obj.objApi + String.valueOf(obj.tableNo), (List<Object>) childRecords[0].getPopulatedFieldsAsMap().get(obj.childRelation));
                             returnList.add(allRecords);
                         }
                     }
@@ -374,6 +483,19 @@ public with sharing class GoogleDocPreview {
         return returnList;
     }
 
+    /**
+    * Method Name : getSignatureImage
+    * @description : Call this method to get pdf of google doc.
+    * @param recordId recordId for the object record - String
+    * @return Map of the public URL of the signature image - Map<String, Object>.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static Map<String, Object> getSignatureImage(String recordId) {
         Map<String, Object> salesforceImageValues = new Map<String, Object>();
         try {    
@@ -404,6 +526,20 @@ public with sharing class GoogleDocPreview {
         return salesforceImageValues;
     }
 
+    /**
+    * Method Name : queryChildObject
+    * @description : Executes the query
+    * @param query The query in string formt - String
+    * @param recordId recordId for the object record - String
+    * @return The query results - List<SObject>.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static List<SObject> queryChildObject(String query, String recordId) {
         try {
             return Database.query(String.escapeSingleQuotes(query));
@@ -414,6 +550,19 @@ public with sharing class GoogleDocPreview {
         return null;
     }
 
+    /**
+    * Method Name : mailMessage
+    * @description : Sends a email notification in case any process fails
+    * @param code Status code for the HTTP callout - Integer
+    * @param fileName file name for the HTTP callout - String
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static void mailMessage(Integer code, String fileName){
         String emailBody;
         if (code == 400) {
@@ -475,6 +624,18 @@ public with sharing class GoogleDocPreview {
         System.debug('emailBody==>' + emailBody);
     }
 
+    /**
+    * Method Name : getAuthProviderSettings
+    * @description : Gets the authProviderSettings Custom Settings record
+    * @return the custom setting record - MVDG__AuthProviderSettings__c.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static MVDG__AuthProviderSettings__c getAuthProviderSettings() {
         try {
             List<MVDG__AuthProviderSettings__c> aps = new List<MVDG__AuthProviderSettings__c>();
@@ -490,6 +651,17 @@ public with sharing class GoogleDocPreview {
         return authProvider;
     }
 
+    /**
+    * Method Name : updateAuthProvider
+    * @description : Updates the AuthProviderSettings after the callouts
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static void updateAuthProvider() {
         try {
             if(authProvider.SetupOwnerId == UserInfo.getOrganizationId()){
@@ -508,6 +680,17 @@ public with sharing class GoogleDocPreview {
         }
     }
 
+    /**
+    * Method Name : insertResponses
+    * @description : Inserts the HTTP responses if the HTTP callout had failed
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static void insertResponses() {
         try {
             for (String methodName: responseList.keySet()) {
@@ -523,8 +706,9 @@ public with sharing class GoogleDocPreview {
         public String objApi;
         public String childRelation;
         public String filter;
-        public String queryLimit;
+        public Integer queryLimit;
         public List<String> fieldName;
+        public Integer tableNo;
     }
 
     public class ResponseDocumentWrapper {

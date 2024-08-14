@@ -27,6 +27,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
     @api generateDocument(templateid, objectname, recordId, format) {
         try {
+            
             this.templateid = templateid;
             this.objectname = objectname;
             this.recordId = recordId;
@@ -37,9 +38,12 @@ export default class GenerateGoogleDocFile extends LightningElement {
             this.allFields = [];
             console.log("Called when the preview button is pressed");
 
+            // Make apex callout to copy the document and get the JSON of the Google Document
             copyGoogleDoc({ templateId: this.templateid })
                 .then((result) => {
                     console.log(result);
+                    
+                    // Setting the signature size according to the page width
                     this.signatureSize = result.width !== null ? result.width : 50;
                     if (this.signatureSize > 100) {
                         this.signatureSize = 100;
@@ -48,6 +52,8 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     }
 
                     if (result.document) {
+
+                        // Get the field values from the record
                         this.responseBody = JSON.parse(result.document);
                         console.log("this.responseBody==>", this.responseBody);
 
@@ -59,8 +65,9 @@ export default class GenerateGoogleDocFile extends LightningElement {
                         this.dispatchEvent(new CustomEvent("changespinnerlabel"));
                         this.formatContent(this.responseBody);
                     } else if (result.error) {
+                        
+                        // If the callout fails, show toast
                         let errorList = result.error.split(":");
-                        console.log(errorList);
                         this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: errorList[0], message: errorList[2] } }));
                     }
                 })
@@ -76,10 +83,10 @@ export default class GenerateGoogleDocFile extends LightningElement {
     formatContent(body) {
         var content = body.body.content;
         var objectDetails = [];
-        var fieldSet = new Set();
+        var objectFieldSet = new Set();
         var generalFieldSet = new Set();
         var signatureImage = new Set();
-        var tableNo = 1;
+        var tableNo = 0;
         try {
             console.log("content \n", content);
             content.forEach((element) => {
@@ -87,15 +94,16 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     let object = {};
                     let matcher, pattern;
                     let stringBody = JSON.stringify(element);
-                    let fieldName = new Set();
+                    let fieldName = [];
 
                     // get table fields
                     pattern = /{{!(.*?)}}/g;
                     while ((matcher = pattern.exec(stringBody)) != null) {
-                        fieldName.add(matcher[1]);
+                        fieldName.push(matcher[1]);
                     }
-                    if (fieldName.size > 0) {
-                        object.fieldName = Array.from(fieldName);
+                    if (fieldName.length > 0) {
+                        object.fieldName = fieldName;
+                        tableNo++;
                     }
 
                     // get table details
@@ -108,10 +116,10 @@ export default class GenerateGoogleDocFile extends LightningElement {
                         }
                     }
 
+                    // Send table for apex processing only when all fields are present
                     if (object.objApi && object.childRelation && object.fieldName.length > 0) {
                         object.tableNo = tableNo;
                         objectDetails.push(object);
-                        tableNo++;
                     }
                 }
             });
@@ -122,9 +130,9 @@ export default class GenerateGoogleDocFile extends LightningElement {
             // Get object fields
             pattern = /{{#(.*?)}}/g;
             while ((matcher = pattern.exec(stringBody)) != null) {
-                fieldSet.add(matcher[0]);
+                objectFieldSet.add(matcher[0]);
             }
-            objectDetails.push({ objApi: this.objectname, fieldName: Array.from(fieldSet) });
+            objectDetails.push({ objApi: this.objectname, fieldName: Array.from(objectFieldSet) });
 
             // Get general fields
             pattern = /{{Doc.(.*?)}}/g;
@@ -142,6 +150,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
             console.log("objectDetails \n", objectDetails);
             this.mapFieldValues(content, objectDetails);
+            
         } catch (error) {
             errorDebugger("generateGoogleDocFile", "generateDocument", error, 'error', "Error in formatting template. Please try again.");
             this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Something went wrong. Please refresh the page and try again" } }));
@@ -150,8 +159,9 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
     // Make apex call to get the map and create requests
     mapFieldValues(content, objectDetails) {
-        var tableNo = 0;
+        var tableNo = 1;
         try {
+            // Gets all the key value for present in the document from apex
             mapFieldValues({ queryObject: JSON.stringify(objectDetails), objectApiName: this.objectname, recordId: this.recordId })
                 .then((result) => {
                     this.resultSet = result;
@@ -176,10 +186,11 @@ export default class GenerateGoogleDocFile extends LightningElement {
                             }
                         } else if (element.table) {
                             // Process table one by one
-                            tableNo++;
                             let columns = element.table.columns;
                             let stringBody = JSON.stringify(element);
                             let matchedBody = JSON.stringify(element);
+
+                            // Checks for the signature key inside the table
                             if (matchedBody.includes(this.signatureKey)) {
                                 matchedBody = matchedBody.split(this.signatureKey);
                                 let smallBody = matchedBody[0].substring(matchedBody[0].lastIndexOf('"startIndex":')) + this.signatureKey + '",';
@@ -188,6 +199,8 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                 startIndex = Number(startIndex) + content.indexOf(this.signatureKey);
                                 this.processSignatureImage(startIndex, signatureImageValues);
                             }
+
+                            // Checks for fields inside the table with keys
                             if (stringBody.match(/{{!(.*?)}}/g)) {
                                 let tableLocation = element.startIndex; //table's start index
                                 let tableEndIndex = element.table.tableRows[0].endIndex; // End of first row's index of the table
@@ -198,15 +211,17 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                 let objFields = objectDetails.find((el) => el.objApi === fieldName && el.tableNo === tableNo);
                                 let IndexedFieldName = "";
 
-                                // Insert empty rows
                                 if (fieldName && fieldName !== "") {
-                                    let extraColumns = false;
-                                    if ((stringBody.includes("{{No.Index}}") && columns > (objFields.fieldName.length + 1)) || (!stringBody.includes("{{No.Index}}") && columns > objFields.fieldName.length)) {
-                                        extraColumns = true;
+                                    // If any of the table has empty column, skip the table
+                                    if ((stringBody.includes("{{No.Index}}") && objFields && columns != (objFields.fieldName.length + 1)) || (!stringBody.includes("{{No.Index}}") && objFields && columns != objFields.fieldName.length)) {
+                                        tableNo++;
+                                        return;
                                     }
+                                    
+                                    // Insert empty rows
                                     IndexedFieldName = fieldName + tableNo;
                                     let childFieldValues = this.resultSet.find((el) => el[IndexedFieldName] != null);
-                                    if (childFieldValues != null && childFieldValues[IndexedFieldName] != null && !extraColumns) {
+                                    if (childFieldValues != null && childFieldValues[IndexedFieldName] != null) {
                                         for (let i = 1; i <= childFieldValues[IndexedFieldName].length; i++) {
                                             this.createRowInsertRequest(tableLocation, i);
                                         }
@@ -217,16 +232,12 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                     this.tableOffset = this.tableOffset - (element.table.tableRows[1].endIndex - element.table.tableRows[1].startIndex);
 
                                     // Delete last row of table - contains details like objAPI, filters
-                                    if (childFieldValues != null && childFieldValues[IndexedFieldName] != null && !extraColumns) {
+                                    if (childFieldValues != null && childFieldValues[IndexedFieldName] != null) {
                                         this.createRowDeleteRequest(tableLocation, childFieldValues[IndexedFieldName].length + 1);
                                     } else {
                                         this.createRowDeleteRequest(tableLocation, 1);
                                     }
                                     this.tableOffset = this.tableOffset - (element.table.tableRows[2].endIndex - element.table.tableRows[2].startIndex);
-
-                                    if (extraColumns) {
-                                        return;
-                                    }
 
                                     // Insert the table data
                                     if (childFieldValues != null && childFieldValues[IndexedFieldName] != null) {
@@ -241,6 +252,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                                 this.tableOffset += i.toString().length;
                                             }
                                             
+                                            // inserts value for the table
                                             objFields.fieldName.forEach((e) => {
                                                 if (stringBody.includes("{{!" + e + "}}")) {
                                                     tableEndIndex = tableEndIndex + 2;
@@ -260,6 +272,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                         }
                                     }
                                 }
+                                tableNo++;
                             }
                         }
                     });
@@ -293,9 +306,9 @@ export default class GenerateGoogleDocFile extends LightningElement {
     processSignatureImage(element, signatureImageValues) {
         try {
             let startIndex = this.tableOffset + Number(element);
-            // let endIndex = this.tableOffset + Number(element.endIndex) - 1;
             let endIndex = startIndex + this.signatureKey.length;
             
+            // Ompy process if the public URL is available
             if (signatureImageValues && signatureImageValues["Signature Image"] && signatureImageValues["Signature Image"][0].ContentDownloadUrl) {
                 let imageLink = signatureImageValues["Signature Image"][0].ContentDownloadUrl;
                 let originalPageWidth = this.docPageSize.pageSize.width.magnitude - (this.docPageSize.marginLeft.magnitude + this.docPageSize.marginRight.magnitude);
@@ -456,12 +469,13 @@ export default class GenerateGoogleDocFile extends LightningElement {
             doPreview({ googleDocId: this.documentId, requests: this.changeRequests, format: this.format })
                 .then((res) => {
                     if (!res.startsWith("error")) {
+                        // Process complete
                         this.dispatchEvent(new CustomEvent("complete", { detail: { blob: res } }));
                     } else {
+                        // An error occured in recieving / make change requests
                         let splitList = res.split(":");
                         this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: splitList[2] } }));
                         console.log("Cannot Preview the result is null");
-                        // this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Error in previewing result. Please try again" } }));
                     }
                 })
                 .catch((error) => {
@@ -473,6 +487,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
         }
     }
 
+    // Used to find the substring between two strings
     substringBetween(input, startDelim, endDelim) {
         try {
             const startIndex = input.indexOf(startDelim);

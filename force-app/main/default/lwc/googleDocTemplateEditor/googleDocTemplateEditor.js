@@ -1,7 +1,6 @@
 import { LightningElement, track, api } from "lwc";
 
 import getAllData from "@salesforce/apex/GoogleDocTemplateEditorController.getAllData";
-
 import saveTemplateData from "@salesforce/apex/GoogleDocTemplateEditorController.saveTemplateData";
 import editTemplate from "@salesforce/apex/GoogleDocTemplateEditorController.editTemplate";
 
@@ -175,7 +174,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     closePopup() {
         console.log('this.closePopup');
-        
         this.showPopup = false;
     }
 
