@@ -1,8 +1,9 @@
 import { LightningElement, track, api, wire } from 'lwc';
+import { errorDebugger } from 'c/globalProperties';
 
 export default class ChildObjectTableBuilder extends LightningElement {
 
-    @track toggleGenChildTablePopup;
+    @track toggleGenChildTablePopup; 
     @track childRelationName;
     @track childObjAPI;
     @track childObjectLabel;
@@ -12,20 +13,30 @@ export default class ChildObjectTableBuilder extends LightningElement {
     @track childTableData;
     @track showIndex;
 
+    /**
+     * Getter method to identify any child table generated or not to show info message.
+     */
     get noChildTable(){
         return this.childTableQuery ? false : true;
-   }
+    }
 
-     // #Child Object Table Method....
-     @api
-     openPopup(event){
+     /**
+      * API Method to oped child object table generation popup(screen)
+      * this method call from parent component.
+      * @param {*} event 
+      */
+    @api
+    openPopup(event){
         this.childRelationName = event.detail?.relationshipName;
         this.childObjAPI = event.detail?.childObjAPI;
         this.childObjectLabel = event.detail?.label;
         this.toggleGenChildTablePopup = true;
     }
 
-    // #Child Object Table Method....
+    /**
+     * API Method to close child object table generation popup(screen).
+     * this method call from parent component.
+     */
     @api
     closePopup(){
         this.childTableQuery =  null;
@@ -35,7 +46,10 @@ export default class ChildObjectTableBuilder extends LightningElement {
         this.toggleGenChildTablePopup = false;
     }
 
-    // #Child Object Table Method....
+    /**
+     * Method to handle table insert operation on button click.
+     * @param {*} event 
+     */
     handleTableInsert(event){
         this.childTableQuery =  event.detail?.query;
         this.selectedFieldList = event.detail?.selectedFields;
@@ -43,20 +57,25 @@ export default class ChildObjectTableBuilder extends LightningElement {
         this.generateTable();
     }
 
-    // #Child Object Table Method....
-    regenerateTable(event){
+    /**
+     * Method to show-hide toggle index column in table.
+     * @param {*} event 
+     */
+    toggleIndexColumn(event){
         this.showIndex = event.target.checked
         this.generateTable();
     }
     
-    // #Child Object Table Method....
+    /**
+     * Main method to perform table generation based on multiple scenarios.
+     */
     generateTable(){
         try {
             var filters;
             var limit;
             if(this.childTableQuery.includes('WHERE')){
                 if(this.childTableQuery.includes('LIMIT')){
-                    const whereIndex  = this.childTableQuery.indexOf('WHERE') + 5;
+                    const whereIndex  = this.childTableQuery.indexOf('WHERE');
                     const limitIndex  = this.childTableQuery.indexOf('LIMIT') + 5;
                     limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
                     filters = this.childTableQuery.substring(whereIndex, limitIndex - 5);
@@ -64,14 +83,20 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 else {
                     filters = this.childTableQuery.substring(whereIndex, this.childTableQuery.length);
                 }
-            }
-            else if(this.childTableQuery.includes('LIMIT')){
+            } else if (this.childTableQuery.includes('ORDER BY')) {
+                if(this.childTableQuery.includes('LIMIT')){
+                    const orderbyIndex  = this.childTableQuery.indexOf('ORDER BY');
+                    const limitIndex  = this.childTableQuery.indexOf('LIMIT') + 5;
+                    limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
+                    filters = this.childTableQuery.substring(orderbyIndex, limitIndex - 5);
+                }
+                else {
+                    filters = this.childTableQuery.substring(orderbyIndex, this.childTableQuery.length);
+                }
+            } else if(this.childTableQuery.includes('LIMIT')){
                 const limitIndex  = this.childTableQuery.indexOf('LIMIT') + 5;
                 limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
             }
-
-            console.log('filters : ', filters);
-            console.log('limit : ', limit);
             
             if(this.selectedFieldList && this.selectedFieldList.length){
                 const childTBody = this.template.querySelector('[data-name="childTBody"]');
@@ -83,14 +108,15 @@ export default class ChildObjectTableBuilder extends LightningElement {
                                     text-align : center;
                 `
 
+                // ... Add label and info row into table ...
                 const labelRow = document.createElement('tr');
                 const keyRow = document.createElement('tr');
                 keyRow.setAttribute('data-name', "keyRow");
                 const infoRow = document.createElement('tr');
                 infoRow.setAttribute('data-name', "infoRow");
 
-
                 if(this.showIndex){
+                    // ... Add index Column ...
                     const labelTd = document.createElement('td');
                     labelTd.style = tdCSS;
                     labelTd.textContent = 'No.';
@@ -120,11 +146,6 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 infoTd.innerText = `Object: ${this.childObjectLabel},
                                     $objApi:${this.childObjAPI}$, $childRelation:${this.childRelationName}$, $limit:${limit ? limit : '20'}$, ${filters ? `, $filter:${filters}$` : ``}
                                     `;
-
-                // const overlay = document.createElement('div');
-                // overlay.setAttribute('data-name', "overlay");
-                // overlay.style = `position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0); z-index: 9;`;
-                // infoTd.appendChild(overlay);
                 infoRow.appendChild(infoTd);
 
                 childTBody.appendChild(labelRow);
@@ -132,11 +153,14 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 childTBody.appendChild(infoRow);
             }
         } catch (error) {
-            console.log('error in generateTable : ', error.stack);
+            errorDebugger('ChildObjectTableBuilder', 'generateTable', error, 'warn');
         }
     }
 
-    // #Child Object Table Method....
+    /**
+     * Method to handle copy generated table to clipboard.
+     * @param {*} event 
+     */
     copyTable(event){
         try {
             const table = document.createElement('table');
@@ -159,7 +183,7 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 })
             ]);
 
-            // Show animation on copy...
+            // ...Show animation on copy...
             const copyBtn = event.currentTarget;
             copyBtn.classList.add('copied');
             setTimeout(() => {
@@ -169,7 +193,7 @@ export default class ChildObjectTableBuilder extends LightningElement {
             document.body.removeChild(table); 
 
         } catch (error) {
-            console.log('error in copyTable : ', error.stack);
+            errorDebugger('ChildObjectTableBuilder', 'copyTable', error, 'warn');
         }
     }
 }

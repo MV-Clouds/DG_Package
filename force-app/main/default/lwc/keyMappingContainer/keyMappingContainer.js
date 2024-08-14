@@ -7,6 +7,7 @@ import getChildObjects from '@salesforce/apex/KeyMappingController.getChildObjec
 import formattingFieldKeys from '@salesforce/apex/KeyMappingController.formattingFieldKeys';
 import getSignatureInfo from '@salesforce/apex/KeyMappingController.getSignatureInfo';
 import updateSignatureInfo from '@salesforce/apex/KeyMappingController.updateSignatureInfo';
+import { errorDebugger } from 'c/globalProperties';
 
 export default class KeyMappingContainer extends LightningElement {
 
@@ -74,7 +75,7 @@ export default class KeyMappingContainer extends LightningElement {
     @track generalFieldsToDisplay = [];
     @track otherActiveTempList = [];
     @track contentVersionImages = [];
-    @track cVIdVsDownloadUrl = {};
+    @track cvIdVsImageSRC = {};
     @track contentVersionToDisplay = [];
     @track isExceedRelatedListLimit = false;
     maxRelatedLIstTableLimit = 10;
@@ -101,14 +102,23 @@ export default class KeyMappingContainer extends LightningElement {
     @track signatureSize;
     savedSignatureSize = this.signatureSize;
 
+    /**
+     * boolean to set showFulbrightButtonFor based on template type.
+     */
     get showFullHeightButton(){ 
         return this.showFullHeightButtonFor.includes(this.templateType);
     };
 
+    /**
+     * Set Boolean for showFulbrightButtonFor based on template type.
+     */
     get hideMergeTemplates(){ 
         return this.hideMergeTemplatesFor.includes(this.templateType);
     };
 
+    /**
+     * Set Tab Area based on Tab Selection By user..
+     */
     get mappingTypeTabArea(){
         return {
             objectFields        :   this.activeMappingTabName == 'objectFields' ? true : false,
@@ -120,26 +130,44 @@ export default class KeyMappingContainer extends LightningElement {
         }
     }
 
-    get showCombobox(){
+    /**
+     * Getter for determining if the combobox should be shown based on the active mapping tab.
+     */
+    get showCombobox() {
         return this.mappingTypeTabs?.find(ele => ele.name === this.activeMappingTabName)?.showCombobox;
     }
 
+    /**
+     * Getter for determining if the search bar should be shown based on the active mapping tab.
+     */
     get showSearchBar(){
         return this.mappingTypeTabs?.find(ele => ele.name === this.activeMappingTabName)?.showSearchbar;
     }
 
+    /**
+     * Getter for determining if the refresh button should be shown based on the active mapping tab.
+     */
     get showRefreshButton(){
         return this.mappingTypeTabs?.find(ele => ele.name === this.activeMappingTabName)?.showRefresh;
     }
 
+    /**
+     * Getter for determining if the combobox placeholder based on the active mapping tab.
+     */
     get objectComboPlaceHolder(){
         return this.mappingTypeTabs?.find(ele => ele.name === this.activeMappingTabName)?.comboboxPlaceholder;
     }
 
+    /**
+     * Getter for determining if the search bar placeholder based on the active mapping tab.
+     */
     get searchBarPlaceHolder(){
         return this.mappingTypeTabs?.find(ele => ele.name === this.activeMappingTabName)?.searchBarPlaceHolder;
     }
 
+    /**
+     * Getter for determining if the combobox options based on the active mapping tab.
+     */
     get comboBoxOptions(){
         if(this.activeMappingTabName == 'objectFields'){
             return this.relatedObjectList;
@@ -153,6 +181,9 @@ export default class KeyMappingContainer extends LightningElement {
         return [];
     }
 
+    /**
+     * Getter for determining if the selectedValue based on the active mapping tab to display on ui.
+     */
     get selectedValue(){
         if(this.activeMappingTabName == 'objectFields'){
             return this.selectedObjectName;
@@ -166,16 +197,25 @@ export default class KeyMappingContainer extends LightningElement {
         return null;
     }
 
+    /**
+     * Getter to set child table limit error message
+     */
     get childTableLimitErrorMsg(){
         // return 'Related List Table Limit Exceed. You Can Not Insert More Then 10 Related List Tables.';
         return this.isExceedRelatedListLimit ? `Related List Table Limit Exceeded. You Can Not Insert More Then ${this.maxRelatedLIstTableLimit} Related List Tables.` : ''
     }
 
+    /**
+     * Getter to determine to show or not in combo box based on the active mapping tab.
+     */
     get showComboDescription(){
         return this.mappingTypeTabs?.find(ele => ele.name === this.activeMappingTabName)?.showDescription;
     }
 
 
+    /**
+     * Getter to set format option based on clicked field type
+     */
     get formateOptions(){
         return {
             isPrimaryFormateCombobox : this.clickedFieldType === 'DATETIME' || this.clickedFieldType === 'DATE' || this.clickedFieldType === 'TIME',
@@ -185,6 +225,9 @@ export default class KeyMappingContainer extends LightningElement {
         }
     }
 
+    /**
+     * Getter to set format help text based on clicked field type
+     */
     get formatHelpText(){
         if(this.clickedFieldType == 'DATE'){
             return 'Select format for your Date Field';
@@ -206,15 +249,24 @@ export default class KeyMappingContainer extends LightningElement {
         }
     }
 
-    get setSelectChildObj(){
-            return (this.selectedChildObjectName && !this.isExceedRelatedListLimit) ? false : true;
+    /**
+     * Getter to Enable / Disable Child Object table generation based on generated table number
+     */
+    get isChildObjTableDisable(){
+        return (this.selectedChildObjectName && !this.isExceedRelatedListLimit) ? false : true;
     }
 
+    /**
+     * Getter to Enable/Disable signature update button
+     */
     get isSignatureSetBtn(){
         return this.savedSignatureSize === this.signatureSize;
     }
 
-    get isMaxSizeLimit(){
+    /**
+     * Getter to show/hide image max size limit info
+     */
+    get isImgMaxSizeLimit(){
         return this.showMaxSizeLimit.includes(this.templateType);
     }
 
@@ -236,7 +288,7 @@ export default class KeyMappingContainer extends LightningElement {
                 this.fetchAllActiveTemps()
             }
         } catch (error) {
-            console.log('error in FieldMappingKey.connectedCallback : ', error.stack);
+            errorDebugger('FieldMappingKey', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -252,6 +304,11 @@ export default class KeyMappingContainer extends LightningElement {
 
     };
 
+    /**
+     * Fetches the field mapping data for the specified object.
+     * 
+     * This method makes an asynchronous call to retrieve field mapping keys for the given object.
+     */
     fetchFieldMapping(){
         try {
             getFieldMappingKeys({sourceObjectAPI : this.objectName, getParentFields : true})
@@ -262,41 +319,39 @@ export default class KeyMappingContainer extends LightningElement {
                         // Set... Base Object, Related Parent Object and It's Fields with mapping key
                         this.object_Label = result.objectLabelAPI.label;
                         var relatedObjectList = [];
-                        var fielMappingKeysList = [];
+                        var fieldMappingKeysList = [];
                         result.fieldMappingsWithObj.forEach(obj => {
                             relatedObjectList.push({label : obj.label, value: obj.name});
                             if(!obj.label.includes('>')){
                                 this.objectName = obj.name;
                             }
                             obj.fieldMappings.forEach(ele => {
-                                fielMappingKeysList.push(ele.name);
+                                fieldMappingKeysList.push(ele.name);
                             })
                         });
                         this.relatedObjectList = JSON.parse(JSON.stringify(relatedObjectList));
-                        console.log('this.relatedObjectList : ', this.relatedObjectList);
                         this.fieldMappingsWithObj = result.fieldMappingsWithObj;
-                        this.setFieldForMapping();
+                        this.setMappingKeysForObjFields();
                         this.setMappingTab();
-                        // this.isSpinner = this.successCount == 2 ? false : this.successCountPlus();
-
-                        // setFieldMappingKeyisConfig(fielMappingKeysList);
                     }
                     else{
-                        // this.isSpinner = this.successCount == 2 ? false : this.successCountPlus();
+                        errorDebugger('FieldMappingKey', 'fetchFieldMapping', null, 'warn', `error in getFieldMappingKeys apex call : ${result.returnMessage}`);
                         this.showMessagePopup('Error', 'Error While Fetching Field Mapping Data', result.returnMessage);
                     }
             })
             .catch(error => {
                 this.isDataRefreshing = false;
-                // this.isSpinner = this.successCount == 2 ? false : this.successCountPlus();
-                console.log('error in getTemplateData apex callout : ', {error});
+                errorDebugger('FieldMappingKey', 'fetchFieldMapping', error, 'warn', `error in getFieldMappingKeys apex call `);
             })
         } catch (error) {
-            console.log('error in templateBuilder > getFieldMappingKeys ', error.stack);
-            
+            errorDebugger('FieldMappingKey', 'fetchFieldMapping', error, 'warn');
         }
     }
 
+
+    /**
+     * Fetches child objects related to the source object.
+     */
     fetchChildObjects(){
         try {
             getChildObjects({sourceObjectAPI : this.objectName})
@@ -308,18 +363,24 @@ export default class KeyMappingContainer extends LightningElement {
                         this.relatedChildObjects.push({label : ele.label, value : ele.name, description : ele.additionalInfo, childObjApi : ele.objectAPI});
                     });
                 }
+                else{
+                    errorDebugger('FieldMappingKey', 'fetchChildObjects', null, 'warn', `error in getChildObjects apex call : ${result.returnMessage}`);
+                }
             })
         } catch (error) {
-            console.log('error in fetchChildObjects');
+            errorDebugger('FieldMappingKey', 'fetchChildObjects', error, 'warn');
         }
     }
 
+    /**
+     * Fetch General Field and its key
+     * Creation Date, Creation user and organization keys are fetch throughout this apex call
+     */
     fetchGeneralFields(){
         try {
             getGeneralFields()
             .then(result => {
                 this.isDataRefreshing = false;
-                console.log('getGeneralFields result => ', result);
                 var generalFieldTypes_temp = [];
                 if(result.isSuccess == true && result.fieldMappingsWithObj){
                     result.fieldMappingsWithObj.forEach(ele => {
@@ -327,39 +388,46 @@ export default class KeyMappingContainer extends LightningElement {
                     })
                     this.generalFieldTypes = JSON.parse(JSON.stringify(generalFieldTypes_temp));
                     this.setGeneralFieldsToDisplay();
-                    console.log('generalFieldTypes : ', JSON.parse(JSON.stringify(this.generalFieldTypes)));
+                }
+                else{
+                    errorDebugger('FieldMappingKey', 'fetchGeneralFields', null, 'warn', `error in fetchGeneralFields apex : ${result.returnMessage}`);
                 }
             })
             .catch(error => {
                 this.isDataRefreshing = false;
-                console.log('error in getGeneralFields => ', error.message);
+                errorDebugger('FieldMappingKey', 'fetchGeneralFields', error, 'warn', `error in fetchGeneralFields apex `);
             })
         } catch (error) {
-            console.log('error in fetchGeneralFields : ', error.stack);
+            errorDebugger('FieldMappingKey', 'fetchGeneralFields', error, 'warn');
         }
     }
 
+    /**
+     * Fetches all active templates and its key to merge other template into current template
+     */
     fetchAllActiveTemps(){
         try {
             getMerginTemplateKeys({sourceObjectAPI : this.objectName})
             .then(result => {
                 this.isDataRefreshing = false;
-                if(result.isSuccess == true){
-                    console.log('result : ', result);
-                    if(result.fieldMappingsWithObj){
+                if(result.isSuccess == true && result.fieldMappingsWithObj){
                         this.otherActiveTempList = result.fieldMappingsWithObj[0].fieldMappings;
                         this.setOtherMappingTemplates();
-                    }
-                    else{
-                        console.log(result.returnMessage);
-                    }
+                }
+                else{
+                    errorDebugger('FieldMappingKey', 'fetchAllActiveTemps', error, 'warn', `error in fetchAllActiveTemps apex  : ${result.returnMessage}`);
                 }
             })
         } catch (error) {
-            console.log('error in fetchAllActiveTemps : ', error.stack);
+            errorDebugger('FieldMappingKey', 'fetchAllActiveTemps', error, 'warn');
         }
     }
 
+    /**
+     * Fetch all Image from ContentVersion to add into template
+     * Note : For Google Doc Template, we get ContentDownloadUrl from ContentDistribution as Google doc Only support public url
+     * While : For Simple Template we get VersionDataUrl which is not public url
+     */
     fetchAllContentVersionImages(){
         try {
             getAllContentVersionImgs({templateType : this.templateType})
@@ -368,7 +436,7 @@ export default class KeyMappingContainer extends LightningElement {
                 console.log('getAllContentVersionImgs result => ', result);
                 if(result.isSuccess == true){
                     this.contentVersionImages = result.cvImages;
-                    this.cVIdVsDownloadUrl = result.cvIdVsDownloadUrl;
+                    this.cvIdVsImageSRC = result.cvIdVsImageSRC;
                     this.contentVersionImages.forEach(ele => {
                         ele['fileSize'] = ele.ContentSize + ' Bytes';
                          if (ele.ContentSize < 1000000) {  
@@ -378,21 +446,26 @@ export default class KeyMappingContainer extends LightningElement {
                         } else {  
                             ele['fileSize'] = (ele.ContentSize / 1000000000).toFixed(2) + ' GB';  
                         } 
-                        ele.publicUrl = this.cVIdVsDownloadUrl[ele.Id];
+                        ele.imageSRC = this.cvIdVsImageSRC[ele.Id];
                     });
-                    console.log('this.contentVersionImages  : ', this.contentVersionImages );
                     this.setContVerImgToDisplay();
+                }
+                else{
+                    errorDebugger('FieldMappingKey', 'fetchAllContentVersionImages', error, 'warn', `error in getAllContentVersionImgs Apex : ${result.returnMessage}`)
                 }
             })
             .catch(error => {
                 this.isDataRefreshing = false;
-                console.log('getAllContentVersionImgs error => ', error);
+                errorDebugger('FieldMappingKey', 'fetchAllContentVersionImages', error, 'warn')
             })
         } catch (error) {
-            console.log('error in fetchAllContentVersionImages : ', error.stack);
+            errorDebugger('FieldMappingKey', 'fetchAllContentVersionImages', error, 'warn')
         }
     }
 
+    /**
+     * Fetch all formatting field to set formatting for date, time , datetime, text, checkbox, number, currency and percentage field
+     */
     fetchFormatMappingKeys(){
         try {
             formattingFieldKeys()
@@ -406,15 +479,18 @@ export default class KeyMappingContainer extends LightningElement {
                         this.signatureKey = result.signatureKey;
                     }
                 }
+                else{
+                    errorDebugger('FieldMappingKey', 'fetchFormatMappingKeys', null ,'warn', `Error in ${result.returnMessage}`);
+                }
             })
-            // .catch(error => {
-            //     console.log('formattingFieldKeys error => ', error.stack);
-            // })
         } catch (error) {
-            console.log('error in fetchFormatMappingKeys : ', error.stack);
+            errorDebugger('FieldMappingKey', 'fetchFormatMappingKeys', error ,'warn');
         }
     }
 
+    /**
+     * Method to fetch signature size stored in template record field.
+     */
     fetchSignatureInfo(){
         try {
             getSignatureInfo({templateId : this.templateId})
@@ -424,10 +500,17 @@ export default class KeyMappingContainer extends LightningElement {
                 this.savedSignatureSize = result;
             })
         } catch (error) {
-            console.warn('error in fetchSignatureInfo : ', error.message);
+            errorDebugger('FieldMappingKey', 'fetchSignatureInfo', error ,'warn');
         }
     }
 
+    /**
+     * Sets the active mapping tab based on the user click triggered.
+     * Adds 'selected' class to the active tab and removes it from other tabs to set Css of active tab.
+     * Calls handleKeySearch method after updating the active tab.
+     * 
+     * @param {Event} event - The event object triggered by the user action.
+     */
     setMappingTab(event){
         try {
             if(event && event.currentTarget){
@@ -453,10 +536,15 @@ export default class KeyMappingContainer extends LightningElement {
             this.handleKeySearch();
 
         } catch (error) {
-            console.log('error in setMappingTab : ', error.stack);
+            errorDebugger('FieldMappingKey', 'setMappingTab', error ,'warn');
         }
     }
 
+    /**
+     * Generic method to call when user select any option from Object fields, child objects or general Field,
+     * Set Mapping keys to display based on selection
+     * @param {*} event 
+     */
     handleOptionSelect(event){
         try {
             if(this.activeMappingTabName == 'objectFields'){
@@ -469,10 +557,15 @@ export default class KeyMappingContainer extends LightningElement {
                 this.handleGeneralFieldTypeSelection(event);
             }
         } catch (error) {
-            console.log('error in templateBuilder.handleOptionSelect : ', error.stack);
+            errorDebugger('FieldMappingKey', 'handleOptionSelect', error ,'warn');
         }
     }
 
+    /**
+     * Set mapping key to display when user select any source or its related object.
+     * This Method call from 'handleOptionSelect',
+     * @param {*} event 
+     */
     handleRelatedObjSelect(event){
         try {
             if(event.detail.length){
@@ -481,12 +574,17 @@ export default class KeyMappingContainer extends LightningElement {
             else{
                 this.selectedObjectName = null;
             }
-            this.setFieldForMapping();
+            this.setMappingKeysForObjFields();
         } catch (error) {
-            console.log('error in templateBuilder.handleRelatedObjSelect : ', error.stack);
+            errorDebugger('FieldMappingKey', 'handleRelatedObjSelect', error ,'warn');
         }
     }
 
+    /**
+     * Set selectedChildObjAPI and enable generate table button based on it to generate child object table
+     * This Method call from 'handleOptionSelect'.
+     * @param {*} event 
+     */
     handleChildObjSelection(event){
         try {
             if(event.detail && event.detail.length){
@@ -498,24 +596,34 @@ export default class KeyMappingContainer extends LightningElement {
                 this.selectedChildObjAPI = null;
             }
         } catch (error) {
-            console.log('error in handleChildObjSelection : ', error.stack);
+            errorDebugger('FieldMappingKey', 'handleChildObjSelection', error ,'warn');
         }
     }
 
+    /**
+     * Set mapping key to display when user select any general field type.
+     * This Method call from 'handleOptionSelect'.
+     * @param {*} event 
+     */
     handleGeneralFieldTypeSelection(event){
         try {
             this.selectedGeneralFieldType = event.detail[0];
             this.setGeneralFieldsToDisplay();
         } catch (error) {
-            console.log('error in handleGeneralFieldTypeSelection : ', error.stack);
+            errorDebugger('FieldMappingKey', 'handleGeneralFieldTypeSelection', error ,'warn');
         }
     }
 
+    /**
+     * Generic method which triggers when user search from searchbar.
+     * this will for all tab on which search bar is available.
+     * @param {*} event 
+     */
     handleKeySearch(event){
         try {
             this.searchFieldValue = event ? event.target.value : null;
             if(this.activeMappingTabName == 'objectFields'){
-                this.setFieldForMapping();
+                this.setMappingKeysForObjFields();
             }
             else if(this.activeMappingTabName == 'relatedListFields'){
             }
@@ -529,10 +637,13 @@ export default class KeyMappingContainer extends LightningElement {
                 this.setContVerImgToDisplay();
             }
         } catch (error) {
-            console.log('error in templateBuilder.handleKeySearch : ', error.stack);
+            errorDebugger('FieldMappingKey', 'handleKeySearch', error ,'warn');
         }
     }
 
+    /**
+     * refresh Data when click on button
+     */
     refreshData(){
         try {
             this.isDataRefreshing = true;
@@ -540,11 +651,15 @@ export default class KeyMappingContainer extends LightningElement {
                 this.fetchAllContentVersionImages()
             }
         } catch (error) {
-            console.warn('error in refreshData : ', error.stack);
+            errorDebugger('FieldMappingKey', 'refreshData', error ,'warn');
         }
     }
 
-    setFieldForMapping(){
+    /**
+     * Method to organize list of mapping keys of source object's and its related object's fields to display on ui.
+     * This method run each time when user search for field from 'Object Field' tab
+     */
+    setMappingKeysForObjFields(){
         try {
             this.field_Vs_KeyList = this.selectedObjectName ? 
                                     this.fieldMappingsWithObj.find(ele =>  ele.name === this.selectedObjectName).fieldMappings :
@@ -557,38 +672,58 @@ export default class KeyMappingContainer extends LightningElement {
                 })
             }
 
+            this.field_Vs_KeyList = this.sortFormateKeys(this.field_Vs_KeyList, 'label');
+
         } catch (error) {
-            console.log('error in templateBuilder.setFieldForMapping : ', error.stack)
+            errorDebugger('FieldMappingKey', 'setMappingKeysForObjFields', error ,'warn');
         }
     }
 
+    /**
+     * Method to organize list of mapping keys of 'General Fields' to display on ui.
+     * This method run each time when user search for field from 'General Field' tab
+     */
     setGeneralFieldsToDisplay(){
         try {
             this.generalFieldsToDisplay = this.selectedGeneralFieldType ? this.generalFieldTypes.find(ele => ele.value == this.selectedGeneralFieldType).fieldMappings : this.generalFieldTypes[0].fieldMappings;
 
             if(this.searchFieldValue){
                 this.generalFieldsToDisplay = this.generalFieldsToDisplay.filter((ele) => {
-                    return ele.label.toLowerCase().includes(this.searchFieldValue) || ele.key.toLowerCase().includes(this.searchFieldValue);
+                    return ele.label.toLowerCase().includes(this.searchFieldValue?.toLowerCase()) || ele.key.toLowerCase().includes(this.searchFieldValue?.toLowerCase());
                 });
             }
+
+            this.generalFieldsToDisplay = this.sortFormateKeys(this.generalFieldsToDisplay, 'label');
         } catch (error) {
-            console.log('error in templateBuilder.setGeneralFieldsToDisplay : ', error.stack);
+            errorDebugger('FieldMappingKey', 'setGeneralFieldsToDisplay', error ,'warn');
         }
     }
 
+
+    /**
+     * Method to organize list of mapping keys 'Merge Template Keys' to display on ui.
+     * This method run each time when user search for keys from 'Merge Template' tab
+     */
     setOtherMappingTemplates(){
         try {
             this.otherActiveTempToDisplay = this.otherActiveTempList;
             if(this.searchFieldValue){
                 this.otherActiveTempToDisplay = this.otherActiveTempList.filter((ele) => {
-                    return ele.label.toLowerCase().includes(this.searchFieldValue) || ele.key.toLowerCase().includes(this.searchFieldValue);
+                    return ele.label.toLowerCase().includes(this.searchFieldValue?.toLowerCase()) || ele.key.toLowerCase().includes(this.searchFieldValue?.toLowerCase());
                 })
             }
+
+            this.otherActiveTempToDisplay = this.sortFormateKeys(this.otherActiveTempToDisplay, 'label');
+
         } catch (error) {
-            console.log('error in setOtherMappingTemplates : ', error.stack);
+            errorDebugger('FieldMappingKey', 'setOtherMappingTemplates', error ,'warn');
         }
     }
 
+    /**
+     * Method to organize list of Salesforce Images to display on ui.
+     * This method run each time when user search for salesforce images from 'Merge Template' tab
+     */
     setContVerImgToDisplay(){
         try {
             this.contentVersionToDisplay = this.contentVersionImages;
@@ -598,12 +733,16 @@ export default class KeyMappingContainer extends LightningElement {
                     return ele.Title.toLowerCase().includes(this.searchFieldValue.toLowerCase()) || ele.FileType.toLowerCase().includes(this.searchFieldValue.toLowerCase())
                 })
             }
+
+            this.contentVersionToDisplay = this.sortFormateKeys(this.contentVersionToDisplay, 'Title');
         } catch (error) {
-            console.log('error in setContVerImgToDisplay : ', error.stack);
-            
+            errorDebugger('FieldMappingKey', 'setContVerImgToDisplay', error ,'warn');            
         }
     }
 
+    /**
+     * Method to Increase/Decrease height of Mapping key Area..
+     */
     toggleMappingTableHeight(){
         try {
             const mergingTypeSelection = this.template.querySelector('.mergingTypeSelection');
@@ -622,43 +761,61 @@ export default class KeyMappingContainer extends LightningElement {
                 buttonSection.style = `margin : 0px; width : 100%; border-radius : 0px; max-height: 3.25rem;`;
             }
         } catch (error) {
-            console.log('error in toggleMappingTableHeight : ', error.stack);
+            errorDebugger('FieldMappingKey', 'toggleMappingTableHeight', error ,'warn');            
         }
     }
 
+
+    /**
+     * Method to show/hide the Mapping container
+     */
     showHideMappingContainer(){
-        this.isMappingOpen = !this.isMappingOpen;
-        var toggleFieldMapping =  this.template.querySelector('.toggleFieldMapping');
-        if(toggleFieldMapping){
-            toggleFieldMapping.style = this.isMappingOpen ? `width : 0px !important; padding: 0px; opacity : 0;` : '';
+        try {
+            this.isMappingOpen = !this.isMappingOpen;
+            var toggleFieldMapping =  this.template.querySelector('.toggleFieldMapping');
+            if(toggleFieldMapping){
+                toggleFieldMapping.style = this.isMappingOpen ? `width : 0px !important; padding: 0px; opacity : 0;` : '';
+            }
+    
+            if(this.isMappingOpen){
+                this.template.host.classList.add('openFieldMapping');
+            }
+            else{
+                this.template.host.classList.remove('openFieldMapping');
+            }
+            // this.dispatchEvent(new CustomEvent('togglemapping'));
+        } catch (error) {
+            errorDebugger('FieldMappingKey', 'showHideMappingContainer', error ,'warn');            
         }
-
-        if(this.isMappingOpen){
-            this.template.host.classList.add('openFieldMapping');
-        }
-        else{
-            this.template.host.classList.remove('openFieldMapping');
-        }
-        // this.dispatchEvent(new CustomEvent('togglemapping'));
     }
 
+    /**
+     * API Method to Show/Hide Mapping container,
+     * This method trigged from parent component to show and hide key Mapping Container based on state.
+     * @param {*} state 
+     */
     @api toggleMappingContainer(state){
-        console.log('is floating  : ', state);
-        this.toggleBtn = state;
-        var toggleFieldMapping =  this.template.querySelector('.toggleFieldMapping');
-        toggleFieldMapping.style = this.isMappingOpen ? `width : 0px !important; padding: 0px; opacity : 0;` : '';
-
-        // add and remove floating CSS for container as per requirement to make container slider....
-        if(state){
-            this.template.host.classList.add('floatContainer');
+        try {
+            this.toggleBtn = state;
+            var toggleFieldMapping =  this.template.querySelector('.toggleFieldMapping');
+            toggleFieldMapping.style = this.isMappingOpen ? `width : 0px !important; padding: 0px; opacity : 0;` : '';
+    
+            // add and remove floating CSS for container as per requirement to make container slider....
+            if(state){
+                this.template.host.classList.add('floatContainer');
+            }
+            else{
+                this.template.host.classList.remove('floatContainer');
+            }
+            this.setToggleBtnVisibility();
+        } catch (error) {
+            errorDebugger('FieldMappingKey', 'toggleMappingContainer', error ,'warn');            
         }
-        else{
-            this.template.host.classList.remove('floatContainer');
-        }
-        this.setToggleBtnVisibility();
     }
 
-    // Method to show/hide toggle button
+    /**
+     * Method to show/hide key Mapping Toggle button
+     */
     setToggleBtnVisibility(){
         var toggleFieldMapping =  this.template.querySelector('.toggleFieldMapping');
         if(window.innerWidth > 1350){
@@ -670,11 +827,18 @@ export default class KeyMappingContainer extends LightningElement {
         }
     }
 
+    /**
+     * Method to Increase/Decrease height of Mapping key container..
+     */
     toggleMappingContainerHeight(){
         this.isMappingContainerExpanded = !this.isMappingContainerExpanded
         this.dispatchEvent(new CustomEvent('fullheight'));
     }
 
+    /**
+     * Method to copy mapping key and show animation on copy button click
+     * @param {*} event 
+     */
     handleCopyFieldKey(event){
         try {
             event.stopPropagation();
@@ -708,12 +872,17 @@ export default class KeyMappingContainer extends LightningElement {
             });
 
         } catch (error) {
-            console.log('error in templateBuilder.handleCopyFieldKey : ', error.stack);
+            errorDebugger('FieldMappingKey', 'handleCopyFieldKey', error ,'warn');            
         }
     }
     
 
     // ==== ==== ==== Field Formatting Methods -- START -- ==== ==== ====
+
+    /**
+     * Method Set formatting option based on field Type
+     * @param {*} event 
+     */
     setFormatKeyList(event){
         try {
             var fieldName = event.currentTarget.dataset.fieldname;
@@ -780,18 +949,19 @@ export default class KeyMappingContainer extends LightningElement {
             
             this.chosenFormat = JSON.parse(JSON.stringify(this.formatDefault));           // for Deep clone...
 
-            console.log('this.primeFormatKeys : ', this.primeFormatKeys);
-
         } catch (error) {
-            console.log();  
+            errorDebugger('FieldMappingKey', 'setFormatKeyList', error ,'warn');            
         }
     }
 
+    /**
+     * Method to set Prime Format option 
+     * @param {*} event 
+     */
     handlePrimeFormat(event){
         try {
             if(event.detail && event.detail.length){
                 this.chosenFormat = JSON.parse(JSON.stringify(this.primeFormatKeys.find(ele => ele.value == event.detail[0])));
-                console.log('chosenFormat : ', this.chosenFormat);
             }
             else{
                 this.chosenFormat = JSON.parse(JSON.stringify(this.formatDefault));
@@ -801,10 +971,14 @@ export default class KeyMappingContainer extends LightningElement {
                 this.updateChosenFormat();
             }
         } catch (error) {
-            console.log('error in handlePrimeFormat : ', error.stack);
+            errorDebugger('FieldMappingKey', 'handlePrimeFormat', error ,'warn');            
         }
     }
 
+    /**
+     * Method to Set Sub Format option for data time field
+     * @param {*} event 
+     */
     handleSubFormat(event){
         try {
             if(event.detail && event.detail.length){
@@ -815,15 +989,18 @@ export default class KeyMappingContainer extends LightningElement {
             }
             this.updateChosenFormat();
         } catch (error) {
-            console.log('error in handleSubFormat : ', error.stack);
+            errorDebugger('FieldMappingKey', 'handleSubFormat', error ,'warn');            
         }
     }
 
+    /**
+     * Once user select ay format type, update existing mapping key bases on formate type.
+     */
     updateChosenFormat(){
         // Update format key in case of sub formatting (i.e. Date and Time)
         try {
             if(this.chosenFormat.key.includes('*')){
-                // Update format key when key includes format key
+                // Update format key when key includes prime format key
                 if(this.chosenSubFormat){
                     this.chosenFormat.key = this.chosenFormat.key.replace(/(?<=\*)(.*?)(?=\*)/g, this.chosenFormat.value +' '+ this.chosenSubFormat);
                 }
@@ -833,16 +1010,21 @@ export default class KeyMappingContainer extends LightningElement {
                 }
             }
         } catch (error) {
-            console.log('error in updateChosenFormat : ', error.stack);
+            errorDebugger('FieldMappingKey', 'updateChosenFormat', error ,'warn');            
         }
     }
 
+    /**
+     * Set formatting into Mapping key for checkbox field.
+     * @param {*} event 
+     */
     setCheckBoxFormat(event){
         try {
             this.trueValueReplacer = event.currentTarget.dataset.name == 'true' ? event.target.value : this.trueValueReplacer;
             this.falseValueReplacer = event.currentTarget.dataset.name == 'false' ? event.target.value : this.falseValueReplacer;
 
             if(this.trueValueReplacer != '' || this.falseValueReplacer != ''){
+                // if valueReplace is empty, set default true or false accordingly.
                 var trueValueReplacer = this.trueValueReplacer != '' ? this.trueValueReplacer : 'true';
                 var falseValueReplacer = this.falseValueReplacer != '' ? this.falseValueReplacer : 'false';
                 if(this.chosenFormat.key.includes('*')){
@@ -853,17 +1035,20 @@ export default class KeyMappingContainer extends LightningElement {
                 }
             }
             else{
-                console.log('this.formatDefault : ', this.formatDefault);
                 // when user clear both input.. set format to default one...
                 if(this.chosenFormat.key.includes('*')){
                     this.chosenFormat.key = this.formatDefault.key;
                 }
             }
         } catch (error) {
-            console.log('error in setCheckBoxFormat : ', error.stack);
+            errorDebugger('FieldMappingKey', 'setCheckBoxFormat', error ,'warn');            
         }
     }
 
+    /**
+     * Set formatting into mapping key  for Text field.
+     * @param {*} event 
+     */
     setTextFormat(event){
         try {
             
@@ -883,10 +1068,14 @@ export default class KeyMappingContainer extends LightningElement {
                 this.chosenFormat.key = this.formatDefault.key;
             }
         } catch (error) {
-            console.log('error in setTextFormat : ', error.stack);
+            errorDebugger('FieldMappingKey', 'setTextFormat', error ,'warn');            
         }
     }
 
+    /**
+     * Set Formatting key into mapping key for Number field.
+     * @param {*} event 
+     */
     setNumberFormat(event){
         try {
             const action = event.currentTarget.dataset.action;
@@ -910,7 +1099,7 @@ export default class KeyMappingContainer extends LightningElement {
                     event.target.value = 32;
                 }
 
-                // Enable / Disable round Mode option based on decimal places value...
+                // ...Enable / Disable round Mode option based on decimal places value...
                 const roundMode = this.template.querySelector(`[data-action="roundMode"]`);
                 const roundModeText = this.template.querySelector('[data-text="roundMode"]');
 
@@ -967,10 +1156,14 @@ export default class KeyMappingContainer extends LightningElement {
             }
             
         } catch (error) {
-            console.log('error in setNumberFormat : ', error.stack);
+            errorDebugger('FieldMappingKey', 'setNumberFormat', error ,'warn');            
         }
     }
 
+    /**
+     * Close Key Popover on user action.
+     * @param {*} event 
+     */
     closeKeyPopover(event){
         try {
             event.stopPropagation();
@@ -981,30 +1174,43 @@ export default class KeyMappingContainer extends LightningElement {
             this.chosenFormat = {};
 
         } catch (error) {
-            console.log('error in closeKeyPopover : ',error.stack);
+            errorDebugger('FieldMappingKey', 'closeKeyPopover', error ,'warn');            
         }
     }
     // ==== ==== ==== Field Formatting Methods -- END -- ==== ==== ====
 
+    /**
+     * generic method to stop event bubbling from child element to parent
+     * @param {*} event 
+     */
     stopPropagation(event){
         event.stopPropagation();
     }
 
+    /**
+     * Method to copy salesforce images as HTML tab
+     * @param {*} event 
+     */
     copySFImgAsHTMl(event){
         try {
             event.stopPropagation();
 
             const imgId = event.currentTarget.dataset.id;
  
-            const ImgUrl = this.contentVersionImages.find(ele => ele.Id == imgId)?.publicUrl;
+            const ImgUrl = this.contentVersionImages.find(ele => ele.Id == imgId)?.imageSRC;
 
             this.copyImage(ImgUrl, imgId);
 
         } catch (error) {
-            console.log('error in copySFImgAsHTMl : ', error.stack);
+            errorDebugger('FieldMappingKey', 'copySFImgAsHTMl', error ,'warn');            
         }
     }
 
+    /**
+     * Copy Image using navigator clipboard.
+     * @param {*} imgUrl 
+     * @param {*} imgID 
+     */
     copyImage(imgUrl, imgID){
         try {
 
@@ -1049,10 +1255,15 @@ export default class KeyMappingContainer extends LightningElement {
                 }
             });
         } catch (error) {
-            console.log('error in copyImage : ', error.stack);
+            errorDebugger('FieldMappingKey', 'copyImage', error ,'warn');            
         }
     }
 
+    /**
+     * Method to convert raw(encrypted binary) data into base64.
+     * @param {*} data 
+     * @returns 
+     */
     getArrayBuffer(data){
         var len = data.length,
         ab = new ArrayBuffer(len),
@@ -1062,6 +1273,9 @@ export default class KeyMappingContainer extends LightningElement {
         return ab;
     };
 
+    /**
+     * Method to open child object table generation popup
+     */
     openChildSelection(){
         this.dispatchEvent(new CustomEvent('opengenchildtable', {detail : {
             relationshipName : this.selectedChildObjectName,
@@ -1070,62 +1284,92 @@ export default class KeyMappingContainer extends LightningElement {
         }}));
     }
 
-    // Set Section Over TExt On Field Key Div....
-    handleSetSection(event){
+    /**
+     * Set highted Selection color on mapping key element's text
+     * @param {*} event 
+     */
+    setHighlightedSelection(event){
         try {
-            // Add section on Field Key Div text...
+            // ASet highted Selection color on mapping key element's text
             var range = document.createRange();
             range.selectNode(event.target);
             window.getSelection().removeAllRanges();
             window.getSelection().addRange(range);
         } catch (error) {
-            console.log('error in templateBuilder.handleSetSection : ', error.stack);
-            
+            errorDebugger('FieldMappingKey', 'setHighlightedSelection', error ,'warn');            
         }
     }
 
-    // Signature Size Methods
+    /**
+     * Set Signature size into variable
+     * @param {*} event 
+     */
     setSignatureSize(event){
         this.signatureSize = event.target.value;
     }
 
+    /**
+     * Update Signature size in backed.
+     */
     updateSignatureSize(){
         try {
             this.savedSignatureSize = this.signatureSize;
             updateSignatureInfo({templateId : this.templateId, signatureSize : this.signatureSize});
         } catch (error) {
-            console.warn('error in KeyMappingContainer.savedSignatureSize', error.message) 
+            errorDebugger('FieldMappingKey', 'updateSignatureSize', error ,'warn');            
         }
     }
 
+    /**
+     * Dispatch & Trigger 'onclose' event into parent component when user click on close button
+     */
     handleClose(){
         this.dispatchEvent(new CustomEvent('close'));
     }
 
+    sortFormateKeys(list, orderBy){
+        return list.sort((a, b) => {
+            return a[orderBy]?.localeCompare(b[orderBy]);
+        });
+    }
+
+
+    /**
+     * Triggers a preview event using CustomEvent.
+     * Also updates the signature size after triggering the event.
+     */
     handlePreview(){
         this.dispatchEvent(new CustomEvent('preview'));
         this.updateSignatureSize();
     }
+    
 
+    /**
+     * Dispatch & Trigger 'onsave' event into parent component when user click on save button.c/buttonGenerator.
+     * Also updates the signature size after triggering the event.
+     */
     handleSave(){
         this.dispatchEvent(new CustomEvent('save'));
         this.updateSignatureSize();
     }
 
-    handleDisableTabClick(event){
-        event.stopPropagation();
-        event.preventDefault();
-    }
-
+    /**
+     * API Method to Stop Generation.
+     * Update 'isExceedRelatedListLimit' from parent to Stop Generation of child object table when user exceed maximum number of child object.
+     * @param {*} isExceed 
+     */
     @api
     relatedListTableLimitExceed(isExceed){
         try {
             this.isExceedRelatedListLimit = isExceed;
         } catch (error) {
-            console.log('error in childTableLimitExceed : ', error.stack);
+            errorDebugger('FieldMappingKey', 'relatedListTableLimitExceed', error ,'warn');            
         }
     }
 
+    /**
+     * API Method to get object filed and its mapping key from parent object.
+     */
     @api 
     getAllMappingFields(){
         try {
@@ -1152,7 +1396,7 @@ export default class KeyMappingContainer extends LightningElement {
 
             return objectKeys;
         } catch (error) {
-            console.log('error in getAllMappingKeys : ', error.stack);
+            errorDebugger('FieldMappingKey', 'getAllMappingFields', error ,'warn');            
             return null;
         }
     }

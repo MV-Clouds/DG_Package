@@ -48,21 +48,21 @@ export var mappingSymbols = {
  * @param {*} additionalInfo 
  */
 export function errorDebugger(componentName, methodName, error, debugMode, additionalInfo){
-    const errorInfo = {
-        component : componentName,
-        method : methodName,
-        errorMessage : error?.message,
-        additionalInfo : additionalInfo
-    }
+    const errorInfo = {}
 
+    componentName   &&  (errorInfo.component = componentName);
+    methodName      &&  (errorInfo.method = methodName);
+    error?.message  &&  (errorInfo.errorMessage = error?.message);
+    additionalInfo  &&  (errorInfo.additionalInfo = additionalInfo);
+    
     if(debugMode?.toLowerCase() === 'error'){
-        console.error('error from custom component : ', errorInfo);
+        console.error('Error from DG Component : ', errorInfo);
     }
     else if(debugMode?.toLowerCase() === 'warn'){
-        console.warn('error from custom component : ', errorInfo);
+        console.warn('Warning from DG Component : ', errorInfo);
     }
     else{
-        console.log('error from custom component : ', errorInfo);
+        console.log('Message from DG Component : ', errorInfo);
     }
 }
 

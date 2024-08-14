@@ -248,38 +248,4 @@ global with sharing class DocGenerateController {
         
         return new list<string>{string.valueOf(isLastBatch), string.join(bodyHtml,'').unescapeHtml4()};
     }
-
-    @RemoteAction
-    global static String fetchImageBase64(String imageSRC){
-        String base64 = '';
-
-        String imageId = imageSRC?.substringAfter('/download/');
-
-        List<contentVersion> image = [SELECT Id, VersionData FROM ContentVersion WHERE Id =: imageId AND IsLatest = true WITH SECURITY_ENFORCED LIMIT 1];
-        //  AND ContentSize < 5000000
-        base64 = image.size() > 0 ? EncodingUtil.base64Encode(image[0].VersionData) : '';
-
-        system.debug('size : ' + ((base64.length() / 4)  * 3 ) / 1000000+ ' MB');
-
-        return base64;
-    }
-
-    @RemoteAction
-    global static String fetchSignatureBase64(String recordId){
-
-        List<ContentVersion> signatures = [SELECT Id, VersionData, ContentSize FROM ContentVersion WHERE Title Like '%Signature-%' AND FirstPublishLocationId =: recordId AND IsLatest = true WITH SECURITY_ENFORCED ORDER BY CreatedDate DESC LIMIT 1];
-
-        if(signatures.size() > 0){
-            return signatures[0].ContentSize < 3000000  ? 'data:image/png;base64,' + EncodingUtil.base64Encode(signatures[0].VersionData) : 'largeImage';
-        }
-        else{
-            return 'noSignature';
-        }
-    }
-
-           
-
-    public static void dummyMethod(){
-        System.debug('content Type Set');
-    }
 }

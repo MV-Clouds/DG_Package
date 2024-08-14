@@ -122,7 +122,7 @@ public with sharing class TemplateBuilder_Controller {
             Log_Handler.store_Exception(e, 'TemplateBuilderController', 'saveTemplateApex');
             system.debug('exception in saveTemplateApex : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
 
-            return 'error';
+            return null;
         }
     }
 

@@ -203,7 +203,7 @@ export default class TemplatePreviewModal extends LightningElement {
                         this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod(() => {
                             this.updateSpinnerLabel('We are Almost There... Please wait a while...')
                         }, 4000);
-                    }, 100);
+                    }, 400);
                 }
             }
             else if(this.templateType === 'Google Doc Template'){

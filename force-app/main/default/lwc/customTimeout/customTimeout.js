@@ -82,19 +82,22 @@ export default class CustomTimeout extends LightningElement {
     }
 
     setProcessNumber(){
-        if(!this.usedTimeoutProcessNumber.includes(this.customTimeoutProcessList.length)){
-            this.usedTimeoutProcessNumber.push(this.customTimeoutProcessList.length);
-            return this.customTimeoutProcessList.length;
-        }
-        else{
-            for(let i = 0; i < 9; i++){
-                if(!this.usedTimeoutProcessNumber.includes(i)){
-                    this.usedTimeoutProcessNumber.push(i);
-                    return i;
+        try {
+            if(!this.usedTimeoutProcessNumber.includes(this.customTimeoutProcessList.length)){
+                this.usedTimeoutProcessNumber.push(this.customTimeoutProcessList.length);
+                return this.customTimeoutProcessList.length;
+            }
+            else{
+                for(let i = 0; i < 9; i++){
+                    if(!this.usedTimeoutProcessNumber.includes(i)){
+                        this.usedTimeoutProcessNumber.push(i);
+                        return i;
+                    }
                 }
             }
+        } catch (error) {
+            errorDebugger('CustomTimeout', 'setProcessNumber', error, 'warn');
         }
-
         return 0;
     }
 

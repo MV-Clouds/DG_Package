@@ -323,13 +323,13 @@ public with sharing class KeyMappingController {
     /**
      * Method Name : dateFormats
      * @return map<string, string>
-     * @description : Method to create Map of date, time, day, week, year information for generate key mapping and to replace data mapping.
+     * @description : Method to create option for creation date mapping key.
      */
     public static map<string, string> dateFormats(){
         datetime cTime = datetime.now();
 
         map<string, string> dateFormats = new map<string, string>{
-            // 'key' => 'label; fieldType; isFormatReq; value'
+         // 'key' =>        'label; fieldType; isFormatReq; value'
             'date'      => 'Document Creation Date & Time; DATETIME; true; ' + cTime.format('yyyy-MM-dd hh:mm:ss'),
             'time'      => 'Document Creation Time; TIME; true; ' + cTime.format('HH:mm:ss'),
             'Wday'      => 'Document Creation Week Day; INTEGER; false; ' + cTime.format('F'),
@@ -398,50 +398,84 @@ public with sharing class KeyMappingController {
         RetrunWrapper retrunWrapper = new RetrunWrapper();
         try {
 
-
             // for Google Doc Template we have set max image size to 1000MB, meanse no size limit
-            if(templateType == 'Google Doc Template'){
-                maxImageSize = 1000*1000*1000;  
-            }
+            maxImageSize = templateType == 'Google Doc Template' ? 1000*1000*1000 : maxImageSize;
 
-            List<ContentVersion> allImgCV = [SELECT Id, Title, FileExtension, FileType, VersionDataUrl, ContentSize, IsLatest FROM ContentVersion WHERE FileExtension IN: imgTyes AND IsLatest = true AND ContentSize < :maxImageSize WITH SECURITY_ENFORCED];
+            List<ContentVersion> allImgCV = [SELECT Id, Title, FileExtension, FileType, VersionDataUrl, ContentSize, IsLatest, ContentDocumentId FROM ContentVersion WHERE FileExtension IN: imgTyes AND IsLatest = true AND ContentSize < :maxImageSize WITH SECURITY_ENFORCED];
+
+            /**
+             * Note : We only allow image with public download url, So we get ContentDownloadUrl from ContentDistribution.
+             * There are some contentVersion that not allow public sharing, so can not create ContentDistribution for corresponding contentVersion. 
+             */
 
             if(allImgCV.size() > 0){
+                Map<Id, String> cvIdVsImageUrl = new Map<Id, String>();
+    
+                Set<Id> cDocIds = new Set<Id>();
 
-                Map<Id, String> cvIdvsName = new Map<Id, String>();
                 for(ContentVersion cv : allImgCV){
-                    cvIdvsName.put(cv.Id, cv.Title);
+                    cDocIds.add(cv.ContentDocumentId);
                 }
 
+                // ...Get All ContentDistribution for existing ContentVersion...
+                List<ContentDistribution> allICDs = [SELECT Id, ContentVersionId, ContentDocumentId FROM ContentDistribution WHERE ContentDocumentId IN :cDocIds WITH SECURITY_ENFORCED];
 
-                // Get All ContentDistribution for existing ContentVersion...
-                List<ContentDistribution> allICDs = [SELECT Id, ContentVersionId FROM ContentDistribution WHERE ContentVersionId IN :cvIdvsName.keySet() WITH SECURITY_ENFORCED];
-
-                // Collect all ContentVersion Id which have ContentDistribution...
+                // ...Collect all ContentVersion Id which have ContentDistribution...
                 Set<Id> cdAvilabeFor = new Set<Id>();
                 for(ContentDistribution cd : allICDs){
-                    cdAvilabeFor.add(cd.ContentVersionId);
+                    cdAvilabeFor.add(cd.ContentDocumentId);
                 }
 
-                // Collect all ContentVersion Id which does not have ContentDistribution. to records for that..
-                Set<Id> cdTocreatefor = new Set<Id>();
-                for(Id cvId : cvIdvsName.keySet()){
-                    if(!cdAvilabeFor.contains(cvId)){
-                        cdTocreatefor.add(cvId);
+                // ...Collect all ContentDocumentation Id which does not have ContentDistribution. to records for that..
+                Set<Id> cdNotAvailabeFor = new Set<Id>(cDocIds);
+                cdNotAvailabeFor.removeAll(cdAvilabeFor);
+
+                // ...Collect all ContentDocumnetLink with shareType to check sharing option for each images...
+                Set<Id> conDocWithSharing = new Set<Id>();
+                Set<Id> conDocWithoutSharing = new Set<Id>();
+
+                /**
+                 * ContentDocumentLink used to check sharing type of contentVersion and CotentDoucment, 
+                 * If SharingType is 'I' it mease it share with Library and public sharing is not allowd...
+                 * In That case we can not create contentDistribution record of corresponding contentVerison...
+                 */
+
+                if(cdNotAvailabeFor.size() > 0){
+                    List<ContentDocumentLink> cdls = [SELECT Id, ShareType, ContentDocumentId FROM ContentDocumentLink WHERE ContentDocumentId IN: cdNotAvailabeFor];
+                    for(ContentDocumentLink cdl : cdls){
+                        if(cdl.ShareType != 'I'){
+                            conDocWithSharing.add(cdl.ContentDocumentId);
+                        }
+                        else if(cdl.ShareType == 'I'){
+                            conDocWithoutSharing.add(cdl.ContentDocumentId);
+                        }
+                    }
+    
+                    // remove without sharing ContentDocumentLink from list...
+                    conDocWithSharing.removeAll(conDocWithoutSharing);
+                }
+
+                // collect all ContentVersion with sharing to create ContentDistribution on it...
+                Map<Id, String> cdTocreatefor = new Map<Id, String>();
+                for(ContentVersion cv : allImgCV){
+                    if(conDocWithSharing.contains(cv.ContentDocumentId)){
+                        cdTocreatefor.put(cv.Id, cv.Title);
                     }
                 }
 
-                System.debug('totalCvs : ' + cvIdvsName.keySet().size());
+                System.debug('total images : ' + cDocIds.size());
+                System.debug('images with sharing option : ' + conDocWithSharing.size());
+                System.debug('images without sharing option : ' + conDocWithoutSharing.size());
                 System.debug('cdAvilabeFor : ' + cdAvilabeFor.size());
                 System.debug('cdTocreatefor : ' + cdTocreatefor.size());
 
 
                 // Create ContentDistribution for ContentVersion which does not have Cd...
                 List<ContentDistribution> cdToCreate = new List<ContentDistribution>();
-                for(Id cvId : cdTocreatefor){
+                for(Id cvId : cdTocreatefor.keySet()){
                     ContentDistribution cd = new ContentDistribution();
                     cd.ContentVersionId = cvId;
-                    cd.Name = cvIdvsName.get(cvId);
+                    cd.Name = cdTocreatefor.get(cvId);
                     cdToCreate.add(cd);
                 }
                 if(cdToCreate.size() > 0 && Schema.sObjectType.ContentDistribution.isCreateable()){
@@ -450,22 +484,22 @@ public with sharing class KeyMappingController {
 
                 // Agian Quuery all ContentDistribution with ContentDownloadUrl...
                 // At this time we have ContentDistribution for all ContentVersion....
-                List<ContentDistribution> allICDs2 = [SELECT Id, ContentVersionId, ContentDownloadUrl FROM ContentDistribution WHERE ContentVersionId IN :cvIdvsName.keySet() WITH SECURITY_ENFORCED];
+                List<ContentDistribution> allICDs2 = [SELECT Id, ContentVersionId, ContentDownloadUrl FROM ContentDistribution WHERE ContentDocumentId IN :cDocIds WITH SECURITY_ENFORCED];
 
                 // Collect ContentVersion and ContentDownloadUrl into map...
-                Map<Id, String> cvIdvsCdDownloadUrl = new Map<Id, String>();
                 for(ContentDistribution cd : allICDs2){
-                    cvIdvsCdDownloadUrl.put(cd.ContentVersionId, cd.ContentDownloadUrl);
+                    cvIdVsImageUrl.put(cd.ContentVersionId, cd.ContentDownloadUrl);
                 }
-
+                
                 retrunWrapper.cvImages = allImgCV;
-                retrunWrapper.cvIdVsDownloadUrl = cvIdvsCdDownloadUrl;
+                retrunWrapper.cvIdVsImageSRC = cvIdVsImageUrl;
                 retrunWrapper.isSuccess = true;
             }
             else{
                 retrunWrapper.returnMessage = 'zero_imgs';
                 retrunWrapper.isSuccess = false;
             }
+            
             return retrunWrapper;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'KeyMappingController', 'getMerginTemplateKeys');
@@ -551,6 +585,8 @@ public with sharing class KeyMappingController {
 
             String fieldType = (String)String.valueOf(field.getType());
             fieldMapping.type = fieldType;
+
+            System.debug('label : ' + fieldMapping.label + '   :   Tyep ::: '+ fieldType);
 
             if( fieldType == 'DATE' || fieldType == 'DATETIME' || fieldType == 'BOOLEAN' || fieldType == 'STRING' || 
                 fieldType == 'INTEGER' || fieldType == 'DOUBLE' || fieldType == 'CURRENCY' || fieldType == 'PERCENT'){
@@ -663,6 +699,10 @@ public with sharing class KeyMappingController {
         return retrunWrapper;
     }
 
+    /**
+     * @description : Wrapper class used to return values to lwc component.
+     * It is generic class that used by mupltiple methods.
+     */
     public class RetrunWrapper{
         @AuraEnabled public boolean isSuccess;
         @AuraEnabled public String returnMessage;
@@ -670,16 +710,23 @@ public with sharing class KeyMappingController {
         @AuraEnabled public list<MappingObjects> fieldMappingsWithObj;
         @auraEnabled public MVDG__Template__c template;
         @auraEnabled public List<ContentVersion> cvImages;
-        @auraEnabled public Map<Id, String> cvIdVsDownloadUrl;
+        @auraEnabled public Map<Id, String> cvIdVsImageSRC;
         @auraEnabled public list<FormattingField> fieldFormatting;
         @AuraEnabled public String signatureKey;
      }
 
+     /**
+      * @description : wrapper class to create combobox option directly from apex.
+      It store Object API name and label
+      */
     public class Obj_Label_API{
         @AuraEnabled public String label;
         @AuraEnabled public String name;
     }
 
+    /**
+     * @description : wrapper class to information of sObjects.
+     */
     public class MappingObjects{
         @AuraEnabled public String label;
         @AuraEnabled public String name;
@@ -690,6 +737,9 @@ public with sharing class KeyMappingController {
         @AuraEnabled public list<MappingFields> fieldMappings;
     }
 
+    /**
+     * @description : wrapper class to information of object's field.
+     */
     public class MappingFields{
         @AuraEnabled public String label;
         @AuraEnabled public String name;
@@ -706,6 +756,9 @@ public with sharing class KeyMappingController {
         @AuraEnabled public List<String> picklistValues;
     }
 
+    /**
+     * @description : wrapper class to information of source object's related(parent) object's information.
+     */
     public class RelatedObjInfo{
         @auraEnabled public string parentObjFieldLabel;
         @auraEnabled public string parentObjRelationshipName;
@@ -714,6 +767,9 @@ public with sharing class KeyMappingController {
         @auraEnabled public boolean isCustome;
     }
 
+    /**
+     * @description : wrapper class to information of formatting field type and respective format options as list.
+     */
     public class FormattingField{
         @AuraEnabled public string formatType;
         @AuraEnabled public list<MappingFields> fieldMappings;
