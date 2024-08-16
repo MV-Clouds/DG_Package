@@ -431,7 +431,6 @@ public with sharing class GoogleDocPreview {
 
                     Map<String,Object> signatureImage = new Map<String,Object>();
                     signatureImage = getSignatureImage(recordId);
-
                     returnList.add(signatureImage);
 
                 } else if (tableCount <= 10) {
@@ -445,8 +444,9 @@ public with sharing class GoogleDocPreview {
                         Map<String, Schema.SObjectField> fieldMap = schemaMap.get(obj.objApi).getDescribe().fields.getMap();
 
                         for (String fieldName : obj.fieldName) {
-                            if (fieldMap.containsKey(fieldName)) {
-                                mappingFields.add(fieldName);
+                            String fieldNameWithoutQuotes = fieldName.substringBetween('{{!', '}}');
+                            if (fieldMap.containsKey(fieldNameWithoutQuotes)) {
+                                mappingFields.add(fieldNameWithoutQuotes);
                             }
                         }
 

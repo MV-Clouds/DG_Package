@@ -191,9 +191,26 @@ c-key-mapping-container {
     height: 6%;
     /* width:98%; */
     margin: 1% 2%;
-
+    justify-content: space-between;
     /* margin-top:2%; */
     align-items: center;
+}
+
+.right-side-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.new-button{
+    background-color: #00aeff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 /* ----- ------- ------- ------ ------ ------ ------ ------ -------  */
 /* ----- ------ ------- ------- --- Search Section --------------- ------- ---------- */

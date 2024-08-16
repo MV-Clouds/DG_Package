@@ -76,6 +76,44 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
+    @AuraEnabled
+    public static String createNewDocument() {
+        try {
+            List<MVDG__AuthProviderSettings__c> authProvider = new List<MVDG__AuthProviderSettings__c>();
+            authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+            if (authProvider.size() == 0) {
+                return 'error';   
+            }
+            
+            String endpoint = 'https://docs.googleapis.com/v1/documents';
+            HttpRequest request = new HttpRequest();
+            request.setEndpoint(endpoint);
+            request.setMethod('POST');
+            request.setHeader('Content-Type', 'application/json');
+            request.setHeader('Authorization', 'Bearer ' + authProvider[0].MVDG__access_token__c);
+            request.setBody('{"title": "New Untitled Document"}');
+
+            Http http = new Http();
+            HttpResponse response = http.send(request);
+
+            if (response.getStatusCode() == 200) {
+                Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
+                return JSON.serialize(responseMap);
+            } else if (response.getStatusCode() == 401) {
+                response = refreshAccessToken(authProvider[0], request);
+                if (response.getStatusCode() == 200) {
+                    Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
+                    return JSON.serialize(responseMap);
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            System.debug('Error In createNewDocument ==> ' + e.getMessage() + e.getLineNumber());
+            Log_Handler.store_exception(e, 'GoogleDocTemplateEditorController', 'createNewDocument');
+            return null;
+        }
+    }
+
     private static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
         try {
             
@@ -185,12 +223,11 @@ public with sharing class GoogleDocTemplateEditorController {
     }
     
     @AuraEnabled
-    public static void saveTemplateData(String templateId, String googleDocId, String webViewLink, String documentName) {
+    public static void saveTemplateData(String templateId, String googleDocId, String webViewLink) {
         try {
             MVDG__Template_Data__c templateData = new MVDG__Template_Data__c();
             templateData.MVDG__Google_Doc_Template_Id__c = googleDocId;
             templateData.MVDG__Google_Doc_WebViewLink__c = webViewLink;
-            // templateData.Google_Doc_Name__c = documentName;
             templateData.MVDG__Template__c = templateId;
             templateData.MVDG__Order_No_Simple__c = 1;
 

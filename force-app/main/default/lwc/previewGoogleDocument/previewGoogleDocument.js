@@ -233,7 +233,6 @@ export default class PreviewGoogleDocument extends LightningElement {
         onscroll() {
             var previousPageNo = this.currentPage;
             try {
-                console.log('this.onscroll');
                 
                 const singlePageHeight = this.content.scrollHeight / this.pdfPages;
                 
@@ -290,7 +289,6 @@ export default class PreviewGoogleDocument extends LightningElement {
 
     setPageBtnStatus() {
         try {
-            console.log('this.setPageBtnStatus');
             if (this.currentPage <= 1) {
                 this.pageMinus.setAttribute("disabled", "true");
             } else {

@@ -41,7 +41,6 @@ export default class GenerateGoogleDocFile extends LightningElement {
             // Make apex callout to copy the document and get the JSON of the Google Document
             copyGoogleDoc({ templateId: this.templateid })
                 .then((result) => {
-                    console.log(result);
                     
                     // Setting the signature size according to the page width
                     this.signatureSize = result.width !== null ? result.width : 50;
@@ -94,16 +93,35 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     let object = {};
                     let matcher, pattern;
                     let stringBody = JSON.stringify(element);
-                    let fieldName = [];
 
                     // get table fields
                     pattern = /{{!(.*?)}}/g;
-                    while ((matcher = pattern.exec(stringBody)) != null) {
-                        fieldName.push(matcher[1]);
-                    }
-                    if (fieldName.length > 0) {
-                        object.fieldName = fieldName;
+                    object.fieldName = [];
+                    if (stringBody.match(pattern)) {
+                        let secondRow = element.table.tableRows[1];
+                        let fieldsNameUsingParsing = [];
+                        secondRow.tableCells.forEach((cell) => {
+                            let content = cell.content;
+                            content.forEach(element => {
+                                let contentElement = element.paragraph.elements;
+                                contentElement.forEach(e => {
+                                    let fieldValue = e.textRun.content;
+                                    let elm = fieldValue.match(pattern);
+                                    if (elm) {
+                                        object.fieldName.push(...elm);
+                                    }
+                                    
+                                    let obj = {
+                                        startIndex: e.startIndex,
+                                        fieldName: fieldValue
+                                    }
+                                    fieldsNameUsingParsing.push(obj);
+                                    
+                                });
+                            });       
+                        });
                         tableNo++;
+                        object.fieldArray = fieldsNameUsingParsing;
                     }
 
                     // get table details
@@ -117,7 +135,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     }
 
                     // Send table for apex processing only when all fields are present
-                    if (object.objApi && object.childRelation && object.fieldName.length > 0) {
+                    if (object.objApi && object.childRelation && object.fieldName && object.fieldName.length > 0) {
                         object.tableNo = tableNo;
                         objectDetails.push(object);
                     }
@@ -213,10 +231,10 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
                                 if (fieldName && fieldName !== "") {
                                     // If any of the table has empty column, skip the table
-                                    if ((stringBody.includes("{{No.Index}}") && objFields && columns != (objFields.fieldName.length + 1)) || (!stringBody.includes("{{No.Index}}") && objFields && columns != objFields.fieldName.length)) {
-                                        tableNo++;
-                                        return;
-                                    }
+                                    // if ((stringBody.includes("{{No.Index}}") && objFields && columns != (objFields.fieldName.length + 1)) || (!stringBody.includes("{{No.Index}}") && objFields && columns != objFields.fieldName.length)) {
+                                    //     tableNo++;
+                                    //     return;
+                                    // }
                                     
                                     // Insert empty rows
                                     IndexedFieldName = fieldName + tableNo;
@@ -243,25 +261,38 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                     if (childFieldValues != null && childFieldValues[IndexedFieldName] != null) {
                                         for (let i = 1; i <= childFieldValues[IndexedFieldName].length; i++) {
                                             let recordMap = childFieldValues[IndexedFieldName][i - 1];
-                                            // Insert indexing for the table
-                                            if (stringBody.includes("{{No.Index}}")) {
-                                                tableEndIndex = tableEndIndex + 2;
-                                                this.tableOffset = this.tableOffset + 2;
-                                                this.createRowUpdateRequest(tableEndIndex, "{{No.Index}}", { "{{No.Index}}": i.toString() });
-                                                tableEndIndex += i.toString().length;
-                                                this.tableOffset += i.toString().length;
-                                            }
-                                            
+
                                             // inserts value for the table
-                                            objFields.fieldName.forEach((e) => {
-                                                if (stringBody.includes("{{!" + e + "}}")) {
-                                                    tableEndIndex = tableEndIndex + 2;
-                                                    this.tableOffset = this.tableOffset + 2;
-                                                    this.createRowUpdateRequest(tableEndIndex, e, recordMap);
-                                                    if (recordMap[e] != null) {
-                                                        tableEndIndex = tableEndIndex + recordMap[e].toString().length;
-                                                        this.tableOffset = this.tableOffset + recordMap[e].toString().length;
+                                            objFields.fieldArray.forEach((e) => {
+                                                tableEndIndex += 2;
+                                                this.tableOffset += 2;
+                                                let fieldName = e.fieldName.replace('\n', '');
+                                                if (fieldName == '{{No.Index}}') {
+                                                    // For Index Number
+                                                    this.createRowUpdateRequest(tableEndIndex, "{{No.Index}}", { "{{No.Index}}": i.toString() });
+                                                    tableEndIndex += i.toString().length;
+                                                    this.tableOffset += i.toString().length;
+                                                } else if (fieldName.includes('{{!') && fieldName.includes('}}')) {
+                                                    // For Merge Fields
+                                                    let fieldNameWithoutQuotes = this.substringBetween(e.fieldName, '{{!', '}}');
+                                                    this.createRowUpdateRequest(tableEndIndex, fieldNameWithoutQuotes, recordMap);
+                                                    if (recordMap[fieldNameWithoutQuotes]) {
+                                                        tableEndIndex += recordMap[fieldNameWithoutQuotes].toString().length;
+                                                        this.tableOffset += recordMap[fieldNameWithoutQuotes].toString().length;
                                                     } else {
+                                                        tableEndIndex++;
+                                                        this.tableOffset++;
+                                                    }
+                                                } else {
+                                                    // For any other text
+                                                    if (fieldName != '') {   
+                                                        let obj = {};
+                                                        obj[fieldName] = fieldName;
+                                                        this.createRowUpdateRequest(tableEndIndex, fieldName, obj);
+                                                        tableEndIndex += fieldName.toString().length;
+                                                        this.tableOffset += fieldName.toString().length;
+                                                    } else {
+                                                        this.createRowUpdateRequest(tableEndIndex, 'space', {space: ' '});
                                                         tableEndIndex++;
                                                         this.tableOffset++;
                                                     }
@@ -452,13 +483,13 @@ export default class GenerateGoogleDocFile extends LightningElement {
     // Removes signatureKey tags if there is no signature for the object
     SignatureKeyReplaceRequest() {
         let removeSignatureKeyRequest = {
-          replaceAllText: {
-            containsText: {
-              text: this.signatureKey,
-              matchCase: true
-            },
-            replaceText: " "
-          }
+            replaceAllText: {
+                containsText: {
+                    text: this.signatureKey,
+                    matchCase: true
+                },
+                replaceText: " "
+            }
         };
         this.changeRequests.push(removeSignatureKeyRequest);
     }
