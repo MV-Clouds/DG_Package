@@ -2102,7 +2102,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleSave(event){
         try{
-            let isPreview = event.target.dataset.type === 'preview';
+            let isPreview = event?.target.dataset.type === 'preview';
             this.showSpinner = true;
             console.log('In Save but is preview? :: ' , isPreview);
             this.generateFilterString();
