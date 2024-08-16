@@ -1,6 +1,5 @@
 import { LightningElement , api, track} from 'lwc';
 import getCombinedData from '@salesforce/apex/GenerateDocumentController.getCombinedData';
-import getAllEmailTemplates from '@salesforce/apex/GenerateDocumentController.getAllEmailTemplates';
 import getSessionId from '@salesforce/apex/GenerateDocumentController.getSessionId';
 import storeInFiles from '@salesforce/apex/GenerateDocumentController.storeInFiles';
 import postToChatter from '@salesforce/apex/GenerateDocumentController.postToChatter';
@@ -391,7 +390,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return this.selectedTemplate || this.isCalledFromDefaults ? false : true;
     }
 
-    get templateType(){
+    get templateType(){        
         return !this.isCalledFromDefaults ? this.allTemplates.find(t => t.Id === this.selectedTemplate)?.MVDG__Template_Type__c || 'CSV Template' : this.templateTypeFromParent;
     }
 
@@ -439,7 +438,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             .then(() => {
                 return Promise.all([
                     this.fetchCombinedData(),
-                    this.fetchAllEmailTemplates()
                 ]);
             })
             .then(() => {
@@ -634,6 +632,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 if(data){
                     console.log('Data ::', data);
                     if(data?.docType){
+                        this.documentTypes.forEach(dt => {dt.isSelected = false});
                         this.documentTypes.find(item => item.name === data?.docType).isSelected = true;
                     }
                     this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
@@ -686,24 +685,30 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     fetchCombinedData(){
         try {
-            getCombinedData({objName: this.objectApiName})
-            .then((data) => {
-                console.log('Data::', data);
-                if (data.isSuccess){
-                    this.setUpAllTemplates(data.templates);
-                    this.setUpIntegrationStatus(data.integrationWrapper);
-                    this.setUpAllFolders(data.folderWrapper);
-                } else {
-                    this.showWarningPopup('error', 'Something Went Wrong!', 'We couldn\'t fetch the required data, please try again!');
-                    this.isClosableError = true;
-                    // this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
-                }
-            })
-            .catch((e) =>{
-                console.error('Error Fetching Combined Data :', e.message);
-                this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
+            return new Promise((resolve, reject) => {
+                getCombinedData({objName: this.objectApiName})
+                .then((data) => {
+                    console.log('Data::', data);
+                    if (data.isSuccess){
+                        this.setUpAllTemplates(data.templates);
+                        this.setUpIntegrationStatus(data.integrationWrapper);
+                        this.setUpAllFolders(data.folderWrapper);
+                        this.setUpAllEmailTemplates(data.emailTemplates);
+                    } else {
+                        this.showWarningPopup('error', 'Something Went Wrong!', 'We couldn\'t fetch the required data, please try again!');
+                        this.isClosableError = true;
+                        // this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
+                    }
+                    resolve();
+                })
+                .catch((e) =>{
+                    reject(e);
+                    console.error('Error Fetching Combined Data :', e.message);
+                    this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
+                })
             })
         } catch (e) {
+            reject(e);
             console.log('Error in function fetchCombinedData:::', e.message);
         }
     }
@@ -762,11 +767,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         }
     }
 
-    fetchAllEmailTemplates() {
-        return new Promise((resolve, reject) => {
+    setUpAllEmailTemplates(data) {
             try {
-                getAllEmailTemplates()
-                .then((data) => {
+                if(data){
                     this.allEmailTemplates = data;
                     this.emailTemplatesToShow = this.allEmailTemplates.map((temp) => {
                         return {
@@ -774,20 +777,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             value : temp.Id
                         }
                     });
-                    console.log('Calling from the get email templates ::', this.allEmailTemplates);
-                    resolve();
-                })
-                .catch((e) =>{
-                    reject();
-                    this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch email templates!', 5000);
-                    console.log('Error in fetchAllEmailTemplates ::', e.message);
-                })
+                }
             } catch (e) {
-                reject();
                 this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch email templates!', 5000);
                 console.log('Error in function fetchAllEmailTemplates:' + e.message);
             }
-        })
     }
 
 
@@ -827,7 +821,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleSelectTemplate(event){
         try{
             this.showSpinner = true;
-            console.log('Selected template :::', event.detail[0]);
             let result = event.detail[0]?.Id;
             if(!result){
                 this.selectedTemplate = null;
@@ -933,7 +926,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         if(emailValidator.test(email)){
                             email = email.trim();
                             let errorClass = '';
-                            event.target.value = '';
+                            event.target.value = null;
                             if(typeOfEmail === "to"){
                                 this.isToError=false;
                                 !this.toEmails.includes(email) ? this.toEmails.push(email) : undefined;
@@ -953,6 +946,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             errorClass ? this.template.querySelector(errorClass)?.classList.add("not-display-div") : undefined;
                             errorClass ? this.template.querySelector(errorClass).innerText = '' : undefined;
                             event.target?.classList.remove("input-error-border");
+                            event.preventDefault();
                         }else{
                             event.target.value = emailString;
                             let errorClass = '';
@@ -1136,6 +1130,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     !this.generalDocumentTypes[index].isSelected ? this.generalDocumentTypes.forEach(dt => dt.isSelected = false) : undefined;
                     this.generalDocumentTypes[index].isSelected = true;
                 }
+                console.log('Setted the document type to :::', this.generalDocumentTypes);
+                
             }else if(section==='iStorage'){
                 !this.internalStorageOptions[index].isDisabled ? this.internalStorageOptions[index].isSelected = !this.internalStorageOptions[index].isSelected : undefined;
                 if(this.internalStorageOptions[index].name==='Documents'){
@@ -1175,7 +1171,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleTemplateSelection(event){
         try{
             this.selectedTemplate = event.currentTarget.dataset.value;
-            console.log('Selected template :: ' + this.selectedTemplate);
             this.fileName = this.selectedTemplate;
             this.handleSelectTemplate({detail:[{Id: this.selectedTemplate}]});
             this.backToGenerate();
@@ -1313,7 +1308,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         this.fetchRecords(newQuery, sessionId, generationCount)
                         .then(isSuccess => {
-                            console.log('Fetched records in main :: ' + this.fetchedResults.length);
                             if (isSuccess) {
                                 if (this.fetchedResults.length === 0) {
                                     this.showToast('warning', 'Oops! No matching records Found!', 'Uh Oh!, Try changing the Filter criteria!!');
@@ -1327,13 +1321,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                     })
                                     this.generatedCSVData = csvContent;
                                 }
-                            } else {
-                                this.showToast('error', 'Something went wrong!', 'We Couldn\'t fetch records!', 5000);
-                                return;
+                                this.generateCSVDocument();
+                                resolve();
                             }
-                            this.generateCSVDocument();
+                            reject();
                         })
                         .catch(err => {
+                            reject();
                             console.log('Error fetching records:', err.message);
                             this.showToast('error', 'Oops! Something went wrong', 'Some error occurred, Please try again.', 5000);
                         });
@@ -1362,7 +1356,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.fetchRecords(newQuery, sessionId, generationCount)
                         .then(isSuccess => {
                             this.labelOfLoader = 'Arranging data...';
-                            console.log('Fetched records in main :: ' + this.fetchedResults.length);
                             if (isSuccess) {
                                 if (this.fetchedResults.length === 0) {
                                     this.showToast('warning', 'Oops! No matching records Found!', 'Uh Oh!, Try changing the Filter criteria!!');
@@ -1377,9 +1370,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                     xlsContent += '</table>';
                                     this.generatedCSVData = xlsContent;
                                 }
+                                this.generateCSVDocument();
+                                resolve();
                             }
-                            this.generateCSVDocument();
-                            resolve();
+                            reject();
                         })
                         .catch(err => {
                             reject(err);
@@ -1426,9 +1420,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
             return fetch(encodeURI(domainURL + queryURL), requestOptions)
             .then(response => {
-                if (!response.ok) {
-                    this.showToast('error', 'Oops! Something went wrong!', 'There was an error connecting to the server, please try again.', 5000);
-                    return Promise.reject('Network response was not ok');
+                if(!response.ok && response.status === 400){
+                    return Promise.reject('SyntaxError');
+                }else if (!response.ok) {
+                    return Promise.reject('ResponseNotOk');
                 }
                 return response.json();
             })
@@ -1447,13 +1442,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 return true;
             })
             .catch(error => {
-                this.showToast('error', 'Sorry, The records could not be fetched!', 'We couldn\'t fetch the records, please try again..');
-                console.log('Error fetching records: ' + error);
+                console.log('Error fetching Records: ' + error , 'conditions ::', error == 'SyntaxError');
+                error == 'SyntaxError' ? this.showToast('error', 'Oops!, Something went wrong!', 'Error fetching data, please check field permissions...', 5000) : this.showToast('error', 'Sorry, The records could not be fetched!', 'We couldn\'t fetch the records, please try again..', 5000);
                 return false;
             });
         } catch(error){
-            this.showToast('error', 'Sorry, The records could not be fetched!', 'We couldn\'t fetch the records, please try again..');
-            console.log('Error fetching records : ' + error.message);
+            console.log('Error fetchRecords : ' + error.message);
+            this.showToast('error', 'Oops!, Something went wrong!', 'We couldn\'t fetch the records, please try again..');
             return false;
         }
     }
@@ -1526,23 +1521,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.showSpinner = false;
                 });
             }
-            console.log('generateCSVDocument try over');
-
         }catch(e){
             this.showSpinner =false;
             console.log('Error in generateCSVDocument', e);
-        }finally{
-            console.log('generateCSVDocument finally start');
-            // Promise.all(this.resultPromises)
-            // .then(() => {
-            //     this.handleGenerationResult()
-            //     this.fetchedResults = [];
-            // })
-            // .catch(e => {
-            //     this.showSpinner = false;
-            //     console.log('Error in handling promises: ', e.message);
-            // });
-            // this.labelOfLoader = 'Loading...';
         }
     }
     
@@ -1589,21 +1570,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     generateGoogleDoc(){
         try{
             this.showSpinner = true;
-            // let data;
             this.resultPromises = [];
             this.labelOfLoader = 'Generating document...';
-            // let result = await copyGoogleDoc({ templateId: this.selectedTemplate })
-            // if (result) {
-                // let ids = JSON.parse(result).documentId;
-                this.template.querySelector('c-generate-google-doc-file')?.generateDocument(this.selectedTemplate, this.objectApiName, this.recordId, this.selectedExtension);
-                // console.log('Generated Data :::' , data);
-                // data = await doPreview({recordId: this.recordId, objectApiName: this.objectApiName, googleDocId: ids , sourceDocContent: result, format: this.selectedExtension})
-            // }
-            console.log('In the generateGoogleDoc try over');
+            this.template.querySelector('c-generate-google-doc-file')?.generateDocument(this.selectedTemplate, this.objectApiName, this.recordId, this.selectedExtension);
+
         }catch(e){
             console.log('Error in generateGoogleDoc::' , e.message);
-        }finally{
-            console.log('generateGoogleDoc finally start');
         }
     }
     downloadGDocTemplate(){
@@ -2120,6 +2092,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.showToast('error', 'Something Went Wrong!', 'Please enter the name for the button.', 5000);
                 return;
             }
+            if(!this.buttonLabel.trim()[0].match(/[a-zA-Z]/i)){
+                this.showToast('error', 'Something went wrong!','This first letter of name, should be an alphabet.!', 5000)
+                return;
+            }
+
             if(!this.isOldButton && this.allButtons.includes(this.buttonLabel.trim().replace(/[^a-zA-Z_]+/g, '_'))){
                 this.showToast('error', 'Something went wrong!','This button name is used, try changing name!', 5000)
                 return;
@@ -2217,10 +2194,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                 fetch(encodeURI(endpoint), requestOptions)
                                 .then(response => response.text())
                                 .then(result => {
-                                    this.isOldButton = true;
-                                    this.bottomBtnLabel = 'Update Defaults'
                                     console.log(result);
-                                    this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                                    if(result.success){
+                                        this.isOldButton = true;
+                                        this.bottomBtnLabel = 'Update Defaults'
+                                        this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                                    }else{
+                                        this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
+                                    }
                                 })
                                 .catch(error => {
                                     this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);

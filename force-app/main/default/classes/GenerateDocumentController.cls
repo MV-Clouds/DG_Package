@@ -11,6 +11,9 @@ public with sharing class GenerateDocumentController {
     public static CombinedDataWrapper getCombinedData(String objName){
         CombinedDataWrapper combinedData = new CombinedDataWrapper();
         try {
+            List<EmailTemplate> emailTemplates = new List<EmailTemplate>();
+            emailTemplates = [SELECT Id, Name, Subject, HtmlValue FROM EmailTemplate WITH SECURITY_ENFORCED];
+            combinedData.emailTemplates = emailTemplates;
             combinedData.folderWrapper = getFolders();
             combinedData.integrationWrapper = getIntegrationStatus();
             combinedData.templates = fetchTemplates(objName);
@@ -97,25 +100,6 @@ public with sharing class GenerateDocumentController {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getFolders');
             return null;
         }
-    }
-
-/*
-*********************************************************
-@description      : Method is used to fetch the Query and count of records from the query
-@param {none}
-@return           : {String} - current session Id
-********************************************************
-*/
-    @AuraEnabled
-    public static List<EmailTemplate> getAllEmailTemplates(){
-        List<EmailTemplate> emailTemplates = new List<EmailTemplate>();
-        try{
-            emailTemplates = [SELECT Id, Name, Subject, HtmlValue FROM EmailTemplate WITH SECURITY_ENFORCED];
-        }catch(Exception e){
-            System.debug('Error in getAllEmailTemplates =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getAllEmailTemplates');
-        }
-        return emailTemplates;
     }
 
 
@@ -296,7 +280,7 @@ public with sharing class GenerateDocumentController {
             if(!tfList.isEmpty()){
                 String fields = tfList[0].MVDG__CSV_Fields__c;
                 System.debug('all the Fields here :: ' + fields);
-                String query = tfList[0].MVDG__CSV_Query__c;
+                String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
 
                 String sessionId = '';
 
@@ -463,6 +447,7 @@ public with sharing class GenerateDocumentController {
         @AuraEnabled public IntegrationWrapper integrationWrapper;
         @AuraEnabled public List<FolderWrapper> folderWrapper;
         @AuraEnabled public List<MVDG__Template__c> templates;
+        @AuraEnabled public List<EmailTemplate> emailTemplates;
         @AuraEnabled public Boolean isSuccess;
     }
 }

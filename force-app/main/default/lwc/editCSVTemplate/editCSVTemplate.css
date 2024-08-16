@@ -278,6 +278,7 @@
     flex-grow: 1;
     overflow-y: scroll;
     margin-bottom: 1rem;
+    outline: none;
 }
 
 .fields-div{
@@ -401,11 +402,23 @@ li{
     box-shadow: 0 0 5px 0 lightgray;
 }
 
+li p{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-inline: 0.5rem;
+}
+
 li:hover{
     background: #00aeff2b;
 }
 
 .selected-item {
+    background: #00aeff94 !important;
+    color: black;
+}
+
+.field-li-to-select:has(p.true){
     background: #00aeff94 !important;
     color: black;
 }
@@ -525,7 +538,7 @@ li:hover{
     width: 100%;
 }
 
-.save-button, .cancel-button, .reset-button, .validate-button{
+.control-btn, .reset-button{
     display: flex;
     justify-content: center;
     font-size: 15px;
@@ -538,19 +551,15 @@ li:hover{
     color: white;
     user-select: none;
     gap: 0.5rem;
+    padding-inline: 1rem;
 }
 button:hover{
     background-color: #0084C1;
 }
 
-
-.disabled-button{
+.control-btn:not(:has(svg.true)){
     background-color: lightgray;
-    cursor: not-allowed;
-}
-
-.disabled-button:hover{
-    background-color: lightgray;
+    pointer-events: none;
 }
 
 .delete-btn, .add-btn {
@@ -744,7 +753,17 @@ button:hover{
     width: 40%;
 }
 
+.simple-input-div{
+    border-radius: 0.5rem;
+    border: 1px solid white;
+}
+
+.simple-input-div:has(.slds-input:focus) {
+    border: 1px solid #00aeff;
+}
+
 .simple-input-div:has(.slds-datepicker.slds-dropdown),.simple-input-div:has(.slds-dropdown-trigger_click.slds-is-open){
+    z-index: unset !important;
     --display-of-select-predefined-option: none;
 }
 
@@ -779,7 +798,7 @@ button:hover{
     background: #00aeff2b !important;
 }
 
-.backDrop{
+.backDropPredefined{
     display: none;
     position: fixed;
     top: 0px;
@@ -872,6 +891,7 @@ button:hover{
     padding: .25rem .5rem;
     font-weight: 500;
     display: flex;
+    align-items: center;
     gap: 0.5rem;
 }
 
@@ -985,9 +1005,14 @@ button:hover{
 }
     
     /* Specially for value inputs, because it can be both a combobox or a simple input field */
-.error-in-value-input{
+.error-in-value-input:not(.picklist-input-div){
     border-radius: 8px;
     border: 1px red solid;
+}
+
+.picklist-input-div.error-in-value-input c-custom-combobox{
+    --inputAreaBorderWidth: 1px;
+    --inputAreaBorderColor: red;
 }
 
 .basic-detail-div{

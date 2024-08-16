@@ -17,6 +17,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
 
     // @track showModel= true;
     @track noResultsFound = false;
+    @track noDataFoundText = 'No records match your applied filters, try changing filter...';
 
 
     //to show spinner
@@ -34,20 +35,6 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     }
 
     @track isGenerate = false;
-
-    get loadStyle(){
-        if(this.isPopup){
-            return `
-                    position: absolute;
-                    width: min(80%, 60rem);
-                    height: 90%;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-            `
-        }
-        return ``;
-    }
 
     connectedCallback(){
         this.getPreviewData();
@@ -72,6 +59,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             this.showSpinner = false;
         })
         .catch(e=>{
+            this.noDataFoundText = 'There was some error fetching preview data, please try again...';
             console.log('error fetching preview data::', e.message);
             this.showSpinner = false;
         })

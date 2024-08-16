@@ -12,6 +12,16 @@
     flex-direction: column;
 }
 
+.main-preview-div:has(.close-div){
+    position: absolute;
+    width: min(80%, 60rem);
+    height: 90%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+}
+
 .title-text {
     width: 100%;
     min-height: 2.5rem;
@@ -102,4 +112,9 @@
 .control-btn:hover, .back-btn:hover{
     background: #0084c1;
     transition: 0.2s;
+}
+
+.control-btn:has(svg.true){
+    background: lightgray;
+    pointer-events: none;
 }
