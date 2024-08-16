@@ -164,9 +164,8 @@ public with sharing class DropboxSuccessController {
     public static String extractCodeParameter(String url) {
         try {
             if(ApexPages.currentPage().getParameters().get('code') != null){
-                String codeParameter = ApexPages.currentPage().getParameters().get('code');
-                String sanitizedCodeParameter = String.escapeHtml4(codeParameter);
-                return sanitizedCodeParameter;
+                String codeParameter = (ApexPages.currentPage().getParameters().get('code')).escapeHtml4();
+                return codeParameter;
             }
             return null;
         } catch (Exception e) {
