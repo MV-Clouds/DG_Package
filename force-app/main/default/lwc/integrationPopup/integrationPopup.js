@@ -108,6 +108,11 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     }
 
     copyToClipboard() {
+        const copyIconContainer = this.template.querySelector('.icon-copy');
+        copyIconContainer.classList.add('show-copied');
+        copyIconContainer.addEventListener('animationend', () => {
+            copyIconContainer.classList.remove('show-copied');
+        });
         this.isSpinner = true;
         // console.log('Invoked clipboard');
         var copyText = this.template.querySelector(".copy");

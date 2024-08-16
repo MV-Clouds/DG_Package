@@ -79,6 +79,34 @@ section {
 
 }
 
+.hide {
+    display: none;
+}
+
+.show-copied .copy-icon {
+    display: none;
+}
+
+.show-copied .copied-icon {
+    display: inline-block;
+    animation: fadeOut 1.5s forwards;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 
 .image-div {
     padding: 0.625rem;
