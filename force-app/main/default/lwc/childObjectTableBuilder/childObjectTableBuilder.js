@@ -1,9 +1,8 @@
 import { LightningElement, track, api, wire } from 'lwc';
-import { errorDebugger } from 'c/globalProperties';
 
 export default class ChildObjectTableBuilder extends LightningElement {
 
-    @track toggleGenChildTablePopup; 
+    @track toggleGenChildTablePopup;
     @track childRelationName;
     @track childObjAPI;
     @track childObjectLabel;
@@ -13,30 +12,20 @@ export default class ChildObjectTableBuilder extends LightningElement {
     @track childTableData;
     @track showIndex;
 
-    /**
-     * Getter method to identify any child table generated or not to show info message.
-     */
     get noChildTable(){
         return this.childTableQuery ? false : true;
-    }
+   }
 
-     /**
-      * API Method to oped child object table generation popup(screen)
-      * this method call from parent component.
-      * @param {*} event 
-      */
-    @api
-    openPopup(event){
+     // #Child Object Table Method....
+     @api
+     openPopup(event){
         this.childRelationName = event.detail?.relationshipName;
         this.childObjAPI = event.detail?.childObjAPI;
         this.childObjectLabel = event.detail?.label;
         this.toggleGenChildTablePopup = true;
     }
 
-    /**
-     * API Method to close child object table generation popup(screen).
-     * this method call from parent component.
-     */
+    // #Child Object Table Method....
     @api
     closePopup(){
         this.childTableQuery =  null;
@@ -46,10 +35,7 @@ export default class ChildObjectTableBuilder extends LightningElement {
         this.toggleGenChildTablePopup = false;
     }
 
-    /**
-     * Method to handle table insert operation on button click.
-     * @param {*} event 
-     */
+    // #Child Object Table Method....
     handleTableInsert(event){
         this.childTableQuery =  event.detail?.query;
         this.selectedFieldList = event.detail?.selectedFields;
@@ -57,18 +43,13 @@ export default class ChildObjectTableBuilder extends LightningElement {
         this.generateTable();
     }
 
-    /**
-     * Method to show-hide toggle index column in table.
-     * @param {*} event 
-     */
-    toggleIndexColumn(event){
+    // #Child Object Table Method....
+    regenerateTable(event){
         this.showIndex = event.target.checked
         this.generateTable();
     }
     
-    /**
-     * Main method to perform table generation based on multiple scenarios.
-     */
+    // #Child Object Table Method....
     generateTable(){
         try {
             var filters;
@@ -97,6 +78,9 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 const limitIndex  = this.childTableQuery.indexOf('LIMIT') + 5;
                 limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
             }
+
+            console.log('filters : ', filters);
+            console.log('limit : ', limit);
             
             if(this.selectedFieldList && this.selectedFieldList.length){
                 const childTBody = this.template.querySelector('[data-name="childTBody"]');
@@ -108,15 +92,14 @@ export default class ChildObjectTableBuilder extends LightningElement {
                                     text-align : center;
                 `
 
-                // ... Add label and info row into table ...
                 const labelRow = document.createElement('tr');
                 const keyRow = document.createElement('tr');
                 keyRow.setAttribute('data-name', "keyRow");
                 const infoRow = document.createElement('tr');
                 infoRow.setAttribute('data-name', "infoRow");
 
+
                 if(this.showIndex){
-                    // ... Add index Column ...
                     const labelTd = document.createElement('td');
                     labelTd.style = tdCSS;
                     labelTd.textContent = 'No.';
@@ -146,6 +129,11 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 infoTd.innerText = `Object: ${this.childObjectLabel},
                                     $objApi:${this.childObjAPI}$, $childRelation:${this.childRelationName}$, $limit:${limit ? limit : '20'}$, ${filters ? `, $filter:${filters}$` : ``}
                                     `;
+
+                // const overlay = document.createElement('div');
+                // overlay.setAttribute('data-name', "overlay");
+                // overlay.style = `position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0); z-index: 9;`;
+                // infoTd.appendChild(overlay);
                 infoRow.appendChild(infoTd);
 
                 childTBody.appendChild(labelRow);
@@ -153,14 +141,11 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 childTBody.appendChild(infoRow);
             }
         } catch (error) {
-            errorDebugger('ChildObjectTableBuilder', 'generateTable', error, 'warn');
+            console.log('error in generateTable : ', error.stack);
         }
     }
 
-    /**
-     * Method to handle copy generated table to clipboard.
-     * @param {*} event 
-     */
+    // #Child Object Table Method....
     copyTable(event){
         try {
             const table = document.createElement('table');
@@ -183,7 +168,7 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 })
             ]);
 
-            // ...Show animation on copy...
+            // Show animation on copy...
             const copyBtn = event.currentTarget;
             copyBtn.classList.add('copied');
             setTimeout(() => {
@@ -193,7 +178,7 @@ export default class ChildObjectTableBuilder extends LightningElement {
             document.body.removeChild(table); 
 
         } catch (error) {
-            errorDebugger('ChildObjectTableBuilder', 'copyTable', error, 'warn');
+            console.log('error in copyTable : ', error.stack);
         }
     }
 }

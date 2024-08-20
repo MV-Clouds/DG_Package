@@ -134,10 +134,14 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method to set reference dates for filter based on dates
-     * @returns object with reference date
-     */
+    // generic method to  --> Mapping picklist value as key of label and value
+    mapPicklistValues(data) {
+        return data.values.map(item => ({
+            label: item.label,
+            value: item.value
+        }));
+    }
+
     setReferenceDates(){
         try {
     
@@ -182,9 +186,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
     // Fetch Template Records From Apex..
-    /**
-     *  Method fetch template records from backed via apex
-     */
     fetchTemplateRecords(){
         try {
             this.isSpinner = true;
@@ -223,11 +224,8 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                     else{
                         this.dataLoaded = true;
                         // check empty state image loaded or not?
-                        this.setSpinner();
+                        this.displayEmptyState();
                     }
-                }
-                else{
-                    errorDebugger('HomePage', 'fetchTemplateRecords', error, 'warn', `error in apex method getTemplateList : ${result.returnMessage}`);
                 }
                 this.isSpinner = false;
             })
@@ -240,19 +238,14 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method to set spinner based on empty state image initialization or data-fetch method
-     */
-    setSpinner(){
+    displayEmptyState(){
         this.isSpinner = this.isEmptyStateImgLoaded && this.dataLoaded ? false : true;
     }
 
 
 
-    // ------- -------- --------- --------- Sorting, Filter and Searching Option Methods - START - -------- ----------- ----------
-    /**
-     * Method to open/close filter options
-     */
+    // ------- -------- --------- --------- Sorting, Filter and Searching Option Methos - START - -------- ----------- ----------
+    // Method to show/hidden options
     toggleFilterOptions(){
         try {
             this.isDisplayOption = !this.isDisplayOption;
@@ -282,11 +275,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method trigger when user select any option from drop down (combobox) 
-     * It trigger on Selection of Sort By Field, Source Object & Filter By Date
-     * @param {*} event 
-     */
     onOptionSelect(event){
         try {
             var filterOpt = event.currentTarget.dataset.name;
@@ -299,8 +287,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                     tempFilterOpts[filterOpt] = event.detail[0];
                 }
 
-                // As Object selection is multi-select combobox
-                //...if user selected any object...then Add selected object in List of Pill To Display
+                //if user selected any object...then Add selected object in List of Pill To Display
                 if(filterOpt === 'objectsToFilter'){
                     var objPillToDisplay = [];
                     event.detail.forEach(ele => {
@@ -323,11 +310,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method trigger when user any checkbox type input,
-     * It trigger on Template Type section & Template Status section
-     * @param {*} event 
-     */
     onFilterCheckboxChange(event){
         try {
             var filterOpt = event.currentTarget.dataset.name;
@@ -348,11 +330,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method to set sort by option
-     * @param {*} event 
-     */
-    setSortingBy(event){
+    setSortingOrder(event){
         try {
             var filterOpt = event.currentTarget.dataset.name;
             var value = event.target.value;
@@ -360,14 +338,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             tempFilterOpts[filterOpt] = value;
             this.filterOpts = tempFilterOpts;
         } catch (error) {
-            errorDebugger('HomePage', 'setSortingBy', error, 'warn');
+            errorDebugger('HomePage', 'setSortingOrder', error, 'warn');
         }
     }
 
-    /**
-     * Method trigger when user select or change any date for filter based on date...
-     * @param {*} event 
-     */
     ChangeDates(event){
         try {
             var filterOpt = event.currentTarget.dataset.name
@@ -402,12 +376,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Handles the click event when a reference pill is clicked.
-     * Updates the filter options based on the selected reference time.
-     * Calls the setFromToDate method to update the date range.
-     * @param {Event} event - The click event object.
-     */
     referencePillClick(event){
         try {
             var filterOpt = event.currentTarget.dataset.name;
@@ -421,26 +389,25 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-
-   /**
-     * Sets the fromDate and toDate in filterOpts based on the selected reference time.
-     * @param {string} selectedReferenceTime - The reference time period to set the dates for.
-     */
-    setFromToDate(selectedReferenceTime) {
+    setFromToDate(selectedReferenceTime){
         try {
-            if (selectedReferenceTime === 'LAST_WEEK') {
+            if(selectedReferenceTime === 'LAST_WEEK'){
                 this.filterOpts['fromDate'] = this.referenceDates.firstDayofPreviousWeek;
                 this.filterOpts['toDate'] = this.referenceDates.lastDayOfPreviousWeek;
-            } else if (selectedReferenceTime === 'THIS_WEEK') {
+            }
+            else if(selectedReferenceTime === 'THIS_WEEK'){
                 this.filterOpts['fromDate'] = this.referenceDates.firstDayofThisWeek;
                 this.filterOpts['toDate'] = this.referenceDates.todayDate;
-            } else if (selectedReferenceTime === 'LAST_MONTH') {
+            }
+            else if(selectedReferenceTime === 'LAST_MONTH'){
                 this.filterOpts['fromDate'] = this.referenceDates.firstDayofPreviousMonth;
                 this.filterOpts['toDate'] = this.referenceDates.lastDayOfPreviousMonth;
-            } else if (selectedReferenceTime === 'THIS_MONTH') {
+            }
+            else if(selectedReferenceTime === 'THIS_MONTH'){
                 this.filterOpts['fromDate'] = this.referenceDates.firstDayofThisMonth;
                 this.filterOpts['toDate'] = this.referenceDates.todayDate;
-            } else {
+            }
+            else{
                 delete this.filterOpts['fromDate'];
                 delete this.filterOpts['toDate'];
                 delete this.filterOpts['refrenceTime'];
@@ -450,13 +417,8 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-
-   /**
-     * Removes the selected object from the display and updates the filter options.
-     * 
-     * @param {Event} event - The event triggered by the user action.
-     */
-    removeSelectedObj(event) {
+    // When we remove select object from pills..
+    removeSelectedObj(event){
         try {
             var unselectedValue = event.currentTarget.dataset.value;
 
@@ -464,15 +426,17 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 return obj.value !== unselectedValue;
             });
 
+            // console.log(`this.filterOpts['objectsToFilter'] : `, this.filterOpts['objectsToFilter']);
 
             this.filterOpts['objectsToFilter'] = this.filterOpts['objectsToFilter'].filter((option) => {
                 return option !== unselectedValue;
             });
 
-            if (this.objPillToDisplay.length === 0) {
+            if(this.objPillToDisplay.length === 0){
                 this.objPillToDisplay = null;
                 delete this.filterOpts['objectsToFilter'];
             }
+
 
             this.template.querySelector(`[data-name="objectsToFilter"]`).unselectOption(unselectedValue);
         } catch (error) {
@@ -480,16 +444,13 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Clears the selected date and range by clicking clear buttons
-     */
-    clearSelectedDateAndRange() {
+    clearSelectedDateAndRange(){
         try {
             var radioBtns = this.template.querySelectorAll('[name="refrenceTime"]');
             radioBtns.forEach(ele => {
                 ele.checked = false;
             });
-
+            
             this.setFromToDate(null);
 
         } catch (error) {
@@ -497,11 +458,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Apply on List on template record and set list of templated to display.
-     * @param {*} isClear 
-     */
-    applyFilter(isClear){
+    applyFilter(event, isClear){
         try {
 
             var isFilter = this.setErrorForRangeDate();
@@ -542,9 +499,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Sort template list based on filter option to display
-     */
     sortDisplayTemplates(){
         try {
             var fieldToSort = this.filterOpts['fieldToSort'] ? this.filterOpts['fieldToSort'] : this.defaultFieldToSort;
@@ -582,11 +536,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method check, weather user select valid date or not... 
-     * When Select invalid date value, show error message by adding error border over input.
-     * @returns Boolean based on selected date are valid or not for filtration.
-     */
     setErrorForRangeDate(){
         try {
             if(this.filterOpts['dateToFilter'] || this.filterOpts['fromDate'] || this.filterOpts['toDate'] ){
@@ -632,11 +581,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
     // Set Serial Number after Searching, Sorting and Filtration...
-    /**
-     * Method to set serial number on template list to display to ui
-     * @param {*} listToUpdate 
-     * @returns 
-     */
     setSerialNumber(listToUpdate){
         
         listToUpdate.forEach((ele, index) => {
@@ -646,11 +590,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         return listToUpdate;
     }
 
-    /**
-     * Method to implement lazy loading based on user scroll to make dom light and make user experience smooth 
-     * This method add and remove template form ui based on user scroll
-     * @param {*} event 
-     */
     // Lazy loading Method to add and remove templates based in scroll position..
     loadTemplates(event){
         try {
@@ -691,13 +630,9 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method to clear all filter option
-     * @param {*} event 
-     */
     clearFilterOpts(event){
         try {
-            // clear filerOpt object keys...
+            // crear filerOpt object keys...
             var tempFilterOpts = JSON.parse(JSON.stringify(this.filterOpts))
             for(var key in tempFilterOpts){
                 delete tempFilterOpts[key];
@@ -743,10 +678,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method to search template using search bar
-     * @param {*} event 
-     */
     searchTemplates(event){
         try {
             var searchValue = (event.target.value).toLowerCase();
@@ -770,17 +701,15 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     // ------- -------- --------- --------- Sorting, Filter and Searching Option Methos - START - -------- ----------- ----------
 
-    /**
-     * Method to Open/close create new template popup
-     */
-    toggleCreateNewTemplate(){
+    toggleCreateNEwTemplate(){
         this.isCreateTemplate = !this.isCreateTemplate;
+    }Pes
+
+    toggleCloneTemplate(){
+        this.isCloneTemplate = !this.isCloneTemplate;
     }
 
-    /**
-     * Method to change template status in backed
-     * @param {*} event 
-     */
+    // when user try to change status using toggle button.
     handleChangeStatus(event){
         try {
             this.toggelTemplateId = event.currentTarget.dataset.id;
@@ -813,10 +742,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method to open template preview based on template type
-     * @param {*} event 
-     */
     handlePreviewTemplate(event){
         try {
             this.templateType = event.currentTarget.dataset.type;
@@ -837,19 +762,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method to close template preview
-     */
     closeTemplatePreview(){
         this.isPreview = false;
     }
 
-    /**
-     * Handle to Delete template
-     * this method show warning popup message 
-     * based on user confirmation, further process execute form "handleConfirmation" method
-     * @param {*} event 
-     */
     handleDeleteTemplate(event){
         try {
             this.deleteTemplateId = event.currentTarget.dataset.id;
@@ -862,10 +778,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * User per user confirmation from child popup message component
-     * @param {*} event 
-     */
+    // As received confirmation from child popup message component...
     handleConfirmation(event){
         try {
             if(this.isToggleStatus){
@@ -935,10 +848,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method to open editor based on template type
-     * @param {*} event 
-     */
     handleEditClick(event){
         try {
             this.selectedTemplateId = event.currentTarget.dataset.id;
@@ -974,11 +883,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    /**
-     * Method to Open clone template based on template type
-     * @param {*} event 
-     */
-    openCloneTemp(event){
+    cloneTemp(event){
         try {
             const templateType = event.currentTarget.dataset.type;
             if(templateType === 'Google Doc Template'){
@@ -992,26 +897,11 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 this.isCloneTemplate = !this.isCloneTemplate;
             }
         } catch (error) {
-            errorDebugger('HomePage', 'openCloneTemp', error, 'warn');
+            errorDebugger('HomePage', 'cloneTemp', error, 'warn');
         }
     }
 
-    /**
-     * Method to close clone template popup
-     */
-    closeCloneTemplate(){
-        this.isCloneTemplate = !this.isCloneTemplate;
-    }
-
         // ====== ======= ====== Generic Method to test Message Popup and Toast... ==== ==== ==== ==== ==== ==== ====
-
-        /**
-         * Generic method to show message popup,
-         * This method call child component method to show popup
-         * @param {*} Status 
-         * @param {*} Title 
-         * @param {*} Message 
-         */
         showMessagePopup(Status, Title, Message){
             const messageContainer = this.template.querySelector('c-message-popup')
             messageContainer?.showMessagePopup({
@@ -1021,13 +911,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             });
         }
 
-        /**
-         * Generic method to show toast message,
-         * @param {*} Status 
-         * @param {*} Title 
-         * @param {*} Message 
-         * @param {*} Duration 
-         */
         showMessageToast(Status, Title, Message, Duration){
             const messageContainer = this.template.querySelector('c-message-popup')
             messageContainer?.showMessageToast({
@@ -1038,11 +921,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             });
         }
 
-        /**
-         * Generic method to navigate to different component
-         * @param {*} componentName 
-         * @param {*} paramToPass 
-         */
         navigateToComp(componentName, paramToPass){
             try {
                 var cmpDef;

@@ -178,12 +178,16 @@ public with sharing class DataMappingControllerV2 {
 
                 List<map<string, Object>> childRecords = getChildRecordsAsMap(validChildObjFields, tableInfo, recordId);
                 System.debug('---- ------ child record.size() ----- ------ : ' + childRecords.size());
+                System.debug('modifiedKeyRow  before : ' + tableInfo.keyRow);
                 modifiedKeyRow = createRowsWithChildRecords(childRecords, ExtractedKeys, tableInfo);
             }
             
             if(modifiedKeyRow != null){
+                System.debug('modifiedKeyRow after : ' + modifiedKeyRow);
+                System.debug('modifiedTableHTML before : ' + modifiedTableHTML);
                 modifiedTableHTML = modifiedTableHTML.replace(tableInfo.keyRow, modifiedKeyRow);
                 modifiedTableHTML = modifiedTableHTML.replace(infoRow, '');
+                System.debug('modifiedTableHTML after : ' + modifiedTableHTML);
             }
 
             return new Map<String, String>{tableInfo.tableHTML => modifiedTableHTML};

@@ -3,7 +3,7 @@ import { errorDebugger } from 'c/globalProperties'
 export default class CustomCombobox extends LightningElement {
 
     // ***************************************************************************** //
-    // *         API Attributes           
+    // *                             API Attributes           
     // * label              (attribute - label)
     // * multiselect        (attribute - multiselect)                          
     // * searchable         (attribute - searchable)                         
