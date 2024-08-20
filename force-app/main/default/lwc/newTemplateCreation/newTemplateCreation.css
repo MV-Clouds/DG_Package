@@ -102,9 +102,14 @@ section {
     box-sizing: border-box;
     border-radius: 50%;
     font-size: 0.8125rem;
-    top: -0.5rem;
+    top: -0.6rem;
     color: #00AEFF;
     user-select: none;
+}
+
+.required-input-label:before{
+    content: "*";
+    color: red;
 }
 
 .error-combo-box{
@@ -261,7 +266,7 @@ input[type=number]::-webkit-outer-spin-button {
     --labelBackgroundColor : white;
     --labelLeft : 0.938rem;
     --labelPosition : absolute;
-    --labelTop : -8px;
+    --labelTop : -10px;
     --labelFontSize: 0.8125rem;
     --labelColor : #00AEFF;
 }

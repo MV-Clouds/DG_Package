@@ -287,7 +287,7 @@ li.info-topic {
     color: white;
     font-size: 1rem;
     padding: 1rem;
-    gap: 2rem;
+    gap: 1.5rem;
     box-shadow: 0 0 15px lightgray;
     clip-path: inset(-15px 0px 0px 0px);
     position: relative;
@@ -405,18 +405,13 @@ li.info-topic {
 }
 
 .additional-info-div, .also-list-view-button-div {
-    /* display: flex;
-    gap: 0.5rem;
-    position: absolute;
-    top: 0;
-    right: 0; */
     position: relative;
     margin-left: auto;
     display: flex;
     align-items: center;
     justify-content: end;
     gap: 0.5rem;
-    top: 1rem;
+    top: 0.8rem;
 }
 
 .additional-info-div input{
@@ -447,12 +442,6 @@ li.info-topic {
     width: fit-content;
 }
 
-
-.bottom-btn svg{
-    width: 15px !important;
-    height: 20px !important;
-}
-
 .back-btn, .edit-template-btn{
     width: 12rem !important;
 }
@@ -468,7 +457,7 @@ li.info-topic {
     box-shadow: 0px 0px 10px 0px #00000040;
 }
 
-svg{
+svg:not(.bottom-btn svg){
     height: 1.5rem;
     width: 1.5rem;
 }
@@ -507,6 +496,11 @@ svg{
     display: flex;
     align-items: center;
     user-select: none;
+}
+
+.to-div span:before {
+    content: "*";
+    color: red;
 }
 
 .email-element input {

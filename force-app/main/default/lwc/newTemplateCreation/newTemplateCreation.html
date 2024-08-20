@@ -19,7 +19,7 @@
                     </div>
                     <div class="label-float">
                         <input type="text" class="t-name" maxlength="255" placeholder="Enter Template Name" onkeyup={handleTemplateNameChange} onblur={handleTemplateNameChange}/>
-                        <label>Template Name</label>
+                        <label class="required-input-label">Template Name</label>
                     </div>
                     <div class="label-float">
                         <input type="text" class="t-description" maxlength="131072" placeholder="Template is about.." onkeyup={handleTemplateDescriptionChange}/>
@@ -36,6 +36,7 @@
                         value ={selectedObject}
                         dropdown-position="left"
                         searchable="true"
+                        required="true"
                         ></c-custom-combobox>
                     </div>
                     <div class="select-label-float">
@@ -49,6 +50,7 @@
                         placeholder ="Select Template Type"
                         value ={selectedTemplateType}
                         searchable="true"
+                        required="true"
                         ></c-custom-combobox>
                     </div>
                     <div class="save-div">

@@ -279,14 +279,9 @@ public with sharing class GenerateDocumentController {
 
             if(!tfList.isEmpty()){
                 String fields = tfList[0].MVDG__CSV_Fields__c;
-                System.debug('all the Fields here :: ' + fields);
                 String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
-
                 String sessionId = '';
-
                 sessionId = getSessionId();
-                system.debug('sessionId : '+sessionId);
-
 
                 allData = fields + ' <|QDG|> ' + query + ' <|QDG|> ' + sessionId;
                 System.debug('All the Data to be Sent is :: ' + allData);

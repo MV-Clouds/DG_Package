@@ -37,6 +37,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     initialRender = true;
     initialFilters = true;
     initialSorts = true;
+    filtersCount = 0;
+    sortsCount = 0;
+    isUpdateOnlyLastFilter = false;
 
     //-=-=- Field Selection -=-=-
     @track fieldOptions = [];
@@ -91,25 +94,23 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     //-=-=- Filter/Sort/Logic Selection -=-=-
     separatedData;
     generatedQuery = '';
-    filtersCount = 0;
-    sortsCount = 0;
     @track limit = 1000000;   
     @track childMaxLimit = 50;
     @track fieldsForFilters = [];
     @track allOperatorOptions = [
         //String
-        { label: 'Equals to', value: '=', type: 'default, string,textarea, id, number, double, integer, phone, date, datetime, email, currency, boolean, multipicklist' },
-        { label: 'Not Equals to', value: '!=', type: 'default, string,textarea, id, number, double, integer, phone, date, datetime, email, currency, boolean, multipicklist' },
-        { label: 'Contains', value: 'LIKE', type: 'string, textarea, email, picklist' },
-        { label: 'Does not contain', value: 'notLIKE', type: 'string, textarea, email, picklist' },
-        { label: 'Starts with', value: 'startLIKE', type: 'string, textarea, phone, picklist' },
-        { label: 'Ends with', value: 'endLIKE', type: 'string, textarea, email, phone, picklist' },
+        { label: 'Equals to', value: '=', type: 'default, , url, string, textarea, id, number, percent, double, integer, phone, date, datetime, time, email, currency, boolean, multipicklist' },
+        { label: 'Not Equals to', value: '!=', type: 'default, , url, string, textarea, id, number, percent, double, integer, phone, date, datetime, time, email, currency, boolean, multipicklist' },
+        { label: 'Contains', value: 'LIKE', type: ', url, string, textarea, email, picklist' },
+        { label: 'Does not contain', value: 'notLIKE', type: ', url, string, textarea, email, picklist' },
+        { label: 'Starts with', value: 'startLIKE', type: ', url, string, textarea, email, phone, picklist' },
+        { label: 'Ends with', value: 'endLIKE', type: ', url, string, textarea, email, phone, picklist' },
         { label: 'Include', value: 'IN', type: 'multipicklist, picklist, string' },
         { label: 'Exclude', value: 'notIN', type: 'multipicklist, picklist, string' },
-        { label: 'Greater Than', value: '>', type: 'number, double, integer, currency, picklist, string, date, datetime' },
-        { label: 'Less Than', value: '<', type: 'number, double, integer, currency, picklist, string, date, datetime' },
-        { label: 'Greater or equal', value: '>=', type: 'number, double, integer, currency, picklist, string, date, datetime' },
-        { label: 'Less or equal	', value: '<=', type: 'number, double, integer, currency, picklist, string, date, datetime' },
+        { label: 'Greater Than', value: '>', type: 'number, percent, double, integer, currency, picklist, , url, string, date, datetime, time' },
+        { label: 'Less Than', value: '<', type: 'number, percent, double, integer, currency, picklist, , url, string, date, datetime, time' },
+        { label: 'Greater or equal', value: '>=', type: 'number, percent, double, integer, currency, picklist, , url, string, date, datetime, time' },
+        { label: 'Less or equal	', value: '<=', type: 'number, percent, double, integer, currency, picklist, , url, string, date, datetime, time' },
         // { label: 'Before', value: '<', type: 'date, datetime' },
         // { label: 'After', value: '>', type: 'date, datetime' },
     ];
@@ -465,8 +466,12 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 z-index: 10;
                             }
 
-                            .simple-input-div lightning-timepicker {
+                            .simple-input-div:has(lightning-datepicker) lightning-timepicker {
                                 border-left: 2px solid #d5ebff;
+                            }
+
+                            .simple-input-div:not(:has(lightning-datepicker)) lightning-timepicker {
+                                display : block;
                             }
 
                             .simple-input-div .slds-form-element_compound .slds-form-element{
@@ -500,11 +505,16 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     // console.log('rendered filters' + this.filters.length );
                     if(this.filtersCount>0){
                         this.showSpinner = true;
-                        for(let i =0; i<this.filters?.length; i++) {
-                            this.updateOperatorOptions(i);
+                        if(this.isUpdateOnlyLastFilter){
+                            this.updateOperatorOptions(this.filtersCount-1);
+                        }else{
+                            for(let i =0; i<this.filters?.length; i++) {
+                                this.updateOperatorOptions(i);
+                            }
                         }
                         this.initialFilters = false;
                         this.showSpinner = false;
+                        this.isUpdateOnlyLastFilter = false;
                     }else{
                         this.initialFilters = false;
                     }
@@ -856,8 +866,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 inputType: null,
                 operators : []
             });
-            this.initialFilters = true;
             this.filtersCount = this.filters.length;
+            this.isUpdateOnlyLastFilter = true;
+            this.initialFilters = true;
         }catch(e){
             console.log('Error in adding a new filter , ', e.stack);
         }
@@ -889,25 +900,20 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         try {
             const index = event.target.dataset.index;
             // console.log('What is index to delete: ' + index);
-            let filters_temp = JSON.parse(JSON.stringify(this.filters));
-            if(filters_temp.length >1){
-                filters_temp.splice(index, 1);
-            }else if(filters_temp.length ==1){
-                filters_temp[0].fieldName = null;
-                filters_temp[0].operator = null;
-                filters_temp[0].value = null;
-                filters_temp[0].operators = [];
-                filters_temp[0].type = null;
-                filters_temp[0].inputType = null;
+            if(this.filters.length >1){
+                this.filters.splice(index, 1);
+            }else if(this.filters.length ==1){
+                this.filters[0].fieldName = null;
+                this.filters[0].operator = null;
+                this.filters[0].value = null;
+                this.filters[0].operators = [];
+                this.filters[0].type = null;
+                this.filters[0].inputType = null;
                 this.template.querySelectorAll('.filter-index-div')[0].classList.remove('error-in-row');
             }
-
-            
-            this.filters = filters_temp;
             this.isEditTabChanged = true;
             
-            for(let i = 0; i < filters_temp.length ; i++){
-                this.updateOperatorOptions(i);
+            for(let i = 0; i < this.filters.length ; i++){
                 this.template.querySelectorAll('.filter-field-select')[i].classList.toggle('error-in-custom-combobox', !this.filters[i].fieldName);
                 this.template.querySelectorAll('.operator-select')[i].classList.toggle('error-in-custom-combobox', this.filters[i].fieldName && !this.filters[i].operator);
                 this.template.querySelectorAll('.value-select-div')[i].classList.toggle('error-in-value-input', this.filters[i].fieldName && this.filters[i].operator && !this.filters[i].value);
@@ -1044,6 +1050,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }
 
             this.initialFilters = true;
+            this.isUpdateOnlyLastFilter = true;
             this.filtersCount = this.filters.length;
             this.isEditTabChanged = true;
             
@@ -1189,16 +1196,16 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 filter.operators = this.allOperatorOptions.filter(option => option.type.includes('default'));
             }
             if(fieldType != 'picklist' && fieldType != 'multipicklist' && fieldType != 'boolean'){
-                if((fieldType == 'phone' || fieldType == 'number' || fieldType == 'double' || fieldType == 'integer' || fieldType == 'currency') && !this.allPreDefinedValues.includes(filter.value.trim())){
+                if((fieldType == 'phone' || fieldType == 'number' || fieldType == 'percent' || fieldType == 'double' || fieldType == 'integer' || fieldType == 'currency') && !this.allPreDefinedValues.includes(filter.value.trim())){
                     filter.inputType = 'number';
                 }else if(fieldType == 'date' && !filter.value.includes('_') && !this.allPreDefinedValues.includes(filter.value.trim())){
                     filter.inputType = 'date';
                 }else if(fieldType == 'datetime' && !filter.value.includes('_') && !this.allPreDefinedValues.includes(filter.value.trim())){
                     filter.inputType = 'datetime';
+                }else if(fieldType == 'time' && !this.allPreDefinedValues.includes(filter.value.trim())){
+                    filter.inputType = 'time';
                 }else if(fieldType == 'email' && !this.allPreDefinedValues.includes(filter.value.trim())){
                     filter.inputType = 'email';
-                }else if(fieldType == 'url' && !this.allPreDefinedValues.includes(filter.value.trim())){
-                    filter.inputType = 'url';
                 }else{
                     filter.inputType = 'text';
                 }
@@ -1650,7 +1657,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     
             // this.separatedData += '<|MDG|>';
     
-            this.separatedData.maxLImit = this.limit;
+            this.separatedData.maxLimit = this.limit;
             this.separatedData.listView = this.selectedListView;
             // console.log('data is is :: ' , this.separatedData);
         }catch(e){
@@ -1708,15 +1715,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 })
                 .filter((filter) => filter !== null);
     
-
-                // if(this.separatedData.logic){
-                //     if (!this.separatedData.logic.includes('OR') && !this.separatedData.logic.includes('AND')) {
-                //         console.log('Is a Custom logic');
-                //         this.isCustomLogic = true;
-                //         this.customLogicString = this.separatedData.logic;
-                //         this.selectedLogic = 'Custom';
-                        // this.selectedLogic = parts[2].split('<|LDG|>')[0];
-                        // this.customLogicString = parts[2].split('<|LDG|>')[1];
                 if(this.separatedData.logic){
                     if (this.separatedData.logic?.includes('<|LDG|>')) {
                         this.selectedLogic = this.separatedData.logic.split('<|LDG|>')[0];
@@ -1727,12 +1725,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                         this.selectedLogic = this.separatedData.logic;
                     }
                 }
-                // console.log('THe Custom Logic :::  ' + this.customLogicString);
                 
                 for(let i =0; i<oldFilters?.length; i++) {
-                    // console.log('type of the filter :: ', oldFilters[i].type);
                     const fieldType = oldFilters[i].type.toLowerCase();
-                    // console.log('Field type: ' + fieldType);
                     oldFilters[i].operators = this.allOperatorOptions.filter(option => option.type.includes(fieldType));
     
                     if(oldFilters[i].operators?.length<=0 && oldFilters[i].fieldName){
@@ -1747,9 +1742,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                         this.limit = this.separatedData.maxLimit;
                         this.showLimitInput = true;
                     }
-                    // this.template.querySelector('.toggle-limit').checked = this.showLimitInput;
-                    // console.log('TO show input limit or not :: ' + this.showLimitInput);
-                    // this.limit = this.separatedData.maxLimit.split('<|LDG|>')[1];
                 }
 
                 if(this.separatedData.listView){
@@ -1837,7 +1829,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     }else if (filter.operator == 'notLIKE') {
                         // console.log('Filter is not LIKE');
                         condition =  '( NOT ' + filter.fieldName + ' LIKE \'%' + filter.value + '%\' )';
-                    }else if(filter.type.toUpperCase() == 'DOUBLE' || filter.type.toUpperCase() == 'INTEGER' || filter.type.toUpperCase() == 'NUMBER' || filter.type.toUpperCase() == 'CURRENCY' || filter.type.toUpperCase() == 'DATE' || filter.type.toUpperCase() == 'BOOLEAN' || filter.type.toUpperCase() == 'DATETIME' || this.allPreDefinedValues.includes(filter.value.toUpperCase())){
+                    }else if(filter.type.toUpperCase() == 'DOUBLE' || filter.type.toUpperCase() == 'INTEGER' || filter.type.toUpperCase() == 'NUMBER' || filter.type.toUpperCase() == 'PERCENT' || filter.type.toUpperCase() == 'CURRENCY' || filter.type.toUpperCase() == 'DATE' || filter.type.toUpperCase() == 'BOOLEAN' || filter.type.toUpperCase() == 'DATETIME' || filter.type.toUpperCase() == 'TIME' || this.allPreDefinedValues.includes(filter.value.toUpperCase())){
                         // console.log('Filter is non quote');
                         condition = filter.fieldName + ' ' + filter.operator + ' ' + filter.value + ' ';
                     }else if(filter.value.toUpperCase() === 'CURRENT_USER'){
@@ -1983,17 +1975,12 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 limitInput?.classList.remove('error-in-input');
                 let maxLimit = this.isChild ? this.childMaxLimit : 1000000;
                 if(this.limit <1 || this.limit > maxLimit){
-                        // console.log('validated Limit');
-                        // invalidData = true;
                         if(!foundError){
                             let maxLImit = this.isChild ? this.childMaxLimit : 1000000;
                             invalidData = {type: 'error', message: 'Oops! You entered wrong limit!', description:'Please enter a limit between 0 and '+maxLImit, duration:5000};
                             foundError = true;
                         }
-                        // this.showToast('error', 'Oops! You entered wrong limit!', 'Please enter a limit between 0 and 50000!', 5000);
-            
                         limitInput?.classList.add('error-in-input');
-                        // console.log(limitInput?.classList);
                 }
             }
             let filterValidationPromises = [];
@@ -2055,14 +2042,11 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     let fields = selectedApiNames.join(',');
                     if(this.isChild){
                         this.showSpinner = false;
-                        this.dispatchEvent(new CustomEvent('save', {detail : {selectedFields: this.selectedFields , query: this.generatedQuery, generatedData : {fields : fields, filters :this.separatedDat }}}));
+                        this.dispatchEvent(new CustomEvent('save', {detail : {selectedFields: this.selectedFields , query: this.generatedQuery, generatedData : {fields : fields, filters :this.separatedData }}}));
                     }
                     else{
                         saveTemplateFields({configData : {templateId: this.templateId , query: this.generatedQuery ,...this.separatedData}})
                         .then(()=>{
-                            // console.log('Template Fields saved successfully');
-                            console.log('template is been saved ... with preview ??', isPreview);
-                            
                             this.existingFields = JSON.parse(JSON.stringify(this.selectedFields));
                             this.existingFilters = JSON.parse(JSON.stringify(this.filters));
                             this.existingSorts = JSON.parse(JSON.stringify(this.sorts));

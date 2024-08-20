@@ -2061,15 +2061,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             console.log('Promises :::', this.resultPromises);
             Promise.all(this.resultPromises)
                 .then(() => {
-                    // console.log('All selected actions completed!');
-                    // console.log('Succeeded ::::', this.succeeded);
-                    // // console.log('Results are::: ', this.resultList);
-                    // this.failed = this.selectedChannels.filter((item) => !this.succeeded.includes(item));
-                    // this.vfGeneratePageSRC = null;
-                    // this.backToGenerate();
-                    if (this.closeEnabled) {
-                        this.handleClose();
-                    }
+                    this.handleClose();
                     this.showSpinner = false;
                 })
                 .catch(e => {

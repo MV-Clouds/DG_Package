@@ -119,21 +119,6 @@
     overflow: hidden;
 }
 
-/* .header{
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    height: 4rem;
-    display: flex;
-    background-color: white;
-    background: linear-gradient(90.18deg, rgba(0, 255, 186, 0.3) 0%,rgba(0, 174, 255, 0.3) 100%);
-    color: black;
-}
-
-.heading{
-    font-size: 1.125rem;
-    font-weight: 700;
-} */
-
 /* Tabs Section */
 
 .tabSection{
@@ -298,8 +283,12 @@
     text-align: center;
     font-size: 0.875rem;
     font-weight: 500;
-    padding-block: 0 0.2rem;
+    padding-block: 1px;
     user-select: none;
+    background: #d5ebff;
+    border-radius: 6px;
+    margin-block: 5px;
+    margin-inline: auto;
 }
 
 
@@ -428,7 +417,7 @@ li:hover{
     flex-direction: row;
     justify-content: center;
     gap: 0.5rem;
-    padding-block: 0.5rem;
+    padding-top: 0.5rem;
     margin-top: 1rem;
 }
 
@@ -650,8 +639,11 @@ button:hover{
 }
 
 .selected-sort-order{
-    border:0.063rem solid rgb(0, 174, 255) !important;
-    background-color: white !important;
+    background-color: #00aeff !important;
+}
+
+.selected-sort-order svg{
+    fill: white;
 }
 
 .sort-btn{
