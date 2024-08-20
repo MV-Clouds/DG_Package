@@ -178,6 +178,12 @@ body{
                 line-height: 18px;
                 display: block;
             }
+            .note-editor.note-frame ul{
+                list-style-type: disc;
+            }
+            .note-editor.note-frame ol{
+                list-style-type: decimal;
+            }
                 /* full editor container css */
             .note-editor.note-frame,
             .note-editor.note-airframe {

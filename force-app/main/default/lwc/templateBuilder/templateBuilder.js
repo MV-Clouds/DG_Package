@@ -166,10 +166,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     connectedCallback(){
         try {
-                this.isSpinner = true;
-                // If Active Tab is Not set by default... 
-                this.currentTab =  this.activeTabName ? this.activeTabName : this.defaultTab;
-                this.getTemplateValues();
+            // If Active Tab is Not set by default... 
+            this.currentTab =  this.activeTabName ? this.activeTabName : this.defaultTab;
+                if(this.templateId){
+                    this.isSpinner = true;
+                    this.getTemplateValues();
+                }
+                else{
+                    this.noTemplateFound = true;
+                }
                 globalThis?.window?.addEventListener('resize', this.resizeFunction);
 
         } catch (error) {
@@ -227,6 +232,10 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
                 this.template.querySelector(`[data-name="custom_timeout"]`)?.addEventListener('animationend', this.customTimeoutMethod)
             }
+
+            if(this.noTemplateFound){
+                this.showMessagePopup('Error', 'Error While Fetching Template', 'Template Not Found');
+            }
         }
         catch(error){
             errorDebugger('TemplateBuilder', 'renderedCallback', error, 'warn');
@@ -241,7 +250,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             if(this.isLoadedSuccessfully == true){
                 this.resizeFunction();
                 this.setDataInMainEditor();
-                console.log('editor loaded', this.resolvedPromise);
                 this.resolvedPromise++
             }
             else{
@@ -259,7 +267,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let isLoadedSuccessfully = initializeSummerNote(this, docGeniusLogoSvg, 'headerEditor');
 
             if(!isLoadedSuccessfully){
-                this.showMessageToast('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 6000)
+                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.')
             }           
         } catch (error) {
             errorDebugger('TemplateBuilder', 'initialize_Header_Editor', error, 'warn');
@@ -272,7 +280,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let isLoadedSuccessfully = initializeSummerNote(this, docGeniusLogoSvg, 'footerEditor');
 
             if(!isLoadedSuccessfully){
-                this.showMessageToast('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 6000)
+                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.')
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'initialize_Footer_Editor', error, 'warn');
@@ -286,64 +294,60 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     getTemplateValues(){
         try {
-            console.log('templateId : ', this.templateId);
-            if(this.templateId && this.templateId != '' && this.templateId != null){
-                getTemplateData({templateId : this.templateId})
-                .then(result => {
-                    console.log('getTemplateData result  : ', result);
-                    if(result.isSuccess){
-                        // console.log(' get result size : ' , new Blob([JSON.stringify(result)]).size / 1000000, ' mb');
-                        this.templateRecord = result.template;
-                        this.templateRecord.createDateOnly = this.templateRecord.CreatedDate.split("T")[0];
-                        this.tempRecordBackup = JSON.parse(JSON.stringify(this.templateRecord));
-                        this.bodyData = '';
-                        this.headerData = '';
-                        this.footerData = '';
-                        let watermarkData = ''
-                        this.pageConfigRecord = result.pageConfigs;
-                        this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
+            getTemplateData({templateId : this.templateId})
+            .then(result => {
+                console.log('getTemplateData result  : ', result);
+                if(result.isSuccess){
+                    // console.log(' get result size : ' , new Blob([JSON.stringify(result)]).size / 1000000, ' mb');
+                    this.templateRecord = result.template;
+                    this.templateRecord.createDateOnly = this.templateRecord.CreatedDate.split("T")[0];
+                    this.tempRecordBackup = JSON.parse(JSON.stringify(this.templateRecord));
+                    this.bodyData = '';
+                    this.headerData = '';
+                    this.footerData = '';
+                    let watermarkData = ''
+                    this.pageConfigRecord = result.pageConfigs;
+                    this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
 
-                        // Collect Value in Single variable...
-                        result.template.MVDG__Template_Data__r?.forEach(ele => {
-                            if(ele.MVDG__Value_Type__c == 'Body Value'){
-                                this.bodyData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
-                            }
-                            else if(ele.MVDG__Value_Type__c == 'Header Value'){
-                                this.headerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
-                            }
-                            else if(ele.MVDG__Value_Type__c == 'Footer Value'){
-                                this.footerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
-                            }
-                            else if(ele.MVDG__Value_Type__c == 'Watermark Value'){
-                                watermarkData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
-                            }
-                        });
-                        
-                        this.dataLoaded = true;
-                        this.setPageConfigVariable();
-                        this.setDataInMainEditor();
-                        this.setDataInHeader();
-                        this.setDataInFooter();
-                        watermarkData && watermarkData != '' && (this.watermark = JSON.parse(watermarkData));
-                        this.setWatermarkPreview();
+                    // Collect Value in Single variable...
+                    result.template.MVDG__Template_Data__r?.forEach(ele => {
+                        if(ele.MVDG__Value_Type__c == 'Body Value'){
+                            this.bodyData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
+                        }
+                        else if(ele.MVDG__Value_Type__c == 'Header Value'){
+                            this.headerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
+                        }
+                        else if(ele.MVDG__Value_Type__c == 'Footer Value'){
+                            this.footerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
+                        }
+                        else if(ele.MVDG__Value_Type__c == 'Watermark Value'){
+                            watermarkData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
+                        }
+                    });
+                    
+                    this.dataLoaded = true;
+                    this.setPageConfigVariable();
+                    this.setDataInMainEditor();
+                    this.setDataInHeader();
+                    this.setDataInFooter();
+                    watermarkData && watermarkData != '' && (this.watermark = JSON.parse(watermarkData));
+                    this.setWatermarkPreview();
 
-                        delete this.templateRecord['MVDG__Template_Data__r'];
+                    delete this.templateRecord['MVDG__Template_Data__r'];
 
-                        this.resolvedPromise++
-                    }
-                    else{
-                        this.resolvedPromise++
-                        this.showMessagePopup('Error', 'Error While Fetching Template Data', result.returnMessage);
-                    }
-                })
-                .catch(error => {
                     this.resolvedPromise++
-                    errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn', 'Error in getTemplateData APEX Method.');
-                })
-            }
+                }
+                else{
+                    this.resolvedPromise++
+                    this.showMessagePopup('Error', 'Error While Fetching Template Data', result.returnMessage);
+                }
+            })
+            .catch(error => {
+                this.resolvedPromise++
+                errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn', 'Error in getTemplateData APEX Method.');
+            })
         } catch (error) {
             errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn');
-            
         }
     }
 
@@ -380,7 +384,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.saveTemplateValue('save');
             }
             else{
-                this.showMessagePopup('error', 'Template Name Empty!', `Template Name is Required, You can not save template without name.`);
+                this.showMessagePopup('error', 'Template Name Empty!', `Template Name is Required, You can not save template without a name.`);
             }
         }
         else{
@@ -589,7 +593,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.saveTemplateValue('preview');
             }
             else{
-                this.showMessagePopup('error', 'Template Name Empty!', `Template Name is Required, You can not save template without name.`);
+                this.showMessagePopup('error', 'Template Name Empty!', `Template Name is Required, You can not save template without a name.`);
             };
         }
         else{
@@ -704,12 +708,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     handleEditDetail(event){
         try {
 
+            
             const targetInput = event.currentTarget.dataset.name;
-            if(event.target.type != 'CHECKBOX'){
-                this.templateRecord[targetInput] = event.target.value;
+            if(event.target.type === 'checkbox'){
+                console.log('event.target.checked ', event.target.checked);
+                this.templateRecord[targetInput] = event.target.checked;
             }
             else{
-                this.templateRecord[targetInput] = event.target.checked;
+                this.templateRecord[targetInput] = event.target.value;
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleEditDetail', error, 'warn');
@@ -1396,10 +1402,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 // ... Popup message show WHEN Editor fail to initialize...
                 this.closeEditTemplate();
             }
-            else if(!this.templateRecord.MVDG__Template_Name__c){
+            else if(!this.templateRecord.MVDG__Template_Name__c && !this.noTemplateFound){
                 // ... Popup Message Appear when user try to save without filling template name...
                 this.currentTab = 'basicTab';
                 this.setActiveTab();
+            }
+            else if(this.noTemplateFound){
+                // ... Popup message show WHEN Template Id Not Found...
+                this.closeEditTemplate();
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleMsgPopConfirmation', error, 'warn');

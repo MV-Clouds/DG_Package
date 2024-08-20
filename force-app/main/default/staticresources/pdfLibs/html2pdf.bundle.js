@@ -2004,31 +2004,34 @@ Worker.prototype.toImg = function toImg() {
           console.log('pageCanvas.height : ', pageCanvas.height);
           
           for (var page = 0; page < nPages; page++) {
-
-            if (page === nPages - 1 && pxFullHeight % pxPageHeight !== 0) {
-              pageCanvas.height = pxFullHeight % pxPageHeight;
-              pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
+            /**
+             * Do Not render page more than 20 pages...
+             */
+              if(page < 20){
+                if (page === nPages - 1 && pxFullHeight % pxPageHeight !== 0) {
+                  pageCanvas.height = pxFullHeight % pxPageHeight;
+                  pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
+                }
+    
+                console.log('pageHeight : ', pageHeight);
+                var w = pageCanvas.width;
+                var h = pageCanvas.height;
+                pageCtx.fillStyle = 'white';
+                pageCtx.fillRect(0, 0, w, h);
+                pageCtx.drawImage(canvas, 0, (page * pxPageHeight - 2), w, h, 0, 0, w, h);
+    
+                if (page) this.prop.pdf.addPage();
+                var imgData = pageCanvas.toDataURL('image/' + opt.image.type, opt.image.quality);
+                var headerData = isHeader ? headerCanvas.toDataURL('image/' + opt.image.type, opt.image.quality) : null;
+                var footerData = isFooter ? footerCanvas.toDataURL('image/' + opt.image.type, opt.image.quality) : null;
+                
+                // Draw header and footer
+                isHeader && this.prop.pdf.addImage(headerData,  opt.image.type,   this.opt.header.margins[1],   this.opt.header.margins[0],   this.opt.header.width,            headerHeight);
+                isFooter && this.prop.pdf.addImage(footerData,  opt.image.type,   this.opt.footer.margins[1],   footerTop,                    this.opt.footer.width,            footerHeight);
+                            this.prop.pdf.addImage(imgData,     opt.image.type,   opt.margin[1],                opt.margin[0],                this.prop.pageSize.inner.width,   pageHeight);
+                        // this.prop.pdf.addImage(imageData,   imageType(i.e., PNG, JPG), left-position,       top-position,                 width,                            height)
+              }
             }
-
-            console.log('pageHeight : ', pageHeight);
-            var w = pageCanvas.width;
-            var h = pageCanvas.height;
-            pageCtx.fillStyle = 'white';
-            pageCtx.fillRect(0, 0, w, h);
-            pageCtx.drawImage(canvas, 0, (page * pxPageHeight - 2), w, h, 0, 0, w, h);
-
-            if (page) this.prop.pdf.addPage();
-            var imgData = pageCanvas.toDataURL('image/' + opt.image.type, opt.image.quality);
-            var headerData = isHeader ? headerCanvas.toDataURL('image/' + opt.image.type, opt.image.quality) : null;
-            var footerData = isFooter ? footerCanvas.toDataURL('image/' + opt.image.type, opt.image.quality) : null;
-            
-            // Draw header and footer
-            isHeader && this.prop.pdf.addImage(headerData,  opt.image.type,   this.opt.header.margins[1],   this.opt.header.margins[0],   this.opt.header.width,            headerHeight);
-            isFooter && this.prop.pdf.addImage(footerData,  opt.image.type,   this.opt.footer.margins[1],   footerTop,                    this.opt.footer.width,            footerHeight);
-                        this.prop.pdf.addImage(imgData,     opt.image.type,   opt.margin[1],                opt.margin[0],                this.prop.pageSize.inner.width,   pageHeight);
-                     // this.prop.pdf.addImage(imageData,   imageType(i.e., PNG, JPG), left-position,       top-position,                 width,                            height)
-          }
-
         });
 
     }

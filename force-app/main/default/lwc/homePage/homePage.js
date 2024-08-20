@@ -21,7 +21,9 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     
     @track defaultFieldToSort = 'LastModifiedDate';
     @track sortAS = 'desc';
-    @track filterOpts = {};
+    @track filterOpts = {
+        'fieldToSort' : this.defaultFieldToSort,
+    };
     @track selectedTemplateId;
     @track selectedObjectName;
     @track isFilterApplied;
@@ -502,6 +504,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     sortDisplayTemplates(){
         try {
             var fieldToSort = this.filterOpts['fieldToSort'] ? this.filterOpts['fieldToSort'] : this.defaultFieldToSort;
+            this.filterOpts.fieldToSort = fieldToSort;
             var sortAs = this.filterOpts['filterSortAS'] ? this.filterOpts['filterSortAS'] : this.defaultSortAS;
             this.filteredTemplateList = this.filteredTemplateList.sort((a, b) => {
                 if(a[fieldToSort].toLowerCase() > b[fieldToSort].toLowerCase()){
@@ -703,7 +706,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     toggleCreateNEwTemplate(){
         this.isCreateTemplate = !this.isCreateTemplate;
-    }Pes
+    }
 
     toggleCloneTemplate(){
         this.isCloneTemplate = !this.isCloneTemplate;
@@ -771,7 +774,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.deleteTemplateId = event.currentTarget.dataset.id;
             // console.log('this.deleteTemplateId : ', this.deleteTemplateId);
             this.isDeleteTemplate = true;
-            this.showMessagePopup('Warning', 'Conform to Delete ?', 'Do you want to Delete this Template');
+            this.showMessagePopup('Warning', 'Confirm to Delete ?', 'Do you want to Delete this Template');
             
         } catch (error) {
             errorDebugger('HomePage', 'handleDeleteTemplate', error, 'warn');

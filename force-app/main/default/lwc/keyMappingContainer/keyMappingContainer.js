@@ -272,12 +272,14 @@ export default class KeyMappingContainer extends LightningElement {
 
     connectedCallback(){
         try {
-            this.fetchFieldMapping();
-            this.fetchChildObjects();
-            this.fetchGeneralFields();
-            this.fetchAllContentVersionImages();
-            this.fetchFormatMappingKeys();
-            this.fetchSignatureInfo();
+            if(this.templateId){
+                this.fetchFieldMapping();
+                this.fetchChildObjects();
+                this.fetchGeneralFields();
+                this.fetchAllContentVersionImages();
+                this.fetchFormatMappingKeys();
+                this.fetchSignatureInfo();
+            }
             window.addEventListener('resize', this.resizeFunction);
 
             if(this.hideMergeTemplates){

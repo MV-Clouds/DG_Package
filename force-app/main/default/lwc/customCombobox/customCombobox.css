@@ -12,28 +12,26 @@
   --inputAreaFontSize : none;  
   --inputAreaFontColor: unset;
 
-  --labelFontColor : black;     
-  --labelFontSize : unset;   
-
   --placeHolderColor : unset;   
   --placeHolderSize  : unset;   
-
-  --inputOnFocusShadow : unset; 
-  --inputOnFocusBorderColor : unset;  
-
+  
+  --inputOnFocusShadow : 0px 0px 3px 0px #3ec2ffad; 
+  --inputOnFocusBorderColor : #00aeff;  
+  
   --dropDownWidth : unset;    
   --dropDownMaxHeight : unset;  
-
+  
   --optionFontSize : unset;     
   --optionFontColor : unset;
   --optionLineHeight : unset;
-
+  
   --labelBackgroundColor : unset;
   --labelLeft : unset;
   --labelPosition : unset;
   --labelTop : unset;
   --labelColor : unset;
-
+  --labelFontSize : unset;   
+  
   --descriptionColor : #848484;
   --descriptionFontSize : 11px;
   --descriptionTopMargin : 0rem;
@@ -44,7 +42,7 @@
   --selecteditemTextColor : white;  
   --inputAreaHeight : 5rem;      
   --inputAreaWidth : 15rem;     
-  --inputAreaBorderWidth : 1px solid blue;      
+  --inputAreaBorderWidth : 1px;      
   --inputAreaBorderRadius : 12px;  
   --inputAreaIconSize : 1.5rem;  
   --inputAreaIconColor : rgb(100, 196, 255); 
@@ -116,21 +114,18 @@
 
   /* ========= Custom CSS Style to Override Standerd ======== */
   .mainComboDiv{
-    --lwc-heightInput :  var(--inputAreaHeight);
-    --lwc-borderWidthThin : var(--inputAreaBorderWidth);
+    /* --lwc-heightInput :  var(--inputAreaHeight); */
+    /* --lwc-borderWidthThin : var(--inputAreaBorderWidth);
     --slds-c-input-color-border : var(--inputAreaBorderColor);
-    --slds-c-input-radius-border : var(--inputAreaBorderRadius) ;
+    --slds-c-input-radius-border : var(--inputAreaBorderRadius) ; */
     --slds-c-icon-color-foreground-default : var(--inputAreaIconColor);
     --lwc-squareIconUtilitySmall : var(--inputAreaIconSize);
-    --slds-c-input-text-color : var(--inputAreaFontColor);
+    /* --slds-c-input-text-color : var(--inputAreaFontColor); */
     --slds-c-input-color-background : var(--inputAreaBgColor);
-    --lwc-shadowButtonFocus : var(--inputOnFocusShadow);
-    --slds-g-color-brand-base-60 : var(--inputOnFocusBorderColor);
-    --lwc-sizeXSmall : var(--dropDownWidth, var(--inputAreaWidth));
-    --lwc-sizeMedium : var(--dropDownWidth, var(--inputAreaWidth));
-    --slds-g-color-neutral-base-30 : var(--labelFontColor);
-    --lwc-borderRadiusMedium : var(--inputAreaBorderRadius);  /* dropDown Border radius same as input area border radius */
-    --slds-g-color-neutral-base-10 : var(--labelFontColor); 
+    /* --lwc-sizeXSmall : var(--dropDownWidth, var(--inputAreaWidth));
+    --lwc-sizeMedium : var(--dropDownWidth, var(--inputAreaWidth)); */
+    /* dropDown Border radius same as input area border radius */
+    /* --lwc-borderRadiusMedium : var(--inputAreaBorderRadius);   */
     width: 100%;
     z-index: unset !important;
   }
@@ -141,8 +136,21 @@
   .inputAreaCSS_1{
     width: var(--inputAreaWidth, 100%) !important;
   }
+  .inputAreaCSS_2{    
+    border-width: var(--inputAreaBorderWidth, 1px);
+    border-color: var(--inputAreaBorderColor, #8e8e8e);
+    border-radius: var(--inputAreaBorderRadius, 4px);
+
+  }
   .inputAreaCSS_2, .inputAreaSectiedValueCSS{
     font-size: var(--inputAreaFontSize, unset) !important;
+    min-height: var(--inputAreaHeight);
+    color : var(--inputAreaFontColor, #424242);
+    background-color : var(--inputAreaBgColor, white);
+  }
+  .inputAreaCSS_2:focus, .inputAreaSectiedValueCSS:focus{
+    box-shadow : var(--inputOnFocusShadow);
+    border-color : var(--inputOnFocusBorderColor);
   }
   .inputAreaCSS_2::placeholder, .placeHolderCSS{
     display: flex !important;
@@ -158,6 +166,9 @@
     font-size : var(--optionFontSize);
     color : var(--optionFontColor);
     line-height: var(--optionLineHeight);
+    border-radius : var(--inputAreaBorderRadius, 4px);  /* dropDown Border radius same as input area border radius */
+    min-width : var(--dropDownWidth, var(--inputAreaWidth));
+    /* --lwc-sizeMedium : var(--dropDownWidth, var(--inputAreaWidth)); */
   }
 
   .dropDownCSS[data-position="left"]{
@@ -185,7 +196,6 @@
     background-color: var(--labelBackgroundColor) !important;
     color: var(--labelColor) !important;
     font-size: var(--labelFontSize);
-
 }
 
   .emptyImgPadding{

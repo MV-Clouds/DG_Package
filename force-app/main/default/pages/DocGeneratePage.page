@@ -602,9 +602,6 @@
                                 footerHtml = footerHtml.replaceAll(key, mappingKeyVsMappingValues[key])
                             }
 
-                            console.log(' childRecordTableKeys : ', childRecordTableKeys);
-                            console.log(' bodyHtml : ', bodyHtml);
-    
                             // ...replace child object records....
                             for(let key in childRecordTableKeys){
                                 const tableHtml = decodeHTMLEntities(key);

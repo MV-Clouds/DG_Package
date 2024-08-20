@@ -34,7 +34,7 @@
                                     options={sortingFiledList}
                                     placeholder="Select Field To Sort"
                                     onselect={onOptionSelect}
-                                    value={defaultFieldToSort}
+                                    value={filterOpts.fieldToSort}
                                     multiselect="false"
                                     searchable="false"
                                     dropdown-position="right"
@@ -196,7 +196,8 @@
                     <div class="Empty_createNewText">Click to Create the Template</div>
                 </div>
                 </div>
-              <div lwc:else class="template_Sub" onscroll={loadTemplates}>
+              <!-- <div lwc:else class="template_Sub" onscroll={loadTemplates}> -->
+                <div lwc:else class="template_Sub">
                 <template for:each={displayedTemplateList} for:item="template" for:index="index">
                   <div class="templateCardContainer" key={template.Id}>
                     <div class="tempNumerSec" data-disable={template.disabledEdit}>
