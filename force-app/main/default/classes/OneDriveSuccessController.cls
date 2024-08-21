@@ -208,11 +208,12 @@ public with sharing class OneDriveSuccessController {
 
    public static String extractCodeParameter(String url) {
        try {
-           if(ApexPages.currentPage().getParameters().get('code') != null){
-               String codeParameter = ApexPages.currentPage().getParameters().get('code').escapeHtml4();
-               return codeParameter;
-           }
-           return null;
+           String relativePath = url.replace(System.Url.getSalesforceBaseUrl().toExternalForm(), '');
+            // Use the PageReference class to extract query parameters
+            PageReference pageRef = new PageReference(relativePath);
+            String codeParameter = pageRef.getParameters().get('code');
+            System.debug(codeParameter);
+            return codeParameter;
        } catch (Exception e) {
            Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'extractCodeParameter');
            System.debug('Exception of extractCodeParameter got invoked');
@@ -232,7 +233,7 @@ public with sharing class OneDriveSuccessController {
            request.setBody('code=' + authcode +
                            '&client_id=' + clientId +
                            '&client_secret=' + clientSecret +
-                           '&redirect_Uri=' + redirectUri +
+                           '&redirect_uri=' + redirectUri +
                            '&grant_type=authorization_code');
 
            Http http = new Http();
