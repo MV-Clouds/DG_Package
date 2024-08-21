@@ -39,11 +39,14 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
 
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
-        return Database.getQueryLocator([
-            SELECT Id, VersionData, Title, ContentSize, FileExtension
-            FROM ContentVersion
-            WHERE Id =: contentVersionId
-        ]);
+        if(contentVersionId != null){
+            return Database.getQueryLocator([
+                SELECT Id, VersionData, Title, ContentSize, FileExtension
+                FROM ContentVersion
+                WHERE Id =: contentVersionId
+            ]);
+        }
+        return null;
     }
 
 
@@ -247,24 +250,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
 
     }
 
-
-
-    // public static String extrackUploadUrl(String jsonResponse) {
-    //     Map < String, Object > responseMap = (Map < String, Object > ) JSON.deserializeUntyped(jsonResponse);
-    //     // Get the uploadUrl from the response map
-    //     String uploadUrl = (String) responseMap.get('uploadUrl');
-    //     // Find the position of 'uploadSession' in the uploadUrl
-    //     Integer endIndex = uploadUrl.indexOf('uploadSession');
-    //     if (endIndex != -1) {
-    //         // Extract the substring up to 'uploadSession'
-    //         String trimmedUploadUrl = uploadUrl.substring(0, endIndex + 'uploadSession'.length());
-    //         // System.debug('Trimmed uploadUrl: ' + trimmedUploadUrl);
-    //         return trimmedUploadUrl;
-    //     } else {
-    //         // System.debug('uploadSession not found in the uploadUrl');
-    //         return uploadUrl;
-    //     }
-    // }
 
     @AuraEnabled
     public static void emailUser(String message) {

@@ -61,11 +61,14 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     }
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
-        return Database.getQueryLocator([
-            SELECT Id, VersionData, Title, ContentSize, FileExtension
-            FROM ContentVersion
-            WHERE Id =: contentVersionId
-        ]);
+        if(contentVersionId != null){
+            return Database.getQueryLocator([
+                SELECT Id, VersionData, Title, ContentSize, FileExtension
+                FROM ContentVersion
+                WHERE Id =: contentVersionId
+            ]);
+        }
+        return null;
     }
 
     global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {

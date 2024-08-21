@@ -14,12 +14,15 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
         // Query for ContentVersion records
-        return Database.getQueryLocator([
-            SELECT Id, VersionData, Title, ContentDocumentId, FileExtension, ContentSize 
-            FROM ContentVersion 
-            WHERE Id = :contentVersionId 
-            WITH SECURITY_ENFORCED
-        ]);
+        if(contentVersionId != null){
+            return Database.getQueryLocator([
+                SELECT Id, VersionData, Title, ContentDocumentId, FileExtension, ContentSize 
+                FROM ContentVersion 
+                WHERE Id = :contentVersionId 
+                WITH SECURITY_ENFORCED
+            ]);
+        }
+        return null;
     }
 
     global void execute(Database.BatchableContext bC, List<ContentVersion> scope) {

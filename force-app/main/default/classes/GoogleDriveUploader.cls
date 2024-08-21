@@ -12,11 +12,14 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
-        return Database.getQueryLocator([
-            SELECT Id, VersionData, Title, ContentSize, FileExtension
-            FROM ContentVersion
-            WHERE Id =: contentVersionId
-        ]);
+        if(contentVersionId != null){
+            return Database.getQueryLocator([
+                SELECT Id, VersionData, Title, ContentSize, FileExtension
+                FROM ContentVersion
+                WHERE Id =: contentVersionId
+            ]);
+        }
+        return null;
     }
 
 
