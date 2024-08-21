@@ -84,7 +84,7 @@ public with sharing class GoogleDocTemplateEditorController {
             if (authProvider.size() == 0) {
                 return 'error';   
             }
-            
+
             String endpoint = 'https://docs.googleapis.com/v1/documents';
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
@@ -156,28 +156,31 @@ public with sharing class GoogleDocTemplateEditorController {
 
     public static String getTemplateData(String templateId) {
         try {
-            MVDG__Template_Data__c templateData = new MVDG__Template_Data__c();
+            List<MVDG__Template_Data__c> templateData = new List<MVDG__Template_Data__c>();
             templateData = [SELECT MVDG__Google_Doc_WebViewLink__c, MVDG__Google_Doc_Template_Id__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c = :templateId AND MVDG__Order_No_Simple__c = 1 WITH SECURITY_ENFORCED];
             // templateData.MVDG__Google_Doc_WebViewLink__c += '&access_token='+ MVDG__AuthProviderSettings__c.getInstance().MVDG__access_token__c;
-
-            return JSON.serialize(templateData);
+            if (templateData.size() > 0) {
+                return JSON.serialize(templateData[0]);
+            }
         } catch (Exception e) {
             System.debug('Error In getTemplateData ==> ' + e.getMessage());
-            Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getTemplate');
-            return null;
+            Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getTemplateData');
         }
+        return null;
     }
 
     public static String getTemplate(string templateId) {
         try {
-            MVDG__Template__c template = new MVDG__Template__c();
+            List<MVDG__Template__c> template = new List<MVDG__Template__c>();
             template = [SELECT MVDG__Template_Name__c, MVDG__Description__c, Id, MVDG__Template_Status__c, MVDG__Object_API_Name__c, MVDG__Template_Type__c, CreatedDate, LastModifiedDate, CreatedBy.Name, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id = :templateId WITH SECURITY_ENFORCED];
-            return JSON.serialize(template);
+            if (template.size() > 0) {
+                return JSON.serialize(template[0]);
+            }
         } catch (Exception e) {
             System.debug('Error In getTemplate ==> ' + e.getMessage());
-            Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getTemplateName');
-            return null;
+            Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getTemplate');
         }
+        return null;
     }
 
     public static string getGoogleProfile() {
