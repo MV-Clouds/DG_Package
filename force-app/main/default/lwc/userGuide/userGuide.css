@@ -6,13 +6,12 @@
 
 .container {
     display: flex;
-    gap: 20px;
     width: 100%;
     overflow: hidden;
 }
 
 .left-section {
-    width: 30%;
+    width: 0;
     transition: all 0.5s;
 }
 
@@ -58,14 +57,19 @@
 }
 
 .content img{
+    margin: 0.5rem;
     width: 80%;
 }
 
 .content{
+    background-image: url('/resource/MVDG__homePageImgs/HomeNoRecordBg.png');
+    background-size: contain;
+}
+
+.white-background{
     font-size: 16px;
     font-family: Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
     background-color: #fff;
-    background-image: url('/resource/1723198567000/homePagelmgs/HomBg.png');
     overflow: scroll;
     outline: none;
 }
@@ -126,4 +130,79 @@ lightning-accordion-section {
     border-radius: 5px !important;
     border: 1px solid grey !important;
 
+}
+
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.custom-modal-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin-top: 5.5rem;
+    margin-inline: 5.5rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.custom-modal-header {
+    padding: 1rem;
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-modal-close {
+    position: absolute;
+    right: 0;
+    top: 5.5rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.custom-modal-body {
+    padding: 1rem;
+}
+
+.custom-modal-footer {
+    padding: 1rem;
+    border-top: 1px solid #eaeaea;
+    text-align: right;
+}
+
+.custom-button {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.custom-button:hover {
+    background-color: #0056b3;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
