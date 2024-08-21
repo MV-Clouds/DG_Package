@@ -1,4 +1,4 @@
-global class AwsUploader implements Database.Batchable<SObject>, Database.AllowsCallouts {
+global with sharing class AwsUploader implements Database.Batchable<SObject>, Database.AllowsCallouts {
     global static String key = '';
     global static String secret = '';
     global static String bucket = '';
@@ -140,6 +140,7 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
 
     @AuraEnabled
     public static void emailUser(String message) {
+        if(Schema.sObjectType.User.fields.Email.isAccessible()){
         User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
         String subject = 'Issue in uploading file to AWS';
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
@@ -147,6 +148,7 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
     }
 
     public static void mailMessage(Integer code){

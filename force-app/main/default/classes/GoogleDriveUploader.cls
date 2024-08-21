@@ -1,4 +1,4 @@
-global class GoogleDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts{
+global with sharing class GoogleDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts{
 
     global string contentVersionId;
     global static string googleDriveAccessToken;
@@ -346,6 +346,7 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
 
     @AuraEnabled
     public static void emailUser(String message) {
+        if(Schema.sObjectType.User.fields.Email.isAccessible()){
         User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
         String subject = 'Issue in uploading file to google drive';
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
@@ -353,6 +354,7 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
     }
 
     public static string contentType(string fileType) {

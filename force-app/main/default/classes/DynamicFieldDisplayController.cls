@@ -1,4 +1,4 @@
-public class DynamicFieldDisplayController {    
+public with sharing class DynamicFieldDisplayController {    
     public String recordId { get; set; }
     public String objectName { get; set; }
     public String objectID {get;set;}
@@ -304,10 +304,12 @@ public class ChildRelationshipInfo {
     }
 
     public static String getObjectIdByApiName(String objectApiName) {
-        String cleanApiName = objectApiName.endsWith('__c') ? objectApiName.substring(0, objectApiName.length() - 3) : objectApiName;
+        // String cleanApiName = objectApiName.endsWith('__c') ? objectApiName.substring(0, objectApiName.length() - 3) : objectApiName;
     // String objectApiNameQuery = objectApiName.endsWith('__c') ? objectApiName : objectApiName + '__c';
-        EntityDefinition objectInfo = [SELECT DurableId FROM EntityDefinition WHERE DeveloperName = :cleanApiName LIMIT 1];
-        return objectInfo != null ? objectInfo.DurableId : null;
+        if(Schema.sObjectType.EntityDefinition.Fields.DurableId.isAccessible() && Schema.sObjectType.EntityDefinition.Fields.DeveloperName.isAccessible()){
+            EntityDefinition objectInfo = [SELECT DurableId FROM EntityDefinition WHERE QualifiedApiName = :objectApiName LIMIT 1];
+            return objectInfo != null ? objectInfo.DurableId : null;
+        }
     }
 
 

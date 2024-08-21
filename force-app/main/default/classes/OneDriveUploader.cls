@@ -1,4 +1,4 @@
-global class OneDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts {
+global with sharing class OneDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts {
     global string contentVersionId;
     global static string oneDriveAccessToken;
     global static string fullFileName;
@@ -268,13 +268,15 @@ global class OneDriveUploader implements Database.Batchable < SObject > , Databa
 
     @AuraEnabled
     public static void emailUser(String message) {
-        User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
-        String subject = 'Issue in uploading file to One drive';
-        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(new String[] { currentUser.Email });
-        mail.setSubject(subject);
-        mail.setPlainTextBody(message);
-        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        if(Schema.sObjectType.User.fields.Email.isAccessible()){
+            User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+            String subject = 'Issue in uploading file to One drive';
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(new String[] { currentUser.Email });
+            mail.setSubject(subject);
+            mail.setPlainTextBody(message);
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
     }
 
 
