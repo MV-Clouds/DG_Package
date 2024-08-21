@@ -362,6 +362,30 @@ public with sharing class GenerateDocumentController {
         }
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to delete the content version if only the external storages are selected
+@param           : cvId {String} -  Id of the Content version to delete
+@return          : void - won't return anything
+********************************************************
+*/  
+    @AuraEnabled
+    public static void deleteContentVersion(String cvId){
+        try {
+            String hour = String.valueOf(Datetime.now().hour());
+            String min = String.valueOf(Datetime.now().minute() + 10); 
+            String ss = String.valueOf(Datetime.now().second());
+
+            String deleteTimeCron = ss + ' ' + min + ' ' + hour + ' * * ?';
+
+            DeleteContentDocumentController deleteController = new DeleteContentDocumentController(cvId);
+            System.schedule('delete temp Content Version - ' + Datetime.now(), deleteTimeCron, deleteController);
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'deleteContentVersion');
+        }
+    }
+
 // -=-=- Wrappers -=-=-
 
 /*

@@ -9,7 +9,7 @@ import {navigationComps, nameSpace} from 'c/globalProperties';
 export default class NewTemplateCreation extends NavigationMixin(LightningElement) {
 
     @api showModel;
-    @track showSpinner;
+    @track isShowSpinner = false;
     @track objectNames = [];
     @track templateTypes = [];
     @track cellDivs = [];
@@ -43,7 +43,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     }
     
     get doShowSpinner() {
-        if (this.isImageLoaded === true && this.objectNames.length > 0 && this.templateTypes.length > 0) {
+        if ( !this.isShowSpinner && this.isImageLoaded === true && this.objectNames.length > 0 && this.templateTypes.length > 0) {
         return false;
         }
         return true;
@@ -181,6 +181,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     }
 
     saveNewTemplate() {
+        this.isShowSpinner = true;
         try {
             this.template.querySelector('.t-name').classList.remove("error-border");
             this.template.querySelectorAll('label')[0].classList.remove("error-label");
@@ -205,7 +206,6 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 this.isDataInvalid = true;
             }
             if(!this.isDataInvalid){
-                this.isImageLoaded = false;
                 let templateData = {
                     templateName: this.templateName,
                     templateDescription: this.templateDescription,
@@ -215,18 +215,20 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 saveTemplate({ templateData : templateData })
                 .then((data) => {
                     this.templateId = data;
-                    this.showToast('success', 'Everything worked!', 'The Template was saved Successfully!');
                     this.handleNavigate();
-                    this.dispatchEvent(new CustomEvent('aftersave'))
+                    this.dispatchEvent(new CustomEvent('aftersave'));
                     this.closeModel();
-
                 })
                 .catch(error => {
+                    this.isShowSpinner = false;
                     console.error('Error saving template:', error);
                     this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
                 });
+            }else{
+                this.isShowSpinner = false;
             }
         } catch (error) {
+            this.isShowSpinner = false;
             console.error('Error in saveNewTemplate:', error.message);
         }
     }
@@ -239,7 +241,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
             message : message,
             duration : 5000
         });
-        this.isImageLoaded = true;
+        this.isShowSpinner = false;
     }
       
 

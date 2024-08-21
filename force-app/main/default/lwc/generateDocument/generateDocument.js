@@ -1,4 +1,4 @@
-import { LightningElement , api, track} from 'lwc';
+import { LightningElement , api, track, wire} from 'lwc';
 import getCombinedData from '@salesforce/apex/GenerateDocumentController.getCombinedData';
 import getSessionId from '@salesforce/apex/GenerateDocumentController.getSessionId';
 import storeInFiles from '@salesforce/apex/GenerateDocumentController.storeInFiles';
@@ -9,6 +9,7 @@ import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.cr
 import {navigationComps, nameSpace} from 'c/globalProperties';
 import { NavigationMixin } from 'lightning/navigation';
 import { CloseActionScreenEvent } from "lightning/actions";
+import { CurrentPageReference } from "lightning/navigation";
 
 //CSV Generation methods
 import getTemplateData from '@salesforce/apex/GenerateDocumentController.getTemplateData';
@@ -23,6 +24,8 @@ import uploadToGoogleDrive from '@salesforce/apex/UploadController.uploadToGoogl
 import setDefaultOptions from '@salesforce/apex/GenerateDocumentController.setDefaultOptions';
 import getTemplateDefaultValues from '@salesforce/apex/GenerateDocumentController.getTemplateDefaultValues';
 
+//Delete content version if needed
+import deleteContentVersion from '@salesforce/apex/GenerateDocumentController.deleteContentVersion';
 export default class GenerateDocument extends NavigationMixin(LightningElement) {
 
     @track showSpinner = true;
@@ -421,18 +424,20 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return channels;
     }
 
+    @wire(CurrentPageReference)
+    currentPageReference;
+
     connectedCallback() {
         this.showSpinner = true;
         try{
             this.hideHeader = this.calledFromWhere === 'defaults';
-            let isAutoGeneration = !window.location.href.includes(window.location.origin + '/lightning/action/quick/') && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
+            let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
-                let urlParams = new URLSearchParams(window.location.search);
-                this.objectApiName = urlParams.get('c__objectApiName');
-                this.isCSVOnly = urlParams.get('c__isCSVOnly') === 'true' ? true : false;
-                this.isDefaultGenerate = urlParams.get('c__isDefaultGenerate') === 'true' ? true : false;
+                this.objectApiName = this.currentPageReference?.state?.c__objectApiName;
+                this.isCSVOnly = this.currentPageReference?.state?.c__isCSVOnly === 'true' ? true : false;
+                this.isDefaultGenerate = this.currentPageReference?.state?.c__isDefaultGenerate === 'true' ? true : false;
                 this.template.host.classList.add('pou-up-view');
-                this.selectedTemplate = urlParams.get('c__templateIdToGenerate');
+                this.selectedTemplate = this.currentPageReference?.state?.c__templateIdToGenerate;
             }
             Promise.resolve(this.objectApiName)
             .then(() => {
@@ -441,12 +446,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 ]);
             })
             .then(() => {
-                console.log('It should print after the data fetches..', window.location.href.includes('.DG_Document_Generate') || window.location.href.includes('.DG_Generate_CSV'));
                 if (this.calledFromWhere === "preview") {
                     this.handleCalledFromPreview();
                 } else if (this.calledFromWhere === 'defaults') {
                     this.handleCalledFromDefaults();
-                } else if(this.isCSVOnly || window.location.href.includes('.DG_Generate_Document')){
+                } else if(this.isCSVOnly || this.currentPageReference?.attributes?.apiName?.split('.')[1] == 'DG_Generate_Document'){
                     this.handleEmailTemplateSelect({detail:[]});
                     this.showSpinner = false;
                 } else if (isAutoGeneration) {
@@ -468,6 +472,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         this.template.host.classList.add('pou-up-view');
         this.template.querySelector('.template-select-div').style.display = 'none';
         this.handleSelectTemplate({ detail: [{ Id: this.templateIdFromParent }] });
+        this.handleEmailTemplateSelect({detail:[null]});
         this.showSpinner = false;
     }
     
@@ -1083,6 +1088,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.emailSubject = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.Subject || this.emailSubject;
                 console.log('Set only Preview');
             }else{
+                this.emailSubject = '';
                 console.log('Set body');
                 this.template.host.style.setProperty('--display-for-email-body-div',"flex");
                 this.template.host.style.setProperty('--display-for-email-preview-div',"none");
@@ -2036,7 +2042,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             if(this.selectedChannels.includes('Google Drive')){
                 this.succeeded.push('Google Drive');
-                uploadToGoogleDrive({cvid : contentVersionId})
+                uploadToGoogleDrive({cvid : contentVersionId});
             }
             if(this.selectedChannels.includes('AWS')){
                 this.succeeded.push('AWS');
@@ -2049,6 +2055,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             if(this.selectedChannels.includes('Dropbox')){
                 this.succeeded.push('Dropbox');
                 uploadToDropBox({ cvid : contentVersionId});
+            }
+            if(!(this.selectedChannels.includes('Files') || this.selectedChannels.includes('Chatter') || this.selectedChannels.includes('Email')) && (this.selectedChannels.includes('Dropbox') || this.selectedChannels.includes('One Drive') || this.selectedChannels.includes('Google Drive') || this.selectedChannels.includes('AWS'))){
+                console.log('deleting content Versions ::');
+                deleteContentVersion({cvId: contentVersionId});
             }
         } catch (error) {
             console.error('Error in uploadToExternalStorage : ', error.message);

@@ -75,6 +75,7 @@ public with sharing class GenerateDocumentControllerTest {
             Map<String, String> emailData = new Map<String, String>{'contentVersionId' => cv.Id,'emailSubject' => 'Test Sub','emailBody' => 'test body'};
 
             String status = GenerateDocumentController.sendEmail(allEmails, emailData);
+            GenerateDocumentController.deleteContentVersion(cv.Id);
 
             emailData.put('contentVersionId', '012345678901234567');
             GenerateDocumentController.sendEmail(allEmails, emailData);

@@ -20,7 +20,7 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
     @track templateType;
     @track templateImage = cloneTemplateImage;
     @track templateBg = newTemplateBg;
-    @track showSpinner;
+    @track isShowSpinner = false;
     @track showTempData = true;
     @track showSelectData = false;
     @track templateBody = true;
@@ -34,7 +34,8 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
     @track templateSelectOption;
     
 
-    isImageLoaded;
+    isImageLoaded = false;
+    isDataProcessed = false;
     // templateId = '';
     isDataInvalid = false;
 
@@ -44,8 +45,6 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
 
     connectedCallback(){
         this.showModel = true;
-        this.showSpinner = true;
-        this.isImageLoaded = false;
         const template = this.templatelist.find(temp => temp.Id === this.selectedtemplateid);
         console.log('template *** : ',JSON.stringify(template));
         this.templateId =  template.Id;
@@ -63,7 +62,7 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
         else if(this.templateType == 'Simple Template'){
             this.templateTypeSimple = true;
         }
-        this.showSpinner = false;
+        this.isDataProcessed = true;
     }
 
     imageLoaded(){
@@ -71,7 +70,7 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
     }
 
     get doShowSpinner(){
-        if(this.isImageLoaded == true){
+        if(this.isImageLoaded && this.isDataProcessed && !this.isShowSpinner){
             return false;
         }
         return true;
@@ -100,7 +99,12 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
 
     cloneTemplate(){
         try {
+            this.isShowSpinner = true;
             this.templateName = this.template.querySelector(`[data-name="temp-name"]`).value;
+            if(!this.templateName){
+                this.isShowSpinner = false;
+                return;
+            }
             this.templateDescription = this.template.querySelector(`[data-name="temp-description"]`).value;
             console.log("templateType *** : ",this.templateType);
             if(this.templateType == 'Simple Template'){
@@ -155,13 +159,17 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
                 this.templateId = response.tempId;
                 this.trmplateObject = response.tempObj;
                 this.handleNavigate();
+                this.dispatchEvent(new CustomEvent('aftersave'));
+                this.closeModel();
             }).catch(error=>{
+                this.isShowSpinner = false;
                 console.log('error in apex cloneTempData : ', error);
                 console.log('error in apex cloneTempData : ', error.stack);
             })
         } catch (error) {
-                console.log('error in cloneTemplate : ', error.stack);
-            }
+            this.isShowSpinner = false;
+            console.log('error in cloneTemplate : ', error.stack);
+        }
     }
 
     handleNavigate() {

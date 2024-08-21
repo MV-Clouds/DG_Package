@@ -35,6 +35,11 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     }
 
     @track isGenerate = false;
+    @track isTemplateInactive = false;
+
+    get canNotGenerate(){
+        return this.noResultsFound || this.isTemplateInactive;
+    }
 
     connectedCallback(){
         this.getPreviewData();
@@ -47,10 +52,11 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             this.noResultsFound = true;
             console.log('Received preview data::', result);
             this.previewData = result.records;
-            this.fields = result.fields?.split(',');
-            this.additionalData['Name'] = result.templateName;
-            this.additionalData['Object Api Name'] = result.templateObject;
-            this.additionalData['Description'] = result.templateDescription || 'No Description Available for this template';
+            this.fields = result.templateData.MVDG__CSV_Fields__c?.split(',');
+            this.additionalData['Name'] = result.templateData.MVDG__Template__r.MVDG__Template_Name__c;
+            this.additionalData['Object Api Name'] = result.templateData.MVDG__Template__r.MVDG__Object_API_Name__c;
+            this.additionalData['Description'] = result.templateData.MVDG__Template__r.MVDG__Description__c || 'No Description Available for this template';
+            this.isTemplateInactive = !result.templateData.MVDG__Template__r.MVDG__Template_Status__c;
             this.additionalData['CSV Creation Time'] = new Date().toLocaleString().replace(',', ' ');
             if(this.fields.length > 0 && this.previewData.length > 0){
                 this.setData();
@@ -180,14 +186,14 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     }
 
     // Get Back to the Document Generator
-    handleBackClick(){
+    handleClose(){
         try{
             console.log('Event Dispatched::');
             this.dispatchEvent(new CustomEvent('close',{
                 detail : true
             }));
         }catch(e){
-            console.log('Error in handleBackClick ,' , e.message);
+            console.log('Error in handleClose ,' , e.message);
         }
     }
 

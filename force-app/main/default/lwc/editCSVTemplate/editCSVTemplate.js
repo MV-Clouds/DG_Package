@@ -27,7 +27,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     //to handle the confirmation message
     @track isListViewUpdate = false;
     @track isClose = false;
-    @track isTemplateUpdate = false;
+    // @track isTemplateUpdate = false;
     @track isCancelTemplate = false;
     @track isReset = false;
     @track isClear = false;
@@ -2135,8 +2135,8 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.navigateToComp(navigationComps.home);
                 }else if(this.isListViewUpdate){
                     this.isListViewUpdated = true;
-                }else if(this.isTemplateUpdate){
-                    this.handleUpdateTemplate();
+                // }else if(this.isTemplateUpdate){
+                //     this.handleUpdateTemplate();
                 }else if(this.isCancelTemplate){
                     this.handleCancelChanges();
                 }else if(this.isReset){
@@ -2151,7 +2151,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }
             this.isClose = false;
             this.isListViewUpdate = false;
-            this.isTemplateUpdate = false;
+            // this.isTemplateUpdate = false;
             this.isCancelTemplate = false;
             this.isReset = false;
             this.isClear = false;
@@ -2288,7 +2288,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             if(!this.selectedListView){
                 this.isListViewUpdated = true;
             }else if(this.selectedListView && this.tempListView!==this.selectedListView && ((this.filters?.length > 0 && this.filters[0].fieldName) || (this.sorts?.length > 0 && this.sorts[0].field) ||(this.selectedFields?.length > 0))){
-                this.showWarningPopup('warning', 'Are you sure to change list view?', 'Changing the list view may override the current changes.');
+                this.showWarningPopup('warning', 'Are you sure to change list view?', 'Changing the list view may override the current changes when you click \'Update\' button.');
                 this.isListViewUpdate = true;
             }
             this.isBasicTabChanged = true;
@@ -2322,8 +2322,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 return;
             }
             if (this.isBasicTabChanged){
-                this.showWarningPopup('warning', 'Update Template Details!', 'Are you sure you want to update template details?');
-                this.isTemplateUpdate = true;
+                this.handleUpdateTemplate();
+                // this.showWarningPopup('warning', 'Update Template Details!', 'Are you sure you want to update template details?');
+                // this.isTemplateUpdate = true;
             }
         } catch (error) {
             console.log('Error in handleDetailsSave ' , error.stack);
