@@ -42,27 +42,27 @@ public with sharing class DataMappingControllerV2 {
                 Set<String> extractedKeys = collectMappingKeys(extractedKeyMap);
                 // collect mapping key values for object field and general fields....
                 Map<String, String> mappigKeysValue = getMappingKeyVsValue(new List<String>(extractedKeys), sourceObjectAPI, recordId);
-                mapingKeyVsValuesGroup.get('objectNGeneral').putAll(mappigKeysValue);
+                mapingKeyVsValuesGroup?.get('objectNGeneral')?.putAll(mappigKeysValue);
                 
     
                 // collect mapping key values for child object table info from keys stored in field....
-                Object childRecordTables = extractedKeyMap?.get('childRecordTables') != null ? extractedKeyMap.get('childRecordTables') : (Object) JSON.deserializeUntyped('[]');
+                Object childRecordTables = extractedKeyMap?.get('childRecordTables') != null ? extractedKeyMap?.get('childRecordTables') : (Object) JSON.deserializeUntyped('[]');
                 String childTableString = JSON.serialize(childRecordTables);
                 Set<ChildTableInfo> childTables = (Set<ChildTableInfo>) JSON.deserializeStrict(childTableString, Set<ChildTableInfo>.Class);
     
                 // modify child object table...
                 for(ChildTableInfo tableInfo : childTables){
                     Map<String, String> modifiedChildTable = modifyChildObjectTables(tableInfo, sourceObjectAPI, recordId);
-                    mapingKeyVsValuesGroup.get('childRecordTable').putAll(modifiedChildTable);
+                    mapingKeyVsValuesGroup?.get('childRecordTable')?.putAll(modifiedChildTable);
                 }
 
                 // Collect and Store Salesforce image SRC in to set ...
                 Map<String, String> sfImagesSRCVsID = getSFimageVsId(extractedKeyMap);
-                mapingKeyVsValuesGroup.get('salesforceImages').putAll(sfImagesSRCVsID);
+                mapingKeyVsValuesGroup?.get('salesforceImages')?.putAll(sfImagesSRCVsID);
 
                 // Collect signature Image contentVersion Id from source record...
                 Map<String, String> signatureImageCvId = getSignatureImageCVId(extractedKeyMap, recordId);
-                mapingKeyVsValuesGroup.get('signatureImage').putAll(signatureImageCvId);
+                mapingKeyVsValuesGroup?.get('signatureImage')?.putAll(signatureImageCvId);
 
                 
                 // this varibale will be FALSE when it call from "getKeyNValueFromMergeTemps" Method...
@@ -75,10 +75,10 @@ public with sharing class DataMappingControllerV2 {
                     map<String, Map<String, String>> keyWithValues = getKeyNValueFromMergeTemps(new List<String>(mergTemplateKeys), sourceObjectAPI, recordId);
 
                     // colelct extracted key with actual value from marge template add them into exsiting map of main tempalte.
-                    mapingKeyVsValuesGroup.get('objectNGeneral').putAll(keyWithValues.get('objectNGeneral'));
-                    mapingKeyVsValuesGroup.get('childRecordTable').putAll(keyWithValues.get('childRecordTable'));
-                    mapingKeyVsValuesGroup.get('salesforceImages').putAll(keyWithValues.get('salesforceImages'));
-                    mapingKeyVsValuesGroup.get('margeTemplate').putAll(keyWithValues.get('margeTemplate'));
+                    mapingKeyVsValuesGroup?.get('objectNGeneral')?.putAll(keyWithValues?.get('objectNGeneral'));
+                    mapingKeyVsValuesGroup?.get('childRecordTable')?.putAll(keyWithValues?.get('childRecordTable'));
+                    mapingKeyVsValuesGroup?.get('salesforceImages')?.putAll(keyWithValues?.get('salesforceImages'));
+                    mapingKeyVsValuesGroup?.get('margeTemplate')?.putAll(keyWithValues?.get('margeTemplate'));
 
                     // Note : no need to add signatureImage for merge tempalte key, because signature key will be same for each template...
                 }
@@ -337,10 +337,10 @@ public with sharing class DataMappingControllerV2 {
 
             Object signatureImageKey = extractedKeyMap?.get('signatureImage');
 
-            List<ContentVersion> signatures = [SELECT Id, ContentSize FROM ContentVersion WHERE Title Like '%Signature-%' AND FirstPublishLocationId =: recordId AND IsLatest = true WITH SECURITY_ENFORCED ORDER BY CreatedDate DESC LIMIT 1];
-
-            if(signatureImageKey != null && signatures.size() > 0){
-                signatureImage.put((String)string.valueOf(signatureImageKey), signatures[0].Id);
+            List<ContentDocumentLink> linkedSignature = [SELECT Id, LinkedEntityId, ContentDocumentId, ContentDocument.LatestPublishedVersionId FROM ContentDocumentLink WHERE LinkedEntityId =: recordId AND ContentDocument.Title LIke '%Signature-%' ORDER BY ContentDocument.LastModifiedDate DESC LIMIT 1];
+            
+            if(signatureImageKey != null && linkedSignature.size() > 0){
+                signatureImage.put((String)string.valueOf(signatureImageKey), linkedSignature[0].ContentDocument.LatestPublishedVersionId);
             }
 
             return signatureImage;
@@ -534,12 +534,12 @@ public with sharing class DataMappingControllerV2 {
 
             // Get Mapping Key Values from the merge templates... Add with existing merge and value
             map<String, Map<String, String>> keyWithValues = getMappingsKeyValues(validTemplateListIds, recordId, false);
-            keyWithValuesGroup.get('objectNGeneral').putAll(keyWithValues.get('objectNGeneral'));
-            keyWithValuesGroup.get('childRecordTable').putAll(keyWithValues.get('childRecordTable'));
-            keyWithValuesGroup.get('salesforceImages').putAll(keyWithValues.get('salesforceImages'));
+            keyWithValuesGroup?.get('objectNGeneral')?.putAll(keyWithValues.get('objectNGeneral'));
+            keyWithValuesGroup?.get('childRecordTable')?.putAll(keyWithValues.get('childRecordTable'));
+            keyWithValuesGroup?.get('salesforceImages')?.putAll(keyWithValues.get('salesforceImages'));
 
             // add marge template Keys with template Id...
-            keyWithValuesGroup.get('margeTemplate').putAll(templateIds);
+            keyWithValuesGroup?.get('margeTemplate')?.putAll(templateIds);
             // keyWithValues.putAll(templateIds);
 
             return keyWithValuesGroup;
@@ -592,18 +592,18 @@ public with sharing class DataMappingControllerV2 {
                 String fieldName = ext.fieldAPI.substringAfter('.');
                 switch on relationShipName{
                     when 'Date', 'User', 'Org'{
-                        fieldValue = (String) String.valueOf(valueData.get(fieldName));
+                        fieldValue = (String) String.valueOf(valueData?.get(fieldName));
                     }
                     when else{
                         // field comes in this block must me sorce object's parent object's field...
-                        Map<String, Object> parentObj = (Map<String, Object>) valueData.get(relationShipName);
-                        fieldValue = (String) String.valueOf(parentObj.get(fieldName));
+                        Map<String, Object> parentObj = (Map<String, Object>) valueData?.get(relationShipName);
+                        fieldValue = (String) String.valueOf(parentObj?.get(fieldName));
                     }
                 }
             }
             else{
                 // field comes in this block must me sorce object field...
-                fieldValue = (String) String.valueOf(valueData.get(ext.fieldAPI));  
+                fieldValue = (String) String.valueOf(valueData?.get(ext.fieldAPI));  
             }
 
             if(ext.formatType != null && ext.formatType != '' && fieldValue != '' && fieldValue != null){

@@ -12,6 +12,11 @@
   --inputAreaFontSize : none;  
   --inputAreaFontColor: unset;
 
+  --invalidInputBackground : unset;
+  --invalidInputBorderColor : unset;
+  --invalidInputShadow : unset;
+  --asteriskColor : unset
+
   --placeHolderColor : unset;   
   --placeHolderSize  : unset;   
   
@@ -231,4 +236,14 @@
     background: rgb(236 235 234 / 30%);
     cursor: not-allowed;
     border-radius: var(--inputAreaBorderRadius);
+  }
+
+  .asterisk{
+    color: var(--asteriskColor, #ba0517);
+  }
+
+  .invalid-input{
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(238 72 65);
+    box-shadow: rgb(243 82 76) 0px 0px 1px 1px;
   }

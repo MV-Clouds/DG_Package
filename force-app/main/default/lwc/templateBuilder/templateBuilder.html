@@ -536,8 +536,13 @@
   <c-child-object-table-builder></c-child-object-table-builder>
 
   <template lwc:if={isPreview}>
-    <c-template-preview-modal templateid={templateRecord.Id} objectname={templateRecord.MVDG__Object_API_Name__c} template-type="Simple Template"
-     onclosepreview={closeTemplatePreview}></c-template-preview-modal>
+    <c-template-preview-modal 
+      templateid={templateRecord.Id}
+      objectname={templateRecord.MVDG__Object_API_Name__c} 
+      template-type="Simple Template"
+      is-active={templateRecord.MVDG__Template_Status__c}
+      onclosepreview={closeTemplatePreview}>
+    </c-template-preview-modal>
   </template>
 
   <c-message-popup onconfirmation={handleMsgPopConfirmation}></c-message-popup>

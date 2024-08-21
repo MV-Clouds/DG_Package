@@ -1,5 +1,10 @@
 public with sharing class TemplateBuilder_Controller {
 
+    /**
+     * @param {String} templateId, Id of template going to edit.
+     * @return retrunWrapper,
+     * @description : Method to get template record, template data, template pages, field mappings and the latest object API name from template data.
+     */
     @AuraEnabled
     public static retrunWrapper getTemplateData(String templateId){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
@@ -59,6 +64,11 @@ public with sharing class TemplateBuilder_Controller {
         }
     }
 
+    /**
+     * @param {String} objectApiName - API Name of the object to get fields for.
+     * @return Obj_Label_API,
+     * @description : Method to get Object Label, Object Name field and its type from Its Object API Name
+     */
     @AuraEnabled
     public static Obj_Label_API getObjectNameField(String objectApiName){
         Obj_Label_API objInfo = new Obj_Label_API();
@@ -80,6 +90,16 @@ public with sharing class TemplateBuilder_Controller {
         return objInfo;
     }
 
+    /**
+     * @param {MVDG__Template__c} templateRecord, template record with basic field values,
+     * @param {Map<String, List<String>>}, templateValues, Tempalce data with value as per value type,
+     * @param {MVDG__Template_Page__c}, pageConfigs, page config recor dwith field values,
+     * @return {String} , update status
+     * @description : Method to Save the Template data, page configs and field mappings.
+     *               1. Update the Template record.
+     *               2. Update the Page Configs record.
+     *               3. Update the Template data with header, footer, mapping key data and body(if batch save is not rerequired).
+     */
     @AuraEnabled
     public static string saveTemplateApex(MVDG__Template__c templateRecord, Map<String, List<String>> templateValues, MVDG__Template_Page__c pageConfigs){
         try {
@@ -126,6 +146,12 @@ public with sharing class TemplateBuilder_Controller {
         }
     }
 
+    /**
+     * @param {Map<String, string>}, templateDataList, Map of batchOrderNumver vs template Data
+     * @param {Map<String, String>}, tempIdVsValueType, Map of tempate Id vs template Value,
+     * @param {boolean}, isLastBatch, to indentify last batch,
+     * @description : Method Save body content data into template data object in multiple batch to handle large size.
+     */
     @AuraEnabled
     public static String saveTempDataRecordsInBatch(Map<String, string> templateDataList ,Map<String, String> tempIdVsValueType, boolean isLastBatch){
         try {
@@ -217,17 +243,10 @@ public with sharing class TemplateBuilder_Controller {
         }
     }
 
-    // @AuraEnabled
-    // public static void tempMethod(){
-    //     try {
-    //         PageReference pageRef = new PageReference('apex/DocPreviewPage');
-    //         pageRef.setRedirect(true);
-    //         System.debug('pageRef : '  + pageRef);
-    //     } catch (Exception e) {
-    //         system.debug('exception in updateTemplateDataRecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
-    //     }
-    // }
-
+    /**
+     * @description : Wrapper class used to return values to lwc component.
+     * It is generic class that used by mupltiple methods.
+     */
     public class RetrunWrapper{
         @AuraEnabled public boolean isSuccess;
         @AuraEnabled public String returnMessage;
@@ -236,6 +255,9 @@ public with sharing class TemplateBuilder_Controller {
         @auraEnabled public MVDG__Template_Page__c pageConfigs;
     }
 
+    /**
+     * @description : Wrapper class used to Store sorce object information.
+     */
     public class Obj_Label_API{
         @AuraEnabled public String label;
         @AuraEnabled public String name;

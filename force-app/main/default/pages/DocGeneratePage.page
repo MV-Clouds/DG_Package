@@ -426,7 +426,7 @@
                         const signatureKey = '{!JSENCODE(signatureKey)}';
                         const signatureSize = '{!signatureSize}';
                         // Add signature image key and cv Id into salesforceImage List to fetch base64;
-                        if(signatureImageCvId){
+                        if(signatureImageCvId && signatureImageCvId[signatureKey]){
                             salesforceImages[signatureKey] = signatureImageCvId[signatureKey];
                         }
 

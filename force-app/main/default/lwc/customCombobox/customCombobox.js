@@ -665,9 +665,9 @@ export default class CustomCombobox extends LightningElement {
             // if isInvalid is "TRUE" --> Show Error Border...
             if(isInvalid){
                 this.template.querySelector('.slds-combobox__input')
-                .style = `  background-color: rgb(255, 255, 255);
-                            border-color: rgb(238 72 65);
-                            box-shadow: rgb(243 82 76) 0px 0px 1px 1px;
+                .style = `  var(--invalidInputBackground, background-color: rgb(255, 255, 255));
+                            var(--invalidInputBorderColor, border-color: rgb(238 72 65));
+                            var(--invalidInputShadow, box-shadow: rgb(243 82 76) 0px 0px 1px 1px);
                 `;
             }
             // else Remove Error Border...

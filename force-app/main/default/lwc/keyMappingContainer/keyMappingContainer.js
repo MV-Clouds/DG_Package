@@ -409,7 +409,7 @@ export default class KeyMappingContainer extends LightningElement {
      */
     fetchAllActiveTemps(){
         try {
-            getMerginTemplateKeys({sourceObjectAPI : this.objectName})
+            getMerginTemplateKeys({sourceObjectAPI : this.objectName, templateId : this.templateId})
             .then(result => {
                 this.isDataRefreshing = false;
                 if(result.isSuccess == true && result.fieldMappingsWithObj){

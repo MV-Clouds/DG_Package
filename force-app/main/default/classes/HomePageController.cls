@@ -11,11 +11,8 @@
 ************************************************************************** */
 public with sharing class HomePageController {
 
-    /*
-     * @Author : Nirbhay Navik
-     * @Name : getTemplateList
-     * @ReturnType : ReturnValues (Class)
-     * @param : none
+    /**
+     * @return : ReturnValues (Class)
      * @Description : Get Template records list to preview on home page
     */
     @AuraEnabled
@@ -75,7 +72,10 @@ public with sharing class HomePageController {
             return returnValue;
         }
     }
-
+    /**
+     * @preturn List<TemFieldInstance> : List of tempalte type
+     * @Description method to get picklist value of template type field.
+     */
     public static List<TemFieldInstance> getAllTemplateTypes(){
         List<TemFieldInstance> templateTypes = new List<TemFieldInstance>();
         try {
@@ -102,6 +102,11 @@ public with sharing class HomePageController {
         }
     }
 
+    /**
+     * @param String : Object API Name
+     * @return List<TemFieldInstance> : List of tempalte field
+     * @Description method to create label vs value object for fields.
+     */
     public static List<TemFieldInstance> createTempFieldInstance(String objectAPINAme){
         List<TemFieldInstance> templateField = new List<TemFieldInstance>();
         try {
@@ -124,6 +129,12 @@ public with sharing class HomePageController {
         }
     }
 
+    /**
+     * @param templateId, templates id
+     * @param isActive, is template active
+     * @return string, return the update status
+     * @descriptio : Methof to update template status.
+     */
     @AuraEnabled
     public static string updateTemplate(String templateId, Boolean isActive){
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
@@ -139,6 +150,11 @@ public with sharing class HomePageController {
         return 'no Template Found';
     }
 
+    /**
+     * @param templateId, template id
+     * @return Boolean, return status of deletion
+     * @description : TO Delete the template
+     */
     @AuraEnabled
     public static boolean deleteTemplate(String templateId){
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
@@ -150,6 +166,10 @@ public with sharing class HomePageController {
             return false;
     }
 
+    /**
+     * @description : Wrapper class used to return values to lwc component.
+     * It is generic class that used by mupltiple methods.
+     */
     public class ReturnValues{
         @AuraEnabled public list<MVDG__Template__c> templateList;
         @AuraEnabled public list<TempObject> objectList;
@@ -160,11 +180,17 @@ public with sharing class HomePageController {
         @AuraEnabled public list<TemFieldInstance> templateTypes;
     }
 
+    /**
+     * @description : Wrapper class to store template object information.
+     */
     public class TempObject{
         @AuraEnabled public String label;
         @AuraEnabled public String value;
     }
 
+    /**
+     * @description : Wrapper class to store template field information.
+     */
     public class TemFieldInstance{
         @AuraEnabled public String label;
         @AuraEnabled public String value;

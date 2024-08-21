@@ -351,10 +351,10 @@ public with sharing class KeyMappingController {
      * @description : Method to create mapping key for merge template.
      */
     @AuraEnabled
-    public static RetrunWrapper getMerginTemplateKeys(string sourceObjectAPI){
+    public static RetrunWrapper getMerginTemplateKeys(string sourceObjectAPI, String templateId){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
         try {
-            List<MVDG__Template__c> activeTemps = [SELECT Id, Name, MVDG__Template_Name__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true AND MVDG__Template_Type__c IN ('Simple Template') AND MVDG__Object_API_Name__c =: sourceObjectAPI WITH SECURITY_ENFORCED];
+            List<MVDG__Template__c> activeTemps = [SELECT Id, Name, MVDG__Template_Name__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true AND Id != :templateId AND MVDG__Template_Type__c IN ('Simple Template') AND MVDG__Object_API_Name__c =: sourceObjectAPI WITH SECURITY_ENFORCED];
             if(activeTemps != null){
                 list<MappingObjects> fieldMappingsWithObj = new list<MappingObjects>();
                 MappingObjects mergeTemps = new MappingObjects();
@@ -441,7 +441,7 @@ public with sharing class KeyMappingController {
                  */
 
                 if(cdNotAvailabeFor.size() > 0){
-                    List<ContentDocumentLink> cdls = [SELECT Id, ShareType, ContentDocumentId FROM ContentDocumentLink WHERE ContentDocumentId IN: cdNotAvailabeFor];
+                    List<ContentDocumentLink> cdls = [SELECT Id, ShareType, ContentDocument.LatestPublishedVersionId FROM ContentDocumentLink WHERE ContentDocumentId IN: cdNotAvailabeFor];
                     for(ContentDocumentLink cdl : cdls){
                         if(cdl.ShareType != 'I'){
                             conDocWithSharing.add(cdl.ContentDocumentId);
@@ -468,7 +468,6 @@ public with sharing class KeyMappingController {
                 System.debug('images without sharing option : ' + conDocWithoutSharing.size());
                 System.debug('cdAvilabeFor : ' + cdAvilabeFor.size());
                 System.debug('cdTocreatefor : ' + cdTocreatefor.size());
-
 
                 // Create ContentDistribution for ContentVersion which does not have Cd...
                 List<ContentDistribution> cdToCreate = new List<ContentDistribution>();
