@@ -191,9 +191,26 @@ c-key-mapping-container {
     height: 6%;
     /* width:98%; */
     margin: 1% 2%;
-
+    justify-content: space-between;
     /* margin-top:2%; */
     align-items: center;
+}
+
+.right-side-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.new-button{
+    background-color: #00aeff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 /* ----- ------- ------- ------ ------ ------ ------ ------ -------  */
 /* ----- ------ ------- ------- --- Search Section --------------- ------- ---------- */
@@ -260,7 +277,7 @@ c-key-mapping-container {
     transform: rotate(-90deg);
 }
 
-svg.refresh:hover {
+.refresh-div:hover svg.refresh {
     transform: rotate(-360deg);
     transition: 0.5s;
 }
@@ -610,6 +627,7 @@ input:focus {
 c-generate-document {
     display: flex;
     height: 100%;
+    --background-of-main-generate-document-div: transparent;
     --height-of-main-generate-document-div: 100%;
     --border-color-of-main-container: transparent;
 }

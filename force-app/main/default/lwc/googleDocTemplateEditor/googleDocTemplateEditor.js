@@ -1,14 +1,14 @@
 import { LightningElement, track, api } from "lwc";
 
 import getAllData from "@salesforce/apex/GoogleDocTemplateEditorController.getAllData";
-
 import saveTemplateData from "@salesforce/apex/GoogleDocTemplateEditorController.saveTemplateData";
 import editTemplate from "@salesforce/apex/GoogleDocTemplateEditorController.editTemplate";
+import createNewDocument from "@salesforce/apex/GoogleDocTemplateEditorController.createNewDocument";
 
 import new_template_bg from "@salesforce/resourceUrl/new_template_bg";
 import homePageImgs from "@salesforce/resourceUrl/homePageImgs";
 import { NavigationMixin } from "lightning/navigation";
-import { errorDebugger } from 'c/globalProperties';
+import { errorDebugger, nameSpace } from 'c/globalProperties';
 
 export default class GoogleDocTemplateEditor extends NavigationMixin(LightningElement) {
     @api templateId;
@@ -24,7 +24,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     selectedTemplate;
     showPopup = false;
     webViewLink;
-    documentName;
 
     @track templates;
     @track allTemplates;
@@ -43,17 +42,21 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         return Object.keys(this.templateRecord).length ? true : false;
     }
     get generateDocument() {
-        // this.isSpinner = true;
         return this.activeTabName === "defaultValues";
     }
     get showBasicDetails() {
-        // this.isSpinner = true;
         return this.activeTabName === "basicTab";
     }
     get showTemplateEditor() {
-        // this.isSpinner = true;
         return this.activeTabName === "contentTab";
     }
+    get showNoSearchResults() {
+        return this.templates && this.templates.length == 0 && this.allTemplates && this.allTemplates.length > 0;
+    }
+    get showNoDocumentFiles() {
+        return this.allTemplates && this.allTemplates.length == 0;
+    }
+    
 
     connectedCallback() {
         try {
@@ -93,13 +96,30 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     console.log("result==>", result);
 
                     if (result.error) {
-                        console.log("Error in getAllRelatedData : ", result.error);
+                        let errorList = result.error.split(":");
+                        console.log("Error in getAllRelatedData : ", errorList);
+                        const popup = this.template.querySelector("c-message-popup");
+                        popup.showMessagePopup({
+                            title: "Error",
+                            message: errorList[2],
+                            status: "error"
+                        });
+                        this.isSpinner = false;
                         return;
                     }
 
                     if (result.template) {
                         this.templateRecord = JSON.parse(result.template); // Template
                         this.previousTemplateData = JSON.parse(result.template);
+                    } else {
+                        this.isSpinner = false;
+                        const popup = this.template.querySelector("c-message-popup");
+                        popup.showMessagePopup({
+                            title: "No Template Found",
+                            message: "No template found for the given object. Please try again.",
+                            status: "error"
+                        });
+                        return;
                     }
 
                     if (result.objectLabel) {
@@ -111,12 +131,13 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     }
 
                     // Get all templates
-                    if (result.docList) {
+                    if (result.docList != null) {
+                        
                         this.allTemplates = JSON.parse(result.docList);
                         if (this.allTemplates && this.allTemplates.length > 0) {
                             this.setDateAndSize();
-                            this.templates = this.allTemplates;
                         }
+                        this.templates = this.allTemplates;
                     }
 
                     // Template Data
@@ -124,21 +145,25 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                         let templateData = JSON.parse(result.templateData);
                         this.webViewLink = templateData.MVDG__Google_Doc_WebViewLink__c;
                         this.MVDG__Google_Doc_Template_Id__c = templateData.MVDG__Google_Doc_Template_Id__c;
-                        this.documentName = templateData.MVDG__Google_Doc_Name__c;
-                    } else {
-                        this.isSpinner = false;
-                        if (this.profile == null && result.templateData == null && this.allTemplates == null) {
-                            this.showPopup = false;
-                            const popup = this.template.querySelector("c-message-popup");
-                            popup.showMessagePopup({
-                                title: "No Google Integration Found",
-                                message: "To create a new template, Google Drive integration is neccessary.",
-                                status: "error"
-                            });
-                        } else {
-                            this.showPopup = true;
-                        }
                     }
+
+                    // Showing the popup when the template is not selected
+                    if (this.allTemplates != null && this.profile != null && result.templateData == null) {
+                        this.isSpinner = false;
+                        this.showPopup = true;
+                    }
+
+                    // Showing error
+                    if (result.templateData == null && this.allTemplates == null) {
+                        this.isSpinner = false;
+                        const popup = this.template.querySelector("c-message-popup");
+                        popup.showMessagePopup({
+                            title: "No Google Integration Found",
+                            message: "To create a new template, Google Drive integration is neccessary.",
+                            status: "error"
+                        });
+                    }
+
                 })
                 .catch((error) => {
                     console.log("Error in getAllData:", error);
@@ -162,7 +187,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     closePopup() {
         console.log('this.closePopup');
-        
         this.showPopup = false;
     }
 
@@ -204,12 +228,36 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         }
     }
 
+    createNewDocument() {
+        try {
+            this.isSpinner = true;
+            this.loaderLabel = 'Creating a new Document. Please wait...';
+            createNewDocument()
+                .then((result) => {
+                    let document = JSON.parse(result);
+                    let newTemplate = {};
+                    newTemplate.webViewLink = 'https://docs.google.com/document/d/' + document.documentId + '/edit?usp=drivesdk';
+                    newTemplate.id = document.documentId;
+
+                    this.selectedTemplate = newTemplate;
+                    this.next();
+                })
+                .catch((error) => {
+                    this.isSpinner = false;
+                    console.log("Error in newDocument:", error);
+                });
+        } catch (error) {
+            this.isSpinner = false;
+            errorDebugger('googleDocTemplateEditor', 'newDocument', error, 'error', 'Error in newDocument. Please try again later');
+        }
+    }
+
     next() {
         try {
             console.log('this.next');
+            this.loaderLabel = 'Loading... Please wait a while';
             this.webViewLink = this.selectedTemplate.webViewLink;
             this.MVDG__Google_Doc_Template_Id__c = this.selectedTemplate.id;
-            this.documentName = this.selectedTemplate.name;
             this.isSpinner = true;
 
             this.closePopup();
@@ -270,7 +318,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 templateId: this.templateId,
                 googleDocId: this.selectedTemplate.id,
                 webViewLink: this.selectedTemplate.webViewLink,
-                documentName: this.selectedTemplate.name
             })
                 .then((response) => {
                     if (response === "success") {
@@ -289,7 +336,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     navigateToComp(componentName, paramToPass) {
         try {
             console.log("navigateToComp : ", componentName, paramToPass);
-            let nameSpace = "c";
             let cmpDef;
             if (paramToPass && Object.keys(paramToPass).length > 0) {
                 cmpDef = {
