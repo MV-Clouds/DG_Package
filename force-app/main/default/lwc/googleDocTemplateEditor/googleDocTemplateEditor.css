@@ -627,6 +627,7 @@ input:focus {
 c-generate-document {
     display: flex;
     height: 100%;
+    --background-of-main-generate-document-div: transparent;
     --height-of-main-generate-document-div: 100%;
     --border-color-of-main-container: transparent;
 }

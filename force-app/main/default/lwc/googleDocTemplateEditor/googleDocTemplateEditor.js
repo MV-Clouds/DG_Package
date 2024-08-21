@@ -99,11 +99,11 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                         let errorList = result.error.split(":");
                         console.log("Error in getAllRelatedData : ", errorList);
                         const popup = this.template.querySelector("c-message-popup");
-                            popup.showMessagePopup({
-                                title: "Error",
-                                message: errorList[2],
-                                status: "error"
-                            });
+                        popup.showMessagePopup({
+                            title: "Error",
+                            message: errorList[2],
+                            status: "error"
+                        });
                         this.isSpinner = false;
                         return;
                     }
@@ -111,6 +111,15 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     if (result.template) {
                         this.templateRecord = JSON.parse(result.template); // Template
                         this.previousTemplateData = JSON.parse(result.template);
+                    } else {
+                        this.isSpinner = false;
+                        const popup = this.template.querySelector("c-message-popup");
+                        popup.showMessagePopup({
+                            title: "No Template Found",
+                            message: "No template found for the given object. Please try again.",
+                            status: "error"
+                        });
+                        return;
                     }
 
                     if (result.objectLabel) {

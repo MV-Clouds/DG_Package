@@ -4,11 +4,58 @@
     --slds-c-accordion-summary-border-radius : 8px; */
 }
 
+.container {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.left-section {
+    width: 30%;
+    transition: all 0.5s;
+}
+
+.left-section h1 {
+    font-size: small;
+    font-weight: lighter;
+    color: rgba(123, 126, 127, 1);
+}
+
+.tablist {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    gap: 20px;
+    margin-bottom: 1rem;
+}
+
+.tabs {
+    background-color: #fff;
+    height: 2.5rem;
+    width: 10rem;
+    border: solid 1px #00AEFF;
+    border-radius: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding-inline: 0.5rem;
+    font-weight: bolder;
+    cursor: pointer;
+    color: rgba(123, 126, 127, 1);
+}
+
+.selected-tab {
+    color: black;
+    background: linear-gradient(90deg, rgb(205,239,255), rgb(205,255,241));
+    box-shadow: 2px 2px 4px rgba(0, 174, 255, 0.33);
+}
+
 .content .img{
     display: flex;
     justify-content: center;
 }
-
 
 .content img{
     width: 80%;
@@ -17,13 +64,54 @@
 .content{
     font-size: 16px;
     font-family: Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
-    background-color: #f6f6f6;
+    background-color: #fff;
+    background-image: url('/resource/1723198567000/homePagelmgs/HomBg.png');
+    overflow: scroll;
+    outline: none;
 }
 
 .content p{
     width: fit-content;
 }
 
+.tab-content {
+    padding: 8px;
+}
+
+/* .tab-content h1, h2, h3 {
+    cursor: pointer;
+} */
+
+.tab-content h1 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 200%;
+    font-weight: bolder;
+}
+
+.tab-content h1 span {
+    font-size: 150%;
+}
+
+.tab-content h2 {
+    font-size: large;
+    font-weight: bold;
+}
+
+.tab-content h3 {
+    padding-top: 16px;
+    padding-bottom: 4px;
+    font-size: medium;
+    font-weight: bold;
+}
+
+.tab-content .note {
+    color: rgb(245, 93, 93);
+}
+
+/* SLDS Override */
 .slds-accordion__list-item:first-child {
     border-top: 0;
 }

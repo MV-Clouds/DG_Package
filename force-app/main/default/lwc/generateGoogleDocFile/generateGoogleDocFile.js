@@ -204,19 +204,8 @@ export default class GenerateGoogleDocFile extends LightningElement {
                             }
                         } else if (element.table) {
                             // Process table one by one
-                            let columns = element.table.columns;
                             let stringBody = JSON.stringify(element);
                             let matchedBody = JSON.stringify(element);
-
-                            // Checks for the signature key inside the table
-                            if (matchedBody.includes(this.signatureKey)) {
-                                matchedBody = matchedBody.split(this.signatureKey);
-                                let smallBody = matchedBody[0].substring(matchedBody[0].lastIndexOf('"startIndex":')) + this.signatureKey + '",';
-                                let startIndex = this.substringBetween(smallBody, '"startIndex":', ",");
-                                let content = this.substringBetween(smallBody, '"content":"', '",');
-                                startIndex = Number(startIndex) + content.indexOf(this.signatureKey);
-                                this.processSignatureImage(startIndex, signatureImageValues);
-                            }
 
                             // Checks for fields inside the table with keys
                             if (stringBody.match(/{{!(.*?)}}/g)) {
@@ -304,6 +293,21 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                     }
                                 }
                                 tableNo++;
+                            } else {
+                                // Checks for the signature key inside the table
+                                if (matchedBody.includes(this.signatureKey)) {
+                                    let splitMatchedBody = matchedBody.split(this.signatureKey);
+                                    for (let i = 0; i < splitMatchedBody.length - 1; i++) {
+                                        const element = splitMatchedBody[i];
+                                        if (element.includes('"startIndex"')) {   
+                                            let smallBody = element.substring(element.lastIndexOf('"startIndex":')) + this.signatureKey + '",';
+                                            let startIndex = this.substringBetween(smallBody, '"startIndex":', ",");
+                                            let content = this.substringBetween(smallBody, '"content":"', '",');
+                                            startIndex = Number(startIndex) + content.indexOf(this.signatureKey);
+                                            this.processSignatureImage(startIndex, signatureImageValues);
+                                        }
+                                    }
+                                }   
                             }
                         }
                     });
