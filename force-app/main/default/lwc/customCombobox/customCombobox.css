@@ -237,7 +237,7 @@
     cursor: not-allowed;
     border-radius: var(--inputAreaBorderRadius);
   }
-
+ 
   .asterisk{
     color: var(--asteriskColor, #ba0517);
   }

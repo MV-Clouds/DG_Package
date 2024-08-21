@@ -74,7 +74,7 @@ export default class CustomCombobox extends LightningElement {
 
     /**
      * API to defined weather comboBox is Disabled or not.
-     */
+     */ 
     _disabled;
     @api get disabled(){ return this._disabled };
     set disabled(value){ this._disabled = (value === 'true' || value === true) ? true : false };
