@@ -7481,42 +7481,54 @@
                       }).render());
                     });
                     $dropdown.find('input[type=color]').each(function (idx, item) {
-                      external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(item).change(function () {
-                        var $chip = $dropdown.find('#' + external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(this).data('event')).find('.note-color-btn').first();
-                        var color = this.value.toUpperCase();
-                        $chip.css('background-color', color).attr('aria-label', color).attr('data-value', color).attr('data-original-title', color);
-                        $chip.click();
+                      
+                      external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(item).change(function (e) {
+                        try{
+                          // DocGenius Changes...
+                          var $parent = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()('.' + className).find('.note-dropdown-menu');
+                          var eventName = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(this).data('event');
+                          var $chip = $parent.find('#' + eventName).find('.note-color-btn').first();
+                          var color = this.value.toUpperCase();
+                          console.log('picked color : ', color);
+                          $chip.css('background-color', color)
+                            .attr('aria-label', color)
+                            .attr('data-value', color)
+                            .attr('data-original-title', color);
+
+                            $chip.click();
+                        }
+                        catch(error){
+                          console.log('error : ', error.message);
+                        }
                       });
                     });
                   },
                   click: function click(event) {
-                    event.stopPropagation();
                     var $parent = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()('.' + className).find('.note-dropdown-menu');
                     var $button = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(event.target);
                     var eventName = $button.data('event');
                     var value = $button.attr('data-value');
-                    console.log('eventName' , eventName);
 
                     if (eventName === 'openPalette') {
-                      event.stopPropagation();
                       var $picker = $parent.find('#' + value);
                       var $palette = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()($parent.find('#' + $picker.data('event')).find('.note-color-row')[0]); // Shift palette chips
 
                       var $chip = $palette.find('.note-color-btn').last().detach(); // Set chip attributes
 
                       var color = $picker.val();
-                      console.log('color : ', color);
-                      console.log('id : ', value);
-                      $chip.css('background-color', color).attr('aria-label', color).attr('data-value', color).attr('data-original-title', color);
+                      $chip.css('background-color', color)
+                        .attr('aria-label', color)
+                        .attr('data-value', color)
+                        .attr('data-original-title', color);
                       $palette.prepend($chip);
-                      $picker.click();
+                      $picker.trigger('click');
 
                     } else {
                       if (lists.contains(['backColor', 'foreColor'], eventName)) {
-                        var key = eventName === 'backColor' ? 'background-color' : 'color';
+                        var key = eventName === 'backColor' ? 'background-color' : 'fill';
                         var $color = $button.closest('.note-color').find('.note-recent-color');
                         var $currentButton = $button.closest('.note-color').find('.note-current-color-button');
-                        $color.css(key, value);
+                        // $color.css(key, value);
                         $currentButton.attr('data-' + eventName, value);
                       }
 

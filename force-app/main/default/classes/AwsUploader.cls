@@ -245,6 +245,17 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
         return auth;
     }
 
+    // public static string createAuthHeader(string contentType, string filename, string formatedDateString, string fileExtension, String methodName, String bucketName, String awsKey, String awsSecret) {
+    //     System.debug('sign input-->'+ contentType + filename + formatedDateString + fileExtension + methodName + bucketName + awsKey + awsSecret);
+    //     string auth;
+    //     string stringToSign = methodName + '\n\n' + contentType(fileExtension) + '\n' + formatedDateString + '\n/' + bucketName + '/' + filename.toLowerCase() + '.' + fileExtension.toLowerCase();
+    //     Blob mac = Crypto.generateMac('HMACSHA1', Blob.valueOf(stringToSign), Blob.valueOf(awsSecret));
+    //     string sig = EncodingUtil.base64Encode(mac);
+    //     auth = 'AWS' + ' ' + awsKey + ':' + sig;
+    //     System.debug('This is signature -->'+auth);
+    //     return auth;
+    // }
+
     public static Integer getLengthOfFile(Blob versionDataBlob) {
         return EncodingUtil.base64Encode(versionDataBlob).length();
     }

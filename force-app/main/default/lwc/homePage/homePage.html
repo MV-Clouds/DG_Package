@@ -34,7 +34,7 @@
                                     options={sortingFiledList}
                                     placeholder="Select Field To Sort"
                                     onselect={onOptionSelect}
-                                    value={defaultFieldToSort}
+                                    value={filterOpts.fieldToSort}
                                     multiselect="false"
                                     searchable="false"
                                     dropdown-position="right"
@@ -66,9 +66,10 @@
                           <div class="filertOptions_Sub2">
                             <div class="objectFilterSection bottomBorder">
                               <c-custom-combobox
-                                  label="Select the Object"
+                                  required="true"
+                                  label="Select Source Object"
                                   options={objectList}
-                                  placeholder="Select Objects to Filter..."
+                                  placeholder="Select Source Objects to Filter..."
                                   onselect={onOptionSelect}
                                   multiselect="true"
                                   searchable="true"
@@ -88,7 +89,7 @@
                                   </template>
                                 </template>
                                 <template lwc:else>
-                                  <div class="objPillnone">Selected Objects list will display here...</div>
+                                  <div class="objPillnone">Selected Source Objects will display here...</div>
                                 </template>
                               </div>
                             </div>
@@ -196,7 +197,8 @@
                     <div class="Empty_createNewText">Click to Create the Template</div>
                 </div>
                 </div>
-              <div lwc:else class="template_Sub" onscroll={loadTemplates}>
+              <!-- <div lwc:else class="template_Sub" onscroll={loadTemplates}> -->
+                <div lwc:else class="template_Sub">
                 <template for:each={displayedTemplateList} for:item="template" for:index="index">
                   <div class="templateCardContainer" key={template.Id}>
                     <div class="tempNumerSec" data-disable={template.disabledEdit}>

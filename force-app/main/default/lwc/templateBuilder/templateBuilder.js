@@ -166,12 +166,16 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     connectedCallback(){
         try {
-                console.log('globalThis : ', globalThis);
-                this.isSpinner = true;
-                // If Active Tab is Not set by default... 
-                this.currentTab =  this.activeTabName ? this.activeTabName : this.defaultTab;
-                this.getTemplateValues();
-                globalThis?.window.addEventListener('resize', this.resizeFunction);
+            // If Active Tab is Not set by default... 
+            this.currentTab =  this.activeTabName ? this.activeTabName : this.defaultTab;
+                if(this.templateId){
+                    this.isSpinner = true;
+                    this.getTemplateValues();
+                }
+                else{
+                    this.noTemplateFound = true;
+                }
+                globalThis?.window?.addEventListener('resize', this.resizeFunction);
 
         } catch (error) {
             errorDebugger('TemplateBuilder', 'connectedCallback', error, 'warn');
@@ -209,6 +213,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                             // if user press clt + s on keybord
                             if (event.which == 83 && event.ctrlKey){
                             //    add your save method here
+                                console.log('crl + s');
                                 this.isSpinner = true;
                                 this.saveTemplateValue('save')
                             }
@@ -227,6 +232,10 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
                 this.template.querySelector(`[data-name="custom_timeout"]`)?.addEventListener('animationend', this.customTimeoutMethod)
             }
+
+            if(this.noTemplateFound){
+                this.showMessagePopup('Error', 'Error While Fetching Template', 'Template Not Found');
+            }
         }
         catch(error){
             errorDebugger('TemplateBuilder', 'renderedCallback', error, 'warn');
@@ -236,16 +245,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     initialize_Content_Editor(){
         try {
             this.contentEditor = this.template.querySelector(`[data-name="templateContent"]`);
-            let isLoadedSuccessfully = initializeSummerNote(this ,docGeniusLogoSvg, 'templateContent');
+            this.isLoadedSuccessfully = initializeSummerNote(this ,docGeniusLogoSvg, 'templateContent');
 
-            if(isLoadedSuccessfully == true){
+            if(this.isLoadedSuccessfully == true){
                 this.resizeFunction();
                 this.setDataInMainEditor();
-                console.log('editor loaded', this.resolvedPromise);
                 this.resolvedPromise++
             }
             else{
-                this.showMessageToast('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 6000)
+                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.')
                 this.resolvedPromise++
             }
         } catch (error) {
@@ -258,13 +266,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             this.headerEditor = this.template.querySelector(`[data-name="headerEditor"]`);
             let isLoadedSuccessfully = initializeSummerNote(this, docGeniusLogoSvg, 'headerEditor');
 
-            if(isLoadedSuccessfully == false){
-                this.showMessageToast('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 6000)
-            }
-            else{
-
-            }
-            
+            if(!isLoadedSuccessfully){
+                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.')
+            }           
         } catch (error) {
             errorDebugger('TemplateBuilder', 'initialize_Header_Editor', error, 'warn');
         }
@@ -275,10 +279,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             this.footerEditor = this.template.querySelector(`[data-name="footerEditor"]`);
             let isLoadedSuccessfully = initializeSummerNote(this, docGeniusLogoSvg, 'footerEditor');
 
-            if(isLoadedSuccessfully == false){
-                this.showMessageToast('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 6000)
+            if(!isLoadedSuccessfully){
+                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.')
             }
-            
         } catch (error) {
             errorDebugger('TemplateBuilder', 'initialize_Footer_Editor', error, 'warn');
         }
@@ -291,64 +294,60 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     getTemplateValues(){
         try {
-            console.log('templateId : ', this.templateId);
-            if(this.templateId && this.templateId != '' && this.templateId != null){
-                getTemplateData({templateId : this.templateId})
-                .then(result => {
-                    console.log('getTemplateData result  : ', result);
-                    if(result.isSuccess){
-                        // console.log(' get result size : ' , new Blob([JSON.stringify(result)]).size / 1000000, ' mb');
-                        this.templateRecord = result.template;
-                        this.templateRecord.createDateOnly = this.templateRecord.CreatedDate.split("T")[0];
-                        this.tempRecordBackup = JSON.parse(JSON.stringify(this.templateRecord));
-                        this.bodyData = '';
-                        this.headerData = '';
-                        this.footerData = '';
-                        let watermarkData = ''
-                        this.pageConfigRecord = result.pageConfigs;
-                        this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
+            getTemplateData({templateId : this.templateId})
+            .then(result => {
+                console.log('getTemplateData result  : ', result);
+                if(result.isSuccess){
+                    // console.log(' get result size : ' , new Blob([JSON.stringify(result)]).size / 1000000, ' mb');
+                    this.templateRecord = result.template;
+                    this.templateRecord.createDateOnly = this.templateRecord.CreatedDate.split("T")[0];
+                    this.tempRecordBackup = JSON.parse(JSON.stringify(this.templateRecord));
+                    this.bodyData = '';
+                    this.headerData = '';
+                    this.footerData = '';
+                    let watermarkData = ''
+                    this.pageConfigRecord = result.pageConfigs;
+                    this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
 
-                        // Collect Value in Single variable...
-                        result.template.MVDG__Template_Data__r?.forEach(ele => {
-                            if(ele.MVDG__Value_Type__c == 'Body Value'){
-                                this.bodyData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
-                            }
-                            else if(ele.MVDG__Value_Type__c == 'Header Value'){
-                                this.headerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
-                            }
-                            else if(ele.MVDG__Value_Type__c == 'Footer Value'){
-                                this.footerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
-                            }
-                            else if(ele.MVDG__Value_Type__c == 'Watermark Value'){
-                                watermarkData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
-                            }
-                        });
-                        
-                        this.dataLoaded = true;
-                        this.setPageConfigVariable();
-                        this.setDataInMainEditor();
-                        this.setDataInHeader();
-                        this.setDataInFooter();
-                        watermarkData && watermarkData != '' && (this.watermark = JSON.parse(watermarkData));
-                        this.setWatermarkPreview();
+                    // Collect Value in Single variable...
+                    result.template.MVDG__Template_Data__r?.forEach(ele => {
+                        if(ele.MVDG__Value_Type__c == 'Body Value'){
+                            this.bodyData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
+                        }
+                        else if(ele.MVDG__Value_Type__c == 'Header Value'){
+                            this.headerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
+                        }
+                        else if(ele.MVDG__Value_Type__c == 'Footer Value'){
+                            this.footerData = ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
+                        }
+                        else if(ele.MVDG__Value_Type__c == 'Watermark Value'){
+                            watermarkData += ele.MVDG__Template_Value_Simple__c ? ele.MVDG__Template_Value_Simple__c : '';
+                        }
+                    });
+                    
+                    this.dataLoaded = true;
+                    this.setPageConfigVariable();
+                    this.setDataInMainEditor();
+                    this.setDataInHeader();
+                    this.setDataInFooter();
+                    watermarkData && watermarkData != '' && (this.watermark = JSON.parse(watermarkData));
+                    this.setWatermarkPreview();
 
-                        delete this.templateRecord['MVDG__Template_Data__r'];
+                    delete this.templateRecord['MVDG__Template_Data__r'];
 
-                        this.resolvedPromise++
-                    }
-                    else{
-                        this.resolvedPromise++
-                        this.showMessagePopup('Error', 'Error While Fetching Template Data', result.returnMessage);
-                    }
-                })
-                .catch(error => {
                     this.resolvedPromise++
-                    errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn', 'Error in getTemplateData APEX Method.');
-                })
-            }
+                }
+                else{
+                    this.resolvedPromise++
+                    this.showMessagePopup('Error', 'Error While Fetching Template Data', result.returnMessage);
+                }
+            })
+            .catch(error => {
+                this.resolvedPromise++
+                errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn', 'Error in getTemplateData APEX Method.');
+            })
         } catch (error) {
             errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn');
-            
         }
     }
 
@@ -380,8 +379,13 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     // ==> Save methods
     saveTemplateData(){
         if(this.lastRelatedListTableCount <= this.maxRelatedLIstTableLimit){
-            this.isSpinner = true;
-            this.saveTemplateValue('save');
+            if(this.templateRecord?.MVDG__Template_Name__c){
+                this.isSpinner = true;
+                this.saveTemplateValue('save');
+            }
+            else{
+                this.showMessagePopup('error', 'Template Name Empty!', `Template Name is Required, You can not save template without a name.`);
+            }
         }
         else{
             this.showMessagePopup('error', 'Warning !', `Related List Table Limit Exceeded. You Can Not Add More Then ${this.maxRelatedLIstTableLimit} Related List Tables.`);
@@ -459,9 +463,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 'Extracted Mapping Keys' : [JSON.stringify(extractedMappingKeys)],
             }
 
-            console.log('extractedMappingKeys : ', [JSON.stringify(extractedMappingKeys)]);
-
-            
             let bodyDataBatchesByMB = [];
             // if total data portion is lesser than 30 =>  30 * 1,30,000 = 3.9 MB
             // means total data is lesser than 4 MB (around 3.64MB)... so send all data in one apex call...
@@ -486,11 +487,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let totalProcesses = totalBatches + 1;
             let completedProcess = 0;
 
-            console.log('size : ', new Blob([JSON.stringify(this.templateRecord) + JSON.stringify(templateValuePortion) + JSON.stringify(this.pageConfigRecord)]).size);
-
             // Call Apex Method to save Template...
             saveTemplateApex({templateRecord : this.templateRecord, templateValues : templateValuePortion, pageConfigs : this.pageConfigRecord})
-            .then(result => {
+            .then((result) => {
                 console.log('result of saveTemplateApex : ', result);
                 if(result){
                     completedProcess++;
@@ -501,6 +500,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 else{
                     completedProcess++;
                     this.isSpinner = this.stopSpinner(completedProcess, totalProcesses);
+                    errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTemplateApex APEX Method');
                 }
             })
             .catch(error => {
@@ -515,7 +515,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             for(let i = 1; i <= totalBatches; i++){
                 const isLastBatch = i == totalBatches ? true : false;
                 saveTempDataRecordsInBatch({templateDataList : bodyDataBatchesByMB[i-1], tempIdVsValueType : tempIdVsValueType, isLastBatch : isLastBatch})
-                .then(result => {
+                .then((result) => {
                     console.log('result : ', result);
                     if(result){
                         completedProcess++;
@@ -524,6 +524,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     else{
                         completedProcess++;
                         this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
+                        errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                     }
                 })
                 .catch(error => {
@@ -565,14 +566,10 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     stopSpinner(completedProcess, totalProcesses){
         return completedProcess == totalProcesses ? false : true;
     }
-
-    saveSignatureSize(event){
-        console.log('saveSignatureSize : ', event.detail.signatureSize);
-    }
     
     closeEditTemplate(){
         try {
-            $(this.contentEditor).summernote('destroy');
+            $(this.contentEditor)?.summernote('destroy');
             this.navigateToComp(navigationComps.home);
 
         } catch (error) {
@@ -591,10 +588,13 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     handleSaveNPreview(){
         if(this.lastRelatedListTableCount <= this.maxRelatedLIstTableLimit){
-            this.isSpinner = true
-            this.saveTemplateValue('preview');
-            // this.isPreview = true
-            // tempMethod();
+            if(this.templateRecord?.MVDG__Template_Name__c){
+                this.isSpinner = true;
+                this.saveTemplateValue('preview');
+            }
+            else{
+                this.showMessagePopup('error', 'Template Name Empty!', `Template Name is Required, You can not save template without a name.`);
+            };
         }
         else{
             this.showMessagePopup('error', 'Warning !', `Related List Table Limit Exceeded. You Can Not Add More Then ${this.maxRelatedLIstTableLimit} Related List Tables.`);
@@ -648,7 +648,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 }
             })
 
-
             const sections = this.template.querySelectorAll('.tabArea');
             sections.forEach(ele => {
                 if(ele.dataset.section == this.currentTab){
@@ -660,6 +659,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     ele.classList.add('deactiveTabs');
                 }
             });
+
+            // this.currentTab === 'basicTab' && this.setDummyPageSize();
         } catch (error) {
             errorDebugger('TemplateBuilder', 'setActiveTab', error, 'warn');
         }
@@ -707,12 +708,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     handleEditDetail(event){
         try {
 
+            
             const targetInput = event.currentTarget.dataset.name;
-            if(event.target.type != 'CHECKBOX'){
-                this.templateRecord[targetInput] = event.target.value;
+            if(event.target.type === 'checkbox'){
+                console.log('event.target.checked ', event.target.checked);
+                this.templateRecord[targetInput] = event.target.checked;
             }
             else{
-                this.templateRecord[targetInput] = event.target.checked;
+                this.templateRecord[targetInput] = event.target.value;
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleEditDetail', error, 'warn');
@@ -936,7 +939,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             root.style.setProperty('--pageMarginRight', `${pageMarginsRight}${unit}`);
 
             this.setEditorArea();
-            this.setDummyPageSize();
+            // this.setDummyPageSize();
 
         } catch (error) {
             errorDebugger('TemplateBuilder', 'setEditorPageSize', error, 'warn');
@@ -979,19 +982,24 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     }
 
     setDummyPageSize(){
-        let pageMarginsTop = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[0];
-        let pageMarginsBottom = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[1];
-        let pageMarginsLeft = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[2];
-        let pageMarginsRight = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[3];
-
-        let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
-        let aspectRatio = this.currentPageWidth/this.currentPageHeight;
-
-        const dummyPage = this.template.querySelector('.dummyPage');
-        const dummyPageWidth = dummyPage.clientWidth;
-        const m = dummyPageWidth/this.currentPageWidth;
-        dummyPage.style = ` padding : ${pageMarginsTop*m}${unit} ${pageMarginsRight*m}${unit} ${pageMarginsBottom*m}${unit} ${pageMarginsLeft*m}${unit} !important;
-                            aspect-ratio : ${aspectRatio}`;
+        try {
+            let pageMarginsTop = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[0];
+            let pageMarginsBottom = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[1];
+            let pageMarginsLeft = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[2];
+            let pageMarginsRight = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[3];
+        
+            let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
+            let aspectRatio = this.currentPageWidth/this.currentPageHeight;
+        
+            const dummyPage = this.template.querySelector('.dummyPage');
+            dummyPage.style = `aspect-ratio : ${aspectRatio}`;
+            const dummyPageWidth = dummyPage?.clientWidth;
+            const m = dummyPageWidth/this.currentPageWidth;
+            dummyPage.style = ` padding : ${pageMarginsTop*m}${unit} ${pageMarginsRight*m}${unit} ${pageMarginsBottom*m}${unit} ${pageMarginsLeft*m}${unit} !important;
+                                aspect-ratio : ${aspectRatio}`;
+        } catch (error) {
+            errorDebugger('TemplateBuilder', 'setDummyPageSize', error, 'warn');
+        }
     }
     // ==== === === === PAGE Config and PAGE Size Setup Method --- END --- ==== ===== ===== =====
 
@@ -1105,7 +1113,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 pageConfigPopover.classList.remove('close');
                 const pageConfigDiv = this.template.querySelector('.pageConfigDiv');
                 pageConfigDiv.appendChild(pageConfigs);
-                this.setDummyPageSize();
+                // this.setDummyPageSize();
             }
             else{
                 pageConfigPopover.classList.add('close');
@@ -1388,6 +1396,25 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         this.isPreview = true;
     }
 
+    handleMsgPopConfirmation(event){
+        try {
+            if(!this.isLoadedSuccessfully){
+                // ... Popup message show WHEN Editor fail to initialize...
+                this.closeEditTemplate();
+            }
+            else if(!this.templateRecord.MVDG__Template_Name__c && !this.noTemplateFound){
+                // ... Popup Message Appear when user try to save without filling template name...
+                this.currentTab = 'basicTab';
+                this.setActiveTab();
+            }
+            else if(this.noTemplateFound){
+                // ... Popup message show WHEN Template Id Not Found...
+                this.closeEditTemplate();
+            }
+        } catch (error) {
+            errorDebugger('TemplateBuilder', 'handleMsgPopConfirmation', error, 'warn');
+        }
+    }
 
 
     // ====== ======= ======== ======= ======= ====== GENERIC Method ====== ======= ======== ======= ======= ======

@@ -143,7 +143,7 @@
               onfullheight={toggleMappingContainerHeight}
               ontogglemapping={showHideMappingContainer}
               onopengenchildtable={openGenChildTablePopup}
-              onsetsignature={saveSignatureSize}>
+              >
             </c-key-mapping-container>
           <!-- === ==== ==== ## Watermark Tab Section === ==== ==== -->
           <div class="waterMarkSection tabArea deactiveTabs" data-section="waterMarkTab" data-key-mapping="false" data-toolbar="true" >
@@ -321,7 +321,7 @@
                       <template lwc:if={showTempDetail}>
                         <div class="editName editField">
                           <div class="floatingLabel">Template Name</div>
-                          <lightning-input type="text" class="fieldInput" value={templateRecord.MVDG__Template_Name__c} variant="label-hidden" data-name="MVDG__Template_Name__c" onkeyup={handleEditDetail} maxlength="255" ></lightning-input>
+                          <lightning-input type="text" class="fieldInput" value={templateRecord.MVDG__Template_Name__c} variant="label-hidden" data-name="MVDG__Template_Name__c" onkeyup={handleEditDetail} maxlength="255" required="true" ></lightning-input>
                         </div>
                         <div class="editDescription editField">
                           <div class="floatingLabel">Description</div>
@@ -459,7 +459,7 @@
                               </lightning-accordion-section>
                           </lightning-accordion>
                         </div>
-                        <div class="dummyPageContainer">
+                        <!-- <div class="dummyPageContainer">
                             <div class="dummyPage">
                               <div class="bar1"></div>
                               <div class="bar2"></div>
@@ -472,7 +472,7 @@
                               <div class="bar2"></div>
                               <div class="bar2"></div>
                             </div>
-                        </div> 
+                        </div>  -->
                     </div>
                   </div>
                 </div>
@@ -536,11 +536,16 @@
   <c-child-object-table-builder></c-child-object-table-builder>
 
   <template lwc:if={isPreview}>
-    <c-template-preview-modal templateid={templateRecord.Id} objectname={templateRecord.MVDG__Object_API_Name__c} template-type="Simple Template"
-     onclosepreview={closeTemplatePreview}></c-template-preview-modal>
+    <c-template-preview-modal 
+      templateid={templateRecord.Id}
+      objectname={templateRecord.MVDG__Object_API_Name__c} 
+      template-type="Simple Template"
+      is-active={templateRecord.MVDG__Template_Status__c}
+      onclosepreview={closeTemplatePreview}>
+    </c-template-preview-modal>
   </template>
 
-  <c-message-popup></c-message-popup>
+  <c-message-popup onconfirmation={handleMsgPopConfirmation}></c-message-popup>
 
   <c-document-loader display={isSpinner} label={loaderLabel}></c-document-loader>
 

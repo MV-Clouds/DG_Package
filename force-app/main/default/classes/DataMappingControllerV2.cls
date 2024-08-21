@@ -1,5 +1,15 @@
 public with sharing class DataMappingControllerV2 {
 
+    /**
+     * @method getMappingsKeyValues,
+     * @param templateIDs, List of template Ids,
+     * @param recordId, source record is,
+     * @param includeMergTemKeys, if you want to get marged tempalte, key mark it true,
+     * 
+     * @description : Main method from where you can extract mapping key with its actual value, (for simple tempalte)...
+     * this method run two time, first when we call it from docGenerateController with template on which document going to creare &
+     * second when template have merge templates with list of template as parameter...
+     */
     public static map<String, Map<String, String>> getMappingsKeyValues(List<String> templateIDs, String recordId, Boolean includeMergTemKeys){
         Map<String, Map<String, String>> mapingKeyVsValuesGroup = new Map<String, Map<String, String>>{
             'objectNGeneral' => new map<string, string>(),
@@ -7,7 +17,6 @@ public with sharing class DataMappingControllerV2 {
             'margeTemplate' => new map<string, string>(),
             'salesforceImages' => new map<string, string>(),
             'signatureImage' => new map<string, string>()
-
         };
         try {
             List<MVDG__Template__c> temps = [SELECT Id, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, CreatedDate, LastModifiedDate,
@@ -33,27 +42,27 @@ public with sharing class DataMappingControllerV2 {
                 Set<String> extractedKeys = collectMappingKeys(extractedKeyMap);
                 // collect mapping key values for object field and general fields....
                 Map<String, String> mappigKeysValue = getMappingKeyVsValue(new List<String>(extractedKeys), sourceObjectAPI, recordId);
-                mapingKeyVsValuesGroup.get('objectNGeneral').putAll(mappigKeysValue);
+                mapingKeyVsValuesGroup?.get('objectNGeneral')?.putAll(mappigKeysValue);
                 
     
                 // collect mapping key values for child object table info from keys stored in field....
-                Object childRecordTables = extractedKeyMap?.get('childRecordTables') != null ? extractedKeyMap.get('childRecordTables') : (Object) JSON.deserializeUntyped('[]');
+                Object childRecordTables = extractedKeyMap?.get('childRecordTables') != null ? extractedKeyMap?.get('childRecordTables') : (Object) JSON.deserializeUntyped('[]');
                 String childTableString = JSON.serialize(childRecordTables);
                 Set<ChildTableInfo> childTables = (Set<ChildTableInfo>) JSON.deserializeStrict(childTableString, Set<ChildTableInfo>.Class);
     
                 // modify child object table...
                 for(ChildTableInfo tableInfo : childTables){
                     Map<String, String> modifiedChildTable = modifyChildObjectTables(tableInfo, sourceObjectAPI, recordId);
-                    mapingKeyVsValuesGroup.get('childRecordTable').putAll(modifiedChildTable);
+                    mapingKeyVsValuesGroup?.get('childRecordTable')?.putAll(modifiedChildTable);
                 }
 
                 // Collect and Store Salesforce image SRC in to set ...
                 Map<String, String> sfImagesSRCVsID = getSFimageVsId(extractedKeyMap);
-                mapingKeyVsValuesGroup.get('salesforceImages').putAll(sfImagesSRCVsID);
+                mapingKeyVsValuesGroup?.get('salesforceImages')?.putAll(sfImagesSRCVsID);
 
                 // Collect signature Image contentVersion Id from source record...
                 Map<String, String> signatureImageCvId = getSignatureImageCVId(extractedKeyMap, recordId);
-                mapingKeyVsValuesGroup.get('signatureImage').putAll(signatureImageCvId);
+                mapingKeyVsValuesGroup?.get('signatureImage')?.putAll(signatureImageCvId);
 
                 
                 // this varibale will be FALSE when it call from "getKeyNValueFromMergeTemps" Method...
@@ -65,10 +74,11 @@ public with sharing class DataMappingControllerV2 {
                     // create map for merge template key with Values....
                     map<String, Map<String, String>> keyWithValues = getKeyNValueFromMergeTemps(new List<String>(mergTemplateKeys), sourceObjectAPI, recordId);
 
-                    mapingKeyVsValuesGroup.get('objectNGeneral').putAll(keyWithValues.get('objectNGeneral'));
-                    mapingKeyVsValuesGroup.get('childRecordTable').putAll(keyWithValues.get('childRecordTable'));
-                    mapingKeyVsValuesGroup.get('salesforceImages').putAll(keyWithValues.get('salesforceImages'));
-                    mapingKeyVsValuesGroup.get('margeTemplate').putAll(keyWithValues.get('margeTemplate'));
+                    // colelct extracted key with actual value from marge template add them into exsiting map of main tempalte.
+                    mapingKeyVsValuesGroup?.get('objectNGeneral')?.putAll(keyWithValues?.get('objectNGeneral'));
+                    mapingKeyVsValuesGroup?.get('childRecordTable')?.putAll(keyWithValues?.get('childRecordTable'));
+                    mapingKeyVsValuesGroup?.get('salesforceImages')?.putAll(keyWithValues?.get('salesforceImages'));
+                    mapingKeyVsValuesGroup?.get('margeTemplate')?.putAll(keyWithValues?.get('margeTemplate'));
 
                     // Note : no need to add signatureImage for merge tempalte key, because signature key will be same for each template...
                 }
@@ -81,6 +91,11 @@ public with sharing class DataMappingControllerV2 {
             return mapingKeyVsValuesGroup;
         }
     }
+
+    /**
+     * @param extractedKeyMap, Map of keyType vs list of keys in object form,
+     * @description : extract and collect all the object and general field's key from all mapping keys.
+     */
     public static Set<String> collectMappingKeys(Map<String, Object> extractedKeyMap){
         Set<String> extractedKeys = new Set<String>();
         try {
@@ -106,6 +121,10 @@ public with sharing class DataMappingControllerV2 {
             return extractedKeys;
         }
     }
+    /**
+     * @param extractedKeyMap, Map of keyType vs list of keys in object form,
+     * @description : extract and collect merge template keys.
+     */
     public static Set<String> collectMergeTemplateKeys(Map<String, Object> extractedKeyMap){
         set<String> mergTemplateKeys = new set<String>();
         try {
@@ -126,6 +145,15 @@ public with sharing class DataMappingControllerV2 {
     }
 
     // === === Methods to Create and Add child object's record's row in table ==== ==== ====
+
+    /**
+     * @param tableInfo, wrapper class that store inforamtion about child record table,
+     * @param sourceObjectAPI, API name of source object,
+     * @param recordId, Id or source record
+     * 
+     * @description : Method to create dynamic table with child object records,
+     * It modify child object table by replacing and adding actual record with key row, 
+     */
     public static map<String, String> modifyChildObjectTables(ChildTableInfo tableInfo, String sourceObjectAPI, String recordId){
         // ==>> Extract all table information from info Row... <<==
         try {
@@ -150,12 +178,16 @@ public with sharing class DataMappingControllerV2 {
 
                 List<map<string, Object>> childRecords = getChildRecordsAsMap(validChildObjFields, tableInfo, recordId);
                 System.debug('---- ------ child record.size() ----- ------ : ' + childRecords.size());
+                System.debug('modifiedKeyRow  before : ' + tableInfo.keyRow);
                 modifiedKeyRow = createRowsWithChildRecords(childRecords, ExtractedKeys, tableInfo);
             }
-
+            
             if(modifiedKeyRow != null){
+                System.debug('modifiedKeyRow after : ' + modifiedKeyRow);
+                System.debug('modifiedTableHTML before : ' + modifiedTableHTML);
                 modifiedTableHTML = modifiedTableHTML.replace(tableInfo.keyRow, modifiedKeyRow);
                 modifiedTableHTML = modifiedTableHTML.replace(infoRow, '');
+                System.debug('modifiedTableHTML after : ' + modifiedTableHTML);
             }
 
             return new Map<String, String>{tableInfo.tableHTML => modifiedTableHTML};
@@ -165,6 +197,14 @@ public with sharing class DataMappingControllerV2 {
             return new Map<String, String>{tableInfo.tableHTML => tableInfo.tableHTML};
         }
     }
+
+    /**
+     * @param fieldList, set of fields,
+     * @param tableInfo, wrapper class that store inforamtion about child record table,
+     * @param recordId, Id or source record
+     * 
+     * @description : Get Child record As map for easy data fetching fro further process
+     */
     public static List<map<string, Object>> getChildRecordsAsMap(Set<String> fieldList, ChildTableInfo tableInfo, string recordId){
         List<map<string, Object>> childRecordList = new List<map<string, Object>>();
         try {
@@ -179,7 +219,7 @@ public with sharing class DataMappingControllerV2 {
                 String childQuery = '';
                 childQuery += '(SELECT '+queryFields+' FROM '+ tableInfo.childRelationshipName;
                 if(tableInfo.queryFilters != null && tableInfo.queryFilters != ''){
-                    childQuery += ' WHERE '+tableInfo.queryFilters;
+                    childQuery += ' '+tableInfo.queryFilters;
                 }
                 if(tableInfo.queryLimit != null && tableInfo.queryLimit != ''){
                     childQuery += ' LIMIT '+tableInfo.queryLimit;
@@ -211,6 +251,15 @@ public with sharing class DataMappingControllerV2 {
             return childRecordList;
         }
     }
+
+    /**
+     * @param childRecords, child record list and map of string(field api) and object(field value)
+     * @param extractedKeys, list of extracted key to replace actual within it
+     * @param tableInfo, wrapper class that store inforamtion about child record table,
+     * 
+     * @description : method create rows for child object record to add in table.. 
+     * @return string as childRecordRows to replace with keyRow...
+     */
     public static string createRowsWithChildRecords(List<map<string, Object>> childRecords, List<ExtractedKeys> extractedKeys, ChildTableInfo tableInfo){
         try {
             
@@ -250,7 +299,11 @@ public with sharing class DataMappingControllerV2 {
         }
     }
 
-    // === === Methods to collect all SRC with content version id ==== ==== ====
+    /**
+     * @param extractedKeyMap,  Map of keyType vs list of keys in object form,
+     * @description : Methods to collect all SRC with content version id
+     * @return map of string(imageSrc) and String(imageId)
+     */
     public static Map<String, String> getSFimageVsId(Map<String, Object> extractedKeyMap){
         Map<String, String> sfImages = new  Map<String,String>();
         try {
@@ -271,17 +324,23 @@ public with sharing class DataMappingControllerV2 {
         }
     }
 
-    // === === Methods to copllect Content Version Id for signature image from source record ==== ==== ====
+    /**
+     * @param extractedKeyMap,  Map of keyType vs list of keys in object form,
+     * @param recordId, Id or source record
+     * 
+     * @description : Methods to copllect Content Version Id for signature image from source record 
+     * @return map of string(siganture key) vs String(signature image id)
+     */
     public static Map<String, String> getSignatureImageCVId(Map<String, Object> extractedKeyMap, String recordId){
         Map<String, String> signatureImage = new  Map<String,String>();
         try {
 
             Object signatureImageKey = extractedKeyMap?.get('signatureImage');
 
-            List<ContentVersion> signatures = [SELECT Id, ContentSize FROM ContentVersion WHERE Title Like '%Signature-%' AND FirstPublishLocationId =: recordId AND IsLatest = true WITH SECURITY_ENFORCED ORDER BY CreatedDate DESC LIMIT 1];
-
-            if(signatureImageKey != null && signatures.size() > 0){
-                signatureImage.put((String)string.valueOf(signatureImageKey), signatures[0].Id);
+            List<ContentDocumentLink> linkedSignature = [SELECT Id, LinkedEntityId, ContentDocumentId, ContentDocument.LatestPublishedVersionId FROM ContentDocumentLink WHERE LinkedEntityId =: recordId AND ContentDocument.Title LIke '%Signature-%' ORDER BY ContentDocument.LastModifiedDate DESC LIMIT 1];
+            
+            if(signatureImageKey != null && linkedSignature.size() > 0){
+                signatureImage.put((String)string.valueOf(signatureImageKey), linkedSignature[0].ContentDocument.LatestPublishedVersionId);
             }
 
             return signatureImage;
@@ -293,6 +352,15 @@ public with sharing class DataMappingControllerV2 {
     }
 
     // === === Method to Replace value with object field's, parent object field's and General field's mapping key ==== ====
+    /**
+     * @param mappingKeyList, list of mapping keys,
+     * @param sourceObjectAPI, API name of source object,
+     * @param recordId, Id or source record,
+     * 
+     * @description : Method to get actual value of mapping for object field and general fiels...
+     * @return map String(mapping Key) vs String(actual value)...
+     * If Code find any false key or invalid key, it will return same key as its actual value...
+     */
     public static Map<String, String> getMappingKeyVsValue(List<String> mappingKeyList,String sourceObjectAPI, String recordId){
         Map<String, String> extractedKeyWithData = new Map<String, String>();
         try {
@@ -333,6 +401,15 @@ public with sharing class DataMappingControllerV2 {
             return extractedKeyWithData;
         }
     }
+
+    /**
+     * @param fieldLists, wrapper class to store multiple type fields list,
+     * @param extractedKeys, Map of keyType vs list of keys in object form,
+     * @param recordIdNobjAPI, List of string with recordId at 0 index and Object Api name at 1 index,
+     * 
+     * @description : get key value for each object, date, user and organization field type...
+     * @return map String(mapping Key) vs String(actual value)...
+     */
     public static map<String, String> mapKeysWithValue(FieldListClass fieldLists, List<ExtractedKeys> extractedKeys, list<String> recordIdNobjAPI){
         Map<String, String> extractedKeyWithData = new Map<String, String>();
         try {
@@ -391,6 +468,14 @@ public with sharing class DataMappingControllerV2 {
             return extractedKeyWithData;
         }
     }
+
+    /**
+     * @param fieldList, List of field to retive using SOQL,
+     * @param objectAPI, Sorce objcet API Name,
+     * @param recordId, Id or source record,
+     * 
+     * @description : Retrive Object data as sObject using SOQL and Covert it into Map of string & string
+     */
     public static map<String, Object> getSobjectAsMap(List<String> fieldList, String objectAPI, string recordId){
         map<String, Object> sobjectAsMap = new map<String, Object>();
         try {
@@ -418,6 +503,13 @@ public with sharing class DataMappingControllerV2 {
     }
 
     // ==== === ==== Method to collect all mapping keys with value of merge templates ==== ===== =====
+    /**
+     * @param margeTempKeyList, List of merger tempalte keys,
+     * @param sourceObjectAPI, Sorce objcet API Name,
+     * @param recordId, Id of source record,
+     * 
+     * @description : Extract and collect merge tempalte key from all extracted key store in field...
+     */
     public static map<String, Map<String, String>> getKeyNValueFromMergeTemps(List<String> margeTempKeyList, String sourceObjectAPI, String recordId){
         map<String, Map<String, String>> keyWithValuesGroup = new map<String, Map<String, String>>{
             'objectNGeneral' => new map<string, string>(),
@@ -442,12 +534,12 @@ public with sharing class DataMappingControllerV2 {
 
             // Get Mapping Key Values from the merge templates... Add with existing merge and value
             map<String, Map<String, String>> keyWithValues = getMappingsKeyValues(validTemplateListIds, recordId, false);
-            keyWithValuesGroup.get('objectNGeneral').putAll(keyWithValues.get('objectNGeneral'));
-            keyWithValuesGroup.get('childRecordTable').putAll(keyWithValues.get('childRecordTable'));
-            keyWithValuesGroup.get('salesforceImages').putAll(keyWithValues.get('salesforceImages'));
+            keyWithValuesGroup?.get('objectNGeneral')?.putAll(keyWithValues.get('objectNGeneral'));
+            keyWithValuesGroup?.get('childRecordTable')?.putAll(keyWithValues.get('childRecordTable'));
+            keyWithValuesGroup?.get('salesforceImages')?.putAll(keyWithValues.get('salesforceImages'));
 
             // add marge template Keys with template Id...
-            keyWithValuesGroup.get('margeTemplate').putAll(templateIds);
+            keyWithValuesGroup?.get('margeTemplate')?.putAll(templateIds);
             // keyWithValues.putAll(templateIds);
 
             return keyWithValuesGroup;
@@ -456,6 +548,11 @@ public with sharing class DataMappingControllerV2 {
             return keyWithValuesGroup;
         }
     }
+
+    /**
+     * @param margeTempKeyList, List of merger tempalte keys,
+     * @description : Extracting template Ids from tempalte keys...
+     */
     public static Map<String, String> extractMergeTemplateIds(List<String> margeTempKeyList){
         try {
             Map<String, String> templateIds = new Map<String, String>();
@@ -479,6 +576,13 @@ public with sharing class DataMappingControllerV2 {
     }
 
     // ==== ===== ====== ===== GENERERIC METHODS ======= ======== ========== =====
+
+    /**
+     * @param ext, wrapper class to store mapping key infos,
+     * @param valueData, map of fieldName with value,
+     * 
+     * @description : generic method to getfield value as per its key type and field type with formatting...
+     */
     public static string getFieldValue(ExtractedKeys ext, map<string, Object> valueData){
         try {
             String fieldValue = '';
@@ -488,24 +592,24 @@ public with sharing class DataMappingControllerV2 {
                 String fieldName = ext.fieldAPI.substringAfter('.');
                 switch on relationShipName{
                     when 'Date', 'User', 'Org'{
-                        fieldValue = (String) String.valueOf(valueData.get(fieldName));
+                        fieldValue = (String) String.valueOf(valueData?.get(fieldName));
                     }
                     when else{
-                        Map<String, Object> parentObj = (Map<String, Object>) valueData.get(relationShipName);
-                        fieldValue = (String) String.valueOf(parentObj.get(fieldName));
+                        // field comes in this block must me sorce object's parent object's field...
+                        Map<String, Object> parentObj = (Map<String, Object>) valueData?.get(relationShipName);
+                        fieldValue = (String) String.valueOf(parentObj?.get(fieldName));
                     }
                 }
             }
             else{
-                fieldValue = (String) String.valueOf(valueData.get(ext.fieldAPI));  
+                // field comes in this block must me sorce object field...
+                fieldValue = (String) String.valueOf(valueData?.get(ext.fieldAPI));  
             }
-
-            System.debug('---- fieldValue ---- : '+fieldValue + ' ----- ext ----- '+ ext);
 
             if(ext.formatType != null && ext.formatType != '' && fieldValue != '' && fieldValue != null){
                 // field required formatting...
                 switch on ext.fieldType{
-                    when 'DATETIME', 'DATE'{
+                    when 'DATETIME', 'DATE', 'TIME'{
                         fieldValue = formatDateTime(fieldValue, ext.formatType, ext.fieldType);
                     }
                     when 'BOOLEAN'{
@@ -525,12 +629,23 @@ public with sharing class DataMappingControllerV2 {
                 fieldValue = dt1.format('yyyy-MM-dd HH:mm:ss');
             }
 
+            ext.value = fieldValue;
+            System.debug('---- fieldValue ---- : '+fieldValue + ' ----- ext ----- '+ ext);
+
             return fieldValue;
         } catch (Exception e) {
             system.debug('exception in getFieldValue : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return ext.mappingKey;
         }
     }
+
+    /**
+     * @param mappingKeyList, list mapping keys,
+     * @param sourceObjectAPI, Sorce objcet API Name,
+     * @param startingSymbol, symbol to identify fields...
+     * 
+     * @description : generic Method to verify all key and collect only valid keys...
+     */
     public static List<ExtractedKeys> getValidKeys(List<string> mappingKeyList, String sourceObjectAPI, String startingSymbol){
         List<ExtractedKeys> extractedKeys = new List<ExtractedKeys>();
         try {
@@ -571,12 +686,19 @@ public with sharing class DataMappingControllerV2 {
             return extractedKeys;
         }
     }
+
+    /**
+     * @param startingSymbol, symbol to identify fields...
+     * @param sourceObjectAPI, Sorce objcet API Name,
+     * 
+     * @description : generic Method to get all object valid keys...
+     */
     public static Map<String, String> getValidFields(String startingSymbol, String sourceObjectAPI){
         Map<String, String> validFields = new Map<String, String>();
         try {
             if(startingSymbol == 'Doc.'){
-                validFields.putAll(getObjectFields('User', false));
-                validFields.putAll(getObjectFields('organization', false));
+                validFields.putAll(getObjectFields('User', false, 'User'));
+                validFields.putAll(getObjectFields('organization', false, 'Org'));
     
                 map<string, string> dateFormats = KeyMappingController.dateFormats();
                 for(string dateInfo : dateFormats.keySet()){
@@ -584,7 +706,7 @@ public with sharing class DataMappingControllerV2 {
                 }
             }
             else{
-                validFields.putAll(getObjectFields(sourceObjectAPI, true));
+                validFields.putAll(getObjectFields(sourceObjectAPI, true, null));
             }
             return validFields;
         } catch (Exception e) {
@@ -592,11 +714,17 @@ public with sharing class DataMappingControllerV2 {
             return validFields;
         }
     }
-    public static Map<String, String> getObjectFields(String sourceObjectAPI, Boolean getParentFields){
+
+    /**
+     * @param sourceObjectAPI, Sorce objcet API Name,
+     * @param getParentFields, make it true of you want to get parent object fields
+     * @description : generic Method to get Source object and Its paret objects fields...
+     */
+    public static Map<String, String> getObjectFields(String sourceObjectAPI, Boolean getParentFields, String relationShipName){
         Map<String, String> objectFields = new Map<String, String>();
         try {
                 // add base Object fields....
-                objectFields.putAll(fetchObjectFields(sourceObjectAPI, 'normal', null));
+                objectFields.putAll(fetchObjectFields(sourceObjectAPI, 'normal', relationShipName));
 
                 // Fetch parent Obejct(reference fields...)
                 Map<String, String> parentObject = new Map<String, String>();
@@ -606,7 +734,8 @@ public with sharing class DataMappingControllerV2 {
 
                 // get all the fields from the parent object
                 for(String parentAPI : parentObject.keyset()){
-                    objectFields.putAll(fetchObjectFields(parentAPI, 'normal', parentObject.get(parentAPI)));
+                    relationShipName = parentObject.get(parentAPI);
+                    objectFields.putAll(fetchObjectFields(parentAPI, 'normal', relationShipName));
                 }
 
             return objectFields;
@@ -616,6 +745,14 @@ public with sharing class DataMappingControllerV2 {
             return objectFields;
         }
     }
+
+    /**
+     * @param objectAPI, Sorce objcet API Name,
+     * @param fieldType, Its type of obejct field in source object, 'refrence' meanse parent object,
+     * @param replationshipName, if we are getting value for field of parent object, add replationshipName with field api match mapping key
+     * 
+     * @description : generic Method to fetch object field using schema and modify api name as per replationshipName
+     */
     public static map<String, string> fetchObjectFields(String objectAPI, String fieldType, String replationshipName){
         Map<String, String> fields = new Map<String, String>();
         try {
@@ -649,7 +786,14 @@ public with sharing class DataMappingControllerV2 {
             return fields;
         }
     }
-    // This is used to solve one of the PMD error...
+    /**
+     * @param query, string query
+     * @param recordId, Id of source record,
+     * @param sourceObject,  Sorce objcet API Name,
+     * 
+     * @description : generic method to query object using Database.query
+     * This is used to solve one of the PMD error...
+     */
     public static sObject querySObject(String query, String recordId, String sourceObject){
         try {
             return Database.query(query);
@@ -661,30 +805,31 @@ public with sharing class DataMappingControllerV2 {
     }
  
     // ====== METHODS TO FORAMT FIELD VALUE =======
+
+    /**
+     * @description : formate date, time and Datetime fields.
+     */
     public static string formatDateTime(string fieldValue, string formatType, String fieldType){
         String userTimeZone = (String)String.valueOf(UserInfo.getTimeZone().getID());
 
-        Datetime dt;
-        if(fieldType == 'DATETIME'){
-            // If DateTime field value consist of timezone offset then convert to GMT. field required formatting...
-            Datetime dt1 = (Datetime) JSON.deserialize('"' + fieldValue + '"', Datetime.class);
-            dt = Datetime.valueOf(dt1.format('yyyy-MM-dd HH:mm:ss'));
-        }
-        else if(fieldType == 'DATE'){
-            // Else do the normal DateTime conversion....
-            dt = (Datetime) JSON.deserialize('"' + fieldValue + '"', Date.class);
-        }
+        Datetime dt = datetime.now();
 
-        // Now Format GMT time inti user timezone... with format type
+        // Now Format GMT time as per user timezone... with format type
         fieldValue = dt.format(formatType, userTimeZone);
 
         return fieldValue;
     }
+    /**
+     * @description : formate boolean (checkbox) fields.
+     */
     public static string formatBoolean(string fieldValue, string formatType){
         fieldValue = fieldValue == 'true' ? formatType.substringBefore('/') : formatType.substringAfter('/');
 
         return fieldValue;
     }
+    /**
+     * @description : formate String (text) fields.
+     */
     public static string formatString(string fieldValue, string formatType){
         Integer endIndex = (Integer) Integer.valueOf(formatType.substringAfter('L:'));
         endIndex = endIndex > fieldValue.length() ? fieldValue.length() : endIndex;             // endIndex must be less than value string length...
@@ -692,6 +837,9 @@ public with sharing class DataMappingControllerV2 {
 
         return fieldValue;
     }
+    /**
+     * @description : formate Number, Precentage and Currecy fields.
+     */
     public static string formatNumber(string fieldValue, string formatType){
         Decimal val = (Decimal) Decimal.valueOf(fieldValue);
         String format = formatType.substringBetween('F:', ',');
@@ -736,7 +884,9 @@ public with sharing class DataMappingControllerV2 {
 
     // === === === WRAPPER CLASSES ==== ===== ===
 
-    // -- wrapper class to store extracted key's info.....
+    /**
+     * @description : wrapper class to store extracted key's info.
+     */
     public class ExtractedKeys{
         @AuraEnabled public String mappingKey;
         @AuraEnabled public String fieldAPI;
@@ -745,7 +895,9 @@ public with sharing class DataMappingControllerV2 {
         @AuraEnabled public String value;
     }
 
-    // -- wrapper class to store extracted child Table info.....
+    /**
+     * @description : wrapper class to store extracted child Table info.
+     */
     public class ChildTableInfo{
         @auraEnabled public String tableHTML;
         @AuraEnabled public String keyRow;
@@ -761,6 +913,9 @@ public with sharing class DataMappingControllerV2 {
         @AuraEnabled public List<String> queryFields;
     }
 
+    /**
+     * @description : wrapper class to store list of fileds for multiple key type.
+     */
     public class FieldListClass{
         @AuraEnabled public List<String> objectFields = new List<String>();
         @AuraEnabled public List<String> dateFields = new List<String>();

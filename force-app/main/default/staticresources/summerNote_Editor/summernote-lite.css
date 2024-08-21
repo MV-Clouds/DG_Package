@@ -1768,6 +1768,12 @@ a.note-dropdown-item:hover {
                 padding-inline: 0.5rem;
                 color: rgb(184 184 184);
             }
+            .note-editor.note-frame ul{
+                list-style-type: disc;
+            }
+            .note-editor.note-frame ol{
+                list-style-type: decimal;
+            }
             input[type=number]::-webkit-inner-spin-button, 
             input[type=number]::-webkit-outer-spin-button { 
                 -webkit-appearance: none;
@@ -2160,6 +2166,21 @@ a.note-dropdown-item:hover {
                 text-align: center;
             }
 
+            .note-modal-footer .note-btn{
+                background: #06aeff !important;
+                padding-inline: 0.75rem !important; 
+
+                &:hover{
+                    background: #0089cd !important;
+                }
+
+                &:disabled{
+                    background: #dfdfdf !important;
+                    cursor: not-allowed !important;
+                    opacity: .65 !important;
+                }
+            }
+
             @media print {
                 .note-editable .page-break {
                     display: block;
@@ -2325,7 +2346,7 @@ a.note-dropdown-item:hover {
                 stroke: currentColor;
             }
             .colorFormate{
-                fill: black !important;
+                fill: black;
                 border-radius: 4px;
                 border: 0.5px solid #e1e1e1;
             }

@@ -9,9 +9,13 @@ export default class TemplatePreviewModal extends LightningElement {
     @api recordId;
     @api templateType;
 
-    _label;
-    @api get isCalledFromGenerateDoc(){ return this._label }
-    set isCalledFromGenerateDoc(value){ value === "true" ? this._label= true : this._label = false }
+    _isCalledFromGenerateDoc;
+    @api get isCalledFromGenerateDoc(){ return this._isCalledFromGenerateDoc }
+    set isCalledFromGenerateDoc(value){ this._isCalledFromGenerateDoc = (value === "true" ||  value === true) ? true : false  }
+
+    _isActive
+    @api get isActive(){ return this._isActive}
+    set isActive(value){ this._isActive = (value === "true" ||  value === true) ? true : false }
 
     @track previewModalImg = previewModalImg;
     @track spinnerLabel = null;
@@ -203,7 +207,7 @@ export default class TemplatePreviewModal extends LightningElement {
                         this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod(() => {
                             this.updateSpinnerLabel('We are Almost There... Please wait a while...')
                         }, 4000);
-                    }, 100);
+                    }, 400);
                 }
             }
             else if(this.templateType === 'Google Doc Template'){
@@ -255,7 +259,12 @@ export default class TemplatePreviewModal extends LightningElement {
     @track isGenerate = false;
     generateDocument(){
         try {
-            this.isGenerate = true;
+            if(this.isActive){
+                this.isGenerate = true;
+            }
+            else{
+                this.showMessagePopup('Error', "Inactive Template", "Current template is inactive, Please make it active to generate document");
+            }
         } catch (error) {
             console.warn('error in TemplatePreviewModal > generateDocument : ', error.message);
         }
@@ -280,12 +289,15 @@ export default class TemplatePreviewModal extends LightningElement {
         }
     }
 
+    handleMsgPopConfirmation(){
+
+    }
+
 
     // ========= ========== ============ ========== ========== ========= GENERIC Method ========= ========== ============ ========== ========== =========
      // Generic Method to test Message Popup and Toast
      showMessagePopup(Status, Title, Message){
         const messageContainer = this.template.querySelector('c-message-popup');
-        console.log('messageContainer : ', messageContainer);
         if(messageContainer){
             messageContainer.showMessagePopup({
                 status: Status,
@@ -306,98 +318,5 @@ export default class TemplatePreviewModal extends LightningElement {
             });
         }
     }
-
-    // === === === === Custom Timeout Methods -- START --- === === === ====
-    // customTimeoutProcessList = [];
-    // usedTimeoutProcessNumber = [];
-    // setCustomTimeoutMethod(methodToRun, delayTime){
-    //     try {
-    //         let maxTimeoutProcesses = 10
-    //         if(this.customTimeoutProcessList.length < maxTimeoutProcesses){
-    //             const timeoutProcessInstance = {
-    //                 // ** Add Method into variable which you want run after timeout...
-    //                 delay : delayTime,
-    //                 method : methodToRun,
-    //                 name : `customSetTimeout${this.setProcessNumber()}`,
-    //                 processNumber : this.setProcessNumber(),
-    //             }
-                
-    //             this.customTimeoutProcessList.push(timeoutProcessInstance);
-    //             console.log('timeout method in queue ', this.customTimeoutProcessList.length);
-    //             this.addedEventListener(timeoutProcessInstance);
-    //         }
-    //         else{
-    //             console.warn('you have reach maximum limit of custom settimeout')
-    //         }
-
-    //     } catch (error) {
-    //         console.warn('error in setCustomTimeoutMethod : ', error.stack);
-    //     }
-    // }
-
-    // addedEventListener(method){
-    //     try {
-    //         const customSetTimeoutDiv = this.template.querySelector(`[data-name="${method.name}"]`);
-    //         if(customSetTimeoutDiv){
-    //             customSetTimeoutDiv.addEventListener('animationend', this.executeTimeoutMethod);
-
-    //             // ** Add setTimeout time into CSS variable...
-    //             customSetTimeoutDiv.style.setProperty('--timeoutTime', `${method.delay}ms`);
-    //             // ** Add css class to start timeout animation.. at end of this animation, settimeout method will run....
-    //             customSetTimeoutDiv.classList.add('setTimeAnimation');
-    //         }
-    //     } catch (error) {
-    //         console.warn('error in addedEventListener : ', error.stack);
-    //     }
-    // }
-
-    // // Use Arrow Function for EventListener Method....
-    // executeTimeoutMethod = (event) =>{
-    //     try {
-    //         // ** This method will at the end of the animation...
-    //         let processNumber;
-    //         this.customTimeoutProcessList.forEach(ele =>{
-    //             if(ele.name === event.target.dataset.name){
-    //                 // ** Remove eventLister and animation class once method run...
-    //                 event.target.removeEventListener('animationend', null);
-    //                 event.target.classList.remove('setTimeAnimation');
-    //                 processNumber = ele.processNumber;
-
-    //                 // ** Run Timeout method...
-    //                 try {
-    //                     ele.method();
-    //                 } catch (error) {
-    //                     console.warn('error in executeTimeoutMethod for : ', error.message);
-    //                 }
-    //             }
-    //         });
-
-    //         this.customTimeoutProcessList = this.customTimeoutProcessList.filter(ele => ele.processNumber !== processNumber);
-    //         this.usedTimeoutProcessNumber = this.usedTimeoutProcessNumber.filter(ele => ele !== processNumber);
-
-    //         console.log('timeout method in queue ', this.customTimeoutProcessList.length);
-    //     } catch (error) {
-    //         console.log('error in executeTimeoutMethod : ', error.stack);
-    //     }
-    // }
-
-    // setProcessNumber(){
-    //     if(!this.usedTimeoutProcessNumber.includes(this.customTimeoutProcessList.length)){
-    //         this.usedTimeoutProcessNumber.push(this.customTimeoutProcessList.length);
-    //         return this.customTimeoutProcessList.length;
-    //     }
-    //     else{
-    //         for(let i = 0; i < 9; i++){
-    //             if(!this.usedTimeoutProcessNumber.includes(i)){
-    //                 this.usedTimeoutProcessNumber.push(i);
-    //                 return i;
-    //             }
-    //         }
-    //     }
-
-    //     return 0;
-    // }
-
-    // === === === === Custom Timeout Methods -- END --- === === === ====
 
 }

@@ -82,8 +82,6 @@ private class KeyMappingControllerTest {
         DocGenerateController.sessionId = '';
         DocGenerateController.isBatchRequired = false;
         DocGenerateController.fetchTemplateData(0, temp.Id, '{{Temp.'+temp.Id+' *Demo temp*}}');
-        DocGenerateController.fetchSignatureBase64(acc.Id);
-        DocGenerateController.fetchImageBase64(orgHost+imageUrl);
 
         System.assertEquals('{ "templateId" : "'+temp.Id+'", "MVDG__Object_API_Name__c" : "'+temp.MVDG__Object_API_Name__c+'", "recordId" : "'+acc.Id+'", "usedFrom" : "Simple Template" }', paraData, 'success');
 

@@ -56,7 +56,7 @@ export default class ChildObjectTableBuilder extends LightningElement {
             var limit;
             if(this.childTableQuery.includes('WHERE')){
                 if(this.childTableQuery.includes('LIMIT')){
-                    const whereIndex  = this.childTableQuery.indexOf('WHERE') + 5;
+                    const whereIndex  = this.childTableQuery.indexOf('WHERE');
                     const limitIndex  = this.childTableQuery.indexOf('LIMIT') + 5;
                     limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
                     filters = this.childTableQuery.substring(whereIndex, limitIndex - 5);
@@ -64,8 +64,17 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 else {
                     filters = this.childTableQuery.substring(whereIndex, this.childTableQuery.length);
                 }
-            }
-            else if(this.childTableQuery.includes('LIMIT')){
+            } else if (this.childTableQuery.includes('ORDER BY')) {
+                if(this.childTableQuery.includes('LIMIT')){
+                    const orderbyIndex  = this.childTableQuery.indexOf('ORDER BY');
+                    const limitIndex  = this.childTableQuery.indexOf('LIMIT') + 5;
+                    limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
+                    filters = this.childTableQuery.substring(orderbyIndex, limitIndex - 5);
+                }
+                else {
+                    filters = this.childTableQuery.substring(orderbyIndex, this.childTableQuery.length);
+                }
+            } else if(this.childTableQuery.includes('LIMIT')){
                 const limitIndex  = this.childTableQuery.indexOf('LIMIT') + 5;
                 limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
             }
