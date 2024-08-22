@@ -1857,10 +1857,6 @@ Worker.prototype.toContainer = function toContainer() {
     this.prop.overlay.appendChild(this.prop.container);
     document.body.appendChild(this.prop.overlay);
 
-    console.log('node.querySelector(.note-airframe).clientHeight : ', this.prop.container.querySelector('.note-airframe')?.clientHeight);
-    console.log('node.querySelector(.note-editing-area).clientHeight : ', this.prop.container.querySelector('.note-editing-area')?.clientHeight);
-    console.log('node.querySelector(.note-editor.note-frame).clientHeight : ', this.prop.container.querySelector('.note-editor')?.clientHeight);
-
   });
 };
 
@@ -1994,15 +1990,9 @@ Worker.prototype.toImg = function toImg() {
               footerTop = (pageTotalHeight - footerHeight) - this.opt.footer.margins[2];
           }
 
-          console.log('prop : ', this.prop);
-          console.log('opt : ', this.opt);
-          console.log('nPages : ', nPages);
-          
           // Initialize the PDF document
           this.prop.pdf = this.prop.pdf || new jspdf__WEBPACK_IMPORTED_MODULE_8__.jsPDF(opt.jsPDF);
 
-          console.log('pageCanvas.height : ', pageCanvas.height);
-          
           for (var page = 0; page < nPages; page++) {
             /**
              * Do Not render page more than 20 pages...
@@ -2013,7 +2003,6 @@ Worker.prototype.toImg = function toImg() {
                   pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
                 }
     
-                console.log('pageHeight : ', pageHeight);
                 var w = pageCanvas.width;
                 var h = pageCanvas.height;
                 pageCtx.fillStyle = 'white';

@@ -491,6 +491,14 @@ function createCellColorBtn(note, context){
         ]).render();
  }
 
+
+function preventPageBreakInHeaderFooter(note, event){
+    if ((note.selector == 'headerEditor' || note.selector == 'footerEditor') && (event.ctrlKey || event.metaKey) && event.key == 'Enter') {
+      event.preventDefault();
+    }
+}
+    
+
 //  ==== ===== ======= ====== Page Setup Methods -- START ==== ==== ==== ==== 
 
 /**
@@ -662,7 +670,7 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
                 dialogsFade : false,
                 disableDragAndDrop : true,
                 shortcuts : true,
-                tabDisable : false,
+                tabDisable : true,
                 codeviewFilter: false,
                 codeviewIframeFilter: true,   
                 toolbarPosition: 'top',
@@ -756,10 +764,10 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
                     onImageUpload: null,
                     onImageUploadError: null,
                     onKeydown: function(event){
-                      // event.preventDefault();
                       _self.setHeaderFooterMaxHeight(note, event);
+                      preventPageBreakInHeaderFooter(note, event);
                     },
-                    onKeyup: null,
+                    onKeyup:null,
                     onMousedown: null,
                     onMouseup: function() {
                         setFontResizerValue(note);
