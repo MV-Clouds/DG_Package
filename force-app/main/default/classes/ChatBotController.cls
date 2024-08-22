@@ -254,6 +254,7 @@ public with sharing class ChatBotController {
         
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
     }
+    
 
     @AuraEnabled
     public static void sendFeedbackEmail(String toAddress, String key, String feedback,String chats) {

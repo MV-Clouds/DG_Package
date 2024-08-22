@@ -9,31 +9,20 @@
 *******************************************************/
 public with sharing class DropboxSuccessController {
 
-    public DropboxSuccessController(ApexPages.StandardController c) {
-    }
-
-
     @RemoteAction
     public static String gettoken(String currentUrl){
         try {
             String initialurl = currentUrl;
             String authcode = extractCodeParameter(initialurl);
-            MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() LIMIT 1];
+            MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
             if (settings != null) {
-                System.debug('setting: '+ settings);
                 String clientid = settings.MVDG__ClientId__c;
-                System.debug('ClientId: ' + clientid);
                 String clientsecret = settings.MVDG__ClientSecret__c;
-                System.debug('ClientId: ' + clientsecret);
                 String url = ''+System.Url.getOrgDomainUrl();
-                String REDIRECT_URI = redirect(url);        
-                System.debug('redirect_uri-->'+REDIRECT_URI);
-                System.debug('Lets generate refresh token');
-                Map<String, String> tokens = generaterefreshtoken(clientid, clientsecret, REDIRECT_URI, authcode);
+                String redirectUri = redirect(url);        
+                Map<String, String> tokens = generaterefreshtoken(clientid, clientsecret, redirectUri, authcode);
                 String refreshToken = tokens.get('refresh_token');
                 String accessToken = tokens.get('access_token');
-                System.debug(refreshToken);
-                System.debug(accessToken);
                 if(refreshToken != null){
                     settings.MVDG__refresh_token__c = refreshToken;
                     System.debug('ref');
@@ -41,27 +30,43 @@ public with sharing class DropboxSuccessController {
                 if(accessToken != null){
                     settings.MVDG__access_token__c = accessToken;
                     String userdetails = fetchUserDetails(accessToken);
-                    System.debug(userdetails);
                     Map<String, Object> parsedResponse = (Map<String, Object>) JSON.deserializeUntyped(userdetails);
                     Map<String, Object> userObject = (Map<String, Object>) parsedResponse.get('name');
                     String emailAddress = (String) parsedResponse.get('email');
-                    System.debug('Email Address: ' + emailAddress);
                     String displayName = (String) userObject.get('display_name');
-                    System.debug('Display Name: ' + displayName);
-                    System.debug('acc');
                     Date todaysDate = Date.today();
                     Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
                     String formattedDate = datetimeToday.format('dd/MM/yyyy');
-                    System.debug('Today\'s Date ==>'+formattedDate);
                     settings.MVDG__username__c = displayName;
                     settings.MVDG__email__c = emailAddress;
                     settings.MVDG__LinkedDate__c = formattedDate;
                     settings.MVDG__WorkingStatus__c = true;
-                    upsert settings;
+                    if (Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__username__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__email__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__LinkedDate__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() && 
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__refresh_token__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__username__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__email__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__LinkedDate__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__access_token__c.isAccessible() && 
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__refresh_token__c.isAccessible() && 
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__username__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__email__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__LinkedDate__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() && 
+                        Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__refresh_token__c.isCreateable()) {
+                        upsert settings;
+                    } else {
+                        return 'error';
+                    }
                     return 'Success';
                     }
             }else{
-                return 'Maybe';
+                return 'error';
             }
             return 'error';
         } catch (Exception e) {
@@ -74,29 +79,29 @@ public with sharing class DropboxSuccessController {
 
     public static String redirect(String url){
         try{
-            String REDIRECT_URI = '';
+            String redirectUri = '';
             if(url.contains('develop.my.salesforce.com')){
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/MVDG__dropboxSuccessPage';
+            redirectUri = baseUrl + '--c.develop.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__dropboxSuccessPage';
+                redirectUri = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__dropboxSuccessPage';
+                redirectUri = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else {
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/MVDG__dropboxSuccessPage';
+                redirectUri = baseUrl + '--c.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }
-            return REDIRECT_URI;
+            return redirectUri;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'redirect');
             System.debug('Exception of gettoken got invoked');
@@ -107,30 +112,30 @@ public with sharing class DropboxSuccessController {
 
     public static String referenceUrl(String url){
         try{
-        String REFRENCEURL = '';
+        String refrenceUrl = '';
         if(url.contains('develop.my.salesforce.com')) {
         System.debug('System org url -->'+url);
         String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
         baseUrl = baseUrl.substringAfter('Url:[delegate=');
-        REFRENCEURL = baseUrl + '.develop.lightning.force.com/lightning/n/MVDG__User_Configuration';
+        refrenceUrl = baseUrl + '.develop.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }else if(url.contains('sandbox.my.salesforce.com')){
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REFRENCEURL = baseUrl + '.sandbox.lightning.force.com/lightning/n/MVDG__User_Configuration';
+            refrenceUrl = baseUrl + '.sandbox.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }
         else if(url.contains('scratch.my.salesforce.com')){
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REFRENCEURL = baseUrl + '.scratch.lightning.force.com/lightning/n/MVDG__User_Configuration';
+            refrenceUrl = baseUrl + '.scratch.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }else {
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            REFRENCEURL = baseUrl + '.force.com/lightning/n/MVDG__User_Configuration';
+            refrenceUrl = baseUrl + '.force.com/lightning/n/MVDG__User_Configuration';
         }
-        return REFRENCEURL;
+        return refrenceUrl;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'referenceUrl');
             System.debug('Exception of gettoken got invoked');
@@ -143,10 +148,10 @@ public with sharing class DropboxSuccessController {
         public static PageReference redirectToSalesforcePage() {
             try {
                 String url = ''+System.Url.getOrgDomainUrl();
-                String REFRENCEURL = referenceUrl(url);
+                String refrenceUrl = referenceUrl(url);
                 
-                System.debug(REFRENCEURL);
-                PageReference pageRef = new PageReference(REFRENCEURL); // Replace 'TargetPageName' with the name of your target Visualforce page
+                System.debug(refrenceUrl);
+                PageReference pageRef = new PageReference(refrenceUrl); // Replace 'TargetPageName' with the name of your target Visualforce page
                 return pageRef;
             } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'redirectToSalesforcePage');
@@ -158,7 +163,6 @@ public with sharing class DropboxSuccessController {
 
     public static String extractCodeParameter(String url) {
         try {
-            // Replace the base URL with an empty string to get the relative path
             String relativePath = url.replace(System.Url.getSalesforceBaseUrl().toExternalForm(), '');
             // Use the PageReference class to extract query parameters
             PageReference pageRef = new PageReference(relativePath);
@@ -173,20 +177,19 @@ public with sharing class DropboxSuccessController {
     }
 
 
-    public static Map<String, String> generaterefreshtoken(String client_id, String client_secret, String REDIRECT_URI, String authcode){
+    public static Map<String, String> generaterefreshtoken(String clientId, String clientSecret, String redirectUri, String authcode){
         try {
-            String SCOPE = 'files.content.read files.content.write account_info.read';
-            System.debug(SCOPE);
-            String ENDPOINT = 'https://api.dropbox.com/oauth2/token';
+            String scope = 'files.content.read files.content.write account_info.read';
+            System.debug(scope);
+            String endpoint = 'https://api.dropbox.com/oauth2/token';
             HttpRequest request = new HttpRequest();
-            request.setEndpoint(ENDPOINT);
+            request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            System.debug(authcode);
             request.setBody('code=' + authcode +
-                        '&client_id=' + client_id +
-                        '&client_secret=' + client_secret +
-                        '&redirect_uri=' + REDIRECT_URI +
+                        '&client_id=' + clientId +
+                        '&client_secret=' + clientSecret +
+                        '&redirect_uri=' + redirectUri +
                         '&grant_type=authorization_code');
             Http http = new Http();
             HttpResponse response = http.send(request);

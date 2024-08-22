@@ -1,4 +1,4 @@
-global class OneDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts {
+global with sharing class OneDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts {
     global string contentVersionId;
     global static string oneDriveAccessToken;
     global static string fullFileName;
@@ -39,11 +39,14 @@ global class OneDriveUploader implements Database.Batchable < SObject > , Databa
 
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
-        return Database.getQueryLocator([
-            SELECT Id, VersionData, Title, ContentSize, FileExtension
-            FROM ContentVersion
-            WHERE Id =: contentVersionId
-        ]);
+        if(contentVersionId != null){
+            return Database.getQueryLocator([
+                SELECT Id, VersionData, Title, ContentSize, FileExtension
+                FROM ContentVersion
+                WHERE Id =: contentVersionId WITH SECURITY_ENFORCED
+            ]);
+        }
+        return null;
     }
 
 
@@ -248,33 +251,17 @@ global class OneDriveUploader implements Database.Batchable < SObject > , Databa
     }
 
 
-
-    // public static String extrackUploadUrl(String jsonResponse) {
-    //     Map < String, Object > responseMap = (Map < String, Object > ) JSON.deserializeUntyped(jsonResponse);
-    //     // Get the uploadUrl from the response map
-    //     String uploadUrl = (String) responseMap.get('uploadUrl');
-    //     // Find the position of 'uploadSession' in the uploadUrl
-    //     Integer endIndex = uploadUrl.indexOf('uploadSession');
-    //     if (endIndex != -1) {
-    //         // Extract the substring up to 'uploadSession'
-    //         String trimmedUploadUrl = uploadUrl.substring(0, endIndex + 'uploadSession'.length());
-    //         // System.debug('Trimmed uploadUrl: ' + trimmedUploadUrl);
-    //         return trimmedUploadUrl;
-    //     } else {
-    //         // System.debug('uploadSession not found in the uploadUrl');
-    //         return uploadUrl;
-    //     }
-    // }
-
     @AuraEnabled
     public static void emailUser(String message) {
-        User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
-        String subject = 'Issue in uploading file to One drive';
-        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(new String[] { currentUser.Email });
-        mail.setSubject(subject);
-        mail.setPlainTextBody(message);
-        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        if(Schema.sObjectType.User.fields.Email.isAccessible()){
+            // User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+            String subject = 'Issue in uploading file to One drive';
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(UserInfo.getUserEmail());
+            mail.setSubject(subject);
+            mail.setPlainTextBody(message);
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
     }
 
 

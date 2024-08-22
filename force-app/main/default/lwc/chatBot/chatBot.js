@@ -20,7 +20,7 @@ export default class ChatBot extends LightningElement {
     @track isClearPopup = false;
     @track isFeedbackPopup = false;
     @track isEmail = false;
-    @track toAddress = 'tirthshah452004@gmail.com';
+    @track toAddress = 'support-dg@mvclouds.com';
     @track replyAddress = '';
     @track subject = 'Issue in Docgenius';
     @track body = '';
@@ -852,25 +852,20 @@ export default class ChatBot extends LightningElement {
         const clickedImage = event.target;
         // console.log(clickedImage)
         if(event.target.dataset.key == '1'){          
-            // console.log('I am 1');
             this.feedbackRating = 1;
             clickedImage.style.filter = 'grayscale(0)';
-            // console.log(clickedImage);
         }
         else if(event.target.dataset.key == '2'){
-            // console.log('I am 2');
             this.feedbackRating = 2;
 
             clickedImage.style.filter = 'grayscale(0)';
         }
         else if(event.target.dataset.key == '3'){
-            // console.log('I am 3');
             this.feedbackRating = 3;
             clickedImage.style.filter = 'grayscale(0)';
 
         }
         else if(event.target.dataset.key == '4'){
-            // console.log('I am 4');
             this.feedbackRating = 4;
             clickedImage.style.filter = 'grayscale(0)';
 
@@ -878,7 +873,6 @@ export default class ChatBot extends LightningElement {
         else if(event.target.dataset.key == '5'){
             clickedImage.style.filter = 'grayscale(0)';
             this.feedbackRating = 5;
-            // console.log('I am 5');
         }
 
         if(this.feedbackRating != ''){

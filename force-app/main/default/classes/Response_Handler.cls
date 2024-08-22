@@ -1,4 +1,4 @@
-public class Response_Handler {
+public with sharing class Response_Handler{
     public static void store_Callout_Response(HttpResponse res,String classname, String methodname) {
         try{
             MVDG__API_Responses__c response = new MVDG__API_Responses__c();
@@ -7,7 +7,15 @@ public class Response_Handler {
             response.MVDG__Class_Name__c = classname;
             response.MVDG__Method_Name__c = methodname;
         
-            if(Schema.sObjectType.MVDG__API_Responses__c.isCreateable()){
+            if(Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Response_Body__c.isCreateable() &&
+                Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Response_Status_Code__c.isCreateable() &&
+                Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Class_Name__c.isCreateable() &&
+                Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Method_Name__c.isCreateable() &&
+                Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Response_Body__c.isAccessible() &&
+                Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Response_Status_Code__c.isAccessible() &&
+                Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Class_Name__c.isAccessible() &&
+                Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Method_Name__c.isAccessible()
+            ){
                 insert response;
             }
             

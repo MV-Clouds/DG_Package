@@ -1,4 +1,4 @@
-public class DynamicFieldDisplayController {    
+public with sharing class DynamicFieldDisplayController {    
     public String recordId { get; set; }
     public String objectName { get; set; }
     public String objectID {get;set;}
@@ -21,14 +21,6 @@ public class DynamicFieldDisplayController {
             fetchRecordFieldValues();
             // fetchRelatedLists(this.objectName, this.layoutName, this.recordId);
         }
-        // this.objectName = 'Contact'; // Change this to the desired object
-        // this.layoutName = 'Contact Layout'; // Change this to the desired layout
-        // this.fieldSections = new List<FieldSection>();
-        // this.relatedLists = new List<RelatedList>();
-
-        // Fetch field values and structure them
-        // fetchRecordFieldValues();
-        // fetchRelatedLists(this.objectName, this.layoutName, this.recordId);
 
     }
     public String getObjectNameFromRecordId(String recordId) {
@@ -104,65 +96,7 @@ public class DynamicFieldDisplayController {
         return String.join(addressParts, ', ');
     }
 
-    //     public static List<ChildRelationshipInfo> getChildRelationships(String parentObjectName) {
-    //     List<ChildRelationshipInfo> childRelationships = new List<ChildRelationshipInfo>();
-    //     try {
-    //         Schema.DescribeSObjectResult parentDescribe = Schema.getGlobalDescribe().get(parentObjectName).getDescribe();
-    //         for (Schema.ChildRelationship childRelationship : parentDescribe.getChildRelationships()) {
-    //             ChildRelationshipInfo info = new ChildRelationshipInfo();
-    //             info.childObjectName = childRelationship.getChildSObject().getDescribe().getName();
-    //             info.relationshipName = childRelationship.getRelationshipName();
-    //             childRelationships.add(info);
-    //             System.debug(info);
-    //         }
-    //     } catch (Exception e) {
-    //         System.debug('Error retrieving child relationships for ' + parentObjectName + ': ' + e.getMessage());
-    //     }
-    //     return childRelationships;
-    // }
-
-
-    // public List<RelatedList> fetchRelatedLists(String objectName, String layoutName, String recordId) {
-    //     try {
-    //         // Fetch related lists metadata
-    //         String formattedLayoutName = String.format('{0}-{1}', new String[]{objectName, layoutName});
-    //         List<Metadata.Metadata> layouts = Metadata.Operations.retrieve(Metadata.MetadataType.Layout, new List<String> {formattedLayoutName});
-    //         Metadata.Layout layoutMd = (Metadata.Layout)layouts.get(0);
-
-    //         // List to hold related lists
-    //         List<RelatedList> relatedLists = new List<RelatedList>();
-    //         List<String> relatedObjects = new List<String>(); 
-
-    //         getChildRelationships(objectName);
-
-
-    //         for (Metadata.RelatedListItem relatedListItem : layoutMd.relatedLists) {
-    //             // Initialize the related list object
-    //             RelatedList relList = new RelatedList();
-    //             relList.sObjectType = relatedListItem.relatedList;
-    //             relList.sObjectLabel = relatedListItem.fields;
-    //             System.debug(relList.sObjectType);
-    //             System.debug(relList.sObjectLabel);
-
-    //             // Query the related records
-    //             // relList.records = queryRelatedRecords(relatedListItem.relatedList, recordId);
-
-    //             // Add to the list of related lists
-    //             relatedLists.add(relList);
-    //         }
-    //         System.debug('relatedlist-->'+relatedLists);
-    //         return relatedLists;
-    //     } catch (Exception e) {
-    //         System.debug('Error in fetchRelatedLists: ' + e.getMessage());
-    //         throw new AuraHandledException('Unable to fetch related lists.');
-    //     }
-    // }
-
-    // public static List<SObject> queryRelatedRecords(String relatedListName, String recordId) {
-    //     // Construct SOQL query for related records
-    //     String soql = 'SELECT Id, Name FROM ' + relatedListName + ' WHERE AccountId = :recordId';
-    //     return Database.query(soql);
-    // }
+   
 
 public class ChildRelationshipInfo {
     public String childObjectName { get; set; }
@@ -304,10 +238,12 @@ public class ChildRelationshipInfo {
     }
 
     public static String getObjectIdByApiName(String objectApiName) {
-        String cleanApiName = objectApiName.endsWith('__c') ? objectApiName.substring(0, objectApiName.length() - 3) : objectApiName;
+        // String cleanApiName = objectApiName.endsWith('__c') ? objectApiName.substring(0, objectApiName.length() - 3) : objectApiName;
     // String objectApiNameQuery = objectApiName.endsWith('__c') ? objectApiName : objectApiName + '__c';
-        EntityDefinition objectInfo = [SELECT DurableId FROM EntityDefinition WHERE DeveloperName = :cleanApiName LIMIT 1];
-        return objectInfo != null ? objectInfo.DurableId : null;
+        if(Schema.sObjectType.EntityDefinition.Fields.DurableId.isAccessible() && Schema.sObjectType.EntityDefinition.Fields.QualifiedApiName.isAccessible() && objectApiName != null){
+            EntityDefinition objectInfo = [SELECT DurableId FROM EntityDefinition WHERE QualifiedApiName = :objectApiName LIMIT 1 with SECURITY_ENFORCED];
+            return objectInfo != null ? objectInfo.DurableId : null;
+        }
     }
 
 
