@@ -1,5 +1,6 @@
 <!-- sldsValidatorIgnore -->
 <template>
+    <!-- Image Popup -->
     <div class="custom-modal-overlay" if:true={showModal}>
         <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="custom-modal-heading" class="custom-modal-container">
             <div class="custom-modal-content">
@@ -14,9 +15,16 @@
         <div class="backdrop" onclick={closeModal}></div>
     </div>
 
-    <!--  -->
+    <!-- Left Section -->
     <div class="container">
         <div class="left-section">
+            <h1>DG Setup:</h1>
+            <div class="tablist">
+                <div class="tabs" data-tab="btngen" onclick={handleTabSelection}>
+                    <img src={awsLogo} alt="error" width="24" height="24" data-tab="btngen">
+                    Buttons
+                </div>
+            </div>
             <h1>Integrations:</h1>
             <div class="tablist">
                 <div class="tabs selected-tab" data-tab="aws" onclick={handleTabSelection}>
@@ -38,6 +46,10 @@
             </div>
             <h1>Template Types:</h1>
             <div class="tablist">
+                <div class="tabs" data-tab="gdtemp" onclick={handleTabSelection}>
+                    <img src={gdtempLogo} alt="error" width="12" height="12" data-tab="gdtemp">
+                    Google Docs
+                </div>
                 <div class="tabs" data-tab="stemp" onclick={handleTabSelection}>
                     <img src={stempLogo} alt="error" width="16" height="16" data-tab="stemp">
                     Simple
@@ -46,12 +58,25 @@
                     <img src={csvLogo} alt="error" width="16" height="16" data-tab="csvtemp">
                     CSV
                 </div>
-                <div class="tabs" data-tab="gdtemp" onclick={handleTabSelection}>
-                    <img src={gdtempLogo} alt="error" width="12" height="12" data-tab="gdtemp">
-                    Google Docs
+            </div>
+            <h1>Components:</h1>
+            <div class="tablist">
+                <div class="tabs" data-tab="dochome" onclick={handleTabSelection}>
+                    <img src={awsLogo} alt="error" width="24" height="24" data-tab="dochome">
+                    Home
                 </div>
+                <div class="tabs" data-tab="keysec" onclick={handleTabSelection}>
+                    <img src={awsLogo} alt="error" width="24" height="24" data-tab="keysec">
+                    Mapping Keys
+                </div>
+                <div class="tabs" data-tab="docgen" onclick={handleTabSelection}>
+                    <img src={awsLogo} alt="error" width="24" height="24" data-tab="docgen">
+                    Documents
+                </div>  
             </div>
         </div>
+
+        <!-- Line -->
         <div class="horizontal-line">
             <div class="top-line"></div>
             <div class="arrow" onclick={toggleTab}>
@@ -59,95 +84,264 @@
             </div>
             <div class="bottom-line"></div>
         </div>
+
+        <!-- Content -->
         <div class="white-background">
             <div class="content">
+
+                <!-- Button Generator -->
+                 <div class="tab-content" lwc:if={btngenTab}>
+                    <h1 onclick={toggleTab}>Button Generator</h1><br/>
+                    <div class="section">
+                        <h2>Prerequisite:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>You should have added a trusted URL ([org-instance].my.salesforce.com) to get the Button Generation working.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Purpose of Button Generator:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>The Button Generator is used to create the buttons to generate the documents.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Creating Buttons using button generator:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>Navigate to the User Configuration tab of the DocGenius app and then go to 'DG Setup' from the left sidebar.</li>
+                            <li>You can create three types of buttons for your objects.
+                                <ol class="slds-list_dotted">
+                                    <li><b>List View Button</b>: This button can be used to generate the CSV Template document. The name of the generated button will be 'DG Generate CSV'.</li>
+                                    <li><b>Quick Action Button</b>: This button can be used to generate the document for all the templates. The name of the generated button will be 'DG Generate Document'.</li>
+                                    <li><b>Basic Print Button</b>: this button can be used to generate the PDF of the record details available in the current page layout. The name of the generated button will be 'DG Basic Print.</li>
+                                </ol>
+                            </li>
+                            <li>You can select the objects that you want to create the button on and click on the create button.</li>
+                            <li>You can only create one generation button on an object, all the objects that already have the buttons generated will be shown below the generator.</li>
+                            <li>After generating the button, add the button to the page layout of your object to use it.</li>
+                            <li>You can also update the label of the button as you want from the setup.</li>
+                        </ol>
+                    </div>
+                 </div>
 
                 <!-- AWS -->
                 <div class="tab-content" lwc:if={awsTab}>
                     <h1 onclick={toggleTab}> AWS Integration</h1><br/>
-                    <p><b>Step:1</b> Create a bucket or use existing bucket if any in your <a href="https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin" target="_blank">aws account</a> and copy bucket name.</p>
-                    <p class="note">[ NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 ]</p>
-                    <div class="img"><img src={aws1} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={aws2} alt="error" onclick={openModal}></div>
-                    <p><b>Step:2</b> Just paste bucket name here after drag and drop aws logo. </p>
-                    <div class="img"><img src={aws3} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={aws4} alt="error" onclick={openModal}></div>
-                    <p><b>Step:3</b> Create a bucket or use existing bucket if any in your aws account and copy bucket name.</p>
-                    <div class="img"><img src={aws5} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={aws6} alt="error" onclick={openModal}></div>
-                    <p><b>Step:4</b> Just paste bucket name here after drag and drop aws logo. </p>
-                    <div class="img"><img src={aws7} alt="error" onclick={openModal}></div>
-                    <p><b>Step:5</b> Check whether the status is updated or not.</p>
-                    <div class="img"><img src={aws8} alt="error" onclick={openModal}></div>
-                    <p>If it is active means authorization was successful.</p>
+                    <div class="section">
+                        <p><b>Step:1</b> Create a bucket or use existing bucket if any in your <a href="https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin" target="_blank">aws account</a> and copy bucket name.</p>
+                        <p class="note">[ NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 ]</p>
+                        <div class="img"><img src={aws1} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={aws2} alt="error" onclick={openModal}></div>
+                        <p><b>Step:2</b> Just paste bucket name here after drag and drop aws logo. </p>
+                        <div class="img"><img src={aws3} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={aws4} alt="error" onclick={openModal}></div>
+                        <p><b>Step:3</b> Create a bucket or use existing bucket if any in your aws account and copy bucket name.</p>
+                        <div class="img"><img src={aws5} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={aws6} alt="error" onclick={openModal}></div>
+                        <p><b>Step:4</b> Just paste bucket name here after drag and drop aws logo. </p>
+                        <div class="img"><img src={aws7} alt="error" onclick={openModal}></div>
+                        <p><b>Step:5</b> Check whether the status is updated or not.</p>
+                        <div class="img"><img src={aws8} alt="error" onclick={openModal}></div>
+                        <p>If it is active means authorization was successful.</p>
+                    </div>
                 </div> 
 
                 <!-- Google Drive -->
                 <div class="tab-content" lwc:if={gdriveTab}>
                     <h1 onclick={toggleTab}>  Google Drive Integration</h1><br/>
-                    <p><b>Step 1:</b> Drag and drop the Google Drive logo into the designated droppable area.</p>
-                    <div class="img"><img src={gdrive1} alt="error" onclick={openModal}></div>
-                    <p><b>Step 2:</b> Click on "Generate Authorization Code."</p>
-                    <div class="img"><img src={gdrive2} alt="error" onclick={openModal}></div>
-                    <p><b>Step 3:</b> Select your Google account or log in to another Google account.</p>
-                    <div class="img"><img src={gdrive3} alt="error" onclick={openModal}></div>
-                    <p><b>Step 4:</b> Click on advanced and click on “Go to salesforce-sites.com”.</p>
-                    <div class="img"><img src={gdrive4} alt="error" onclick={openModal}></div>
-                    <p><b>Step 5:</b> Copy this authorization code.</p>
-                    <div class="img"><img src={gdrive5} alt="error" onclick={openModal}></div>
-                    <p><b>Step 6:</b> Paste the authorization code into the designated field and click "Authorize" to complete the integration.</p>
-                    <div class="img"><img src={gdrive6} alt="error" onclick={openModal}></div>
-                    <p>This will enable google doc template option in order to store files to google drive you need to select <b>"Set as Org Wide"</b> to store files in the specified Google Drive account.</p>
-                    <p><b>Step 7:</b> Check whether the status is updated to confirm successful configuration.</p>
-                    <div class="img"><img src={gdrive7} alt="error" onclick={openModal}></div>
-                    <p>Verify if the status has been updated to "Active" to confirm successful authorization.</p>
+                    <div class="section">
+                        <p><b>Step 1:</b> Drag and drop the Google Drive logo into the designated droppable area.</p>
+                        <div class="img"><img src={gdrive1} alt="error" onclick={openModal}></div>
+                        <p><b>Step 2:</b> Click on "Generate Authorization Code."</p>
+                        <div class="img"><img src={gdrive2} alt="error" onclick={openModal}></div>
+                        <p><b>Step 3:</b> Select your Google account or log in to another Google account.</p>
+                        <div class="img"><img src={gdrive3} alt="error" onclick={openModal}></div>
+                        <p><b>Step 4:</b> Click on advanced and click on “Go to salesforce-sites.com”.</p>
+                        <div class="img"><img src={gdrive4} alt="error" onclick={openModal}></div>
+                        <p><b>Step 5:</b> Copy this authorization code.</p>
+                        <div class="img"><img src={gdrive5} alt="error" onclick={openModal}></div>
+                        <p><b>Step 6:</b> Paste the authorization code into the designated field and click "Authorize" to complete the integration.</p>
+                        <div class="img"><img src={gdrive6} alt="error" onclick={openModal}></div>
+                        <p>This will enable google doc template option in order to store files to google drive you need to select <b>"Set as Org Wide"</b> to store files in the specified Google Drive account.</p>
+                        <p><b>Step 7:</b> Check whether the status is updated to confirm successful configuration.</p>
+                        <div class="img"><img src={gdrive7} alt="error" onclick={openModal}></div>
+                        <p>Verify if the status has been updated to "Active" to confirm successful authorization.</p>
+                    </div>
                 </div>
 
                 <!-- One Drive -->
                 <div class="tab-content" lwc:if={odriveTab}>
                     <h1 onclick={toggleTab}>  One Drive Integration</h1><br/>
-                    <p><b>Step 1:</b> Sign in to your <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank">Microsoft Azure account</a> or create a new one if you don't have an account. Once signed in, navigate to the Azure portal and create a new app registration.</p>
-                    <div class="img"><img src={odrive1} alt="error" onclick={openModal}></div>
-                    <p><b>Step 2:</b> Create a new app registration by providing a name for your app. Choose the option "Accounts in any organizational directory" for the supported account types. Select "Web" for the application type, and paste the Redirect URI from Doc Genius into the appropriate field.</p>
-                    <div class="img"><img src={odrive2} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={odrive3} alt="error" onclick={openModal}></div>
-                    <p><b>Step 3:</b> Click on "Certificates & secrets" in the app registration menu, then click on "New client secret" to add a new certificate or secret.</p>
-                    <div class="img"><img src={odrive4} alt="error" onclick={openModal}></div>
-                    <p><b>Step 4:</b> Click on "New client secret" to generate a new secret. Copy the generated value and paste it into the "Client Secret" field in Doc Genius. Also, copy the "Application (client) ID" from the Azure portal and paste it into the "Client ID" field in Doc Genius.</p>
-                    <div class="img"><img src={odrive5} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={odrive6} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={odrive7} alt="error" onclick={openModal}></div>
-                    <p><b>Step 5:</b> Configure the scopes as specified to ensure the app has the necessary permissions.For scopes(User.Read, offline_access, Files.ReadWrite.All)</p>
-                    <div class="img"><img src={odrive8} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={odrive9} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={odrive10} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={odrive11} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={odrive12} alt="error" onclick={openModal}></div>
-                    <p><b>Step 6:</b> After entering the details, click on "Authorize" and check if the integration is active. If the integration status is active, it means the authorization was successful.</p>
-                    <div class="img"><img src={odrive13} alt="error" onclick={openModal}></div>
+                    <div class="section">
+                        <p><b>Step 1:</b> Sign in to your <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank">Microsoft Azure account</a> or create a new one if you don't have an account. Once signed in, navigate to the Azure portal and create a new app registration.</p>
+                        <div class="img"><img src={odrive1} alt="error" onclick={openModal}></div>
+                        <p><b>Step 2:</b> Create a new app registration by providing a name for your app. Choose the option "Accounts in any organizational directory" for the supported account types. Select "Web" for the application type, and paste the Redirect URI from Doc Genius into the appropriate field.</p>
+                        <div class="img"><img src={odrive2} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive3} alt="error" onclick={openModal}></div>
+                        <p><b>Step 3:</b> Click on "Certificates & secrets" in the app registration menu, then click on "New client secret" to add a new certificate or secret.</p>
+                        <div class="img"><img src={odrive4} alt="error" onclick={openModal}></div>
+                        <p><b>Step 4:</b> Click on "New client secret" to generate a new secret. Copy the generated value and paste it into the "Client Secret" field in Doc Genius. Also, copy the "Application (client) ID" from the Azure portal and paste it into the "Client ID" field in Doc Genius.</p>
+                        <div class="img"><img src={odrive5} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive6} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive7} alt="error" onclick={openModal}></div>
+                        <p><b>Step 5:</b> Configure the scopes as specified to ensure the app has the necessary permissions.For scopes(User.Read, offline_access, Files.ReadWrite.All)</p>
+                        <div class="img"><img src={odrive8} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive9} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive10} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive11} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive12} alt="error" onclick={openModal}></div>
+                        <p><b>Step 6:</b> After entering the details, click on "Authorize" and check if the integration is active. If the integration status is active, it means the authorization was successful.</p>
+                        <div class="img"><img src={odrive13} alt="error" onclick={openModal}></div>
+                    </div>
                 </div>
 
                 <!-- Dropbox -->
                 <div class="tab-content" lwc:if={dropboxTab}>
                     <h1 onclick={toggleTab}>  Dropbox Integration</h1><br/>
-                    <p><b>Step 1:</b> Sign in to your <a href="https://www.dropbox.com/developers" target="_blank">Dropbox developer account</a> or create a new one if you don't have an account yet. Once signed in, navigate to the Dropbox App Console and click on "Create App."</p>
-                    <div class="img"><img src={dropbox1} alt="error" onclick={openModal}></div>
-                    <p><b>Step 2:</b> Choose "Scoped app" and select "Full Dropbox" access. Enter a name for your app, then click "Create App."</p>
-                    <div class="img"><img src={dropbox2} alt="error" onclick={openModal}></div>
-                    <p><b>Step 3:</b> Click on "Enable additional users" and then confirm by clicking "OK."</p>
-                    <div class="img"><img src={dropbox3} alt="error" onclick={openModal}></div>
-                    <p><b>Step 4:</b> Navigate to the "Permissions" tab, select the required scopes as mentioned, and then click "Submit."</p>
-                    <div class="img"><img src={dropbox4} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={dropbox5} alt="error" onclick={openModal}></div>
-                    <p><b>Step 5:</b> Return to the "Settings" tab. Copy the "Client ID" and click the "Show" button to reveal the "Client Secret." Copy the "Client Secret" as well and paste both values into Doc Genius.</p>
-                    <div class="img"><img src={dropbox6} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={dropbox7} alt="error" onclick={openModal}></div>
-                    <div class="img"><img src={dropbox8} alt="error" onclick={openModal}></div>
-                    <p><b>Step 6:</b> Copy the Redirect URI from Doc Genius and paste it into the "Redirect URIs" field. Then, click the "Add" button.</p>
-                    <div class="img"><img src={dropbox9} alt="error" onclick={openModal}></div>
-                    event.key);>Step 7:</b> Click on "Authorize" in Doc Genius and verify that the integration is active.</p>
-                    <div class="img"><img src={dropbox10} alt="error" onclick={openModal}></div>
-                    <p class="note">[ NOTE: DROPBOX will automatically log you in as per your current  logged in account if you wish to choose, use Incognito mode(Private window) during integration process ].</p>
+                    <div class="section">
+                        <p><b>Step 1:</b> Sign in to your <a href="https://www.dropbox.com/developers" target="_blank">Dropbox developer account</a> or create a new one if you don't have an account yet. Once signed in, navigate to the Dropbox App Console and click on "Create App."</p>
+                        <div class="img"><img src={dropbox1} alt="error" onclick={openModal}></div>
+                        <p><b>Step 2:</b> Choose "Scoped app" and select "Full Dropbox" access. Enter a name for your app, then click "Create App."</p>
+                        <div class="img"><img src={dropbox2} alt="error" onclick={openModal}></div>
+                        <p><b>Step 3:</b> Click on "Enable additional users" and then confirm by clicking "OK."</p>
+                        <div class="img"><img src={dropbox3} alt="error" onclick={openModal}></div>
+                        <p><b>Step 4:</b> Navigate to the "Permissions" tab, select the required scopes as mentioned, and then click "Submit."</p>
+                        <div class="img"><img src={dropbox4} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={dropbox5} alt="error" onclick={openModal}></div>
+                        <p><b>Step 5:</b> Return to the "Settings" tab. Copy the "Client ID" and click the "Show" button to reveal the "Client Secret." Copy the "Client Secret" as well and paste both values into Doc Genius.</p>
+                        <div class="img"><img src={dropbox6} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={dropbox7} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={dropbox8} alt="error" onclick={openModal}></div>
+                        <p><b>Step 6:</b> Copy the Redirect URI from Doc Genius and paste it into the "Redirect URIs" field. Then, click the "Add" button.</p>
+                        <div class="img"><img src={dropbox9} alt="error" onclick={openModal}></div>
+                        event.key);>Step 7:</b> Click on "Authorize" in Doc Genius and verify that the integration is active.</p>
+                        <div class="img"><img src={dropbox10} alt="error" onclick={openModal}></div>
+                        <p class="note">[ NOTE: DROPBOX will automatically log you in as per your current  logged in account if you wish to choose, use Incognito mode(Private window) during integration process ].</p>
+                    </div>
+                </div>
+                
+                <!-- Google Docs -->
+                <div class="tab-content" lwc:if={gdtempTab}>
+                    <h1 onclick={toggleTab}>  Google Docs Template</h1><br/>
+
+                    <div class="section">
+                        <h2>Prerequisites:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>You will need to integrate with Google Drive to create and generate templates.
+                                <br/><div class="img"><img src={gdrive1} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>You need at least view access for the Google Document to generate templates.</li>
+                            <li>You need at least one document in your Google Drive to create a Google Doc Template</li>
+                        </ol>
+                    </div><br>
+
+                    <div class="section">
+                        <h2>Creating a new Template</h2>
+                        <p>To create a new Google Document Template,</p>
+                        <ol class="slds-list_ordered">
+                            <li>Go to the Home page.</li>
+                            <li>Click on the new template button on the top-left corner of the page.</li>
+                            img
+                            <li>On the new template popup, Enter the required details such as the template name and Source object. Enter the source object wisely as it cannot be changed once the template is created.
+                                <br/><div class="img"><img src={gdtemp1} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>Select the template type as Google Doc Template.</li>
+                            <li>Click Save.
+                                <br/><div class="img"><img src={gdtemp2} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>Now select your Google Document and click on Next. This opens your Google document as a template.</li>
+                        </ol>
+                        <p>On the last screen when you are redirected to the document selection page, This page shows all the Google documents from the integrated user's Google Drive to create a template.</p>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Editing the template</h2>
+                        <p><b>You can add your required fields from the right-side panel into your template:</b></p>
+                        <ol class="slds-list_ordered">
+                            <li>Click on the copy button next to the field name.
+                                <br/><div class="img"><img src={gdtemp3} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>Paste it wherever you want in your template.</li>
+                        </ol>
+
+                        <h3>Fields available in the Google template</h3>
+                        <p>There are many fields available for users to insert into the template from the right side panel.</p>
+                        <ol class="slds-list_ordered">
+                            <li>You can add the fields directly related to the source object.</li>
+                            <li>You can insert the parent object fields for the current source object.</li>
+                            <li>You can insert the child object records in the form of a table from the related List fields.</li>
+                            <li>You can add the general fields such as the user or organisation details or the current date and time details from the general fields tab.</li>
+                            <li>You can add the static resources and files accessible to you into the template from the Salesforce Image tab.</li>
+                            <li>You can also integrate it with the 'Signature Anywhere' and insert the last signature saved on the record from the Signature Tab.</li>
+                        </ol>
+                        <p>You can insert as many fields as you want in the template.</p>
+                        <p><b>Note:</b></p>
+                        <ol class="slds-list_ordered">
+                            <li>You can insert up to 10 related child object tables each having a maximum of 50 records.</li>
+                            <li>You may insert only one signature per line.</li>
+                        </ol>
+                        <p>Please note that you need to have at least one document in your Google Drive to create a Google Doc Template.</p>
+                        <p>If you create two templates on the same Google Document, the other will be updated when you change the first as the changes are directly reflected in the Google Document.</p>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Previewing the template</h2>
+                        <p>You can preview how the template would look from the preview button.</p>
+                        <ol class="slds-list_ordered">
+                            <li>Click on the preview button at the bottom of the right-side panel.
+                                <br/><div class="img"><img src={gdtemp4} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>Select the record for which you want to see the preview.
+                                <br/><div class="img"><img src={gdtemp5} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>Click on generate preview.
+                                <br/><div class="img"><img src={gdtemp6} alt="error" onclick={openModal}></div>
+                            </li>
+                        </ol>
+                        <p><b>Note:</b></p>
+                        <ol class="slds-list_ordered">
+                            <li>If the document is large, the preview may take longer to process.</li>
+                            <li>The preview may hide some special characters. For best results download the template and use any dedicated PDF application.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Generate the Template</h2>
+                        <p>On the preview popup, you can also generate documents</p>
+                        <ol class="slds-list_ordered">
+                            <li>After clicking on the preview button, select a record.</li>
+                            <li>Click on the Generate Document button. It will open the generate Document popup.</li>
+                            <li>From here, select the document type.</li>
+                            <li>After the document type, also select any one of the output channels.</li>
+                            <li>Click on the Generate button.</li>
+                        </ol>
+                        <p>This will generate the document in the requested format create an internal storage record if selected, and upload it to the external storage if selected.</p>
+                        <p><b>Note:</b></p>
+                        <ol class="slds-list_ordered">
+                            <li>There are various limits to uploading to external storage and creating the records for the document. It is advisable to download the document only if it is large and manually upload it to external or internal storage.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Template's User Details Tab</h2>
+                        <p>From this tab, the user can view or edit details for the template itself. Only some fields are available for the user to edit such as the template name, description and template status.</p>
+                        <div class="img"><img src={gdtemp7} alt="error" onclick={openModal}></div>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Template Defaults Tab</h2>
+                        <p>This page is used to create a quick action button on the source object for a one-click operation on generating templates.</p>
+                        <div class="img"><img src={gdtemp8} alt="error" onclick={openModal}></div>
+                        <ol class="slds-list_ordered">
+                            <li>Select the Document type - PDF or DOCX</li>
+                            <li>Select any one output from Internal Storage, External Storage and Output Channel.</li>
+                            <li>Enter the desired name for the Quick Action button. Once the button is created, you cannot change the name from here.</li>
+                            <li>Click on the Create Custom Button.</li>
+                        </ol>
+                        <p>This will create a custom button. You can add this button on the object's page layout to generate templates.</p>
+                        <p><b>Note:</b> For the external storage, You will need to integrate with them from the user guide. If the storage is not integrated when the button is clicked, the storage upload will be skipped.</p>
+                    </div>
                 </div>
 
                 <!-- Simple Template -->
@@ -335,128 +529,359 @@
                     </div>
                 </div>
 
-                <!-- Google Docs -->
-                <div class="tab-content" lwc:if={gdtempTab}>
-                    <h1 onclick={toggleTab}>  Google Docs Template</h1><br/>
-
+                <!-- DocHome -->
+                <div class="tab-content" lwc:if={dochomeTab}>
+                    <h1>Introduction</h1><br/>
                     <div class="section">
-                        <h2>Prerequisites:</h2>
+                        <h2>DocGenius Home</h2>
+                        <p>The page where You can create and manage your docGenius template.</p>
+                        
+                        <h3>How to create a template?</h3>
                         <ol class="slds-list_ordered">
-                            <li>You will need to integrate with Google Drive to create and generate templates.
-                                <br/><div class="img"><img src={gdrive1} alt="error" onclick={openModal}></div>
-                            </li>
-                            <li>You need at least view access for the Google Document to generate templates.</li>
-                            <li>You need at least one document in your Google Drive to create a Google Doc Template</li>
-                        </ol>
-                    </div><br>
+                            <li>Click on “Click To Create the Template Button”.</li>
+                            <li>Insert your template Name into the Template Name Input field.</li>
+                            <li>Add a Description related to your template. (Optional).</li>
+                            <li>Select a Souce object on which you want to create the template. (For example, if you want to add data from Opportunity and its related object then select Opportunity object.).</li>
+                            <li>Select Template Type. (To learn more about Template Type, refer to the template type section.)</li>
+                            <li>Once you are done, click the Save button.</li>
+                            <li>After clicking the save button your template will created and you will be redirected to the template edit section as per your template type.</li>
+                        </ol><br/>
+                        <p>If you have created some templates already, you can click on the top-left corner button to create a new template.</p>
 
-                    <div class="section">
-                        <h2>Creating a new Template</h2>
-                        <p>To create a new Google Document Template,</p>
-                        <ol class="slds-list_ordered">
-                            <li>Go to the Home page.</li>
-                            <li>Click on the new template button on the top-left corner of the page.</li>
-                            img
-                            <li>On the new template popup, Enter the required details such as the template name and Source object. Enter the source object wisely as it cannot be changed once the template is created.
-                                <br/><div class="img"><img src={gdtemp1} alt="error" onclick={openModal}></div>
+                        <h3>Template Information and Template Action Buttons on the Home Page:</h3>
+                        <ol class="slds-list_dotted">
+                            <li>Template Information and Template Action Buttons on the Home Page:
+                                <ol class="slds-list_ordered">
+                                    <li>Template Name</li>
+                                    <li>Source Object</li>
+                                    <li>Template Description</li>
+                                    <li>Template Created date</li>
+                                    <li>Template Created User</li>
+                                    <li>Template Type</li>
+                                </ol>
                             </li>
-                            <li>Select the template type as Google Doc Template.</li>
-                            <li>Click Save.
-                                <br/><div class="img"><img src={gdtemp2} alt="error" onclick={openModal}></div>
+                            <li>Action Buttons Provided for each template on the Home Page are:
+                                <ol class="slds-list_ordered">
+                                    <li>Template Status</li>
+                                    <li>Template Edit Button</li>
+                                    <li>Preview Button</li>
+                                    <li>Clone Button</li>
+                                    <li>Delete Button</li>
+                                </ol>
                             </li>
-                            <li>Now select your Google Document and click on Next. This opens your Google document as a template.</li>
-                        </ol>
-                        <p>On the last screen when you are redirected to the document selection page, This page shows all the Google documents from the integrated user's Google Drive to create a template.</p>
-                    </div><br/>
-
-                    <div class="section">
-                        <h2>Editing the template</h2>
-                        <p><b>You can add your required fields from the right-side panel into your template:</b></p>
-                        <ol class="slds-list_ordered">
-                            <li>Click on the copy button next to the field name.
-                                <br/><div class="img"><img src={gdtemp3} alt="error" onclick={openModal}></div>
-                            </li>
-                            <li>Paste it wherever you want in your template.</li>
                         </ol>
 
-                        <h3>Fields available in the Google template</h3>
-                        <p>There are many fields available for users to insert into the template from the right side panel.</p>
+                        <h3>Filter, Sort, and Search options on the Home Page:</h3>
                         <ol class="slds-list_ordered">
-                            <li>You can add the fields directly related to the source object.</li>
-                            <li>You can insert the parent object fields for the current source object.</li>
-                            <li>You can insert the child object records in the form of a table from the related List fields.</li>
-                            <li>You can add the general fields such as the user or organisation details or the current date and time details from the general fields tab.</li>
-                            <li>You can add the static resources and files accessible to you into the template from the Salesforce Image tab.</li>
-                            <li>You can also integrate it with the 'Signature Anywhere' and insert the last signature saved on the record from the Signature Tab.</li>
-                        </ol>
-                        <p>You can insert as many fields as you want in the template.</p>
-                        <p><b>Note:</b></p>
-                        <ol class="slds-list_ordered">
-                            <li>You can insert up to 10 related child object tables each having a maximum of 50 records.</li>
-                            <li>You may insert only one signature per line.</li>
-                        </ol>
-                        <p>Please note that you need to have at least one document in your Google Drive to create a Google Doc Template.</p>
-                        <p>If you create two templates on the same Google Document, the other will be updated when you change the first as the changes are directly reflected in the Google Document.</p>
-                    </div><br/>
-
-                    <div class="section">
-                        <h2>Previewing the template</h2>
-                        <p>You can preview how the template would look from the preview button.</p>
-                        <ol class="slds-list_ordered">
-                            <li>Click on the preview button at the bottom of the right-side panel.
-                                <br/><div class="img"><img src={gdtemp4} alt="error" onclick={openModal}></div>
+                            <li>Filter Options:
+                                <ol class="slds-list_dotted">
+                                    <li>Filters Options provides a feature to filter your template based on template name, template type, template status, source objects, creation date, and modification date. That will help you manage and find your template quickly and easily. </li>
+                                    <li>The filter will apply based on AND logical condition, mease filter will display those template that meets all the applied filters.</li>
+                                </ol>
                             </li>
-                            <li>Select the record for which you want to see the preview.
-                                <br/><div class="img"><img src={gdtemp5} alt="error" onclick={openModal}></div>
+                            <li>Sorting Options:
+                                <ol class="slds-list_dotted">
+                                    <li>A Sorting Option provides a feature to sort your template based on template Name, creation date, modification date, and source object. By default your template is sorted by modification date in descending order.</li>
+                                </ol>
                             </li>
-                            <li>Click on generate preview.
-                                <br/><div class="img"><img src={gdtemp6} alt="error" onclick={openModal}></div>
+                            <li>Searching Option:
+                                <ol class="slds-list_dotted">
+                                    <li>A searching option is provided to search your template by template name.</li>
+                                </ol>
                             </li>
-                        </ol>
-                        <p><b>Note:</b></p>
-                        <ol class="slds-list_ordered">
-                            <li>If the document is large, the preview may take longer to process.</li>
-                            <li>The preview may hide some special characters. For best results download the template and use any dedicated PDF application.</li>
                         </ol>
                     </div><br/>
 
                     <div class="section">
-                        <h2>Generate the Template</h2>
-                        <p>On the preview popup, you can also generate documents</p>
-                        <ol class="slds-list_ordered">
-                            <li>After clicking on the preview button, select a record.</li>
-                            <li>Click on the Generate Document button. It will open the generate Document popup.</li>
-                            <li>From here, select the document type.</li>
-                            <li>After the document type, also select any one of the output channels.</li>
-                            <li>Click on the Generate button.</li>
+                        <h2>DocGenius Terminology</h2>
+                        <ol class="slds-list_dotted">
+                            <li><b>What is DocGenius template?</b>
+                                <ol class="slds-list_dotted">
+                                    <li>This is the raw form of your document data where you can add and map dynamic data using object fields.</li>
+                                    <li>You can configure desired templates or have fields dynamically added to your output document based on the state of your Salesforce data.</li>
+                                    <li>It is a salesforce object to store information related you raw document data.</li>
+                                </ol>
+                            </li>
+                            <li><b>What are the template type?</b>
+                                <ol class="slds-list_ordered">
+                                    <li>Simple Template:
+                                        <ol class="slds-list_dotted">
+                                            <li>Simple Template used to create <b>PDF</b> and <b>Doc</b> files.</li>
+                                            <li>This provides the ability and functionality to create a template using an <b>in-built editor</b>.</li>
+                                            <li>It provides the functionality to add a header and footer to your output document.</li>
+                                            <li>Simple templates provide the ability to merge another template into the ongoing template.</li>
+                                            <li>For the limitation of the simple template, please refer to the limitation section.</li>
+                                        </ol>
+                                    </li>
+                                    <li>Google Doc Template:
+                                        <ol class="slds-list_dotted">
+                                            <li>Google template is used to generate PDF and Doc files.</li>
+                                            <li>This template uses Google Docs as a template to generate files.</li>
+                                            <li>It also provides the ability to use Google Doc Editor to edit your template.</li>
+                                            <li>For the limitation of the Google Doc template, please refer to the limitation section.</li>
+                                        </ol>
+                                    </li>
+                                    <li>CSV Template:</li>
+                                </ol>
+                            </li>
+                            <li><b>What is the Source object:</b>
+                                <ol class="slds-list_dotted">
+                                    <li>The source Object is the Salesforce object from where you want to add and insert dynamic data.</li>
+                                    <li>For example, if you want to add data from Opportunity fields and its related object fields then select Opportunity object.</li>
+                                </ol>
+                            </li>
                         </ol>
-                        <p>This will generate the document in the requested format create an internal storage record if selected, and upload it to the external storage if selected.</p>
-                        <p><b>Note:</b></p>
-                        <ol class="slds-list_ordered">
-                            <li>There are various limits to uploading to external storage and creating the records for the document. It is advisable to download the document only if it is large and manually upload it to external or internal storage.</li>
+                    </div><br/>
+                </div>
+
+                <!-- Key Mapping Section -->
+                <div class="tab-content" lwc:if={keysecTab}>
+                    <h1>Mapping Keys Section</h1><br/>
+
+                    <div class="section">
+                        <ol class="slds-list_dotted">
+                            <li>The Mapping Key section in the DocGenius Template Builder allows users to dynamically insert data, images, signatures, and even merge templates into their documents. </li>
+                            <li>The Mapping Key section is a powerful tool for creating dynamic, data-driven documents. By understanding how to use each tab effectively, you can customize your templates to meet a wide variety of business needs, from inserting object data, images, merging templates and adding signatures.</li>
+                            <li>This guide provides a summary of each tab within the Mapping Key section, explaining how to effectively use these features to create powerful and dynamic templates.</li>
                         </ol>
                     </div><br/>
 
                     <div class="section">
-                        <h2>Template's User Details Tab</h2>
-                        <p>From this tab, the user can view or edit details for the template itself. Only some fields are available for the user to edit such as the template name, description and template status.</p>
-                        <div class="img"><img src={gdtemp7} alt="error" onclick={openModal}></div>
+                        <h2>Object Fields</h2>
+                        <ol class="slds-list_dotted">
+                            <li>Users can Add Object and Related Object data using the mapping key of the fields.</li>
+                            <li>Users can select an object and then choose specific fields to include in the template.</li>
+                            <li>Each field has a corresponding "Mapping Key" (e.g., &lbrace;&lbrace;#AccountNumber&rbrace;&rbrace;, &lbrace;&lbrace;#BillingCity&rbrace;&rbrace;) that will be replaced with actual data when the document is generated.</li>
+                            <li>The dropdown menu shows a list of objects and related objects (e.g., Account, Account > Owner, Account > Created By, etc.).</li>
+                            <li>Users can select the object from which they want to pull data for the fields. This data will be dynamically inserted into the template when generating the document.</li>
+                            <li>A search box is provided to search for specific fields within the selected object. Users can enter either the label or the API name (technical name) of the field they wish to map into the document.</li>
+                            <li>There is an icon that allows users to copy the mapping key. Users can then paste this key into the desired location in the document template.</li>
+                            <li>Another icon (format icon) provides options to format the field value before it is inserted into the document. This could include formatting text, numbers, percentages, currency, dates, datetime, time, and checkbox fields.</li>
+                        </ol>
                     </div><br/>
 
                     <div class="section">
-                        <h2>Template Defaults Tab</h2>
-                        <p>This page is used to create a quick action button on the source object for a one-click operation on generating templates.</p>
-                        <div class="img"><img src={gdtemp8} alt="error" onclick={openModal}></div>
-                        <ol class="slds-list_ordered">
-                            <li>Select the Document type - PDF or DOCX</li>
-                            <li>Select any one output from Internal Storage, External Storage and Output Channel.</li>
-                            <li>Enter the desired name for the Quick Action button. Once the button is created, you cannot change the name from here.</li>
-                            <li>Click on the Create Custom Button.</li>
+                        <h2>Formatting options for fields</h2>
+                        <h3>Text Field format options:</h3>
+                        <ol class="slds-list_dotted">
+                            <li>This functionality allows users to truncate the text of a field value to a specific number of characters.</li>
+                            <li>This is useful when user need to control the amount of text displayed in your templates, ensuring consistency and readability.</li>
+                            <li>To Apply this formatting, Navigate to the field you want to format. Click on three dots. Input the desired number of characters you want to display for this text field.</li>
+                            <li>This number represents the maximum length of the text that will be shown in the generated document.</li>
+                            <li>Once you've set the text length, a new mapping key will be generated.</li>
+                            <li>Go to the template content area where you want the truncated text to appear.</li>
                         </ol>
-                        <p>This will create a custom button. You can add this button on the object's page layout to generate templates.</p>
-                        <p><b>Note:</b> For the external storage, You will need to integrate with them from the user guide. If the storage is not integrated when the button is clicked, the storage upload will be skipped.</p>
+
+                        <h3>DateTime field format options:</h3>
+                        <ol class="slds-list_dotted">
+                            <li>The functionality allows users to setthe format of datetime field values in the generated document.</li>
+                            <li>Format <b>DateTime</b> field value by selecting format option for date and time.</li>
+                            <li>By selecting date and time formats from dropdown menus, users can generate a new mapping key, which can be copied and pasted into their templates.</li>
+                            <li>If you only need to display the date or time component of the datetime field, select the desired format from the corresponding dropdown menu while leaving the other dropdown blank.</li>
+                            <li>Users can create their own date, time, and datetime formatting by referring to the guidelines provided on this site: <a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html" target="_blank">Oracle SimpleDateFormat Documentation</a>.</li>
+                        </ol>
+
+                        <h3>Date field format options:</h3>
+
+                        <h3>Time field format options:</h3>
+
+                        <h3>Number, Percentage and Currency field format options:</h3>
+                        <ol class="slds-list_dotted">
+                            <li>This functionality allows you to customize the display format of Number, Percentage, and Currency fields in generated document.</li>
+                            <li><b>Salesforce Standard Formatting</b>: This includes predefined formats based on Salesforce's established standards for these field types.</li>
+                            <li><b>Set Decimal Places</b>: Use the provided option to determine the number of decimal places to display.</li>
+                            <li><b>Select Rounding Option</b>: If desired, you can round the field value by selecting a rounding option.</li>
+                        </ol>
+
+                        <h3>Checkbox field format options:</h3>
+                        <ol class="slds-list_dotted">
+                            <li>This Option allows users to customize the displayed value of a checkbox field in the generated document.</li>
+                            <li>By default, Salesforce represents checkbox values as true (checked) or false (unchecked). </li>
+                            <li>However, with this functionality, users can replace these default values with their own custom text.</li>
+                            <li>For example, user might choose to display "Yes/No," "Active/Inactive," or any other text that aligns with your business terminology.</li>
+                        </ol>
+
+                        <h3>Related List fields:</h3>
+                        <ol class="slds-list_dotted">
+                            <li>This is a key feature for generating tables in the template that display data from related records.</li>
+                            <li>Once a related list is selected, a button labeled <b>Generate Table For Related List</b> becomes enabled. Clicking this button allows the user to insert a table into the template that displays data from the related list.</li>
+                            <li>By clicking <b>Generate Table For Related List</b>, a popup will open as shown in the image,</li>
+                            <li>Select specific fields from a related object to be added to a table column.</li>
+                            <li>Apply filter on records.</li>
+                            <li>Order table column by field value.</li>
+                            <li>The maximum limit of the records (raws) that can be added to the table is 50.</li>
+                            <li>If the user wants to display records (raws) less than 50, the user can set it.</li>
+                            <li>Once done with, the fields, filter, ordering, and limits, click on <b>Generate Table</b> button.</li>
+                            <li>By clicking on the <b>Generate Table</b>, it generates and displays the table as per selected fields and other options, (shown in the image). You have the option to show/hide the index column.</li>
+                            <li>The first row indicates the label of each column, by default, it is set to the field label, user can set it according to them after paste into the template.</li>
+                            <li>The second row indicates the mapping for each field to add dynamic data.</li>
+                            <li>The third row is the temporary row, that removed after the document generation.</li>
+                            <li><b>Warning</b>: Do Not make any changes to the second and third rows.</li>
+                            <li>Once the user all done, There is a copy button to copy the generated table and paste it into the template.</li>
+                            <li>For the limitation of the related list field, please refer to the limitation section.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>General Fields</h2>
+                        <ol class="slds-list_dotted">
+                            <li>The <b>General Fields</b> section allows you to easily add standard details to your template such as creation date, creator user details, and organization details.</li>
+                            <li><b>Creation Date</b>: Insert the date when the document or the template was created.</li>
+                            <li><b>Creation User Details</b>: Add details about the user who created the document or the template, such as their name or ID.</li>
+                            <li><b>Organization Details</b>: Include information about the organization, like the company name, address, and other relevant details.</li> 
+                            <li>Click on the desired field to copy the mapping key.</li>
+                            <li>Paste the copied key into the template where you want the dynamic data to appear.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Merge Templates:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>The <b>Merge Templates</b> feature allows you to integrate another template that uses the same source object as the current template.</li>
+                            <li>From the Merge Templates tab, you will see a list of available templates that share the same source object as your current template.</li>
+                            <li>Copy the Mapping key to merge into your current template.</li>
+                            <li>If the merged template contains any further merge keys, those additional merge keys will not be merged into the final document. Instead, those nested merge keys will be removed during the merge process.</li>
+                            <li>If the template you are merging contains its own merge keys, it will show an error message in the final document.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Salesforce Images:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>The Salesforce Images section allows users to insert images stored in files or notes & attachments.</li>
+                            <li>This feature is particularly useful for adding company logos, product images, or any other visual content that is stored in Salesforce.</li>
+                            <li>Copy image using copy icon and paste into template.</li>
+                            <li>The maximum file size for any individual Salesforce image is as follows:
+                                <ol class="slds-list_dotted">
+                                    <li>Simple Template: 20MB</li>
+                                    <li>Google Doc Template: 1000MB</li>
+                                </ol>
+                            </li>
+                            <li>Allows image extensions are: <b>png, jpg, jpeg, avif, webp, heic, ico, jfif, jps, jpe</b></li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Signature:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>This Section allows users to dynamically insert signatures into their templates. By copying and pasting a signature key into the template, the process will automatically replace the key with the corresponding signature image during document generation.</li>
+                            <li>Signature Key acts as a placeholder and will be replaced with the actual signature image during document generation.</li>
+                            <li>The system will search for the most recent image associated with the source record that includes the word "signature-" in its name.</li>
+                            <li>If a matching signature image is found, it will replace the signature key in the template with this image.</li>
+                            <li>If no matching signature image is found, the document will display a blank space where the signature image should be.</li>
+                            <li>You can specify the size of the signature image as a percentage of the page size. This allows you to control how large or small the signature appears in the final document.</li>
+                            <li>For generating e-signatures within your Salesforce organization, you can use the Signature Anywhere AppExchange app. This app facilitates the collection and management of e-signatures, ensuring seamless integration with your DocGenius templates.</li>
+                        </ol>
                     </div>
                 </div>
+                
+                <!-- Document Generator -->
+                <div class="tab-content" lwc:if={docgenTab}>
+                    <h1>Document Generator</h1><br/>
+                    <div class="section">
+                        <h2>Prerequisite:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>You should have added a trusted URL ([org-instance].my.salesforce.com) to get the Document Generation working.</li>
+                            <li>The Button, created by the button generator on the object.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Purpose of Document Generator:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>The Document Generator is used to generate the documents and store the generated documents in various options.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Generate Document:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>Navigate to the list view or record page where you have created your generation button.</li>
+                            <li>Click on the generation button, DG Generate Document if generating from the record detail page or DG Generate CSV, if generating from the List view.</li>
+                            <li>You will see the Generate Document Pop-up to generate the Document, with the template selection dropdown having all the active templates.</li>
+                            <li>If you want to see all the templates including your inactive templates, you can click on the 'View All' Button.</li>
+                            <li>As soon as you select the template, all the generation options will be visible to you.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Document Types:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>You can choose in which file type, you want your document to be created from the document type.</li>
+                            <li>You can generate CSV/XLS from the CSV Template and PDF/DOC from the Simple template or Google Doc template.</li>
+                            <li>CSV will be selected as the document type by default if you have selected CSV Template else PDF will be selected by default.</li>
+                            <li>Selecting one option from the document types is mandatory to generate a document.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Intenal Storage:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>You can store the generated files in the Internal Storage of your salesforce itself.</li>
+                            <li>You can create Notes & Attachments, Files and Documents. You can also post a file on the chatter, but you can not generate notes & Attachments from the CSV Template as it need to be attached with a record.</li>
+                            <li>If you select the Documents as the internal storage, you might select the Folder to save that document in, by default user's personal folder will be selected.</li>
+                            <li>If the selected template is not a CSV template, the generated attachment, file and chatter will be linked to the record, using whose records page, the generation button was clicked and if it is a CSV template, then the generated files and chatter will be stored in general files and chatter.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>External Storage:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>You can upload the generated document to the external storage, but for that, you must integrate your system with that external storage.</li>
+                            <li>All the Active Integrated External Storages will be available to select and store files, and inactive and non-integrated options will be disabled.</li>
+                            <li>Storing the files in external storage may take some time to show files over there.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Output Channel:</h2>
+                        <ol class="slds-list_dotted">
+                            <li>You can Email your document directly or download the document to your local system storage.</li>
+                            <li>When you select the email, the email composer will be visible to you, which will take inputs like, to recipient's email addresses, email templates, email subject and email body.</li>
+                            <li>You can add the recipient by typing the correct email address and putting a space or a comma after that.</li>
+                            <li>You can also use a tab or enter/return on your keyboard to add the email address.</li>
+                            <li>You can also add multiple emails at once which are separated by a space or a comma.</li>
+                            <li>You can also toggle cc and bcc to add cc/bcc recipients.</li>
+                            <li>You can Import an email subject and email body directly from the email templates or you can add the subject and body by yourself.</li>
+                            <li>If you have selected the email template, the subject will be replaced by the subject from the email template and the email body will be previewed.</li>
+                            <li>If you wish to write the email body by yourself, you can write and format the body as you wish, you can also change the view of the body composer between Rich text and plain text.</li>
+                            <li>Using View as Plain Text, you can add or update the HTML content of your email body.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Preview and Generation</h2>
+                        <ol class="slds-list_dotted">
+                            <li>You might select at least one option from internal storage, external storage or output channel to generate document.</li>
+                            <li>You can enter the name of your document from the below file name input box, by default file will be named as the template name if you leave the file name field empty.</li>
+                            <li>You can preview the document that is about to be generated with the preview button at the bottom.</li>
+                            <li>The CSV Preview will only show you 25 records at max.</li>
+                            <li>You can navigate to the respective editor if you wish to edit the template directly from the preview page, or you can use the edit template button on the right side of the template selection.</li>
+                            <li>For the CSV Template, you can also add additional information about the template by checking the Add additional template details in the file checkbox.</li>
+                            <li>After you are all good with the options, you can click on generate to start the document generation process.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>General Limitations</h2>
+                        <ol class="slds-list_dotted">
+                            <li>File Size:
+                                <ol class="slds-list_dotted">
+                                    <li>Notes & Attachments: 25 MB</li>
+                                    <li>Files: 35 MB</li>
+                                    <li>Chatter: 35 MB</li>
+                                    <li>Document: 5MB</li>
+                                    <li>Google Drive, One Drive, Dropbox: 35 MB</li>
+                                    <li>AWS: 35 MB with Named Credential, else 10 MB</li>
+                                </ol>
+                            </li>
+                            <li>Simple template PDF/DOC can not exceed 20 pages.</li>
+                            <li>The email body of the email templates will not be editable.</li>
+                            <li>Email template merge fields will not take effect, so do not use merge fields in the email templates.</li>
+                        </ol>
+                    </div><br/>
+                </div>
+                
             </div>
         </div>
     </div>
