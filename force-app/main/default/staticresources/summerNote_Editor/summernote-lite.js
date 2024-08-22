@@ -3970,6 +3970,7 @@
                   'font-strikethrough': document.queryCommandState('strikethrough') ? 'strikethrough' : 'normal',
                   'font-family': document.queryCommandValue('fontname') || styleInfo['font-family']
                 });
+
               } catch (e) { } // eslint-disable-next-line
               // list-style-type to list-style(unordered, ordered)
 
@@ -7484,18 +7485,18 @@
                       
                       external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(item).change(function (e) {
                         try{
-                          // DocGenius Changes...
+                          // ... DocGenius Changes ... to set recent color
+                          // const editor = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(this).closest('.note-editable');
                           var $parent = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()('.' + className).find('.note-dropdown-menu');
                           var eventName = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(this).data('event');
                           var $chip = $parent.find('#' + eventName).find('.note-color-btn').first();
                           var color = this.value.toUpperCase();
-                          console.log('picked color : ', color);
                           $chip.css('background-color', color)
                             .attr('aria-label', color)
                             .attr('data-value', color)
                             .attr('data-original-title', color);
 
-                            $chip.click();
+                          $chip.click();
                         }
                         catch(error){
                           console.log('error : ', error.message);
@@ -7528,7 +7529,7 @@
                         var key = eventName === 'backColor' ? 'background-color' : 'fill';
                         var $color = $button.closest('.note-color').find('.note-recent-color');
                         var $currentButton = $button.closest('.note-color').find('.note-current-color-button');
-                        // $color.css(key, value);
+                        // $color.css(key, value);     //... DocGenius Changes >>> to not set font and background color of color selection
                         $currentButton.attr('data-' + eventName, value);
                       }
 
@@ -7648,6 +7649,20 @@
               });
               this.context.memo('button.fontname', function () {
                 var styleInfo = _this2.context.invoke('editor.currentStyle');
+
+                // ...DocGenius Changes... START ... to add system default font-family
+
+                  var fontNames = styleInfo['font-family'].split(',').map(function (name) {
+                    return name.replace(/[\'\"]/g, '').replace(/\s+$/, '').replace(/^\s+/, '');
+                  });
+
+                  let fontName = lists.find(fontNames, _this2.isFontInstalled.bind(_this2));
+                  console.log(' this.options.fontNames : ', _this2.options.fontNames);
+                  if(!_this2.options.fontNames.includes(fontName)){
+                    _this2.options.fontNames.push(fontName);
+                  }
+
+                // ...DocGenius Changes... END ...
 
                 if (_this2.options.addDefaultFonts) {
                   // Add 'default' fonts into the fontnames array if not exist
@@ -8108,10 +8123,12 @@
               });
 
               if (styleInfo['font-family']) {
+
                 var fontNames = styleInfo['font-family'].split(',').map(function (name) {
                   return name.replace(/[\'\"]/g, '').replace(/\s+$/, '').replace(/^\s+/, '');
                 });
                 var fontName = lists.find(fontNames, this.isFontInstalled.bind(this));
+                
                 $cont.find('.dropdown-fontname a').each(function (idx, item) {
                   var $item = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(item); // always compare string to avoid creating another func.
 
@@ -9933,10 +9950,10 @@
               pc: {
                 'ESC': 'escape',
                 'ENTER': 'insertParagraph',
-                'CTRL+Z': 'undo',
-                'CTRL+Y': 'redo',
+                // 'CTRL+Z': 'undo',
+                // 'CTRL+Y': 'redo',
                 'TAB': 'tab',
-                'SHIFT+TAB': 'untab',
+                // 'SHIFT+TAB': 'untab',
                 'CTRL+B': 'bold',
                 'CTRL+I': 'italic',
                 'CTRL+U': 'underline',
@@ -9963,10 +9980,10 @@
               mac: {
                 'ESC': 'escape',
                 'ENTER': 'insertParagraph',
-                'CMD+Z': 'undo',
-                'CMD+SHIFT+Z': 'redo',
+                // 'CMD+Z': 'undo',
+                // 'CMD+SHIFT+Z': 'redo',
                 'TAB': 'tab',
-                'SHIFT+TAB': 'untab',
+                // 'SHIFT+TAB': 'untab',
                 'CMD+B': 'bold',
                 'CMD+I': 'italic',
                 'CMD+U': 'underline',

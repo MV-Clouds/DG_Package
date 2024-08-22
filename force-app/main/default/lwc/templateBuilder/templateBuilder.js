@@ -209,15 +209,13 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         this.initialize_Header_Editor();
                         this.initialize_Footer_Editor();
 
-                        $(document).on("keyup", function(event){
-                            // if user press clt + s on keybord
-                            if (event.which == 83 && event.ctrlKey){
-                            //    add your save method here
-                                console.log('crl + s');
-                                this.isSpinner = true;
-                                this.saveTemplateValue('save')
+                            var self = this;
+                            $(document).on("keydown", function(event){
+                                // if user press clt + s on keyboard
+                                if ((event.key == 's' || event.key == 'S') && (event.ctrlKey || event.metaKey)){
+                                    self.saveTemplateData();
+                                }
                             }
-                        }
                         );
                     })
                     .catch(err => {
@@ -1059,7 +1057,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 page.scrollTop = 0;
                 const pageRect = page.getBoundingClientRect();
 
-                console.log('event : ', event);
                 if(event){
                     const selection = window.getSelection();
                     const cursorNode = selection?.anchorNode;

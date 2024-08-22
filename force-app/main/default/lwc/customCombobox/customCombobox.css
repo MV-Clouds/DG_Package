@@ -141,18 +141,17 @@
   .inputAreaCSS_1{
     width: var(--inputAreaWidth, 100%) !important;
   }
-  .inputAreaCSS_2{    
-    border-width: var(--inputAreaBorderWidth, 1px);
-    border-color: var(--inputAreaBorderColor, #8e8e8e);
-    border-radius: var(--inputAreaBorderRadius, 4px);
-
-  }
   .inputAreaCSS_2, .inputAreaSectiedValueCSS{
-    font-size: var(--inputAreaFontSize, unset) !important;
-    min-height: var(--inputAreaHeight);
-    color : var(--inputAreaFontColor, #424242);
-    background-color : var(--inputAreaBgColor, white);
-  }
+      outline : none;
+      box-shadow : none;
+      font-size: var(--inputAreaFontSize, unset) !important;
+      min-height: var(--inputAreaHeight);
+      color : var(--inputAreaFontColor, #424242);
+      background-color : var(--inputAreaBgColor, white);
+      border-width: var(--inputAreaBorderWidth, 1px);
+      border-color: var(--inputAreaBorderColor, #8e8e8e);
+      border-radius: var(--inputAreaBorderRadius, 4px);
+    }
   .inputAreaCSS_2:focus, .inputAreaSectiedValueCSS:focus{
     box-shadow : var(--inputOnFocusShadow);
     border-color : var(--inputOnFocusBorderColor);
@@ -194,7 +193,7 @@
     padding: 0 0.5rem;
     z-index: 4 !important;
     width: fit-content !important;
-    border-radius: 50%;
+    /* border-radius: 50%; */
     position: var(--labelPosition);
     top: var(--labelTop);
     left: var(--labelLeft);
@@ -243,7 +242,7 @@
   }
 
   .invalid-input{
-    background-color: rgb(255, 255, 255);
-    border-color: rgb(238 72 65);
-    box-shadow: rgb(243 82 76) 0px 0px 1px 1px;
+    background-color: var(--invalidInputBackground, rgb(255, 255, 255)) !important;
+    border-color: var(--invalidInputBorderColor,  rgb(238 72 65)) !important;
+    box-shadow: var(--invalidInputShadow,  rgb(243 82 76) 0px 0px 1px 1px) !important;
   }

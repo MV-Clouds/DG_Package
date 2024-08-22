@@ -664,15 +664,11 @@ export default class CustomCombobox extends LightningElement {
         try {
             // if isInvalid is "TRUE" --> Show Error Border...
             if(isInvalid){
-                this.template.querySelector('.slds-combobox__input')
-                .style = `  var(--invalidInputBackground, background-color: rgb(255, 255, 255));
-                            var(--invalidInputBorderColor, border-color: rgb(238 72 65));
-                            var(--invalidInputShadow, box-shadow: rgb(243 82 76) 0px 0px 1px 1px);
-                `;
+                this.template.querySelector('.slds-combobox__input')?.classList.add('invalid-input');
             }
             // else Remove Error Border...
             else{
-                this.template.querySelector('.slds-combobox__input').style = '';
+                this.template.querySelector('.slds-combobox__input')?.classList.remove('invalid-input');
             }
         } catch (error) {
             errorDebugger('CustomCombobox', 'isInvalidInput', error, 'warn');

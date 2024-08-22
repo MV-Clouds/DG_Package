@@ -1883,6 +1883,10 @@ a.note-dropdown-item:hover {
                 flex-direction: column;
                 justify-content: flex-end; */
             }
+            .headerEditor .note-btn[aria-label="Insert Page Break (CTRL+ENTER)"],
+            .footerEditor .note-btn[aria-label="Insert Page Break (CTRL+ENTER)"]{
+                display: none !important;
+            }
 
             .note-editor.note-frame .note-status-output, .note-editor.note-airframe .note-status-output{
                 display: none !important;
@@ -2004,7 +2008,9 @@ a.note-dropdown-item:hover {
                 outline: none;
                 background: #dfdfdf;
                 border-radius: 4px !important;
-
+            }
+            .note-btn[aria-label="Set font-size"]:hover{
+                background: unset;
             }
             /* Toolbar button DropDown manus */
             .note-dropdown-menu{
@@ -2179,6 +2185,14 @@ a.note-dropdown-item:hover {
                     cursor: not-allowed !important;
                     opacity: .65 !important;
                 }
+            }
+
+            .note-modal[aria-label="Help"] .note-modal-footer{
+                display : none;
+            }
+
+            .note-modal[aria-label="Help"] .note-modal-content{
+                padding: 0px !important;
             }
 
             @media print {
