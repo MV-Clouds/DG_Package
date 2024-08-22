@@ -150,6 +150,49 @@ export default class UserGuide extends LightningElement {
         return Userguide + '/onedriveactive.png';
     }
 
+    // Simple Template
+    get stemp1() {
+        return Userguide + '/homescreen.png';
+    }
+    get stemp2() {
+        return Userguide + '/pageconfig.png';
+    }
+    get stemp3() {
+        return Userguide + '/header.png';
+    }
+    get stemp4() {
+        return Userguide + '/footer.png';
+    }
+    get stemp5() {
+        return Userguide + '/basicdetails.png';
+    }
+
+    // Google Doc Images
+    get gdtemp1() {
+        return Userguide + '/creationpage.png';
+    }
+    get gdtemp2() {
+        return Userguide + '/alltemplates.png';
+    }
+    get gdtemp3() {
+        return Userguide + '/keymappingpage.png';
+    }
+    get gdtemp4() {
+        return Userguide + '/previewbutton.png';
+    }
+    get gdtemp5() {
+        return Userguide + '/previewpage.png';
+    }
+    get gdtemp6() {
+        return Userguide + '/previewpage2.png';
+    }
+    get gdtemp7() {
+        return Userguide + '/gbasicdetails.png';
+    }
+    get gdtemp8() {
+        return Userguide + '/setdefaults.png';
+    }
+
     // CSV Template
     get csv1() {
         return Userguide + '/NewCSVTemplateCreation.png';
@@ -239,12 +282,14 @@ export default class UserGuide extends LightningElement {
     }
 
     openTab() {
+        this.template.querySelector('.svg-arrow').style.transform = 'rotate3d(0, 1, 0, 180deg)';
         this.template.querySelector('.left-section').style.width = '30%';
         this.template.querySelector('.container').style.gap = '20px';
         this.isOpen = true;
     } 
     
     closeTab() {
+        this.template.querySelector('.svg-arrow').style.transform = 'rotate3d(0, 0, 0, 180deg)';
         this.template.querySelector('.left-section').style.width = '0';
         this.template.querySelector('.container').style.gap = '0';
         this.isOpen = false;
