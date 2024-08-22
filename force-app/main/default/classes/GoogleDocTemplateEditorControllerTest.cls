@@ -47,7 +47,7 @@ public class GoogleDocTemplateEditorControllerTest {
         GoogleDocTemplateEditorController.getAllData(temp.Id, 'Account');
         googleDocTemplateEditorController.editTemplate(JSON.serialize(tempData));
         
-        GoogleDocTemplateEditorController.saveTemplateData(temp.Id, 'googleDocId', 'webViewLink', 'documentName');
+        GoogleDocTemplateEditorController.saveTemplateData(temp.Id, 'googleDocId', 'webViewLink');
 
         Test.stopTest();
 
