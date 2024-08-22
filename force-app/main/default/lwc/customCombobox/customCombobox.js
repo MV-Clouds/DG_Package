@@ -514,14 +514,10 @@ export default class CustomCombobox extends LightningElement {
         try {
             if(this.required){
                 if((this.multiselect && this.selectedItems.length === 0) || (!this.multiselect && this.selectedOptionLabel === null)){
-                    this.template.querySelector('.slds-combobox__input')
-                    .style = `  background-color: rgb(255, 255, 255);
-                                border-color: rgb(238 72 65);
-                                box-shadow: rgb(243 82 76) 0px 0px 1px 1px;
-                    `;
+                    this.template.querySelector('.slds-combobox__input')?.classList.add('invalid-input');
                 }
                 else {
-                    this.template.querySelector('.slds-combobox__input').style = '';
+                    this.template.querySelector('.slds-combobox__input')?.classList.remove('invalid-input');
                 }
             }
         } catch (error) {
