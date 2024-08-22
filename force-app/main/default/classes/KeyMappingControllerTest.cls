@@ -11,7 +11,6 @@ private class KeyMappingControllerTest {
         Test.startTest();
         KeyMappingController.getFieldMappingKeys(sourceObjectAPI, true);
         KeyMappingController.getChildObjects(sourceObjectAPI);
-        KeyMappingController.getMerginTemplateKeys(sourceObjectAPI);
         KeyMappingController.getAllContentVersionImgs('TEST');
         KeyMappingController.getGeneralFields();
         KeyMappingController.formattingFieldKeys();
