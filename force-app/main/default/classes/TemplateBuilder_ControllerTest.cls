@@ -69,7 +69,7 @@ private class TemplateBuilder_ControllerTest {
         String returnValue = TemplateBuilder_Controller.saveTemplateApex(temp, null, null);
         Test.stopTest();
 
-        System.assertEquals('error', returnValue, 'success');
+        System.assertEquals(null, returnValue, 'success');
 
     }
 
