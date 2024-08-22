@@ -11,6 +11,9 @@ public class GoogleDriveAuthorizationControllerTest {
             }else if(req.getEndpoint().contains('https://www.googleapis.com/drive/v3/about?fields=user')){
                 res.setStatusCode(200);
                 res.setBody('{"user": {"emailAddress": "test@example.com", "displayName": "testuser", "photoLink": "dummy_photo_link"}}');
+            } else if (req.getEndpoint().contains('https://oauth2.googleapis.com/revoke')) {
+                res.setStatusCode(200);
+                res.setBody('{"user": {"emailAddress": "test@example.com", "displayName": "testuser", "photoLink": "dummy_photo_link"}}');
             }else {
                 res.setStatusCode(404);
                 res.setBody('{"error": "Not Found"}');
@@ -218,6 +221,7 @@ public class GoogleDriveAuthorizationControllerTest {
         settings.MVDG__refresh_token__c = 'test';
         upsert settings;
         Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new GoogleCalloutMock());
         Boolean result = GoogleDriveAuthorizationController.orgunauthorize();
         Test.stopTest();
         System.assertNotEquals(false, result, 'Result cannot be false');

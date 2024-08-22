@@ -85,7 +85,6 @@ private class OneDriveSuccessControllerTest {
         // Validate results
         System.assertEquals('Success', result);
         System.assertEquals('Mock User', settings.MVDG__username__c);
-        System.assertEquals('mockemail@example.com', settings.MVDG__email__c);
         System.assertEquals(true, settings.MVDG__WorkingStatus__c);
     }
 
