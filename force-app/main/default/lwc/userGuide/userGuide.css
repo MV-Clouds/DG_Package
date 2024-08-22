@@ -12,6 +12,7 @@
 
 .left-section {
     width: 0;
+    overflow: scroll;
     transition: all 0.5s;
 }
 
@@ -57,7 +58,7 @@
 
 .content img{
     margin: 0.5rem;
-    width: 80%;
+    width: 600px;
 }
 
 .content{
@@ -87,6 +88,7 @@
     border-radius: 50%;
     margin: 1px;
     transition: all 0.3s;
+    cursor: pointer;
 }
 
 .arrow:hover{
@@ -104,6 +106,7 @@
 }
 
 .white-background{
+    width: 100%;
     font-size: 16px;
     font-family: Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
     background-color: #fff;

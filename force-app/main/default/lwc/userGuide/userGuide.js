@@ -225,6 +225,8 @@ export default class UserGuide extends LightningElement {
     activeSections = [];
     @track selectedImage = this.aws1;
 
+    @track dochomeTab = false;
+    @track btngenTab = false;
     @track awsTab = true;
     @track gdriveTab = false;
     @track odriveTab = false;
@@ -232,6 +234,8 @@ export default class UserGuide extends LightningElement {
     @track stempTab = false;
     @track csvtempTab = false;
     @track gdtempTab = false;
+    @track keysecTab = false;
+    @track docgenTab = false;
 
     @track isOpen = false;
     @track showModal = false;
@@ -244,33 +248,32 @@ export default class UserGuide extends LightningElement {
         this.showModal = true;
     }
 
-    modalClose(event) {
-        // close modal when esc key is pressed
-        console.log(event.key);
-        
-        if(event.key === 'Escape') {
-            this.showModal = false;
-        }
-    }
-
+    // Switch Tabs
     handleTabSelection(event) {
-        let tabName = event.target.dataset.tab;
-        
-        this.closeTab();
-        this.awsTab = false;
-        this.gdriveTab = false;
-        this.odriveTab = false;
-        this.dropboxTab = false;
-        this.stempTab = false;
-        this.csvtempTab = false;
-        this.gdtempTab = false;
-        this[tabName + 'Tab'] = true;
-
-        let currentTab = this.template.querySelector('.selected-tab');
-        currentTab.classList.remove('selected-tab');
-
-        let tab = this.template.querySelector(`.tabs[data-tab="${tabName}"]`);
-        tab.classList.add('selected-tab');
+        try {
+            this.closeTab();
+            
+            let tabName = event.target.dataset.tab;
+            this.dochomeTab = false;
+            this.btngenTab = false;
+            this.awsTab = false;
+            this.gdriveTab = false;
+            this.odriveTab = false;
+            this.dropboxTab = false;
+            this.stempTab = false;
+            this.csvtempTab = false;
+            this.gdtempTab = false;
+            this.keysecTab = false;
+            this.docgenTab = false;
+            this[tabName + 'Tab'] = true;
+            
+            let currentTab = this.template.querySelector('.selected-tab');
+            currentTab.classList.remove('selected-tab');
+            let tab = this.template.querySelector(`.tabs[data-tab="${tabName}"]`);
+            tab.classList.add('selected-tab');
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     toggleTab() {
@@ -293,13 +296,5 @@ export default class UserGuide extends LightningElement {
         this.template.querySelector('.left-section').style.width = '0';
         this.template.querySelector('.container').style.gap = '0';
         this.isOpen = false;
-    }
-
-    connectedCallback() {
-        // 
-    }
-
-    renderedCallback(){
-        // 
     }
 }
