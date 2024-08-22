@@ -330,14 +330,17 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
 
     @AuraEnabled
     public static void emailUser(String message) {
-        if(Schema.sObjectType.User.fields.Email.isAccessible()){
-        // User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
         String subject = 'Issue in uploading file to dropbox';
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(UserInfo.getUserEmail());
+        String userEmail = UserInfo.getUserEmail();
+        if (userEmail != null && userEmail.contains('@')) {
+            mail.setToAddresses(new List<String>{userEmail});
+        } else {
+            // Handle the case when email is null or invalid
+            System.debug('Invalid user email: ' + userEmail);
+        } 
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-        }
     }
 }

@@ -349,20 +349,24 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 
     @AuraEnabled
     public static void emailUser(String message) {
-        if(Schema.sObjectType.User.fields.Email.isAccessible()){
         // User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
         String subject = 'Issue in uploading file to google drive';
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(UserInfo.getUserEmail());
+        String userEmail = UserInfo.getUserEmail();
+        if (userEmail != null && userEmail.contains('@')) {
+            mail.setToAddresses(new List<String>{userEmail});
+        } else {
+            // Handle the case when email is null or invalid
+            System.debug('Invalid user email: ' + userEmail);
+        }
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-        }
     }
 
     public static string contentType(string fileType) {
         switch on fileType.toLowerCase() {
-            when 'docx' {
+            when 'docx' {a
                 return 'application/vnd.google-apps.file';
             }
             when 'csv' {
