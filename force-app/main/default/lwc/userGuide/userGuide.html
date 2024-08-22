@@ -1,6 +1,6 @@
 <!-- sldsValidatorIgnore -->
 <template>
-    <div class="custom-modal-overlay" if:true={showModal} onclick={closeModal}>
+    <div class="custom-modal-overlay" if:true={showModal}>
         <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="custom-modal-heading" class="custom-modal-container">
             <div class="custom-modal-content">
                 <button class="custom-modal-close" onclick={closeModal} title="Close">
@@ -11,6 +11,7 @@
                 </div>
             </div>
         </section>
+        <div class="backdrop" onclick={closeModal}></div>
     </div>
 
     <!--  -->
@@ -51,12 +52,19 @@
                 </div>
             </div>
         </div>
+        <div class="horizontal-line">
+            <div class="top-line"></div>
+            <div class="arrow" onclick={toggleTab}>
+                <svg class="svg-arrow" width="24" height="24" viewBox="0 0 24 24" role="presentation"><path fill="#fff" fill-rule="evenodd" d="M10.294 9.698a.99.99 0 0 1 0-1.407 1.01 1.01 0 0 1 1.419 0l2.965 2.94a1.09 1.09 0 0 1 0 1.548l-2.955 2.93a1.01 1.01 0 0 1-1.42 0 .99.99 0 0 1 0-1.407l2.318-2.297z"></path></svg>
+            </div>
+            <div class="bottom-line"></div>
+        </div>
         <div class="white-background">
             <div class="content">
 
                 <!-- AWS -->
                 <div class="tab-content" lwc:if={awsTab}>
-                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg> AWS Integration</h1><br/>
+                    <h1 onclick={toggleTab}> AWS Integration</h1><br/>
                     <p><b>Step:1</b> Create a bucket or use existing bucket if any in your <a href="https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin" target="_blank">aws account</a> and copy bucket name.</p>
                     <p class="note">[ NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 ]</p>
                     <div class="img"><img src={aws1} alt="error" onclick={openModal}></div>
@@ -76,7 +84,7 @@
 
                 <!-- Google Drive -->
                 <div class="tab-content" lwc:if={gdriveTab}>
-                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  Google Drive Integration</h1><br/>
+                    <h1 onclick={toggleTab}>  Google Drive Integration</h1><br/>
                     <p><b>Step 1:</b> Drag and drop the Google Drive logo into the designated droppable area.</p>
                     <div class="img"><img src={gdrive1} alt="error" onclick={openModal}></div>
                     <p><b>Step 2:</b> Click on "Generate Authorization Code."</p>
@@ -97,7 +105,7 @@
 
                 <!-- One Drive -->
                 <div class="tab-content" lwc:if={odriveTab}>
-                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  One Drive Integration</h1><br/>
+                    <h1 onclick={toggleTab}>  One Drive Integration</h1><br/>
                     <p><b>Step 1:</b> Sign in to your <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank">Microsoft Azure account</a> or create a new one if you don't have an account. Once signed in, navigate to the Azure portal and create a new app registration.</p>
                     <div class="img"><img src={odrive1} alt="error" onclick={openModal}></div>
                     <p><b>Step 2:</b> Create a new app registration by providing a name for your app. Choose the option "Accounts in any organizational directory" for the supported account types. Select "Web" for the application type, and paste the Redirect URI from Doc Genius into the appropriate field.</p>
@@ -121,7 +129,7 @@
 
                 <!-- Dropbox -->
                 <div class="tab-content" lwc:if={dropboxTab}>
-                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  Dropbox Integration</h1><br/>
+                    <h1 onclick={toggleTab}>  Dropbox Integration</h1><br/>
                     <p><b>Step 1:</b> Sign in to your <a href="https://www.dropbox.com/developers" target="_blank">Dropbox developer account</a> or create a new one if you don't have an account yet. Once signed in, navigate to the Dropbox App Console and click on "Create App."</p>
                     <div class="img"><img src={dropbox1} alt="error" onclick={openModal}></div>
                     <p><b>Step 2:</b> Choose "Scoped app" and select "Full Dropbox" access. Enter a name for your app, then click "Create App."</p>
@@ -144,7 +152,7 @@
 
                 <!-- Simple Template -->
                 <div class="tab-content" lwc:if={stempTab}>
-                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  Simple Template</h1><br/>
+                    <h1 onclick={toggleTab}>  Simple Template</h1><br/>
 
                     <div class="section">
                         <h2>How to build and edit a simple template?</h2>
@@ -164,6 +172,7 @@
                             <li>There are also options to insert images, tables, links, page breaks, and clear formatting.</li>
                             <li>You can also edit templates using HTML code.</li>
                         </ol>
+                        <div class="img"><img src={stemp1} alt="error" onclick={openModal}></div>
                     </div><br/>
 
                     <div class="section">
@@ -178,6 +187,7 @@
                             <li>The Page Header Option provides an option to toggle the header on or off. If the Show Header toggle is enabled, meaning the header will be displayed on the page. Users can also adjust the distance of the header from the top of the page using the "Header From Top" option, currently set to 0.1 inches.</li>
                             <li>Similar to the header, the Page Footer option provides options for including a footer on the page.</li>
                         </ol>
+                        <div class="img"><img src={stemp2} alt="error" onclick={openModal}></div>
                     </div><br/>
 
                     <div class="section">
@@ -189,6 +199,7 @@
                             <li>You can set the header position from the top of the page.</li>
                             <li>The maximum size of the header is 40% of the page height.</li>
                         </ol>
+                        <div class="img"><img src={stemp3} alt="error" onclick={openModal}></div>
                     </div><br/>
 
                     <div class="section">
@@ -201,6 +212,7 @@
                             <li>You can set the footer position from the bottom of the page.</li>
                             <li>The maximum size of the footer is 40% of the page height.</li>
                         </ol>
+                        <div class="img"><img src={stemp4} alt="error" onclick={openModal}></div>
                     </div><br/>
 
                     <div class="section">
@@ -211,12 +223,13 @@
                             <li>You also have a page configuration option in the basic detail section.</li>
                             <li>By clicking on the Cancel button, you can revert your changes.</li>
                         </ol>
+                        <div class="img"><img src={stemp5} alt="error" onclick={openModal}></div>
                     </div>
                 </div>
 
                 <!-- CSV Template -->
                 <div class="tab-content" lwc:if={csvtempTab}>
-                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  CSV Template</h1><br/>
+                    <h1 onclick={toggleTab}>  CSV Template</h1><br/>
                     
                     <div class="section">
                         <h2>Prerequisite:</h2>
@@ -324,13 +337,14 @@
 
                 <!-- Google Docs -->
                 <div class="tab-content" lwc:if={gdtempTab}>
-                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  Google Docs Template</h1><br/>
+                    <h1 onclick={toggleTab}>  Google Docs Template</h1><br/>
 
                     <div class="section">
                         <h2>Prerequisites:</h2>
                         <ol class="slds-list_ordered">
-                            <li>You will need to integrate with Google Drive to create and generate templates.</li>
-                            img
+                            <li>You will need to integrate with Google Drive to create and generate templates.
+                                <br/><div class="img"><img src={gdrive1} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>You need at least view access for the Google Document to generate templates.</li>
                             <li>You need at least one document in your Google Drive to create a Google Doc Template</li>
                         </ol>
@@ -343,9 +357,13 @@
                             <li>Go to the Home page.</li>
                             <li>Click on the new template button on the top-left corner of the page.</li>
                             img
-                            <li>On the new template popup, Enter the required details such as the template name and Source object. Enter the source object wisely as it cannot be changed once the template is created.</li>
+                            <li>On the new template popup, Enter the required details such as the template name and Source object. Enter the source object wisely as it cannot be changed once the template is created.
+                                <br/><div class="img"><img src={gdtemp1} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>Select the template type as Google Doc Template.</li>
-                            <li>Click Save.</li>
+                            <li>Click Save.
+                                <br/><div class="img"><img src={gdtemp2} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>Now select your Google Document and click on Next. This opens your Google document as a template.</li>
                         </ol>
                         <p>On the last screen when you are redirected to the document selection page, This page shows all the Google documents from the integrated user's Google Drive to create a template.</p>
@@ -355,7 +373,9 @@
                         <h2>Editing the template</h2>
                         <p><b>You can add your required fields from the right-side panel into your template:</b></p>
                         <ol class="slds-list_ordered">
-                            <li>Click on the copy button next to the field name.</li>
+                            <li>Click on the copy button next to the field name.
+                                <br/><div class="img"><img src={gdtemp3} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>Paste it wherever you want in your template.</li>
                         </ol>
 
@@ -383,9 +403,15 @@
                         <h2>Previewing the template</h2>
                         <p>You can preview how the template would look from the preview button.</p>
                         <ol class="slds-list_ordered">
-                            <li>Click on the preview button at the bottom of the right-side panel.</li>
-                            <li>Select the record for which you want to see the preview.</li>
-                            <li>Click on generate preview.</li>
+                            <li>Click on the preview button at the bottom of the right-side panel.
+                                <br/><div class="img"><img src={gdtemp4} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>Select the record for which you want to see the preview.
+                                <br/><div class="img"><img src={gdtemp5} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>Click on generate preview.
+                                <br/><div class="img"><img src={gdtemp6} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                         <p><b>Note:</b></p>
                         <ol class="slds-list_ordered">
@@ -414,11 +440,13 @@
                     <div class="section">
                         <h2>Template's User Details Tab</h2>
                         <p>From this tab, the user can view or edit details for the template itself. Only some fields are available for the user to edit such as the template name, description and template status.</p>
+                        <div class="img"><img src={gdtemp7} alt="error" onclick={openModal}></div>
                     </div><br/>
 
                     <div class="section">
                         <h2>Template Defaults Tab</h2>
                         <p>This page is used to create a quick action button on the source object for a one-click operation on generating templates.</p>
+                        <div class="img"><img src={gdtemp8} alt="error" onclick={openModal}></div>
                         <ol class="slds-list_ordered">
                             <li>Select the Document type - PDF or DOCX</li>
                             <li>Select any one output from Internal Storage, External Storage and Output Channel.</li>

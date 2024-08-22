@@ -118,13 +118,14 @@ public with sharing class GoogleDocTemplateEditorController {
         try {
             
             System.debug('Refresh Access token');
+            List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + settings.MVDG__ClientId__c + '&client_secret=' + settings.MVDG__ClientSecret__c + '&grant_type=refresh_token');
-            
+            // request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + settings.MVDG__ClientId__c + '&client_secret=' + settings.MVDG__ClientSecret__c + '&grant_type=refresh_token');
+            request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             

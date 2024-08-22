@@ -17,7 +17,6 @@
 
 .left-section h1 {
     font-size: small;
-    font-weight: lighter;
     color: rgba(123, 126, 127, 1);
 }
 
@@ -64,6 +63,44 @@
 .content{
     background-image: url('/resource/MVDG__homePageImgs/HomeNoRecordBg.png');
     background-size: contain;
+}
+
+.horizontal-line {
+    background-color: #fff;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* border: solid black 1px; */
+}
+
+.top-line {
+    border: solid #00AEFF 0.5px;
+    width: 0;
+    height: 10%;
+}
+
+.arrow {
+    border: solid transparent 1px;
+    background-color: #00AEFF;
+    border-radius: 50%;
+    margin: 1px;
+    transition: all 0.3s;
+}
+
+.arrow:hover{
+    background-color: #0072C6;
+}
+
+.arrow:active{
+    background-color: #00528c;
+}
+
+.bottom-line {
+    border: solid #00AEFF 0.5px;
+    width: 0;
+    height: calc(90% - 24px);
 }
 
 .white-background{
@@ -138,11 +175,10 @@ lightning-accordion-section {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 98;
 }
 
 .custom-modal-container {
@@ -153,14 +189,7 @@ lightning-accordion-section {
     margin-top: 5.5rem;
     margin-inline: 5.5rem;
     animation: fadeIn 0.3s ease-in-out;
-}
-
-.custom-modal-header {
-    padding: 1rem;
-    border-bottom: 1px solid #eaeaea;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    z-index: 100;
 }
 
 .custom-modal-close {
@@ -177,25 +206,6 @@ lightning-accordion-section {
     padding: 1rem;
 }
 
-.custom-modal-footer {
-    padding: 1rem;
-    border-top: 1px solid #eaeaea;
-    text-align: right;
-}
-
-.custom-button {
-    padding: 0.5rem 1rem;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.custom-button:hover {
-    background-color: #0056b3;
-}
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -205,4 +215,15 @@ lightning-accordion-section {
         opacity: 1;
         transform: scale(1);
     }
+}
+
+.backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 99;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
 }
