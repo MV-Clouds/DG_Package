@@ -248,4 +248,14 @@ global with sharing class DocGenerateController {
         
         return new list<string>{string.valueOf(isLastBatch), string.join(bodyHtml,'').unescapeHtml4()};
     }
+
+    @RemoteAction
+    global static string fetchSignatureBase64(String id){
+        return null;
+    }
+
+    @RemoteAction
+    global static string fetchImageBase64(String id){
+        return null;
+    }
 }
