@@ -66,26 +66,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         return !this.isChild ? true : false;
     }
 
-    get loadFlexDivStyle(){
-        return this.isChild ? 'height : 100% !important' : '';
-    }
-
-    get selectFieldLabel(){
-        return this.isChild ? 'Select Fields to Add in Table' : 'Column Selection';
-    }
-
-    get filterLabel(){
-        return this.isChild ? 'Apply Filter on Record\'s Field' : 'Apply Filter';
-    }
-
-    get orderByLabel(){
-        return this.isChild ? 'Select Ordering of Records' : 'Order By';
-    }
-
-    get limitLabel(){
-        return this.isChild ? 'Set Maximum Number of Row(Record) to Add in Table' : 'Limit';
-    }
-
     get saveBtnLabel(){
         return this.isChild ? 'Generate Table' : 'Save'
     }

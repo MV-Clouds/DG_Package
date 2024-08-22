@@ -1,6 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import fetchPreviewData from '@salesforce/apex/PreviewCSVController.fetchPreviewData';
-import {navigationComps, nameSpace} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class previewCSV extends NavigationMixin(LightningElement) {
@@ -47,28 +47,32 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
 
     getPreviewData(){
         this.showSpinner = true;
-        fetchPreviewData({templateId: this.templateId})
-        .then((result) =>{
-            this.noResultsFound = true;
-            console.log('Received preview data::', result);
-            this.previewData = result.records;
-            this.fields = result.templateData.MVDG__CSV_Fields__c?.split(',');
-            this.additionalData['Name'] = result.templateData.MVDG__Template__r.MVDG__Template_Name__c;
-            this.additionalData['Object Api Name'] = result.templateData.MVDG__Template__r.MVDG__Object_API_Name__c;
-            this.additionalData['Description'] = result.templateData.MVDG__Template__r.MVDG__Description__c || 'No Description Available for this template';
-            this.isTemplateInactive = !result.templateData.MVDG__Template__r.MVDG__Template_Status__c;
-            this.additionalData['CSV Creation Time'] = new Date().toLocaleString().replace(',', ' ');
-            if(this.fields.length > 0 && this.previewData.length > 0){
-                this.setData();
-                this.noResultsFound = false;
-            }
+        try{
+            fetchPreviewData({templateId: this.templateId})
+            .then((result) =>{
+                this.noResultsFound = true;
+                this.previewData = result.records;
+                this.fields = result.templateData.MVDG__CSV_Fields__c?.split(',');
+                this.additionalData['Name'] = result.templateData.MVDG__Template__r.MVDG__Template_Name__c;
+                this.additionalData['Object Api Name'] = result.templateData.MVDG__Template__r.MVDG__Object_API_Name__c;
+                this.additionalData['Description'] = result.templateData.MVDG__Template__r.MVDG__Description__c || 'No Description Available for this template';
+                this.isTemplateInactive = !result.templateData.MVDG__Template__r.MVDG__Template_Status__c;
+                this.additionalData['CSV Creation Time'] = new Date().toLocaleString().replace(',', ' ');
+                if(this.fields.length > 0 && this.previewData.length > 0){
+                    this.setData();
+                    this.noResultsFound = false;
+                }
+                this.showSpinner = false;
+            })
+            .catch(e=>{
+                this.noDataFoundText = 'There was some error fetching preview data, please try again...';
+                errorDebugger('previewCSV', 'fetchPreviewData', e, 'warn');
+                this.showSpinner = false;
+            })
+        }catch(e){
             this.showSpinner = false;
-        })
-        .catch(e=>{
-            this.noDataFoundText = 'There was some error fetching preview data, please try again...';
-            console.log('error fetching preview data::', e.message);
-            this.showSpinner = false;
-        })
+            errorDebugger('previewCSV', 'getPreviewData', e, 'warn');
+        }
     }
 
     setData() {
@@ -84,7 +88,6 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
 
             // Display additional fields if checkbox is ticked
             if(this.showAdditionalInfo){
-                console.log('in the additional fields');
                 this.additionalFields.forEach(field => {
                     const tableRow = document.createElement('tr');
                     tableRow.style.cssText = `
@@ -175,7 +178,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             });
         
         }catch(e){
-            console.log('Error in setData :', e.message);
+            errorDebugger('previewCSV', 'setData', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -188,12 +191,11 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     // Get Back to the Document Generator
     handleClose(){
         try{
-            console.log('Event Dispatched::');
             this.dispatchEvent(new CustomEvent('close',{
                 detail : true
             }));
         }catch(e){
-            console.log('Error in handleClose ,' , e.message);
+            errorDebugger('previewCSV', 'handleClose', e, 'warn');
         }
     }
 
@@ -207,7 +209,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             }
             this.navigateToComp(navigationComps.csvTemplateBuilder, paramToPass);
         }catch(e){
-            console.log('Error in Edit Navigation ', e.stack);
+            errorDebugger('previewCSV', 'handleEditClick', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -218,7 +220,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
         try{
             this.isGenerate = true;
         }catch(e){
-            console.log('Error in Generate Navigation ', e.stack);
+            errorDebugger('previewCSV', 'handleGenerateClick', e, 'warn');
         }
     }
 
@@ -243,15 +245,14 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             }
             
             let encodedDef = btoa(JSON.stringify(cmpDef));
-            // console.log('encodedDef : ', encodedDef);
             this[NavigationMixin.Navigate]({
                 type: "standard__webPage",
                 attributes: {
                 url:  "/one/one.app#" + encodedDef
                 }
             });
-        } catch (error) {
-            console.log('error in navigateToComp : ', error.stack);
+        } catch (e) {
+            errorDebugger('previewCSV', 'navigateToComp', e, 'warn');
         }
     }
 }

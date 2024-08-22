@@ -34,7 +34,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
             this.fetchData();
             this.createDivs();
         } catch (error) {
-            console.error('Error in connectedCallback:', error.message);
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         }
     }
       
@@ -60,7 +60,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 }
             }
         } catch (error) {
-            console.error('Error in createDivs:', error.message);
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         }
     }
     fetchData() {
@@ -86,21 +86,21 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                                 }
                             });
                         }).catch(error => {
-                            console.log('error in getTemplateTypes==>', error.message);
+                            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
                         });
                         
                     }).catch(error => {
-                        console.log('error in isGoogleIntegrated==>', error.message);
+                        errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
                     });
                 } else {
-                    console.error('Error fetching object info: No data returned');
+                    errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
                 }
             }).catch(error => {
-                console.log('error in getObjects==>', error.message);
+                errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
             });
     
         } catch (error) {
-            console.error('Error in fetchData:', error.stack); // Log error stack
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         } finally {
             this.showSpinner = false; // End spinner
         }
@@ -119,7 +119,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 this.isDataInvalid = true;
             }
         } catch (error) {
-            console.error('Error in handleTemplateNameChange:', error.message);
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         }
     }
       
@@ -127,7 +127,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
         try {
             this.templateDescription = event.target.value.trim() ? event.target.value.trim() : '';
         } catch (error) {
-            console.error('Error in handleTemplateDescriptionChange:', error.message);
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         }
     }
     
@@ -140,7 +140,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 this.template.querySelectorAll('.select-dropdown')[0].classList.add('error-combo-box');
             }
         } catch (error) {
-            console.error('Error in handleObjectChange:', error.message);
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         }
     }
     handleTypeChange(event) {
@@ -152,7 +152,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 this.template.querySelectorAll('.select-dropdown')[1].classList.add('error-combo-box');
             }
         } catch (error) {
-            console.error('Error in handleTypeChange:', error.message);
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         }
     }
     
@@ -162,7 +162,6 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     }
     handleNavigate() {
         try {
-            console.log('selected Template Type: ' + this.selectedTemplateType);
             let paramToPass = {
                 templateId: this.templateId,
                 objectName: this.selectedObject,
@@ -176,7 +175,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 this.navigateToComp(navigationComps.googleDocTemplateEditor, paramToPass);
             }
         } catch (error) {
-            console.error('Error in handleNavigate:', error.message);
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         }
     }
 
@@ -221,7 +220,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 })
                 .catch(error => {
                     this.isShowSpinner = false;
-                    console.error('Error saving template:', error);
+                    errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
                     this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
                 });
             }else{
@@ -229,7 +228,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
             }
         } catch (error) {
             this.isShowSpinner = false;
-            console.error('Error in saveNewTemplate:', error.message);
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         }
     }
 
@@ -262,7 +261,6 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
             }
             
             let encodedDef = btoa(JSON.stringify(cmpDef));
-            console.log('encodedDef : ', encodedDef);
             this[NavigationMixin.Navigate]({
                 type: "standard__webPage",
                 attributes: {
@@ -270,7 +268,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 }
             });
         } catch (error) {
-            console.log('error in navigateToComp : ', error.stack);
+            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
         }
     }
 }
