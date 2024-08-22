@@ -366,7 +366,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 
     public static string contentType(string fileType) {
         switch on fileType.toLowerCase() {
-            when 'docx' {a
+            when 'docx' {
                 return 'application/vnd.google-apps.file';
             }
             when 'csv' {
