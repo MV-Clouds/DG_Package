@@ -430,6 +430,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     connectedCallback() {
         this.showSpinner = true;
         try{
+            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
@@ -465,6 +466,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = false;
             errorDebugger('generateDocument', 'connectedCallback', e, 'warn');
         }
+    }
+
+    disconnectedCallback(){
+        window.removeEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
     }
 
     handleCalledFromPreview() {
@@ -1128,6 +1133,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     //Bottom Button Controls
 
     handleClose(){
+        window.removeEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
         if(this.showCloseButton){
             if(this.isCalledFromPreview){
                 this.dispatchEvent(new CustomEvent('close'));
@@ -1145,7 +1151,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         }else if(this.templateType === 'Google Doc Template'){
             this.showSimplePreview = true;
         }else if(this.templateType === 'Simple Template'){
-            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             this.showSimplePreview = true;
         }
 
@@ -1189,7 +1194,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         // Handle Simple Template
         if (this.templateType === 'Simple Template') {
             this.showSpinner = true;
-            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             this.generateSimpleTemplateFile();
         }
     }
@@ -1675,7 +1679,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.failed = this.selectedChannels.filter((item) => !this.succeeded.includes(item));
             this.simpleTemplate = false;
             this.completedSimTempPros = 0;
-            window.removeEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
         }
     }
 
