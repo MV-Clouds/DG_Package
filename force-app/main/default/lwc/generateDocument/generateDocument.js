@@ -1,15 +1,15 @@
-import { LightningElement , api, track} from 'lwc';
+import { LightningElement , api, track, wire} from 'lwc';
 import getCombinedData from '@salesforce/apex/GenerateDocumentController.getCombinedData';
-import getAllEmailTemplates from '@salesforce/apex/GenerateDocumentController.getAllEmailTemplates';
 import getSessionId from '@salesforce/apex/GenerateDocumentController.getSessionId';
 import storeInFiles from '@salesforce/apex/GenerateDocumentController.storeInFiles';
 import postToChatter from '@salesforce/apex/GenerateDocumentController.postToChatter';
 import sendEmail from '@salesforce/apex/GenerateDocumentController.sendEmail';
 import getButtonNames from '@salesforce/apex/GenerateDocumentController.getButtonNames';
 import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.createListViewButtons';
-import {navigationComps, nameSpace} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
 import { NavigationMixin } from 'lightning/navigation';
 import { CloseActionScreenEvent } from "lightning/actions";
+import { CurrentPageReference } from "lightning/navigation";
 
 //CSV Generation methods
 import getTemplateData from '@salesforce/apex/GenerateDocumentController.getTemplateData';
@@ -24,6 +24,8 @@ import uploadToGoogleDrive from '@salesforce/apex/UploadController.uploadToGoogl
 import setDefaultOptions from '@salesforce/apex/GenerateDocumentController.setDefaultOptions';
 import getTemplateDefaultValues from '@salesforce/apex/GenerateDocumentController.getTemplateDefaultValues';
 
+//Delete content version if needed
+import deleteContentVersion from '@salesforce/apex/GenerateDocumentController.deleteContentVersion';
 export default class GenerateDocument extends NavigationMixin(LightningElement) {
 
     @track showSpinner = true;
@@ -390,7 +392,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return this.selectedTemplate || this.isCalledFromDefaults ? false : true;
     }
 
-    get templateType(){
+    get templateType(){        
         return !this.isCalledFromDefaults ? this.allTemplates.find(t => t.Id === this.selectedTemplate)?.MVDG__Template_Type__c || 'CSV Template' : this.templateTypeFromParent;
     }
 
@@ -421,47 +423,48 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return channels;
     }
 
+    @wire(CurrentPageReference)
+    currentPageReference;
+
     connectedCallback() {
         this.showSpinner = true;
         try{
+            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             this.hideHeader = this.calledFromWhere === 'defaults';
-            let isAutoGeneration = !window.location.href.includes(window.location.origin + '/lightning/action/quick/') && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
+            let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
-                let urlParams = new URLSearchParams(window.location.search);
-                this.objectApiName = urlParams.get('c__objectApiName');
-                this.isCSVOnly = urlParams.get('c__isCSVOnly') === 'true' ? true : false;
-                this.isDefaultGenerate = urlParams.get('c__isDefaultGenerate') === 'true' ? true : false;
+                this.objectApiName = this.currentPageReference?.state?.c__objectApiName;
+                this.isCSVOnly = this.currentPageReference?.state?.c__isCSVOnly === 'true' ? true : false;
+                this.isDefaultGenerate = this.currentPageReference?.state?.c__isDefaultGenerate === 'true' ? true : false;
                 this.template.host.classList.add('pou-up-view');
-                this.selectedTemplate = urlParams.get('c__templateIdToGenerate');
+                this.selectedTemplate = this.currentPageReference?.state?.c__templateIdToGenerate;
             }
             window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             Promise.resolve(this.objectApiName)
             .then(() => {
                 return Promise.all([
                     this.fetchCombinedData(),
-                    this.fetchAllEmailTemplates()
                 ]);
             })
             .then(() => {
-                console.log('It should print after the data fetches..', window.location.href.includes('.DG_Document_Generate') || window.location.href.includes('.DG_Generate_CSV'));
                 if (this.calledFromWhere === "preview") {
                     this.handleCalledFromPreview();
                 } else if (this.calledFromWhere === 'defaults') {
                     this.handleCalledFromDefaults();
-                } else if(this.isCSVOnly || window.location.href.includes('.DG_Generate_Document')){
+                } else if(this.isCSVOnly || this.currentPageReference?.attributes?.apiName?.split('.')[1] == 'DG_Generate_Document'){
                     this.handleEmailTemplateSelect({detail:[]});
                     this.showSpinner = false;
                 } else if (isAutoGeneration) {
                     this.handleAutoGeneration();
                 }
             })
-            .catch(error => {
+            .catch(e => {
                 this.showSpinner = false;
-                console.log('Error in Connected Callback: ', error.stack);
+                errorDebugger('generateDocument', 'connectedCallback > promise', e, 'warn');
             });
         }catch(e){
             this.showSpinner = false;
-            console.log('Error in connectedCallback ::', e.message);
+            errorDebugger('generateDocument', 'connectedCallback', e, 'warn');
         }
     }
 
@@ -474,6 +477,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         this.template.host.classList.add('pou-up-view');
         this.template.querySelector('.template-select-div').style.display = 'none';
         this.handleSelectTemplate({ detail: [{ Id: this.templateIdFromParent }] });
+        this.handleEmailTemplateSelect({detail:[null]});
         this.showSpinner = false;
     }
     
@@ -486,13 +490,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.handleAutoGeneration();
                 this.showSpinner = false;
             })
-            .catch(error => {
+            .catch(e => {
                 this.showSpinner = false;
-                console.log('Error in fetchAllButtonNames of handleCalledFromDefaults: ', error.message);
+                errorDebugger('generateDocument', 'handleCalledFromDefaults > fetchAllButtonNames', e, 'warn');
             });
         }catch(e){
             this.showSpinner = false;
-            console.log('Error in handleCalledFromDefaults ::', e.message);
+            errorDebugger('generateDocument', 'handleCalledFromDefaults', e, 'warn');
         }
     }
 
@@ -613,8 +617,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
             this.template.querySelector('.main-generate-document-div').appendChild(STYLE);
             this.isInitialStyleLoaded = true;
-        }catch (error) {
-            console.log('Error in renderedCallback', error.stack);
+        }catch (e) {
+            errorDebugger('generateDocument', 'renderedCallback', e, 'warn');
         }
 
     }
@@ -631,12 +635,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleAutoGeneration() {
         this.showSpinner = true;
         try {
-            console.log('selectedTemplate ::', this.selectedTemplate);
             getTemplateDefaultValues({ templateId : this.selectedTemplate})
             .then((data) =>{
                 if(data){
-                    console.log('Data ::', data);
                     if(data?.docType){
+                        this.documentTypes.forEach(dt => {dt.isSelected = false});
                         this.documentTypes.find(item => item.name === data?.docType).isSelected = true;
                     }
                     this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
@@ -666,7 +669,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.showBCC = this.bccEmails.length > 0 ? true : false;
                     this.isAdditionalInfo = true;
                     this.showSpinner = false;
-                    console.log('Is there any error up till now??');
                     if(!this.isCalledFromDefaults){
                         this.showSpinner = true;
                         this.handleGenerate();
@@ -677,37 +679,42 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             })
             .catch((e) =>{
-                console.log('Error in getTemplateDefaultValues ::', e.body.message);
+                errorDebugger('generateDocument', 'getTemplateDefaultValues', e, 'warn');
                 this.showToast('error', 'Something went Wrong!', e.body.message.includes('Insufficient permissions') ? 'Please check the permissions to access the object...' : 'Couldn\'t get default values, please try again...', 5000);
             })
         } catch (e) {
             this.showSpinner = false;
-            console.log(`Error in function handleAutoGeneration: ${e.message}`);
+            errorDebugger('generateDocument', 'handleAutoGeneration', e, 'warn');
             this.showToast('error', 'Something went Wrong!', 'Couldn\'t get default values, please try again...', 5000);
         }
     }
 
     fetchCombinedData(){
         try {
-            getCombinedData({objName: this.objectApiName})
-            .then((data) => {
-                console.log('Data::', data);
-                if (data.isSuccess){
-                    this.setUpAllTemplates(data.templates);
-                    this.setUpIntegrationStatus(data.integrationWrapper);
-                    this.setUpAllFolders(data.folderWrapper);
-                } else {
-                    this.showWarningPopup('error', 'Something Went Wrong!', 'We couldn\'t fetch the required data, please try again!');
-                    this.isClosableError = true;
-                    // this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
-                }
-            })
-            .catch((e) =>{
-                console.error('Error Fetching Combined Data :', e.message);
-                this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
+            return new Promise((resolve, reject) => {
+                getCombinedData({objName: this.objectApiName})
+                .then((data) => {
+                    if (data.isSuccess){
+                        this.setUpAllTemplates(data.templates);
+                        this.setUpIntegrationStatus(data.integrationWrapper);
+                        this.setUpAllFolders(data.folderWrapper);
+                        this.setUpAllEmailTemplates(data.emailTemplates);
+                    } else {
+                        this.showWarningPopup('error', 'Something Went Wrong!', 'We couldn\'t fetch the required data, please try again!');
+                        this.isClosableError = true;
+                        // this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
+                    }
+                    resolve();
+                })
+                .catch((e) =>{
+                    reject(e);
+                    errorDebugger('generateDocument', 'getCombinedData', e, 'warn');
+                    this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
+                })
             })
         } catch (e) {
-            console.log('Error in function fetchCombinedData:::', e.message);
+            reject(e);
+            errorDebugger('generateDocument', 'fetchCombinedData', e, 'warn');
         }
     }
 
@@ -734,9 +741,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     label:template.MVDG__Template_Name__c, value:template.Id
                 }
             });
-            console.log('Fetch All templates are done!::' , this.allTemplates);
         } catch (e) {
-            console.log('Error in function setUpAllTemplates:::', e.message);
+            errorDebugger('generateDocument', 'setUpAllTemplates', e, 'warn');
         }
     }
 
@@ -749,9 +755,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             if(!integrations.isUserWideAccessible && !integrations.isGoogleDriveIntegrated){
                 this.isNotGoogleNotGenerable = true;
             }
-            console.log('Integration Status::' , this.externalStorageOptions);
         } catch (e) {
-            console.log('Error in function setUpIntegrationStatus:::', e.message);
+            errorDebugger('generateDocument', 'setUpIntegrationStatus', e, 'warn');
         }
     }
 
@@ -759,17 +764,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             this.allFolders = folders;
             this.selectedFolder = this.allFolders[0].value;
-            console.log('All Folders are :::: ', this.allFolders);
         } catch (e) {
-            console.log('Error in function setUpAllFolders:::', e.message);
+            errorDebugger('generateDocument', 'setUpAllFolders', e, 'warn');
         }
     }
 
-    fetchAllEmailTemplates() {
-        return new Promise((resolve, reject) => {
+    setUpAllEmailTemplates(data) {
             try {
-                getAllEmailTemplates()
-                .then((data) => {
+                if(data){
                     this.allEmailTemplates = data;
                     this.emailTemplatesToShow = this.allEmailTemplates.map((temp) => {
                         return {
@@ -777,32 +779,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             value : temp.Id
                         }
                     });
-                    console.log('Calling from the get email templates ::', this.allEmailTemplates);
-                    resolve();
-                })
-                .catch((e) =>{
-                    reject();
-                    this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch email templates!', 5000);
-                    console.log('Error in fetchAllEmailTemplates ::', e.message);
-                })
+                }
             } catch (e) {
-                reject();
                 this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch email templates!', 5000);
-                console.log('Error in function fetchAllEmailTemplates:' + e.message);
+                errorDebugger('generateDocument', 'setUpAllEmailTemplates', e, 'warn');
             }
-        })
-    }
-
-
-    fetchSessionId(){
-        getSessionId()
-        .then(data =>{
-            return data;
-        })
-        .catch(error =>{
-            console.log('Error in fetchSessionId', error.message);
-            return null;
-        })
     }
 
     fetchAllButtonNames(){
@@ -811,18 +792,17 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 getButtonNames({objName : this.objectApiName})
                 .then((data) => {
                     this.allButtons = data;
-                    console.log('All Button Names are :::: ', this.allButtons);
                     resolve();
                 })
                 .catch((e) =>{
                     reject();
                     this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch buttons on object!', 5000);
-                    console.log('Error in getButtonNames ::', e.message);
+                    errorDebugger('generateDocument', 'getButtonNames', e, 'warn');
                 })
             }catch (e) {
                 reject();
                 this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch buttons on object!', 5000);
-                console.log('Error in function fetchAllButtonNames:' + e.message);
+                errorDebugger('generateDocument', 'fetchAllButtonNames', e, 'warn');
             }
         })
     }
@@ -830,7 +810,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleSelectTemplate(event){
         try{
             this.showSpinner = true;
-            console.log('Selected template :::', event.detail[0]);
             let result = event.detail[0]?.Id;
             if(!result){
                 this.selectedTemplate = null;
@@ -848,7 +827,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = false;
             }
         }catch(e){
-            console.log('Error : ', e.stack);
+            errorDebugger('generateDocument', 'handleSelectTemplate', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -859,17 +838,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     handleRecordPickerError(event){
-        console.log('Error in record picker ::', event);
+        errorDebugger('generateDocument', 'handleRecordPickerError', event, 'warn');
     }
 
     handleFileNameChange(event){
         this.fileName = event.target.value;
-        // console.log('File Name : ', this.fileName);
     }
 
     handleAdditionalInfo(event){
         this.isAdditionalInfo = event.target.checked;
-        console.log('isAdditionalInfo set to ', this.isAdditionalInfo);
     }
 
 
@@ -877,25 +854,20 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleEditClick() {
         try{
             this.showSpinner = true;
-            // console.log('temp Id:', this.selectedTemplate);
-            console.log('selected Template Type: ' + this.templateType);
             let paramToPass = {
                 templateId : this.selectedTemplate,
                 objectName : this.objectApiName,
             }
             if(this.templateType === 'Simple Template'){
-                console.log('Navigating to Simple template Editor....... ');
                 this.navigateToComp(navigationComps.simpleTemplateBuilder, paramToPass);
                 // };
             }else if(this.templateType === 'CSV Template'){
-                console.log('Navigating to CSV template Editor....... ');
                 this.navigateToComp(navigationComps.csvTemplateBuilder, paramToPass);
             }else if(this.templateType === 'Google Doc Template'){
-                console.log('Navigating to Google Doc Template Editor....... ');
                 this.navigateToComp(navigationComps.googleDocTemplateEditor, paramToPass);
             }
         }catch(e){
-            console.log('Error in Edit Navigation ', e.stack);
+            errorDebugger('generateDocument', 'handleEditClick', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -905,8 +877,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             this.showSpinner = true;
             this.showCC = !this.showCC;
-        } catch (e) {
-            console.log('error toggle cc', e.stack);
+        }catch (e) {
+            errorDebugger('generateDocument', 'toggleCC', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -915,8 +887,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             this.showSpinner = true;
             this.showBCC = !this.showBCC;
-        } catch (e) {
-            console.log('error toggle bcc', e.stack);
+        }catch (e) {
+            errorDebugger('generateDocument', 'toggleBCC', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -924,11 +896,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     handleToEmailChange(event){
         try {
-            // this.showSpinner = true;
             let emailString = event.target.value?.trim();
             let enteredChar = event.key;
             let typeOfEmail = event.target.dataset.type;
-            // console.log('Entered Character is:: ', enteredChar);
             if(enteredChar === ',' || enteredChar === 'Enter' || enteredChar === ' ' || enteredChar === 'Tab'  || !enteredChar){
                 const emailValidator = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
                 emailString.toLowerCase().replaceAll(' ', ',').split(',').forEach((email)=>{
@@ -936,7 +906,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         if(emailValidator.test(email)){
                             email = email.trim();
                             let errorClass = '';
-                            event.target.value = '';
+                            event.target.value = null;
                             if(typeOfEmail === "to"){
                                 this.isToError=false;
                                 !this.toEmails.includes(email) ? this.toEmails.push(email) : undefined;
@@ -956,37 +926,32 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             errorClass ? this.template.querySelector(errorClass)?.classList.add("not-display-div") : undefined;
                             errorClass ? this.template.querySelector(errorClass).innerText = '' : undefined;
                             event.target?.classList.remove("input-error-border");
+                            event.preventDefault();
                         }else{
                             event.target.value = emailString;
                             let errorClass = '';
                             if(typeOfEmail === "to"){
                                 this.isToError=true;
                                 errorClass = ".to-error-div";
-                                // this.template.querySelector(".to-error-div")?.classList.remove("not-display-div");
                             }
                             if(typeOfEmail === "cc"){
                                 this.isCcError=true;
                                 errorClass = ".cc-error-div";
-                                // this.template.querySelector(".cc-error-div")?.classList.remove("not-display-div");
                             }
                             if(typeOfEmail === "bcc"){
                                 this.isBccError=true;
                                 errorClass = ".bcc-error-div";
-                                // this.template.querySelector(".bcc-error-div")?.classList.remove("not-display-div");
                             }
 
                             errorClass ? this.template.querySelector(errorClass).innerText = 'Please Enter valid Email..' : undefined;
                             errorClass ? this.template.querySelector(errorClass)?.classList.remove("not-display-div") : undefined;
                             event.target?.classList.add("input-error-border");
-                            // this.showToast('Error', 'Something went wrong!', 'Entered email is not valid, please correct it.', 5000);
                         }
                     }
                 })
             }
-        } catch (error) {
-            console.log('Error in email change', error.stack);
-        }finally{
-            // this.showSpinner = false;
+        }catch (e) {
+            errorDebugger('generateDocument', 'handleToEmailChange', e, 'warn');
         }
     }
 
@@ -1001,8 +966,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
             typeOfEmail === "cc" ? this.ccEmails.splice(index, 1) : undefined;
             typeOfEmail === "bcc" ? this.bccEmails.splice(index, 1) : undefined;        
-        }catch (error) {
-            console.log('Error in email change', error.stack);
+        }catch (e) {
+            errorDebugger('generateDocument', 'handleRemoveAddedEmail', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -1020,41 +985,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.template.querySelector(".to-error-div").classList.add("not-display-div");
             }
         }catch(e){
-            console.log('Error in validateToEmails ::', e.message);
+            errorDebugger('generateDocument', 'validateToEmails', e, 'warn');
         }
     }
-
-    // validateEmailSubject(){
-    //     if(this.emailSubject){
-    //         this.template.querySelector(".subject-error-div").classList.add("not-display-div");
-    //         this.template.querySelector(".subject-error-div").innerText = '';
-    //         this.template.querySelector(".subject-input").classList.remove("input-error-border");
-    //     }else{
-    //         this.template.querySelector(".subject-error-div").innerText = 'Email subject can not be black...';
-    //         this.template.querySelector(".subject-error-div").classList.remove("not-display-div");
-    //         this.template.querySelector(".subject-input").classList.add("input-error-border");
-    //     }
-    // }
-
-    // validateEmailBody(){
-    //     if(this.emailBody){
-    //         this.template.querySelector(".body-error-div").classList.add("not-display-div");
-    //         this.template.querySelector(".body-error-div").innerText = '';
-    //         this.template.querySelector(".body-input").classList.remove("lightning-error-div");
-    //     }else{
-    //         this.template.querySelector(".body-error-div").innerText = 'Email body can not be black...';
-    //         this.template.querySelector(".body-error-div").classList.remove("not-display-div");
-    //         this.template.querySelector(".body-input").classList.add("lightning-error-div");
-    //     }
-    // }
 
     handleSubjectChange(event){
         try{
             this.showSpinner = true;
             this.emailSubject = event.target.value;
-            // this.validateEmailSubject();
-        }catch (error) {
-            console.log('Error in email subject', error.stack);
+        }catch (e) {
+            errorDebugger('generateDocument', 'handleSubjectChange', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -1064,9 +1004,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try{
             this.showSpinner = true;
             this.emailBody = event.target.value;
-            // this.validateEmailBody();
-        }catch (error) {
-            console.log('Error in email body change', error.stack);
+        }catch (e) {
+            errorDebugger('generateDocument', 'handleBodyChange', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -1075,9 +1014,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handlePlainBodyChange(event){
         try {
             this.emailBody = event.target.value;
-            console.log('Email Body :::', this.emailBody);
         } catch (e) {
-            console.log('Error in function handlePlainBodyChange:::', e.message);
+            errorDebugger('generateDocument', 'handlePlainBodyChange', e, 'warn');
         }
     }
 
@@ -1088,16 +1026,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.template.host.style.setProperty('--display-for-email-body-div',"none");
                 this.template.host.style.setProperty('--display-for-email-preview-div',"flex");
                 this.previewEmailBody = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue;
-                // this.template.querySelector('.email-template-preview-rich-text') ? this.template.querySelector('.email-template-preview-rich-text').value = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue : undefined;
                 this.emailSubject = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.Subject || this.emailSubject;
-                console.log('Set only Preview');
             }else{
-                console.log('Set body');
+                this.emailSubject = '';
                 this.template.host.style.setProperty('--display-for-email-body-div',"flex");
                 this.template.host.style.setProperty('--display-for-email-preview-div',"none");
             }
         } catch (e) {
-            console.log(`Error in function handleEmailTemplateSelect: ${e.message}`);
+            errorDebugger('generateDocument', 'handleEmailTemplateSelect', e, 'warn');
         }
     }
 
@@ -1108,15 +1044,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 if(this.selectedViewAsType === "plain"){
                     this.isPlainEmailBody = true;
                     this.template.host.style.setProperty('--display-of-the-rich-text',"none");
-                    // this.emailBody = this.emailBody.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
                 }else{
                     this.isPlainEmailBody = false;
                     this.template.host.style.setProperty('--display-of-the-rich-text',"unset");
-                    // this.emailBody = this.emailBody.replaceAll("&gt;", '>').replaceAll("&lt;", '<');
                 }
             }
         } catch (e) {
-            console.log(`Error in function handleViewAsTypeSelect: ${e.message}`);
+            errorDebugger('generateDocument', 'handleViewAsTypeSelect', e, 'warn');
         }
     }
 
@@ -1165,7 +1099,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             }
         } catch (e) {
-            console.log('Error in option selection  ', e.stack);
+            errorDebugger('generateDocument', 'handleOptionSelection', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -1178,28 +1112,27 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleTemplateSelection(event){
         try{
             this.selectedTemplate = event.currentTarget.dataset.value;
-            console.log('Selected template :: ' + this.selectedTemplate);
             this.fileName = this.selectedTemplate;
             this.handleSelectTemplate({detail:[{Id: this.selectedTemplate}]});
             this.backToGenerate();
         }catch(e){
-            console.log('Error in handleTemplateSelection ::' , e.message);
+            errorDebugger('generateDocument', 'handleTemplateSelection', e, 'warn');
         }
     }
 
     handleTemplateEditClick(event){
         try{
             this.selectedTemplate = event.currentTarget.dataset.value;
-            console.log('Selected template :: ' + this.selectedTemplate);
             this.handleEditClick();
         }catch(e){
-            console.log('Error in handleTemplateEditClick ::' , e.message);
+            errorDebugger('generateDocument', 'handleTemplateEditClick', e, 'warn');
         }
     }
 
     //Bottom Button Controls
 
     handleClose(){
+        window.removeEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
         if(this.showCloseButton){
             if(this.isCalledFromPreview){
                 this.dispatchEvent(new CustomEvent('close'));
@@ -1257,7 +1190,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         }
     
         if (this.selectedChannels.includes('Documents') && !this.selectedFolder) {
-            console.log('In Documents');
             this.showSpinner = false;
             this.showToast('error', 'Something Went Wrong!', 'Please select folder to save document.', 5000);
             return;
@@ -1265,7 +1197,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
         // Handle CSV template
         if (this.isCSVTemplate) {
-            console.log('Starting generation ::', this.showSpinner);
             this.showSpinner = true;
             this.handleGenerateCSVData();
         }
@@ -1327,11 +1258,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         csvContent += fieldNames.join(',') + '\n';
     
                         const newQuery = '/services/data/v59.0/query/?q=' + query.split('LIMIT')[0];
-                        console.log('Query :: ', newQuery);
     
                         this.fetchRecords(newQuery, sessionId, generationCount)
                         .then(isSuccess => {
-                            console.log('Fetched records in main :: ' + this.fetchedResults.length);
                             if (isSuccess) {
                                 if (this.fetchedResults.length === 0) {
                                     this.showToast('warning', 'Oops! No matching records Found!', 'Uh Oh!, Try changing the Filter criteria!!');
@@ -1345,14 +1274,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                     })
                                     this.generatedCSVData = csvContent;
                                 }
-                            } else {
-                                this.showToast('error', 'Something went wrong!', 'We Couldn\'t fetch records!', 5000);
-                                return;
+                                this.generateCSVDocument();
+                                resolve();
                             }
-                            this.generateCSVDocument();
+                            reject();
                         })
-                        .catch(err => {
-                            console.log('Error fetching records:', err.message);
+                        .catch(e => {
+                            reject(e);
+                            errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords > csv', e, 'warn');
                             this.showToast('error', 'Oops! Something went wrong', 'Some error occurred, Please try again.', 5000);
                         });
                     } else if (this.selectedExtension === '.xls') {
@@ -1375,12 +1304,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         xlsContent += '<tr> <th> ' + fieldNames.join('</th><th>') + '</th> </tr>';
     
                         const newQuery = '/services/data/v59.0/query/?q=' + query.split('LIMIT')[0];
-                        console.log('Query :: ', newQuery);
     
                         this.fetchRecords(newQuery, sessionId, generationCount)
                         .then(isSuccess => {
                             this.labelOfLoader = 'Arranging data...';
-                            console.log('Fetched records in main :: ' + this.fetchedResults.length);
                             if (isSuccess) {
                                 if (this.fetchedResults.length === 0) {
                                     this.showToast('warning', 'Oops! No matching records Found!', 'Uh Oh!, Try changing the Filter criteria!!');
@@ -1395,26 +1322,27 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                     xlsContent += '</table>';
                                     this.generatedCSVData = xlsContent;
                                 }
+                                this.generateCSVDocument();
+                                resolve();
                             }
-                            this.generateCSVDocument();
-                            resolve();
+                            reject();
                         })
-                        .catch(err => {
-                            reject(err);
-                            console.log('Error fetching records:', err.message);
+                        .catch(e => {
+                            reject(e);
+                            errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords  > xls', e, 'warn');
                             this.showToast('error', 'Oops! Something went wrong', 'Some error occurred, Please try again.', 5000);
                         });
                     }
                 })
-                .catch(err => {
-                    reject(err);
-                    console.log('Error in handleGenerateCSVData:', err.message);
+                .catch(e => {
+                    reject(e);
+                    errorDebugger('generateDocument', 'getTemplateData', e, 'warn');
                     this.showSpinner = false;
                     this.showToast('error', 'Oops! Something went wrong', 'Some error occurred, Please try again.', 5000);
                 });
-            } catch (err) {
-                reject(err);
-                console.log('error in here ,' , err.message);
+            } catch (e) {
+                reject(e);
+                errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
                 this.showSpinner = false;
                 this.showToast('error', 'Oops! Something went wrong', 'Some error occurred, Please try again.', 5000);
             }
@@ -1444,9 +1372,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
             return fetch(encodeURI(domainURL + queryURL), requestOptions)
             .then(response => {
-                if (!response.ok) {
-                    this.showToast('error', 'Oops! Something went wrong!', 'There was an error connecting to the server, please try again.', 5000);
-                    return Promise.reject('Network response was not ok');
+                if(!response.ok && response.status === 400){
+                    return Promise.reject('SyntaxError');
+                }else if (!response.ok) {
+                    return Promise.reject('ResponseNotOk');
                 }
                 return response.json();
             })
@@ -1456,22 +1385,20 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.labelOfLoader = 'Fetching Records - ' + Math.min(Math.round(this.fetchedResults.length * 100 / limitOfRecords), 100) + '%';
 
                 if (result.nextRecordsUrl && limitOfRecords > this.fetchedResults.length) {
-                    console.log('fetching more.');
                     return this.fetchRecords(result.nextRecordsUrl, sessionId, limitOfRecords);
                 } else if (limitOfRecords < this.fetchedResults.length) {
-                    console.log('Slicing records.');
                     this.fetchedResults = this.fetchedResults.slice(0, limitOfRecords);
                 }
                 return true;
             })
-            .catch(error => {
-                this.showToast('error', 'Sorry, The records could not be fetched!', 'We couldn\'t fetch the records, please try again..');
-                console.log('Error fetching records: ' + error);
+            .catch(e => {
+                errorDebugger('generateDocument', 'fetchRecords > fetch', e, 'warn');
+                error == 'SyntaxError' ? this.showToast('error', 'Oops!, Something went wrong!', 'Error fetching data, please check field permissions...', 5000) : this.showToast('error', 'Sorry, The records could not be fetched!', 'We couldn\'t fetch the records, please try again..', 5000);
                 return false;
             });
-        } catch(error){
-            this.showToast('error', 'Sorry, The records could not be fetched!', 'We couldn\'t fetch the records, please try again..');
-            console.log('Error fetching records : ' + error.message);
+        } catch(e){
+            errorDebugger('generateDocument', 'fetchRecords', e, 'warn');
+            this.showToast('error', 'Oops!, Something went wrong!', 'We couldn\'t fetch the records, please try again..');
             return false;
         }
     }
@@ -1481,10 +1408,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.resultPromises = [];
             this.showSpinner = true;
             let fileSizeInByte = (btoa(unescape(encodeURIComponent(this.generatedCSVData))).length / 4) * 3;
-            console.log('The file Size is :::', fileSizeInByte);
 
             if(!this.generatedCSVData){
-                console.log('There is no data fetched.');
                 this.showToast('warning', ' No matching data.', 'Please try updating you filters...', 5000);
                 return;
             }
@@ -1520,9 +1445,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.handleGenerationResult();
                     this.fetchedResults = [];
                 })
-                .catch(error => {
+                .catch(e => {
                     this.showSpinner = false;
-                    console.error('Error in createContentVersion:', error);
+                    errorDebugger('generateDocument', 'generateCSVDocument > createContentVersion', e, 'warn');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
@@ -1537,30 +1462,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    console.error('Error in handling promises: ', e.message);
+                    errorDebugger('generateDocument', 'generateCSVDocument > this.resultPromises-Promises', e, 'warn');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
                     this.showSpinner = false;
                 });
             }
-            console.log('generateCSVDocument try over');
-
         }catch(e){
             this.showSpinner =false;
-            console.log('Error in generateCSVDocument', e);
-        }finally{
-            console.log('generateCSVDocument finally start');
-            // Promise.all(this.resultPromises)
-            // .then(() => {
-            //     this.handleGenerationResult()
-            //     this.fetchedResults = [];
-            // })
-            // .catch(e => {
-            //     this.showSpinner = false;
-            //     console.log('Error in handling promises: ', e.message);
-            // });
-            // this.labelOfLoader = 'Loading...';
+            errorDebugger('generateDocument', 'generateCSVDocument', e, 'warn');
         }
     }
     
@@ -1584,19 +1495,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             let link = document.createElement('a');
             link.href = element;
             link.target = '_self';
-            console.log('What is file Name ???:: ' + this.fileName);
             link.download = this.fileName+ this.selectedExtension;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
             this.succeeded.push('Download');
-            // this.showSpinner = false;
-            // this.showToast('success', 'Woohoo! Action performed!', 'Your CSV is Downloaded Successfully.', 5000 );
-        }catch(err){
+        }catch(e){
             this.showSpinner = false;
-            // this.showToast('error', 'Oops! Something went wrong', 'We Couldn\'t generate CSV at the moment!, please try again..', 5000);
-            console.log('Error in Generating CSV!!' , err.message);
+            errorDebugger('generateDocument', 'downloadCSV', e, 'warn');
         }finally{
             this.labelOfLoader = 'Loading...';
         }
@@ -1607,21 +1514,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     generateGoogleDoc(){
         try{
             this.showSpinner = true;
-            // let data;
             this.resultPromises = [];
             this.labelOfLoader = 'Generating document...';
-            // let result = await copyGoogleDoc({ templateId: this.selectedTemplate })
-            // if (result) {
-                // let ids = JSON.parse(result).documentId;
-                this.template.querySelector('c-generate-google-doc-file')?.generateDocument(this.selectedTemplate, this.objectApiName, this.recordId, this.selectedExtension);
-                // console.log('Generated Data :::' , data);
-                // data = await doPreview({recordId: this.recordId, objectApiName: this.objectApiName, googleDocId: ids , sourceDocContent: result, format: this.selectedExtension})
-            // }
-            console.log('In the generateGoogleDoc try over');
+            this.template.querySelector('c-generate-google-doc-file')?.generateDocument(this.selectedTemplate, this.objectApiName, this.recordId, this.selectedExtension);
+
         }catch(e){
-            console.log('Error in generateGoogleDoc::' , e.message);
-        }finally{
-            console.log('generateGoogleDoc finally start');
+            errorDebugger('generateDocument', 'generateGoogleDoc', e, 'warn');
         }
     }
     downloadGDocTemplate(){
@@ -1639,11 +1537,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.labelOfLoader = 'Loading ...';
         }catch(e){
             this.showSpinner = false;
-            console.log("🚀 ~ downloadGDocTemplate ~ error:", e.message);
+            errorDebugger('generateDocument', 'downloadGDocTemplate', e, 'warn');
         }
     }
 
-    handleFileComplete(event) {
+    handleGoogleDocFile(event) {
         this.showSpinner = true;
         try {
             let data = event.detail.blob;
@@ -1683,9 +1581,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.handleGenerationResult();
                         this.fetchedResults = [];
                     })
-                    .catch(error => {
+                    .catch(e => {
                         this.showSpinner = false;
-                        console.error('Error in createContentVersion:', error);
+                        errorDebugger('generateDocument', 'handleGoogleDocFile > createContentVersion', e, 'warn');
                     })
                     .finally(() => {
                         this.labelOfLoader = 'Loading...';
@@ -1699,7 +1597,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     })
                     .catch(e => {
                         this.showSpinner = false;
-                        console.error('Error in handling promises: ', e.message);
+                        errorDebugger('generateDocument', 'handleGoogleDocFile > this.resultPromises - Promises', e, 'warn');
                     })
                     .finally(() => {
                         this.labelOfLoader = 'Loading...';
@@ -1710,7 +1608,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
         } catch (e) {
             this.showSpinner = false;
-            console.log('Error in handleFileComplete: ', e.message);
+            errorDebugger('generateDocument', 'handleGoogleDocFile', e, 'warn');
         }
     }
     
@@ -1722,7 +1620,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     handleGDocError(event){
         this.showSpinner = false;
-        console.log('Error in Google Doc Data fetch :::' , event.detail.message);
+        errorDebugger('generateDocument', 'handleGDocError', event, 'warn');
         this.showToast('error', 'Something went Wrong!', 'There was error generating file, please try again.', 5000);
     }
 
@@ -1757,9 +1655,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }, 300)
             }
         }
-        catch(error){
+        catch(e){
             this.labelOfLoader = 'loading...';
-            console.log('error in generateSimpleTemplateFile : ', error.stack)
+            errorDebugger('generateDocument', 'generateSimpleTemplateFile', e, 'warn');
         }
     }
 
@@ -1777,7 +1675,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.simpleTemplateFileDone();
                 }else if(message.data.completedChannel === 'External Storage'){
                     let cvId = message.data.cvId;
-                    console.log('CV ID ::' , cvId);
                     if(cvId){
                         this.resultPromises.push(this.createFilesChatterEmail(cvId));
                         this.uploadToExternalStorage(cvId);
@@ -1788,12 +1685,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             }
         }catch(e){
-            console.log('Error in simpleTempFileGenResponse ::', e.message);
+            errorDebugger('generateDocument', 'simpleTempFileGenResponse', e, 'warn');
         }
     }
 
     simpleTemplateFileDone(){
-        console.log('completedSimTempPros : ', this.completedSimTempPros);
         if(this.selectedChannels.length === this.completedSimTempPros){
             this.showSpinner = false;
             this.failed = this.selectedChannels.filter((item) => !this.succeeded.includes(item));
@@ -1806,7 +1702,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     handleFolderSelect(event){
         this.selectedFolder = event.detail[0];
-        console.log('Selected folder is : ', this.selectedFolder);
     }
 
 // --------------------------------------------------- Mutual Document Generation Methods ----------------------------------------------------
@@ -1819,7 +1714,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             getSessionId()
                 .then(sessionId => {
                     if (!sessionId) {
-                        console.error('Error fetching session ID');
+                        errorDebugger('generateDocument', 'createDocument > getSessionId', 'Session ID not obtained', 'warn');
                         this.showSpinner = false;
                         throw new Error('Session ID not obtained'); // Exit if session ID is not obtained
                     }
@@ -1849,22 +1744,20 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
                 .then(response => response.json())
                 .then(result => {
-                    console.log(result);
-
                     if (result.success) {
                         this.succeeded.push('Documents');
                     }
                 })
-                .catch(error => {
+                .catch(e => {
                     this.showSpinner = false;
-                    console.error('Error creating document:', error);
+                    errorDebugger('generateDocument', 'createDocument > fetch', e, 'warn');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
                 });
-        } catch (error) {
+        } catch (e) {
             this.showSpinner = false;
-            console.error('Error in createDocument:', error);
+            errorDebugger('generateDocument', 'createDocument', e, 'warn');
         }
     }
 
@@ -1876,7 +1769,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             getSessionId()
                 .then(sessionId => {
                     if (!sessionId) {
-                        console.error('Error fetching session ID');
+                        errorDebugger('generateDocument', 'createAttachments > getSessionId', 'Session ID not obtained', 'warn');
                         this.showSpinner = false;
                         throw new Error('Session ID not obtained'); // Exit if session ID is not obtained
                     }
@@ -1906,22 +1799,20 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
                 .then(response => response.json())
                 .then(result => {
-                    console.log(result);
-    
                     if (result.success) {
                         this.succeeded.push('Notes & Attachments');
                     }
                 })
-                .catch(error => {
+                .catch(e => {
                     this.showSpinner = false;
-                    console.error('Error creating attachment:', error);
+                    errorDebugger('generateDocument', 'createAttachments > fetch', e, 'warn');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
                 });
-        } catch (error) {
+        } catch (e) {
             this.showSpinner = false;
-            console.error('Error in createAttachments:', error);
+            errorDebugger('generateDocument', 'createAttachments', e, 'warn');
         }
     }
 
@@ -1933,16 +1824,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             if (!this.isCSVTemplate) {
                 storeInFiles({ contentVersionId: cvId, recordId: this.recordId ? this.recordId : this.selectedTemplate })
                     .then(() => {
-                        console.log('Saved in files successfully.');
                         this.succeeded.push('Files');
                     })
-                    .catch(error => {
-                        console.error('Error in saving in files:', error);
+                    .catch(e => {
+                        errorDebugger('generateDocument', 'addToFiles > storeInFiles', e, 'warn');
                         this.showSpinner = false;
                     });
             }
-        } catch (error) {
-            console.error('Error in addToFiles:', error);
+        } catch (e) {
+            errorDebugger('generateDocument', 'addToFiles', e, 'warn');
             this.showSpinner = false;
         }
     }
@@ -1954,21 +1844,18 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             let bodyString = 'Generated "' + this.fileName + this.selectedExtension + '".';
             postToChatter({ contentVersionId: cvId, recordId: this.recordId, body: bodyString })
             .then(() => {
-                console.log('Post to chatter successfully.');
-                // this.showSpinner = false;
                 this.succeeded.push('Chatter');
                 if (this.selectedChannels.includes('Files')) {
                     this.succeeded.push('Files');
                 }
             })
             .catch((e)=>{
-                console.log('Error in the postToChatter ::', e.message);
+                errorDebugger('generateDocument', 'addToChatter > postToChatter', e, 'warn');
             })
-        } catch (error) {
-            console.error('Error in posting to chatter:', error);
+        } catch (e) {
+            errorDebugger('generateDocument', 'addToChatter', e, 'warn');
             this.showSpinner = false;
             if (this.selectedChannels.includes('Files')) {
-                console.log('Attempting to save files...');
                 this.resultPromises.push(this.addToFiles(cvId));
             }
         }
@@ -1992,15 +1879,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
             sendEmail({ allEmails:allEmails, emailData:emailData })
                 .then(() => {
-                    console.log('Sent email successfully.');
                     this.succeeded.push('Email');
                 })
-                .catch(error => {
-                    console.error('Error in sending email:', error);
+                .catch(e => {
+                    errorDebugger('generateDocument', 'sendWithEmail > sendEmail', e, 'warn');
                     this.showSpinner = false;
                 });
-        } catch (error) {
-            console.error('Error in sendWithEmail:', error);
+        } catch (e) {
+            errorDebugger('generateDocument', 'sendWithEmail', e, 'warn');
             this.showSpinner = false;
         }
     }
@@ -2012,7 +1898,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return getSessionId() // Assuming getSessionId returns a Promise
             .then(sessionId => {
                 if (!sessionId) {
-                    console.error('Error fetching session ID');
+                    errorDebugger('generateDocument', 'createContentVersion > getSessionId', 'Session ID not obtained', 'warn');
                     this.showSpinner = false;
                     throw new Error('Session ID not obtained');
                 }
@@ -2041,14 +1927,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             .then(response => response.json())
             .then(result => {
                 if (!result.success || !result.id) {
-                    console.log('Couldn\'t create the content version');
                     this.showToast('error', 'Something went wrong!', 'Couldn\'t create the document, please try again.', 5000);
                     throw new Error('Failed to create content version');
                 }
                 return result.id;
             })
-            .catch(error => {
-                console.log('Error in createContentVersion ::', error.message);
+            .catch(e => {
+                errorDebugger('generateDocument', 'createContentVersion > fetch', e, 'warn');
                 this.showSpinner = false;
             })
             .finally(() => {
@@ -2069,10 +1954,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             if (this.selectedChannels.includes('Email')) {
                 this.resultPromises.push(this.sendWithEmail(contentVersionId));
             }
-    
-            console.log('the result promises :::', this.resultPromises);
-        } catch (error) {
-            console.error('Error:', error);
+        } catch (e) {
+            errorDebugger('generateDocument', 'createFilesChatterEmail', e, 'warn');
             this.showSpinner = false;
         }
     }
@@ -2081,7 +1964,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             if(this.selectedChannels.includes('Google Drive')){
                 this.succeeded.push('Google Drive');
-                uploadToGoogleDrive({cvid : contentVersionId})
+                uploadToGoogleDrive({cvid : contentVersionId});
             }
             if(this.selectedChannels.includes('AWS')){
                 this.succeeded.push('AWS');
@@ -2095,15 +1978,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.succeeded.push('Dropbox');
                 uploadToDropBox({ cvid : contentVersionId});
             }
-        } catch (error) {
-            console.error('Error in uploadToExternalStorage : ', error.message);
+            if(!(this.selectedChannels.includes('Files') || this.selectedChannels.includes('Chatter') || this.selectedChannels.includes('Email')) && (this.selectedChannels.includes('Dropbox') || this.selectedChannels.includes('One Drive') || this.selectedChannels.includes('Google Drive') || this.selectedChannels.includes('AWS'))){
+                deleteContentVersion({cvId: contentVersionId});
+            }
+        } catch (e) {
+            errorDebugger('generateDocument', 'uploadToExternalStorage', e, 'warn');
         }
     }
 
     handleGenerationResult() {
-        // this.showSpinner = true;
         try {
-            console.log('Promises :::', this.resultPromises);
             Promise.all(this.resultPromises)
                 .then(() => {
                     this.handleClose();
@@ -2111,11 +1995,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    console.log('Error in handleGenerationResult : ', e.message);
+                    errorDebugger('generateDocument', 'handleGenerationResult > this.resultPromises - Promises', e, 'warn');
                 });
         } catch (e) {
             this.showSpinner = false;
-            console.log('Error in handleGenerationResult : ', e.message);
+            errorDebugger('generateDocument', 'handleGenerationResult', e, 'warn');
         }
     }
     
@@ -2129,6 +2013,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.showToast('error', 'Something Went Wrong!', 'Please enter the name for the button.', 5000);
                 return;
             }
+            if(!this.buttonLabel.trim()[0].match(/[a-zA-Z]/i)){
+                this.showToast('error', 'Something went wrong!','This first letter of name, should be an alphabet.!', 5000)
+                return;
+            }
+
             if(!this.isOldButton && this.allButtons.includes(this.buttonLabel.trim().replace(/[^a-zA-Z_]+/g, '_'))){
                 this.showToast('error', 'Something went wrong!','This button name is used, try changing name!', 5000)
                 return;
@@ -2143,12 +2032,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 return;
             }
             if(this.selectedChannels.includes('Documents') && !this.selectedFolder){
-                console.log('In Documents');
                 this.showSpinner = false;
                 this.showToast('error', 'Something Went Wrong!', 'Please select folder to save document.', 5000);
                 return;
             }
-            console.log('Setting the defaults');
             let allEmailsString = '';
             allEmailsString += (this.toEmails.length>0 ? this.toEmails.join(', ') : '') + '<|DGE|>' + (this.ccEmails.length>0 ? this.ccEmails.join(', ') : '') + '<|DGE|>' + (this.bccEmails.length>0 ? this.bccEmails.join(', '): '');
             let iStorages = this.internalStorageOptions.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
@@ -2168,10 +2055,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 templateType : this.templateTypeFromParent,
                 emailTemplate : this.selectedEmailTemplate
             }
-            console.log('Defaults :::', defaults);
             setDefaultOptions({ defaultData: defaults })
             .then(()=>{
-                console.log('Successfully updated the default options.');
                 if(!this.isOldButton){
                     if(this.isCSVTemplate){
                         let objList = [];
@@ -2188,13 +2073,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             }else{
                                 this.isOldButton = true;
                                 this.bottomBtnLabel = 'Update Defaults';
-                                console.log('The Button is Successfully created!');
                                 this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
                             }
                         })
                         .catch((e) => {
                             this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
-                            console.log('Error in createListViewButtons :' , e);
+                            errorDebugger('generateDocument', 'handleSetDefaults > createListViewButtons', e, 'warn');
                         })
                     }else{
                         getSessionId()
@@ -2216,7 +2100,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                 },
                                 FullName: this.objectApiName+'.'+defaults.buttonName
                             };
-                            console.log('the requestBody :::  ', requestBody);
                             let requestOptions = {
                                 method: 'POST',
                                 headers: myHeaders,
@@ -2226,20 +2109,23 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                 fetch(encodeURI(endpoint), requestOptions)
                                 .then(response => response.text())
                                 .then(result => {
-                                    this.isOldButton = true;
-                                    this.bottomBtnLabel = 'Update Defaults'
-                                    console.log(result);
-                                    this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                                    if(result.success){
+                                        this.isOldButton = true;
+                                        this.bottomBtnLabel = 'Update Defaults'
+                                        this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                                    }else{
+                                        this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
+                                    }
                                 })
-                                .catch(error => {
+                                .catch(e => {
                                     this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
-                                    console.log('error', error);
+                                    errorDebugger('generateDocument', 'handleSetDefaults > fetch (create quick action button)', e, 'warn');
                                 });
                             })
-                        .catch((error)=>{
+                        .catch((e)=>{
                             this.showSpinner = false;
                             this.showToast('error', 'Something went wrong!','Some technical issue occurred, please try again!', 5000);
-                            console.log('error in getSessionId ::', error.message);
+                            errorDebugger('generateDocument', 'handleSetDefaults > getSessionId', e, 'warn');
                         })
                     }
                 }else{
@@ -2250,11 +2136,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             })
             .catch(e => {
                 this.showSpinner = false;
-                console.log('Error in setDefaultOptions :' , e.message);
+                errorDebugger('generateDocument', 'handleSetDefaults > setDefaultOptions', e, 'warn');
             })
         }catch(e){
             this.showSpinner = false;
-            console.log('Error in handleSetDefaults ::', e.message);
+            errorDebugger('generateDocument', 'handleSetDefaults', e, 'warn');
         }
     }
 
@@ -2267,7 +2153,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.template.querySelector('.button-label-input').classList.add('error-input');
             this.template.querySelector('.button-label').classList.add('error-label');
         }
-        // console.log('Button Name Changed to ::' , this.buttonLabel);
     }
 
 
@@ -2311,15 +2196,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
             
             let encodedDef = btoa(JSON.stringify(cmpDef));
-            // console.log('encodedDef : ', encodedDef);
             this[NavigationMixin.Navigate]({
                 type: "standard__webPage",
                 attributes: {
                 url:  "/one/one.app#" + encodedDef
                 }
             });
-        } catch (error) {
-            console.log('error in navigateToComp : ', error.stack);
+        } catch (e) {
+            errorDebugger('generateDocument', 'navigateToComp', e, 'warn');
         }
     }
 }

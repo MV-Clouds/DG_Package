@@ -3,6 +3,7 @@ import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.cr
 import getCombinedData from '@salesforce/apex/ButtonGeneratorController.getCombinedData';
 
 import getSessionId from '@salesforce/apex/GenerateDocumentController.getSessionId';
+import { errorDebugger } from 'c/globalProperties'
 
 export default class ButtonGenerator extends LightningElement {
 
@@ -32,7 +33,7 @@ export default class ButtonGenerator extends LightningElement {
             this.fetchAlreadyCreatedObjects();
         }catch(e){
             this.showSpinner = false;
-            console.log('Error in connectedCallback ::', e.message);
+            errorDebugger('buttonGenerator', 'connectedCallback', e, 'warn');
         }
     }
 
@@ -40,7 +41,6 @@ export default class ButtonGenerator extends LightningElement {
         try{
             getCombinedData()
             .then((data) => {
-                console.log('Data fetched ::', data);
                 if(data.isSuccess){
                     this.allObjects = data.allObjects;
                     this.allObjects = this.allObjects.slice().sort((a, b) => a.label.localeCompare(b.label)).filter((obj) => obj.value!='Pricebook2');
@@ -63,14 +63,14 @@ export default class ButtonGenerator extends LightningElement {
                 }
                 this.showSpinner = false;
             })
-            .catch((error) => {
+            .catch((e) => {
                 this.showSpinner = false;
-                console.log('Error in getCombinedData', error.message);
+                errorDebugger('buttonGenerator', 'getCombinedData', e, 'warn');
                 this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
             })
         }catch(e){
             this.showSpinner = false;
-            console.log('Error in fetchAlreadyCreatedObjects', e.message);
+            errorDebugger('buttonGenerator', 'fetchAlreadyCreatedObjects', e, 'warn');
             this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
         }
     }
@@ -89,7 +89,7 @@ export default class ButtonGenerator extends LightningElement {
             })
             return {options : updatedObject, buttons: objLabelList}
         } catch (e) {
-            console.log('Error in function handleObjectSeparation:::', e.message);
+            errorDebugger('buttonGenerator', 'handleObjectSeparation', e, 'warn');
             return null;
         }
     }
@@ -107,7 +107,7 @@ export default class ButtonGenerator extends LightningElement {
                 this.template.querySelector('.basic-print-btn').classList.toggle('disabled-btn', this.selectedBPObjects.length === 0);
             }
         }catch(e){
-            console.log('Error in handleObjectSelection ::' , e.message);
+            errorDebugger('buttonGenerator', 'handleObjectSelection', e, 'warn');
         }
     }
 
@@ -116,7 +116,6 @@ export default class ButtonGenerator extends LightningElement {
         try {
             let type = event.target.dataset.type;
             if(type){
-                console.log('type is ', type);
                 if(type === 'listView'){
                     if(this.selectedLVObjects.length < 1){
                         this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
@@ -146,12 +145,11 @@ export default class ButtonGenerator extends LightningElement {
         } catch (e) {
             this.showSpinner = false;
             this.showToast('error','Something went Wrong!','Buttons couldn\'t be created please try again.', 5000);
-            console.log('Error in handleCreate :::', e.message);
+            errorDebugger('buttonGenerator', 'handleCreate', e, 'warn');
         }
     }
 
     handleCreateWebLinkButton(type){
-        console.log('Creating Web Link Button');
         try {
             let buttonData = {
                 buttonLabel: null,
@@ -172,19 +170,19 @@ export default class ButtonGenerator extends LightningElement {
             }
             createListViewButtons({objects: objects ,buttonData : buttonData})
             .then(()=>{
-                console.log('Successfully created list view buttons.');
                 this.showSpinner = false;
                 this.fetchAlreadyCreatedObjects();
             })
-            .catch((error)=>{
+            .catch((e)=>{
                 this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
-                console.log('error in createListViewButtons ::', error.message);
+                errorDebugger('buttonGenerator', 'createListViewButtons', e, 'warn');
                 this.showSpinner = false;
+                this.fetchAlreadyCreatedObjects();
             })
         } catch (e) {
             this.showSpinner = false;
             this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
-            console.log('Error in function handleCreateWebLinkButton:::', e.message);
+            errorDebugger('buttonGenerator', 'handleCreateWebLinkButton', e, 'warn');
         }finally{
             this.selectedLVObjects = [];
             this.selectedBPObjects = [];
@@ -193,7 +191,6 @@ export default class ButtonGenerator extends LightningElement {
 
     handleCreateQuickAction(){
         try {
-            console.log('Creating Quick Action');
             getSessionId()
             .then((data) => {
                 let domainURL = window.location.origin.replace('lightning.force.com', 'my.salesforce.com');
@@ -215,7 +212,6 @@ export default class ButtonGenerator extends LightningElement {
                 }));
                 let failedButtonsNumber = 0;
                 requestBodyExpanded.forEach((requestBody, i) => {
-                    console.log('the requestBody :::  ', requestBody);
                     let requestOptions = {
                         method: 'POST',
                         headers: myHeaders,
@@ -227,38 +223,35 @@ export default class ButtonGenerator extends LightningElement {
                         .then(result => {
                             if(i == requestBodyExpanded.length - 1){
                                 this.fetchAlreadyCreatedObjects();
-                                console.log('failedButtonsNumber ::: ', failedButtonsNumber);
                                 if(failedButtonsNumber > 0){
                                     this.showToast('error','Something went Wrong!','There was error creating '+ failedButtonsNumber + (failedButtonsNumber==1?' button,' : ' buttons,') + 'please try again...', 5000);
                                 }
                             }
-                            console.log(result);
                             if(!result?.success){
                                 failedButtonsNumber++;
                             }
                         })
-                        .catch(error => {
+                        .catch(e => {
                             if(i == requestBodyExpanded.length - 1){
                                 this.fetchAlreadyCreatedObjects();
-                                console.log('failedButtonsNumber ::: ', failedButtonsNumber);
                                 if(failedButtonsNumber > 0){
                                     this.showToast('error','Something went Wrong!','There was error creating '+ failedButtonsNumber + (failedButtonsNumber==1?' button,' : 'buttons,') + 'please try again...', 5000);
                                 }
                             }
-                            console.log('error', error);
+                            errorDebugger('buttonGenerator', 'handleCreateQuickAction > fetch', e, 'warn');
                             this.showToast('error','Something went Wrong!','There was some error creating button, try again...', 5000);
                         });
                     })
                     this.selectedQAObjects = [];
                 })
-            .catch((error)=>{
+            .catch((e)=>{
                 this.showSpinner = false;
                 this.showToast('error','Something went Wrong!','Buttons couldn\'t be created please try again.', 5000);
-                console.log('error in getSessionId ::', error.message);
+                errorDebugger('buttonGenerator', 'handleCreateQuickAction > getSessionId', e, 'warn');
             })
         } catch (e) {
             this.showSpinner = false;
-            console.log('Error in function handleCreateQuickAction:::', e.message);
+            errorDebugger('buttonGenerator', 'handleCreateQuickAction', e, 'warn');
         }
     }
 

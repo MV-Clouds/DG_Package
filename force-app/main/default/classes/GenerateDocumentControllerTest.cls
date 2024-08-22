@@ -7,7 +7,7 @@ public with sharing class GenerateDocumentControllerTest {
             MVDG__Template_Type__c = 'CSV Template',
             MVDG__Object_API_Name__c = 'Account',
             MVDG__Description__c = 'Test Description',
-            MVDG__Template_Status__c = true
+            MVDG__Template_Status__c = true 
         );
         insert templateActive;
         MVDG__Template__c templateInactive = new MVDG__Template__c(
@@ -75,6 +75,7 @@ public with sharing class GenerateDocumentControllerTest {
             Map<String, String> emailData = new Map<String, String>{'contentVersionId' => cv.Id,'emailSubject' => 'Test Sub','emailBody' => 'test body'};
 
             String status = GenerateDocumentController.sendEmail(allEmails, emailData);
+            GenerateDocumentController.deleteContentVersion(cv.Id);
 
             emailData.put('contentVersionId', '012345678901234567');
             GenerateDocumentController.sendEmail(allEmails, emailData);
@@ -105,15 +106,6 @@ public with sharing class GenerateDocumentControllerTest {
         String templateData = GenerateDocumentController.getTemplateData(t.Id);
         Test.stopTest();
         System.assert(td.MVDG__CSV_Fields__c + ' <|QDG|> ' + td.MVDG__CSV_Query__c + ' <|QDG|> ' + 'testSessionId' == templateData, 'The String is not right.');
-    }
-
-    @isTest
-    static void testGetAllEmailTemplates(){
-        List<EmailTemplate> templatesAvailable = [SELECT Id FROM EmailTemplate];
-        Test.startTest();
-        List<EmailTemplate> templates = GenerateDocumentController.getAllEmailTemplates();
-        Test.stopTest();
-        System.assertEquals(templatesAvailable.size(), templates.size(), 'There should not be any email templates.');
     }
 
     @isTest

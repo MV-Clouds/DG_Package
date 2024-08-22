@@ -30,8 +30,8 @@ public with sharing class PreviewCSVControllerTest {
         Test.stopTest();
 
         System.assertNotEquals(null, result.records, 'Records should not be null');
-        System.assertNotEquals(null, result.fields, 'Fields should not be null');
-        System.assertNotEquals(null, result.templateName, 'TemplateName should not be null');
-        System.assertNotEquals(null, result.templateObject, 'TemplateObject should not be null');
+        System.assertNotEquals(null, result.templateData.MVDG__CSV_Fields__c, 'Fields should not be null');
+        System.assertNotEquals(null, result.templateData.MVDG__Template__r.MVDG__Template_Name__c, 'TemplateName should not be null');
+        System.assertNotEquals(null, result.templateData.MVDG__Template__r.MVDG__Object_API_Name__c, 'TemplateObject should not be null');
     }
 }

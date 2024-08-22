@@ -13,6 +13,10 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     set isPopup(value){ this._popup= value === "true" ?  true : false }
     @api showAdditionalInfo = false;
     @track noResultsFound = false;
+    @track noDataFoundText = 'No records match your applied filters, try changing filter...';
+
+
+    //to show spinner
     @track showSpinner = false;
 
     // Preview Data
@@ -27,19 +31,10 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     }
 
     @track isGenerate = false;
+    @track isTemplateInactive = false;
 
-    get loadStyle(){
-        if(this.isPopup){
-            return `
-                    position: absolute;
-                    width: min(80%, 60rem);
-                    height: 90%;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-            `
-        }
-        return ``;
+    get canNotGenerate(){
+        return this.noResultsFound || this.isTemplateInactive;
     }
 
     connectedCallback(){
@@ -48,25 +43,32 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
 
     getPreviewData(){
         this.showSpinner = true;
-        fetchPreviewData({templateId: this.templateId})
-        .then((result) =>{
-            this.noResultsFound = true;
-            this.previewData = result.records;
-            this.fields = result.fields?.split(',');
-            this.additionalData['Name'] = result.templateName;
-            this.additionalData['Object Api Name'] = result.templateObject;
-            this.additionalData['Description'] = result.templateDescription || 'No Description Available for this template';
-            this.additionalData['CSV Creation Time'] = new Date().toLocaleString().replace(',', ' ');
-            if(this.fields.length > 0 && this.previewData.length > 0){
-                this.setData();
-                this.noResultsFound = false;
-            }
+        try{
+            fetchPreviewData({templateId: this.templateId})
+            .then((result) =>{
+                this.noResultsFound = true;
+                this.previewData = result.records;
+                this.fields = result.templateData.MVDG__CSV_Fields__c?.split(',');
+                this.additionalData['Name'] = result.templateData.MVDG__Template__r.MVDG__Template_Name__c;
+                this.additionalData['Object Api Name'] = result.templateData.MVDG__Template__r.MVDG__Object_API_Name__c;
+                this.additionalData['Description'] = result.templateData.MVDG__Template__r.MVDG__Description__c || 'No Description Available for this template';
+                this.isTemplateInactive = !result.templateData.MVDG__Template__r.MVDG__Template_Status__c;
+                this.additionalData['CSV Creation Time'] = new Date().toLocaleString().replace(',', ' ');
+                if(this.fields.length > 0 && this.previewData.length > 0){
+                    this.setData();
+                    this.noResultsFound = false;
+                }
+                this.showSpinner = false;
+            })
+            .catch(e=>{
+                this.noDataFoundText = 'There was some error fetching preview data, please try again...';
+                errorDebugger('previewCSV', 'fetchPreviewData', e, 'warn');
+                this.showSpinner = false;
+            })
+        }catch(e){
             this.showSpinner = false;
-        })
-        .catch(e=>{
             errorDebugger('previewCSV', 'getPreviewData', e, 'warn');
-            this.showSpinner = false;
-        })
+        }
     }
 
     setData() {
@@ -183,13 +185,13 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     }
 
     // Get Back to the Document Generator
-    handleBackClick(){
+    handleClose(){
         try{
             this.dispatchEvent(new CustomEvent('close',{
                 detail : true
             }));
         }catch(e){
-            errorDebugger('previewCSV', 'handleBackClick', e, 'warn');
+            errorDebugger('previewCSV', 'handleClose', e, 'warn');
         }
     }
 
@@ -246,7 +248,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
                 }
             });
         } catch (e) {
-            errorDebugger('previewCSV', 'navigateToComp', e, 'error');
+            errorDebugger('previewCSV', 'navigateToComp', e, 'warn');
         }
     }
 }
