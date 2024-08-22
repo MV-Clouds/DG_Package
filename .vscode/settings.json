@@ -5,6 +5,7 @@
     "**/.sfdx": true
   },
   "cSpell.words": [
-    "MVDG"
+    "MVDG",
+    "onsave"
   ]
 }

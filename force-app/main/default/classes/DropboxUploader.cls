@@ -1,4 +1,4 @@
-global class DropboxUploader implements Database.Batchable < SObject > , Database.AllowsCallouts {
+global with sharing class DropboxUploader implements Database.Batchable < SObject > , Database.AllowsCallouts {
     global static String dropboxAccessToken;
     global Id contentVersionId;
     global String uploadSessionId;
@@ -61,11 +61,14 @@ global class DropboxUploader implements Database.Batchable < SObject > , Databas
     }
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
-        return Database.getQueryLocator([
-            SELECT Id, VersionData, Title, ContentSize, FileExtension
-            FROM ContentVersion
-            WHERE Id =: contentVersionId
-        ]);
+        if(contentVersionId != null){
+            return Database.getQueryLocator([
+                SELECT Id, VersionData, Title, ContentSize, FileExtension
+                FROM ContentVersion
+                WHERE Id =: contentVersionId with SECURITY_ENFORCED
+            ]);
+        }
+        return null;
     }
 
     global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
@@ -327,12 +330,14 @@ global class DropboxUploader implements Database.Batchable < SObject > , Databas
 
     @AuraEnabled
     public static void emailUser(String message) {
-        User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+        if(Schema.sObjectType.User.fields.Email.isAccessible()){
+        // User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
         String subject = 'Issue in uploading file to dropbox';
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(new String[] { currentUser.Email });
+        mail.setToAddresses(UserInfo.getUserEmail());
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
     }
 }

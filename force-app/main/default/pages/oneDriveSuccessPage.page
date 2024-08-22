@@ -1,4 +1,4 @@
-<apex:page showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false" standardController="Account" extensions="OneDriveSuccessController">
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false" controller="OneDriveSuccessController">
     <html>
         <head>
             <style>
@@ -66,7 +66,7 @@
                     console.log('currentUrl');
 
                     Visualforce.remoting.Manager.invokeAction(
-                        'MVDG__OneDriveSuccessController.gettoken',
+                        '{!$RemoteAction.OneDriveSuccessController.gettoken}',
                         '{!$CurrentPage.URL}',
                         function(result, event) {
                             if(result == 'Success'){

@@ -1,4 +1,4 @@
-global class AwsUploader implements Database.Batchable<SObject>, Database.AllowsCallouts {
+global with sharing class AwsUploader implements Database.Batchable<SObject>, Database.AllowsCallouts {
     global static String key = '';
     global static String secret = '';
     global static String bucket = '';
@@ -14,11 +14,15 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
         // Query for ContentVersion records
-        return Database.getQueryLocator([
-            SELECT Id, VersionData, Title, ContentDocumentId, FileExtension, ContentSize 
-            FROM ContentVersion 
-            WHERE Id = :contentVersionId
-        ]);
+        if(contentVersionId != null){
+            return Database.getQueryLocator([
+                SELECT Id, VersionData, Title, ContentDocumentId, FileExtension, ContentSize 
+                FROM ContentVersion 
+                WHERE Id = :contentVersionId 
+                WITH SECURITY_ENFORCED
+            ]);
+        }
+        return null;
     }
 
     global void execute(Database.BatchableContext bC, List<ContentVersion> scope) {
@@ -53,7 +57,7 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
 
                 if (fileSize < maxSize) {
                     System.debug('Uploading small file');
-                    uploadObject(fileName, attach.FileExtension, attach.VersionData);
+                    uploadObject(fileName.toLowerCase(), attach.FileExtension, attach.VersionData);
                 } else {
                     if(namedCredential != ''){
                     System.debug('Uploading large file');
@@ -139,13 +143,15 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
 
     @AuraEnabled
     public static void emailUser(String message) {
-        User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+        if(Schema.sObjectType.User.fields.Email.isAccessible()){
+        User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
         String subject = 'Issue in uploading file to AWS';
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         mail.setToAddresses(new String[] { currentUser.Email });
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
     }
 
     public static void mailMessage(Integer code){
@@ -183,6 +189,7 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
                    'To resolve this issue, please check the following:\n\n' +
                    '1. Ensure that you have the correct permissions to upload files to the specified AWS folder.\n' +
                    '2. Verify that your AWS account has the appropriate access rights.\n\n' +
+                   'If you face any issue you can use NAMED CREDENTIAL. \n'+
                    'If you continue to experience difficulties, please don\'t hesitate to reach out to our support team for further assistance.\n\n' +
                    'Thank you for your attention to this matter.\n\n' +
                    'Best regards,\n' +
@@ -243,6 +250,17 @@ global class AwsUploader implements Database.Batchable<SObject>, Database.Allows
         // System.debug('This is signature -->'+auth);
         return auth;
     }
+
+    // public static string createAuthHeader(string contentType, string filename, string formatedDateString, string fileExtension, String methodName, String bucketName, String awsKey, String awsSecret) {
+    //     System.debug('sign input-->'+ contentType + filename + formatedDateString + fileExtension + methodName + bucketName + awsKey + awsSecret);
+    //     string auth;
+    //     string stringToSign = methodName + '\n\n' + contentType(fileExtension) + '\n' + formatedDateString + '\n/' + bucketName + '/' + filename.toLowerCase() + '.' + fileExtension.toLowerCase();
+    //     Blob mac = Crypto.generateMac('HMACSHA1', Blob.valueOf(stringToSign), Blob.valueOf(awsSecret));
+    //     string sig = EncodingUtil.base64Encode(mac);
+    //     auth = 'AWS' + ' ' + awsKey + ':' + sig;
+    //     System.debug('This is signature -->'+auth);
+    //     return auth;
+    // }
 
     public static Integer getLengthOfFile(Blob versionDataBlob) {
         return EncodingUtil.base64Encode(versionDataBlob).length();

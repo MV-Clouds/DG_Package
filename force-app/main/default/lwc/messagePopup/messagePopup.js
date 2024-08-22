@@ -120,66 +120,24 @@ export default class MessagePopup extends LightningElement {
         this.showPopup = false;
     }
 
-    // @track toastMessages = [];
-
-    // @api
-    // showMessageToast(messageData){
-    //     try {
-
-    //         if(this.toastMessages?.length < 5){
-    //             const toastInstance = {};
-    //             toastInstance.id = new Date().valueOf() + this.toastMessages.length;
-    //             toastInstance.status = messageData['status'] ? messageData['status'].toLowerCase() : 'warning';
-    //             toastInstance.title = messageData.title ? messageData.title + this.toastMessages.length : '';
-    //             toastInstance.message = messageData.message ? messageData.message : '';
-    //             toastInstance.duration = messageData.duration ? messageData.duration : 5000;
-    //             toastInstance.isSuccess = toastInstance.status === 'success';
-    //             toastInstance.isError = toastInstance.status === 'error';
-    //             toastInstance.isWarning = toastInstance.status === 'warning';
-    //             toastInstance.showDoneBtn = toastInstance.status === 'warning';
-            
-    //             this.toastMessages.unshift(toastInstance);
-
-    //             setTimeout(() => {
-    //                 const currentToastEle = this.template.querySelector(`[data-toast="${toastInstance.id}"]`);
-    //                 currentToastEle && (currentToastEle.style = `--duration : ${toastInstance.duration}ms`);
-    //                 currentToastEle?.addEventListener('animationend', this.closeToastMessage)
-    //                 console.log('currentToastEle : ', toastInstance.id);
-    //             }, 500);
-    //         }
-
-            
-    //     } catch (error) {
-    //         console.log('error in showMessageToast bulk', error.stack);
-    //     }
-    // }
-
-    // closeToastMessage = (event) => {
-    //     console.log('close toast id : ', event.currentTarget.dataset.toast);
-    //     const currentToastEle = this.template.querySelector(`[data-toast="${event.currentTarget.dataset.toast}"]`);
-    //     currentToastEle?.removeEventListener('animationend', null)
-    //     this.removeElement(event.currentTarget.dataset.toast)
-    // }
-
-    // closeToast(event){
-    //     this.removeElement(event.currentTarget.dataset.id)
-    // }
-
     removeElement(id){
         this.toastMessages = this.toastMessages.filter((toast) => { 
             return toast.id !== Number(id);
         });
     }
 
-    closeModal(event){
+    closeModal(){
         try {
-            this.dispatchEvent(new CustomEvent('confirmation'));
             this.showPopup = false;
             this.status = '';
             this.title = '';
             this.message = '';
             this.duration = '';
             this.type = '';
+            this.dispatchEvent(new CustomEvent('confirmation',{
+                detail : true
+            }));
+
         } catch (error) {
             console.error('error in closeModal poupMessgae', error.stack);
         }

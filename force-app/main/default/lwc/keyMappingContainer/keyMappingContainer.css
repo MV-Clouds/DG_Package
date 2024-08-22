@@ -1,7 +1,6 @@
 :host() {
     --ff_Bahnschrift: Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
     --ff_SegoeUI: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
-    --ff_Montserrat: "Montserrat";
     --ff_Poppins: Poppins;
 }
 
@@ -1145,7 +1144,7 @@ li {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--ff_Montserrat);
+    font-family: var(--ff_Bahnschrift);
     color: white;
     background: #01aeff;
     border-radius: 6px;

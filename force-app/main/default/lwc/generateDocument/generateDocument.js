@@ -63,7 +63,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @track activeTemplates = [];
     @track templateList = [];
 
-    @track selectedTemplate;
+    @track selectedTemplate = null;
     @track showEmailSection = false;
     @track showCC = false;
     @track showBCC = false;
@@ -325,7 +325,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     @track isClosableError = false;
 
-    closeEnabled = false;
     @track isNotGoogleNotGenerable = false;
 
     get showCloseButton(){
@@ -440,6 +439,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.template.host.classList.add('pou-up-view');
                 this.selectedTemplate = this.currentPageReference?.state?.c__templateIdToGenerate;
             }
+            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             Promise.resolve(this.objectApiName)
             .then(() => {
                 return Promise.all([
@@ -634,7 +634,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     handleAutoGeneration() {
         this.showSpinner = true;
-        this.closeEnabled = true;
         try {
             getTemplateDefaultValues({ templateId : this.selectedTemplate})
             .then((data) =>{
@@ -1138,6 +1137,23 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             if(this.isCalledFromPreview){
                 this.dispatchEvent(new CustomEvent('close'));
             }else{
+                this.selectedTemplate = null;
+                this.internalStorageOptions.forEach(o=>{
+                    o.isSelected = false;
+                })
+                this.externalStorageOptions.forEach(o=>{
+                    o.isSelected = false;
+                })
+                this.outputChannels.forEach(o=>{
+                    o.isSelected = false;
+                })
+                this.toEmails = [];
+                this.ccEmails = [];
+                this.bccEmails = [];
+                this.emailSubject = '';
+                this.emailBody = '';
+                this.selectedEmailTemplate = null;
+                this.showEmailSection = false;
                 window.history.back();
             }
         }else{
@@ -1825,7 +1841,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             this.showSpinner = true;
             this.labelOfLoader = 'Saving in Internal Storage...';
-            let bodyString = 'Generated "' + this.fileName + this.selectedExtension + '" using docGenius.';
+            let bodyString = 'Generated "' + this.fileName + this.selectedExtension + '".';
             postToChatter({ contentVersionId: cvId, recordId: this.recordId, body: bodyString })
             .then(() => {
                 this.succeeded.push('Chatter');

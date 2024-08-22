@@ -142,7 +142,7 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static String authorizeNamed(String named){
         try{
-            if(named != null || named != ''){
+            if(named != null){
                 System.debug('authorize named');
                 Integer checkNamed = [SELECT Count() FROM NamedCredential WHERE DeveloperName = :named WITH SECURITY_ENFORCED LIMIT 1];
                 if(Test.isRunningTest()){

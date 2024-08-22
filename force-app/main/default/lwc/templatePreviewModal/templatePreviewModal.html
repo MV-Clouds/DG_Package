@@ -109,5 +109,7 @@
   </template>
   <c-document-loader display={isSpinner} label={spinnerLabel} full-size="true"></c-document-loader>
 
+  <c-message-popup onconfirmation={handleMsgPopConfirmation}></c-message-popup>
+
   <c-custom-timeout data-id="previewTimeout" ontimeoutmethod={runTimeoutMethod}></c-custom-timeout>
 </template>

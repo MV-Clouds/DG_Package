@@ -11,11 +11,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     _popup;
     @api get isPopup(){ return this._popup }
     set isPopup(value){ this._popup= value === "true" ?  true : false }
-    // @api isPopup = false; 
     @api showAdditionalInfo = false;
-
-
-    // @track showModel= true;
     @track noResultsFound = false;
     @track noDataFoundText = 'No records match your applied filters, try changing filter...';
 

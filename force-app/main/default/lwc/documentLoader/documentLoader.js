@@ -1,4 +1,5 @@
 import { LightningElement, api, track, wire } from "lwc";
+import { errorDebugger } from "c/globalProperties";
 export default class DocumentLoader extends LightningElement {
 		
 
@@ -88,8 +89,12 @@ export default class DocumentLoader extends LightningElement {
 	}
 
 	handleTimeout(event){
-		if(event?.detail?.function){
-			event?.detail?.function();
+		try {
+			if(event?.detail?.function){
+				event?.detail?.function();
+			}
+		} catch (error) {
+			errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
 		}
 	}
 

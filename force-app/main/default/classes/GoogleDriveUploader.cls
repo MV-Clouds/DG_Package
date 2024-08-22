@@ -1,4 +1,4 @@
-global class GoogleDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts{
+global with sharing class GoogleDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts{
 
     global string contentVersionId;
     global static string googleDriveAccessToken;
@@ -12,11 +12,14 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
     
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
-        return Database.getQueryLocator([
-            SELECT Id, VersionData, Title, ContentSize, FileExtension
-            FROM ContentVersion
-            WHERE Id =: contentVersionId
-        ]);
+        if(contentVersionId != null){
+            return Database.getQueryLocator([
+                SELECT Id, VersionData, Title, ContentSize, FileExtension
+                FROM ContentVersion
+                WHERE Id =: contentVersionId with SECURITY_ENFORCED
+            ]);
+        }
+        return null;
     }
 
 
@@ -59,15 +62,18 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
     }
 
     global static String getToken(){
-        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            System.debug('This is client id'+mdata[0].MVDG__CID__c);
+            System.debug('This is client secret'+mdata[0].MVDG__CSEC__c);
+        AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
         String endpoint = 'https://oauth2.googleapis.com/token';
         HttpRequest request = new HttpRequest();
         request.setEndpoint(endpoint);
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-                        '&client_id=' + settings.MVDG__ClientId__c +
-                        '&client_secret=' + settings.MVDG__ClientSecret__c +
+        request.setBody('refresh_token=' + settings.refresh_token__c +
+                        '&client_id=' + mdata[0].MVDG__CID__c +
+                        '&client_secret=' + mdata[0].MVDG__CSEC__c +
                         '&grant_type=refresh_token');
 
         Http http = new Http();
@@ -138,34 +144,6 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
         req.setTimeout(60000);
         return h.send(req);
     }
-// private static Boolean refreshAccessToken(MVDG__AuthProviderSettings__c settings) {
-//         String ENDPOINT = 'https://oauth2.googleapis.com/token';
-//         HttpRequest request = new HttpRequest();
-//         request.setEndpoint(ENDPOINT);
-//         request.setMethod('POST');
-//         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-//         request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-//                         '&client_id=' + settings.MVDG__ClientId__c +
-//                         '&client_secret=' + settings.MVDG__ClientSecret__c +
-//                         '&grant_type=refresh_token');
-
-//         Http http = new Http();
-//         HttpResponse response = http.send(request);
-
-//         if (response.getStatusCode() == 200) {
-//             Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
-//             String newToken = (String) jsonResponse.get('access_token');
-//             if (newToken != null) {
-//                 settings.MVDG__access_token__c = newToken;
-//                 upsert settings;
-//                 return true;
-//             }
-//         }
-
-//         System.debug('Token refresh failed. Status Code: ' + response.getStatusCode());
-//         System.debug('Response Body: ' + response.getBody());
-//         return false;
-//     }
 
     private static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, String fileExtension) {
         String result = initiateUploadSession(fileExtension, contentVersion);
@@ -371,13 +349,15 @@ global class GoogleDriveUploader implements Database.Batchable < SObject > , Dat
 
     @AuraEnabled
     public static void emailUser(String message) {
-        User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+        if(Schema.sObjectType.User.fields.Email.isAccessible()){
+        // User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
         String subject = 'Issue in uploading file to google drive';
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(new String[] { currentUser.Email });
+        mail.setToAddresses(UserInfo.getUserEmail());
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        }
     }
 
     public static string contentType(string fileType) {

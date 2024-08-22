@@ -29,7 +29,19 @@ public class GoogleDocPreviewTest {
             }
             return res;
         }
-    }    
+    }
+    public class NoResponseClass implements HttpCalloutMock{
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setHeader('Content-Type', 'application/json');
+            res.setStatusCode(401);
+            if (req.getEndpoint() == 'https://oauth2.googleapis.com/token') {
+                res.setStatusCode(200);
+            }
+            res.setBody('{"example": "test"}');
+            return res;
+        }
+    }
     
     
     @TestSetup
@@ -74,6 +86,19 @@ public class GoogleDocPreviewTest {
         cv.VersionData = Blob.valueOf('a'.repeat(400));
         cv.FirstPublishLocationId = acc.Id;
         insert cv;
+    }
+
+    @IsTest
+    static void allMethodsCatchBlock(){
+        Test.setMock(HttpCalloutMock.class, new NoResponseClass());
+        Test.startTest();
+        MVDG__Template__c template = new MVDG__Template__c();
+        template = [SELECT MVDG__Template_Type__c, MVDG__Template_Name__c, MVDG__Description__c, MVDG__Template_Status__c, MVDG__Object_API_Name__c FROM MVDG__Template__c];
+        GoogleDocPreview.copyGoogleDoc(template.Id);
+        GoogleDocPreview.getDocument('googleDocId', template.Id);
+        GoogleDocPreview.doPreview('googleDocId', '.docx', new List<Object>());
+        Test.stopTest();
+        
     }
 
     @isTest

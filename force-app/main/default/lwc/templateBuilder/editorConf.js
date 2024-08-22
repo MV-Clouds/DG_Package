@@ -479,12 +479,12 @@ function createCellColorBtn(note, context){
                           tooltip  : lang.bottomAlign,
                           click: function () {setCellVerticalAlighn('bottom', context)}
                       }),
-                      ui.button({
-                          className: 'custom-vertical-align-btn-baseline',
-                          contents : customeIcons.aligntop,
-                          tooltip  : lang.baselineAlign,
-                          click: function () {setCellVerticalAlighn('baseline', context)}
-                      })
+                      // ui.button({
+                      //     className: 'custom-vertical-align-btn-baseline',
+                      //     contents : customeIcons.aligntop,
+                      //     tooltip  : lang.baselineAlign,
+                      //     click: function () {setCellVerticalAlighn('baseline', context)}
+                      // })
                   ]
               }),
             
@@ -600,8 +600,8 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
                 styleTags: ['p', 'blockquote', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
                 fontSizes: ['8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','26','28','30','32','34','36','38','40','42','44','46','48','52','56','60','64','68','72','76','80','86','92','98'],
                 fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana'],
-                addDefaultFonts : true,
-                maximumImageFileSize : _self.maxImageSize,
+                // addDefaultFonts : true,
+                // maximumImageFileSize : _self.maxImageSize,
                   tableClassName: 'table table-bordered',
                   insertTableMaxSize: {
                     col: 10,

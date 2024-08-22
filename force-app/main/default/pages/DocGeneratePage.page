@@ -426,7 +426,7 @@
                         const signatureKey = '{!JSENCODE(signatureKey)}';
                         const signatureSize = '{!signatureSize}';
                         // Add signature image key and cv Id into salesforceImage List to fetch base64;
-                        if(signatureImageCvId){
+                        if(signatureImageCvId && signatureImageCvId[signatureKey]){
                             salesforceImages[signatureKey] = signatureImageCvId[signatureKey];
                         }
 
@@ -572,9 +572,9 @@
                             
                             bodyHtml = decodeHTMLEntities(bodyHtml);
                             headerHtml = decodeHTMLEntities(headerHtml);
-                            footerHtml = decodeHTMLEntities(footerHtml)
+                            footerHtml = decodeHTMLEntities(footerHtml);
     
-                            // ==> remove merge Template keys from mergeTemplateKeys ...
+                            // ...remove merge Template keys from mergeTemplateKeys ...
                             // Note: this logic will note remove merge Template keys from cuurent template Data as we already remove currentTempId from mergeTemplateKeys to avoid this...
                             for(let key in mergeTemplateKeys){
                                 const tempData = mergeTemplateKeys[key];
@@ -585,32 +585,34 @@
                                 }
                             }
     
-                            // => replace merge template key with merge template data....
+                            // ...replace merge template key with merge template data....
                             for(let key in mergeTemplateKeys){
                                 bodyHtml = bodyHtml.replaceAll(key, mergeTemplateKeys[key]);
                             }
     
-                            // ==> if bodyHtml have self merging key ...then append message within merge template key...
+                            // ...if bodyHtml have self merging key ...then append message within merge template key...
                             if(selfMergeTempKey){
                                 bodyHtml = bodyHtml.replaceAll(selfMergeTempKey, selfMergeTempKey + '<span style="color:red"> --- Self Merge Not Allow. --- </span>');
                             }
     
-                            // replace object field key and general field key with actual value...
+                            // ...replace object field key and general field key with actual value...
                             for(let key in mappingKeyVsMappingValues){
                                 bodyHtml = bodyHtml.replaceAll(key, mappingKeyVsMappingValues[key]);
                                 headerHtml = headerHtml.replaceAll(key, mappingKeyVsMappingValues[key]);
                                 footerHtml = footerHtml.replaceAll(key, mappingKeyVsMappingValues[key])
                             }
-    
-                            // replace child object records....
+
+                            // ...replace child object records....
                             for(let key in childRecordTableKeys){
-                                bodyHtml = bodyHtml.replaceAll(key, childRecordTableKeys[key]);
-                                headerHtml = headerHtml.replaceAll(key, childRecordTableKeys[key]);
-                                footerHtml = footerHtml.replaceAll(key, childRecordTableKeys[key])
+                                const tableHtml = decodeHTMLEntities(key);
+                                const modifiedTable = decodeHTMLEntities(childRecordTableKeys[key]);
+
+                                bodyHtml = bodyHtml.replaceAll(tableHtml, modifiedTable);
+                                headerHtml = headerHtml.replaceAll(tableHtml, modifiedTable);
+                                footerHtml = footerHtml.replaceAll(tableHtml, modifiedTable);
                             }
     
-    
-                            // replace salesforce image url with base64...
+                            // ...replace salesforce image url with base64...
                             for(let src in salesforceImages){
                                 if(src === signatureKey){
                                     const signatureImageInPt = (signatureSize * pageFormats()[pageSize][0]) / 100;
@@ -668,6 +670,7 @@
                         }
     
                         function generatePDF(node){
+                            
                             const opt = {
                                 // margin : [top, left, bottom, right]
                                 margin: [   marginTop, 
@@ -1351,19 +1354,10 @@
                                 if(zoomLevel <= 25){
                                     zoomOffset = clickedButton == 'zoomIn' ? 0 : zoomOffset;
                                 }
-                                if(zoomLevel > 25 && zoomLevel < 50){
-                                    zoomOffset = 5;
-                                }
-                                else if(zoomLevel >= 50 && zoomLevel < 200){
-                                    zoomOffset = 10;
-                                }
-                                else if(zoomLevel >= 200 && zoomLevel < 500){
-                                    zoomOffset = 25;
-                                }
                                 else if(zoomLevel >= 500){ 
                                     zoomOffset = clickedButton == 'zoomOut' ? 0 : zoomOffset;
                                 }
-    
+
                                 if( clickedButton == "zoomIn"){
                                     zoomLevel = zoomLevel - zoomOffset;
                                 }
@@ -1384,14 +1378,11 @@
                             function onscroll(){
                                 let scrollHeight = content.scrollHeight;
                                 const singlePageHeight = content.scrollHeight / pdfPages;
-                                let previousPageNo = currentPage;
     
                                 currentPage =  Math.floor((content.scrollTop / (singlePageHeight-8)) + 1);
     
-                                if(previousPageNo != currentPage){
-                                    const pageToSetInut = document.querySelector('[data-name="pageToSet"]');
-                                    pageToSetInut.value = currentPage;
-                                }
+                                const pageToSetInut = document.querySelector('[data-name="pageToSet"]');
+                                pageToSetInut.value = currentPage;
     
                                 const scrollToTopBtn = document.querySelector('.scrollTopBtn');
                                 if(content.scrollTop > 0){
@@ -1428,6 +1419,9 @@
                                         currentPage = pageNoToSet;
                                     }
                                 }
+
+                                const pageToSetInut = document.querySelector('[data-name="pageToSet"]');
+                                pageToSetInut.value = currentPage;
     
                                 setPageBtnStatus();
                             }

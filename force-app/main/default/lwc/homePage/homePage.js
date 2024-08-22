@@ -5,7 +5,7 @@ import docGeniusImgs from "@salesforce/resourceUrl/homePageImgs";
 import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getTemplateList from '@salesforce/apex/HomePageController.getTemplateList';
 import updateTemplate from '@salesforce/apex/HomePageController.updateTemplate';
-import {nameSpace,navigationComps} from 'c/globalProperties';
+import {nameSpace,navigationComps, errorDebugger} from 'c/globalProperties';
 
 export default class HomePage extends NavigationMixin(LightningElement) {
     @track isDisplayOption = false;
@@ -21,7 +21,9 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     
     @track defaultFieldToSort = 'LastModifiedDate';
     @track sortAS = 'desc';
-    @track filterOpts = {};
+    @track filterOpts = {
+        'fieldToSort' : this.defaultFieldToSort,
+    };
     @track selectedTemplateId;
     @track selectedObjectName;
     @track isFilterApplied;
@@ -111,7 +113,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.fetchTemplateRecords();
 
         } catch (error) {
-            console.warn('error in HomePage.connectedCallback : ', error.message);
+            errorDebugger('HomePage', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -130,7 +132,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 }
             }
         } catch (error) {
-            console.warn('error in HomePage.renderedCallback : ', error.message);
+            errorDebugger('HomePage', 'renderedCallback', error, 'warn');
         }
     }
 
@@ -181,7 +183,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     
             return referenceDates;
         } catch (error) {
-            console.warn('error in HomePage.setReferenceDate : ', error.message); 
+            errorDebugger('HomePage', 'setReferenceDate', error, 'warn');
         }
     }
 
@@ -230,11 +232,11 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 this.isSpinner = false;
             })
             .catch(error => {
-                console.warn('error in apex method HomePage.getTemplateList : ', error);
                 this.isSpinner = false;
+                errorDebugger('HomePage', 'fetchTemplateRecords', error, 'warn', 'error in apex method getTemplateList');
             })
         } catch (error) {
-            console.warn('error in HomePage.fetchTemplateRecords : ', error.message);
+            errorDebugger('HomePage', 'fetchTemplateRecords', error, 'warn');
         }
     }
 
@@ -271,7 +273,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             }
 
         } catch (error) {
-            console.warn('error in HomePage.showMessagePopup : ', error.message);
+            errorDebugger('HomePage', 'toggleFilterOptions', error, 'warn');
         }
     }
 
@@ -306,7 +308,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.filterOpts = tempFilterOpts;
             
         } catch (error) {
-            console.warn('error in HomePage.onOptionSelect', error.message);
+            errorDebugger('HomePage', 'onOptionSelect', error, 'warn');
         }
     }
 
@@ -326,7 +328,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             }
             this.filterOpts = tempFilterOpts;
         } catch (error) {
-            console.warn('error in HomePage.onFilterCheckboxChange', error.message);
+            errorDebugger('HomePage', 'onFilterCheckboxChange', error, 'warn');
         }
     }
 
@@ -338,7 +340,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             tempFilterOpts[filterOpt] = value;
             this.filterOpts = tempFilterOpts;
         } catch (error) {
-            console.warn('error in HomePage.setSortingOrder : ', error.message);
+            errorDebugger('HomePage', 'setSortingOrder', error, 'warn');
         }
     }
 
@@ -372,7 +374,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 }
             }
         } catch (error) {
-            console.warn('error in HomePage.ChangeDates :  ', error.message);
+            errorDebugger('HomePage', 'ChangeDates', error, 'warn');
         }
     }
 
@@ -385,7 +387,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
             this.setFromToDate(selectedReferenceTime);
         } catch (error) {
-            console.warn('error in HomePage.referencePillClick :  ', error.message);
+            errorDebugger('HomePage', 'referencePillClick', error, 'warn');
         }
     }
 
@@ -413,7 +415,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 delete this.filterOpts['refrenceTime'];
             }
         } catch (error) {
-            console.warn('error in HomePage.setFromToDate : ', error.message);
+            errorDebugger('HomePage', 'setFromToDate', error, 'warn');
         }
     }
 
@@ -440,7 +442,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
             this.template.querySelector(`[data-name="objectsToFilter"]`).unselectOption(unselectedValue);
         } catch (error) {
-            console.warn('error in HomePage.removeSelectedObj : ', error.message);
+            errorDebugger('HomePage', 'removeSelectedObj', error, 'warn');
         }
     }
 
@@ -454,7 +456,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.setFromToDate(null);
 
         } catch (error) {
-            console.warn('error in HomePage.clearSelectedDateAndRange : ', error.message);
+            errorDebugger('HomePage', 'clearSelectedDateAndRange', error, 'warn');
         }
     }
 
@@ -495,13 +497,14 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 !isClear && this.toggleFilterOptions();
             }
         } catch (error) {
-            console.warn('error in HomePage.applyFilter : ', error.message);
+            errorDebugger('HomePage', 'applyFilter', error, 'warn');
         }
     }
 
     sortDisplayTemplates(){
         try {
             var fieldToSort = this.filterOpts['fieldToSort'] ? this.filterOpts['fieldToSort'] : this.defaultFieldToSort;
+            this.filterOpts.fieldToSort = fieldToSort;
             var sortAs = this.filterOpts['filterSortAS'] ? this.filterOpts['filterSortAS'] : this.defaultSortAS;
             this.filteredTemplateList = this.filteredTemplateList.sort((a, b) => {
                 if(a[fieldToSort].toLowerCase() > b[fieldToSort].toLowerCase()){
@@ -532,7 +535,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 return 0;
             })
         } catch (error) {
-            console.warn('error in HomePage.sortDisplayTemplates : ', error.message);
+            errorDebugger('HomePage', 'sortDisplayTemplates', error, 'warn');
         }
     }
 
@@ -575,7 +578,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             }
             
         } catch (error) {
-            console.warn('error in HomePage.setErrorForRangeDate : ', error.message);            
+            errorDebugger('HomePage', 'setErrorForRangeDate', error, 'warn');
         }
         
     }
@@ -626,7 +629,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.lastScroll = event.target.scrollTop;
 
         }catch(error) {
-            console.warn('error in HomePage.loadTemplates : ', error.message);
+            errorDebugger('HomePage', 'loadTemplates', error, 'warn');
         }
     }
 
@@ -674,7 +677,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             
             this.isFilterApplied = false;
         } catch (error) {
-            console.warn('error in HomePage.clearFilterOpts : ', error.message);
+            errorDebugger('HomePage', 'clearFilterOpts', error, 'warn');
         }
     }
 
@@ -695,7 +698,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.displayedTemplateList = this.setSerialNumber(this.displayedTemplateList);
             
         } catch (error) {
-            console.warn('error in HomePage.searchTemplates : ', error.message);
+            errorDebugger('HomePage', 'searchTemplates', error, 'warn');
         }
     }
 
@@ -703,7 +706,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     toggleCreateNEwTemplate(){
         this.isCreateTemplate = !this.isCreateTemplate;
-    }Pes
+    }
 
     toggleCloneTemplate(){
         this.isCloneTemplate = !this.isCloneTemplate;
@@ -729,16 +732,16 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
                 // Update Template in Backend...
                 updateTemplate({ templateId : this.toggelTemplateId, isActive : true})
-                .then(result => {
+                .then(() => {
                     // console.log('result on updateTemplate : ', result);
                 })
                 .catch(error => {
-                    console.warn('error in apex method HomePage.updateTemplate: ', {error});
+                    errorDebugger('HomePage', 'handleChangeStatus', error, 'warn', 'error in apex method updateTemplate');
                 })
 
             }
         } catch (error) {
-            console.warn('error in HomePage.handleChangeStatus : ',error.message);
+            errorDebugger('HomePage', 'handleChangeStatus', error, 'warn');
         }
     }
 
@@ -758,7 +761,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             }
             this.isPreview = true;
         } catch(error) {
-            console.log('error in HomePage.handlePreviewTemplate : ', error.message);
+            errorDebugger('HomePage', 'handlePreviewTemplate', error, 'warn');
         }
     }
 
@@ -766,19 +769,15 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         this.isPreview = false;
     }
 
-    openGenerateDocument(){
-        
-    }
-
     handleDeleteTemplate(event){
         try {
             this.deleteTemplateId = event.currentTarget.dataset.id;
             // console.log('this.deleteTemplateId : ', this.deleteTemplateId);
             this.isDeleteTemplate = true;
-            this.showMessagePopup('Warning', 'Conform to Delete ?', 'Do you want to Delete this Template');
+            this.showMessagePopup('Warning', 'Confirm to Delete ?', 'Do you want to Delete this Template');
             
         } catch (error) {
-            console.warn('error in HomePage.handleDeleteTemplate : ',error.message);
+            errorDebugger('HomePage', 'handleDeleteTemplate', error, 'warn');
         }
     }
 
@@ -800,11 +799,11 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
                     // Update Template in Backend...
                     updateTemplate({ templateId : this.toggelTemplateId, isActive : toggelInput.checked})
-                    .then(result => {
+                    .then(() => {
                         // console.log('result on updateTemplate : ', result);
                     })
                     .catch(error => {
-                        console.warn('error in apex method HomePage.updateTemplate: ', {error});
+                        errorDebugger('HomePage', 'handleConfirmation', error, 'warn', 'error in apex method updateTemplate');
                     })
                 }
                 else{
@@ -823,7 +822,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                         this.showMessageToast('Success', 'Template Deleted.', 'Your template deleted successfully.', 5000);
                     })
                     .catch(error => {
-                        console.warn('error in apex method HomePage.deleteTemplate: ', {error});
+                        errorDebugger('HomePage', 'handleConfirmation', error, 'warn', 'error in apex method deleteTemplate');
                     })
                     .finally(() => {
                         this.isSpinner = false;
@@ -848,7 +847,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 }
             }
         } catch (error) {
-            console.warn('error in HomePage.handleConfirmation : ', error.message);
+            errorDebugger('HomePage', 'handleConfirmation', error, 'warn');
         }
     }
 
@@ -883,7 +882,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             }
 
         } catch (error) {
-            console.warn('error in HomePage.handleEditClick : ', error.message);
+            errorDebugger('HomePage', 'handleEditClick', error, 'warn');
         }
     }
 
@@ -901,7 +900,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 this.isCloneTemplate = !this.isCloneTemplate;
             }
         } catch (error) {
-            console.warn('error in HomePage.cloneTemp : ', error.message);
+            errorDebugger('HomePage', 'cloneTemp', error, 'warn');
         }
     }
 
@@ -949,27 +948,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                     }
                   });
             } catch (error) {
-                console.warn('error in HomePage.navigateToComp : ', error.message);
-            }
-        }
-
-        errorDebugger(componentName, methodName, error, debugLevel){
-
-            const errorInfo = {
-                component : componentName,
-                method : methodName,
-                message : error.message,
-                stack: error.message,
-            }
-
-            if(debugLevel?.toLowerCase() === 'error'){
-                console.warn('error from custom component : ', JSON.parse(JSON.stringify(errorInfo)));
-            }
-            else if(debugLevel?.toLowerCase() === 'warn'){
-                console.warn('error from custom component : ', JSON.stringify(errorInfo));
-            }
-            else{
-                console.log('error from custom component : ', JSON.parse(JSON.stringify(errorInfo)));
+                errorDebugger('HomePage', 'navigateToComp', error, 'warn');
             }
         }
     

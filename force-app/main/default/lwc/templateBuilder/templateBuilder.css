@@ -5,7 +5,6 @@
     --edtAnimationDuration: ;
     --ff_Bahnschrift : Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
     --ff_SegoeUI : 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
-    --ff_Montserrat : "Montserrat";
     --ff_Poppins : Poppins;
 }
 input[type=number]::-webkit-inner-spin-button, 
@@ -1014,7 +1013,7 @@ input[type=number]::-webkit-outer-spin-button {
       font-size: 20px;
       font-weight: 600;
       color: #01aeff;
-      font-family: var(--ff_Montserrat);
+      font-family: var(--ff_Bahnschrift);
     }
     .setDefaultSection{
       width: calc(100% - 2rem);
@@ -1035,6 +1034,7 @@ input[type=number]::-webkit-outer-spin-button {
       --height-of-main-generate-document-div : 100%;
       /* --margin-of-main-container : 1rem 2rem; */
       /* --border-color-of-main-container : #00aeff; */
+      --background-of-main-generate-document-div: transparent;
       display: flex;
       height: 100%;
 
@@ -1328,7 +1328,7 @@ input[type=number]::-webkit-outer-spin-button {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: var(--ff_Montserrat);
+      font-family: var(--ff_Bahnschrift);
       color: white;
       background: #01aeff;
       border-radius: 6px;

@@ -108,6 +108,11 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     }
 
     copyToClipboard() {
+        const copyIconContainer = this.template.querySelector('.icon-copy');
+        copyIconContainer.classList.add('show-copied');
+        copyIconContainer.addEventListener('animationend', () => {
+            copyIconContainer.classList.remove('show-copied');
+        });
         this.isSpinner = true;
         // console.log('Invoked clipboard');
         var copyText = this.template.querySelector(".copy");
@@ -180,17 +185,7 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
         this.bucket = '';
         this.nickname = '';
         this.namedCredential = '';
-        this.isNamedCredential = !this.isNamedCredential;
-        if(this.isNamedCredential){
-            this.handleNamedCredentials();
-        }
-        else{
-            this.handleClientId();
-            this.handleClientSecret();
-            this.handleNickname();
-            this.handleBucket();
-        }
-        
+        this.isNamedCredential = !this.isNamedCredential;       
         // console.log(this.isNamedCredential);        
     }
 

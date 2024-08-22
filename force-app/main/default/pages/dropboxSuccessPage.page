@@ -1,4 +1,4 @@
-<apex:page showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false" standardController="Account" extensions="DropboxSuccessController">
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false" controller="DropboxSuccessController">
     <html>
         <head>
             <style>
@@ -66,7 +66,7 @@
                     console.log('currentUrl');
 
                     Visualforce.remoting.Manager.invokeAction(
-                        'MVDG__DropboxSuccessController.gettoken',
+                        '{!$RemoteAction.DropboxSuccessController.gettoken}',
                         '{!$CurrentPage.URL}',
                         function(result, event) {
                             if(result == 'Success'){
@@ -103,9 +103,8 @@
                 }
 
                 function redirectToSalesforce() {
-                        var action = '{!$RemoteAction.DropboxSuccessController.redirectToSalesforcePage}';
                             Visualforce.remoting.Manager.invokeAction(
-                                action,
+                                '{!$RemoteAction.DropboxSuccessController.redirectToSalesforcePage}',
                                 function(result, event) {
                                     if (event.status) {
                                         window.location.href = result;

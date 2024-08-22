@@ -469,13 +469,13 @@
   
     .fromTo{
       width: 6rem;
-      /* override standar css of date picker */
-      --lwc-colorTextLabel : black;
+      /* override standard css of date picker */
+      /* --lwc-colorTextLabel : black;
       --lwc-spacingXLarge : 0.5rem;
       --lwc-spacingMedium : 0.5rem;
       --lwc-spacingSmall: 0.5rem;
       --lwc-squareIconMediumContentAlt : 0px;
-      --lwc-fontSize3 : 12px;
+      --lwc-fontSize3 : 12px; */
   
       position: relative;
     }

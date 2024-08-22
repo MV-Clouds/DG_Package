@@ -183,6 +183,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 return { ...option, isSelected: this.toAddSelected.some(p => p.apiName === option.apiName) };
             });
         }
+
         fieldOptionsUpdated =  this.fieldOptions.filter(option => option.fieldName.toLowerCase().includes(this.searchKey.toLowerCase())).map(option => {
             return { ...option, isSelected: this.toAddSelected.some(p => p.apiName === option.apiName) };
         });

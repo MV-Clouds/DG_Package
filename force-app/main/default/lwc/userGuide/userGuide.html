@@ -1,51 +1,435 @@
+<!-- sldsValidatorIgnore -->
 <template>
-    <!-- <p>{activeSectionsMessage}</p> -->
-
-    <lightning-accordion allow-multiple-sections-open
-                         onsectiontoggle={handleSectionToggle}
-                         active-section-name={activeSections}>
-        <lightning-accordion-section name="A" label="AWS Integration">
-            <div class="content">
-                <p>Step:1 Create a bucket or use existing bucket if any in your aws account and copy bucket name.</p>
-                <p style="color: rgb(245, 93, 93);">[ NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 ]</p>
-                <div class="img"><img src={aws1} alt="error"></div>
-                <div class="img"><img src={aws2} alt="error"></div>
-                <p>Step:2 Just paste bucket name here after drag and drop aws logo. </p>
-                <div class="img"><img src={aws3} alt="error"></div>
-                <div class="img"><img src={aws4} alt="error"></div>
-                <p>Step:3 Create a bucket or use existing bucket if any in your aws account and copy bucket name.</p>
-                <div class="img"><img src={aws5} alt="error"></div>
-                <div class="img"><img src={aws6} alt="error"></div>
-                <p>Step:4 Just paste bucket name here after drag and drop aws logo. </p>
-                <div class="img"><img src={aws7} alt="error"></div>
-                <p>Step: 5 Check whether the status is updated or not.</p>
-                <div class="img"><img src={aws8} alt="error"></div>
-                <p>If it is active means authorization is successful.</p>
+    <div class="custom-modal-overlay" if:true={showModal} onclick={closeModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="custom-modal-heading" class="custom-modal-container">
+            <div class="custom-modal-content">
+                <button class="custom-modal-close" onclick={closeModal} title="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-0.5 -0.5 24 24" id="Close--Streamline-Ionic-Filled" height="24" width="24"><path fill="#000000" d="M14.31175 11.500095833333333 22.18172708333333 3.629975c0.37346250000000003 -0.3727916666666667 0.5835770833333334 -0.8787916666666667 0.5840083333333334 -1.4064979166666667 0.000575 -0.5278499999999999 -0.20867708333333335 -1.0341854166666669 -0.5815166666666667 -1.4076000000000002 -0.37288750000000004 -0.3735104166666667 -0.8788875 -0.5836729166666667 -1.4066416666666668 -0.5841041666666668 -0.52770625 -0.00043125 -1.0340416666666667 0.208725 -1.4075041666666666 0.5816125L11.5 8.683410416666668 3.629975 0.8133854166666667C3.2564645833333334 0.439875 2.7498416666666667 0.23 2.2217041666666666 0.23c-0.5283770833333333 0 -1.03485625 0.209875 -1.4084145833333332 0.5833854166666667C0.43977916666666667 1.1868479166666668 0.23 1.6934229166666668 0.23 2.2217041666666666c0 0.5282333333333333 0.20977916666666668 1.0347604166666666 0.5832895833333334 1.4082708333333334l7.870120833333335 7.870120833333335L0.8132895833333333 19.37007291666667C0.43977916666666667 19.743535416666667 0.23 20.25011041666667 0.23 20.778391666666668c0 0.5282333333333333 0.20977916666666668 1.03485625 0.5832895833333334 1.4083666666666668 0.3735583333333333 0.37346250000000003 0.8800375 0.5832416666666668 1.4084145833333332 0.5832416666666668 0.5281375 0 1.0347604166666666 -0.20977916666666668 1.4082708333333334 -0.5832416666666668L11.5 14.316685416666667l7.8700729166666665 7.8700729166666665c0.37346250000000003 0.37346250000000003 0.8800854166666667 0.5832416666666668 1.40831875 0.5832416666666668 0.5281854166666667 0 1.0347604166666666 -0.20977916666666668 1.4082708333333334 -0.5832416666666668 0.37346250000000003 -0.3735104166666667 0.5833375000000001 -0.8801333333333333 0.5833375000000001 -1.4083666666666668 0 -0.52828125 -0.209875 -1.03485625 -0.5833375000000001 -1.40831875L14.311702083333333 11.500095833333333Z" stroke-width="1"></path></svg>
+                </button>
+                <div class="custom-modal-body">
+                    <div class="img"><img src={selectedImage} alt="error"></div>
+                </div>
             </div>
-        </lightning-accordion-section>
+        </section>
+    </div>
 
-        <lightning-accordion-section name="C" label="GoogleDrive Integration">
-            <p>Coming Soon</p>
-        </lightning-accordion-section>
+    <!--  -->
+    <div class="container">
+        <div class="left-section">
+            <h1>Integrations:</h1>
+            <div class="tablist">
+                <div class="tabs selected-tab" data-tab="aws" onclick={handleTabSelection}>
+                    <img src={awsLogo} alt="error" width="24" height="24" data-tab="aws">
+                    AWS
+                </div>
+                <div class="tabs" data-tab="gdrive" onclick={handleTabSelection}>
+                    <img src={gdriveLogo} alt="error" width="24" height="24" data-tab="gdrive">
+                    Google Drive
+                </div>
+                <div class="tabs" data-tab="odrive" onclick={handleTabSelection}>
+                    <img src={odriveLogo} alt="error" width="24" height="24" data-tab="odrive">
+                    One Drive
+                </div>
+                <div class="tabs" data-tab="dropbox" onclick={handleTabSelection}>
+                    <img src={dropboxLogo} alt="error" width="24" height="24" data-tab="dropbox">
+                    DropBox
+                </div>
+            </div>
+            <h1>Template Types:</h1>
+            <div class="tablist">
+                <div class="tabs" data-tab="stemp" onclick={handleTabSelection}>
+                    <img src={stempLogo} alt="error" width="16" height="16" data-tab="stemp">
+                    Simple
+                </div>
+                <div class="tabs" data-tab="csvtemp" onclick={handleTabSelection}>
+                    <img src={csvLogo} alt="error" width="16" height="16" data-tab="csvtemp">
+                    CSV
+                </div>
+                <div class="tabs" data-tab="gdtemp" onclick={handleTabSelection}>
+                    <img src={gdtempLogo} alt="error" width="12" height="12" data-tab="gdtemp">
+                    Google Docs
+                </div>
+            </div>
+        </div>
+        <div class="white-background">
+            <div class="content">
 
-        <lightning-accordion-section name="D" label="OneDrive Integration">
-            <p>Coming Soon</p>
-        </lightning-accordion-section>
+                <!-- AWS -->
+                <div class="tab-content" lwc:if={awsTab}>
+                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg> AWS Integration</h1><br/>
+                    <p><b>Step:1</b> Create a bucket or use existing bucket if any in your <a href="https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin" target="_blank">aws account</a> and copy bucket name.</p>
+                    <p class="note">[ NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 ]</p>
+                    <div class="img"><img src={aws1} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={aws2} alt="error" onclick={openModal}></div>
+                    <p><b>Step:2</b> Just paste bucket name here after drag and drop aws logo. </p>
+                    <div class="img"><img src={aws3} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={aws4} alt="error" onclick={openModal}></div>
+                    <p><b>Step:3</b> Create a bucket or use existing bucket if any in your aws account and copy bucket name.</p>
+                    <div class="img"><img src={aws5} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={aws6} alt="error" onclick={openModal}></div>
+                    <p><b>Step:4</b> Just paste bucket name here after drag and drop aws logo. </p>
+                    <div class="img"><img src={aws7} alt="error" onclick={openModal}></div>
+                    <p><b>Step:5</b> Check whether the status is updated or not.</p>
+                    <div class="img"><img src={aws8} alt="error" onclick={openModal}></div>
+                    <p>If it is active means authorization was successful.</p>
+                </div> 
 
-        <lightning-accordion-section name="E" label="Dropbox Integration">
-            <p>Coming Soon</p>
-        </lightning-accordion-section>
+                <!-- Google Drive -->
+                <div class="tab-content" lwc:if={gdriveTab}>
+                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  Google Drive Integration</h1><br/>
+                    <p><b>Step 1:</b> Drag and drop the Google Drive logo into the designated droppable area.</p>
+                    <div class="img"><img src={gdrive1} alt="error" onclick={openModal}></div>
+                    <p><b>Step 2:</b> Click on "Generate Authorization Code."</p>
+                    <div class="img"><img src={gdrive2} alt="error" onclick={openModal}></div>
+                    <p><b>Step 3:</b> Select your Google account or log in to another Google account.</p>
+                    <div class="img"><img src={gdrive3} alt="error" onclick={openModal}></div>
+                    <p><b>Step 4:</b> Click on advanced and click on “Go to salesforce-sites.com”.</p>
+                    <div class="img"><img src={gdrive4} alt="error" onclick={openModal}></div>
+                    <p><b>Step 5:</b> Copy this authorization code.</p>
+                    <div class="img"><img src={gdrive5} alt="error" onclick={openModal}></div>
+                    <p><b>Step 6:</b> Paste the authorization code into the designated field and click "Authorize" to complete the integration.</p>
+                    <div class="img"><img src={gdrive6} alt="error" onclick={openModal}></div>
+                    <p>This will enable google doc template option in order to store files to google drive you need to select <b>"Set as Org Wide"</b> to store files in the specified Google Drive account.</p>
+                    <p><b>Step 7:</b> Check whether the status is updated to confirm successful configuration.</p>
+                    <div class="img"><img src={gdrive7} alt="error" onclick={openModal}></div>
+                    <p>Verify if the status has been updated to "Active" to confirm successful authorization.</p>
+                </div>
 
-        <lightning-accordion-section name="F" label="Google doc Template">
-            <p>Coming Soon</p>
-        </lightning-accordion-section>
+                <!-- One Drive -->
+                <div class="tab-content" lwc:if={odriveTab}>
+                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  One Drive Integration</h1><br/>
+                    <p><b>Step 1:</b> Sign in to your <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank">Microsoft Azure account</a> or create a new one if you don't have an account. Once signed in, navigate to the Azure portal and create a new app registration.</p>
+                    <div class="img"><img src={odrive1} alt="error" onclick={openModal}></div>
+                    <p><b>Step 2:</b> Create a new app registration by providing a name for your app. Choose the option "Accounts in any organizational directory" for the supported account types. Select "Web" for the application type, and paste the Redirect URI from Doc Genius into the appropriate field.</p>
+                    <div class="img"><img src={odrive2} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={odrive3} alt="error" onclick={openModal}></div>
+                    <p><b>Step 3:</b> Click on "Certificates & secrets" in the app registration menu, then click on "New client secret" to add a new certificate or secret.</p>
+                    <div class="img"><img src={odrive4} alt="error" onclick={openModal}></div>
+                    <p><b>Step 4:</b> Click on "New client secret" to generate a new secret. Copy the generated value and paste it into the "Client Secret" field in Doc Genius. Also, copy the "Application (client) ID" from the Azure portal and paste it into the "Client ID" field in Doc Genius.</p>
+                    <div class="img"><img src={odrive5} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={odrive6} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={odrive7} alt="error" onclick={openModal}></div>
+                    <p><b>Step 5:</b> Configure the scopes as specified to ensure the app has the necessary permissions.For scopes(User.Read, offline_access, Files.ReadWrite.All)</p>
+                    <div class="img"><img src={odrive8} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={odrive9} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={odrive10} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={odrive11} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={odrive12} alt="error" onclick={openModal}></div>
+                    <p><b>Step 6:</b> After entering the details, click on "Authorize" and check if the integration is active. If the integration status is active, it means the authorization was successful.</p>
+                    <div class="img"><img src={odrive13} alt="error" onclick={openModal}></div>
+                </div>
 
-        <lightning-accordion-section name="G" label="Simple Template">
-            <p>Coming Soon</p>
-        </lightning-accordion-section>
+                <!-- Dropbox -->
+                <div class="tab-content" lwc:if={dropboxTab}>
+                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  Dropbox Integration</h1><br/>
+                    <p><b>Step 1:</b> Sign in to your <a href="https://www.dropbox.com/developers" target="_blank">Dropbox developer account</a> or create a new one if you don't have an account yet. Once signed in, navigate to the Dropbox App Console and click on "Create App."</p>
+                    <div class="img"><img src={dropbox1} alt="error" onclick={openModal}></div>
+                    <p><b>Step 2:</b> Choose "Scoped app" and select "Full Dropbox" access. Enter a name for your app, then click "Create App."</p>
+                    <div class="img"><img src={dropbox2} alt="error" onclick={openModal}></div>
+                    <p><b>Step 3:</b> Click on "Enable additional users" and then confirm by clicking "OK."</p>
+                    <div class="img"><img src={dropbox3} alt="error" onclick={openModal}></div>
+                    <p><b>Step 4:</b> Navigate to the "Permissions" tab, select the required scopes as mentioned, and then click "Submit."</p>
+                    <div class="img"><img src={dropbox4} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={dropbox5} alt="error" onclick={openModal}></div>
+                    <p><b>Step 5:</b> Return to the "Settings" tab. Copy the "Client ID" and click the "Show" button to reveal the "Client Secret." Copy the "Client Secret" as well and paste both values into Doc Genius.</p>
+                    <div class="img"><img src={dropbox6} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={dropbox7} alt="error" onclick={openModal}></div>
+                    <div class="img"><img src={dropbox8} alt="error" onclick={openModal}></div>
+                    <p><b>Step 6:</b> Copy the Redirect URI from Doc Genius and paste it into the "Redirect URIs" field. Then, click the "Add" button.</p>
+                    <div class="img"><img src={dropbox9} alt="error" onclick={openModal}></div>
+                    event.key);>Step 7:</b> Click on "Authorize" in Doc Genius and verify that the integration is active.</p>
+                    <div class="img"><img src={dropbox10} alt="error" onclick={openModal}></div>
+                    <p class="note">[ NOTE: DROPBOX will automatically log you in as per your current  logged in account if you wish to choose, use Incognito mode(Private window) during integration process ].</p>
+                </div>
 
-        <lightning-accordion-section name="H" label="CSV Template">
-            <p>Coming Soon</p>
-        </lightning-accordion-section>
-    </lightning-accordion>
+                <!-- Simple Template -->
+                <div class="tab-content" lwc:if={stempTab}>
+                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  Simple Template</h1><br/>
+
+                    <div class="section">
+                        <h2>How to build and edit a simple template?</h2>
+                        <ol class="slds-list_ordered">
+                            <li>By clicking on the edit button from the home page for a simple template, you will be redirected to a simple template editor.</li>
+                            <li>The tabs "Template Content," "Header," "Footer," "Basic Details," and "Template Default" suggest that users can navigate between different sections of the template for customization.</li>
+                            <li>This Section allows users to create dynamic templates by mapping fields from various objects, including general fields, related lists, and more. This guide will walk you through how to build a simple template.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Template content:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>This is the main workspace where users can add or insert content into the template. The placeholder text "Add/Insert Template Content" suggests that this area is where users will input text, images, or other elements.</li>
+                            <li>The toolbar at the top provides options to format the content.</li>
+                            <li>Options include font type, size, bold, italic, underline, text color, alignment, bullet points, and other text formatting tools.</li>
+                            <li>There are also options to insert images, tables, links, page breaks, and clear formatting.</li>
+                            <li>You can also edit templates using HTML code.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Page Configuration Options:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>This section is used to customize the layout and <b>appearance of the page</b> for the document being created.</li>
+                            <li>This section is where users can adjust settings related to the overall layout of the page.</li>
+                            <li>This section allows users to <b>set the margins of the page</b>. It provides options for setting the top, bottom, left, and right margins, with values entered in the text fields next to each label.</li>
+                            <li>The <b>units</b> for these margins can also be selected, with "inches" being the current choice.</li>
+                            <li>Users can select from various predefined <b>page sizes</b>, including A4 (8.27" x 11.69"), A5, Letter (8.5" x 11"), Legal, Executive, and Statement sizes.</li>
+                            <li>The <b>Page Orientation</b> option allows users to choose between <b>Portrait</b> or <b>Landscape</b> page orientation.</li>
+                            <li>The Page Header Option provides an option to toggle the header on or off. If the Show Header toggle is enabled, meaning the header will be displayed on the page. Users can also adjust the distance of the header from the top of the page using the "Header From Top" option, currently set to 0.1 inches.</li>
+                            <li>Similar to the header, the Page Footer option provides options for including a footer on the page.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Header</h2>
+                        <ol class="slds-list_ordered">
+                            <li>You can customize the document running header from this section.</li>
+                            <li>You can define what appears in the header separately from this section.</li>
+                            <li>This also provides an option to show hide header in a document.</li>
+                            <li>You can set the header position from the top of the page.</li>
+                            <li>The maximum size of the header is 40% of the page height.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Footer:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>The footer section works the same as the header section.</li>
+                            <li>You can customize the document running footer from this section.</li>
+                            <li>You can define what appears in the footer separately from this section.</li>
+                            <li>This also provides an option to show hide footer in the document.</li>
+                            <li>You can set the footer position from the bottom of the page.</li>
+                            <li>The maximum size of the footer is 40% of the page height.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Basic Detail:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>This section Provides the option to edit template name, template description, and template status.</li>
+                            <li>You can also review templates and other details from this section.</li>
+                            <li>You also have a page configuration option in the basic detail section.</li>
+                            <li>By clicking on the Cancel button, you can revert your changes.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- CSV Template -->
+                <div class="tab-content" lwc:if={csvtempTab}>
+                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  CSV Template</h1><br/>
+                    
+                    <div class="section">
+                        <h2>Prerequisite:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>You should have added a trusted URL ([org-instance].my.salesforce.com) to get the CSV Template working.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Purpose of the CSV Template:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>The CSV Template is specifically designed for creating CSV Templates that hold data of multiple records with the user-selected configuration.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Creating a new CSV Template:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>Go to setup and search for the 'DocGenius' app from the App Launcher.</li>
+                            <li>Click on DocGenius to navigate to the app.</li>
+                            <li>From the Home Page of the App, click on 'Click to Create the Template' if you have not created any templates, yet.</li>
+                            <li>If you have created some templates already, you can click on the top-left corner button to create a new template.</li>
+                            <li>
+                                You will see the Create New Template Pop-up Screen. Fill in the details like 'Template Name', and 'Template Description', then Select the Source object on which you want to create the template and Select 'CSV Template' in the template Type and click the 'Save' button.
+                                <br/><div class="img"><img src={csv1} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>After saving the template, you will be able to configure it your way with the CSV template builder.</li>
+                            <li>
+                                As the Builder appears, you will have two options to select the existing list view to configure the template according to the list view or start with scratch using 'Blank Template', if you have a list view available on the source object.
+                                <br/><div class="img"><img src={csv2} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>If you select any list view, all the configurations will be imported from that list view.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Edit Template Tab</h2>
+                        <div class="img"><img src={csv3} alt="error" onclick={openModal}></div>
+                        <p>The Edit template tab can be used to configure the columns to show on document, filters to filter the records, order by fields to set the order of the records in the document and to set the limit the maximum number of records in the document.</p>
+                        <h3>Column Selection Section: </h3>
+                        <div class="img"><img src={csv4} alt="error" onclick={openModal}></div>
+                        <ol class="slds-list_ordered">
+                            <li>Select the object from the dropdown, which will have the source object and its parent object.</li>
+                            <li>The Available Fields section is the section having all the fields that you can add to your document as an individual column.</li>
+                            <li>You can select any field from the available fields or selected fields by clicking on the desired field.</li>
+                            <li>You can also multi-select fields by holding the ctrl/cmd key pressed while clicking on the option.</li>
+                            <li>You can use the Down Arrow to move fields from the available fields to the selected fields section and the Up arrow to move fields from selected fields to available fields.</li>
+                            <li>You can then reorder the selected fields by using the control buttons on the right side of the selected fields section.</li>
+                            <li>You can re-order single or multiple fields at a time using these buttons, you can move selected fields to the top or bottom or move one step up or down.</li>
+                        </ol>
+
+                        <h3>Apply Filters Section:</h3>
+                        <ol class="slds-list_ordered">
+                            <li>You can select the field to filter, operator and a value to create a filter.</li>
+                            <li>You can select the Logic operator to apply on your filters like OR, AND and Custom.</li>
+                            <li>You can add your custom logic by selecting 'Custom' from the logic operator and providing the correct custom logic String.
+                                <br/><div class="img"><img src={csv5} alt="error" onclick={openModal}></div>
+                            </li>
+                            <li>You can add a new filter by clicking on the plus button after completing the previous filter and can delete the filters using the bin button on the right side of the desired filter.</li>
+                            <li>You can proceed without creating any filters also.</li>
+                        </ol>
+
+                        <h3>Order By Section:</h3>
+                        <div class="img"><img src={csv6} alt="error" onclick={openModal}></div>
+                        <ol class="slds-list_ordered">
+                            <li>You can select the field to order your records in the document.</li>
+                            <li>You can select multiple order by fields with your order Ascending or Descending. But, You can use one field only once to order your records.</li>
+                            <li>The priority for order by will be from the top-most field to the bottom-most field, hence, the first order by field will have the highest priority.</li>
+                            <li>You can add a new order by field using the Plus button and remove it using the bin button on the right of the desired order by field.</li>
+                            <li>You can proceed without creating any order by fields also.</li>
+                        </ol>
+
+                        <h3>Limit Section:</h3>
+                        <div class="img"><img src={csv7} alt="error" onclick={openModal}></div>
+                        <p>You can set the limit on the count of records in the document, by default it can fetch up to 10,00,000 records, but you can set the limit yourself from 1 to 10,00,000.</p>
+
+                        <p>Every section has the Clear and Reset buttons in the headers of every section.</p>
+                        <ul class="slds-list_dotted">
+                            <li>You can use the clear button to clear all the selections of that section.</li>
+                            <li>You can use the reset button to undo your changes to the last saved changes of that section.</li>
+                        </ul>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Basic Details Tab:</h2>
+                        <div class="img"><img src={csv8} alt="error" onclick={openModal}></div>
+                        <ol class="slds-list_ordered">
+                            <li>The basic Details tab is used to update the basic information of the template.</li>
+                            <li>You can change the template name, description, and template status and select the list view to import configuration from this tab.</li>
+                            <li>You can also get other information like the source object of the template, template type, creation and last modification date of the template, but that can not be changed.</li>
+                            <li>If you wish to discard all the changes and get back to the initial values without updating, you can click the cancel button or navigate to any other tab directly.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Template Defaults Tab</h2>
+                        <div class="img"><img src={csv9} alt="error" onclick={openModal}></div>
+                        <ol class="slds-list_ordered">
+                            <li>The template defaults tab is used to create a button on the source object and configure the options to create a document directly with the selected options when the user clicks on that button.</li>
+                            <li>The Button can only be created once for the template, after that you can only update the generation options on that button.</li>
+                            <li>For the CSV Template, the button created will be the list view button and for any other template, the button will be the record page button.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Google Docs -->
+                <div class="tab-content" lwc:if={gdtempTab}>
+                    <h1 onclick={toggleTab}><svg viewBox="-0.5 -0.5 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="32" width="32"><path d="M1.875 2.5H13.125V3.75H1.875V2.5ZM1.875 6.875H13.125V8.125H1.875V6.875ZM1.875 11.25H13.125V12.5H1.875V11.25Z" stroke-width="1"></path></svg>  Google Docs Template</h1><br/>
+
+                    <div class="section">
+                        <h2>Prerequisites:</h2>
+                        <ol class="slds-list_ordered">
+                            <li>You will need to integrate with Google Drive to create and generate templates.</li>
+                            img
+                            <li>You need at least view access for the Google Document to generate templates.</li>
+                            <li>You need at least one document in your Google Drive to create a Google Doc Template</li>
+                        </ol>
+                    </div><br>
+
+                    <div class="section">
+                        <h2>Creating a new Template</h2>
+                        <p>To create a new Google Document Template,</p>
+                        <ol class="slds-list_ordered">
+                            <li>Go to the Home page.</li>
+                            <li>Click on the new template button on the top-left corner of the page.</li>
+                            img
+                            <li>On the new template popup, Enter the required details such as the template name and Source object. Enter the source object wisely as it cannot be changed once the template is created.</li>
+                            <li>Select the template type as Google Doc Template.</li>
+                            <li>Click Save.</li>
+                            <li>Now select your Google Document and click on Next. This opens your Google document as a template.</li>
+                        </ol>
+                        <p>On the last screen when you are redirected to the document selection page, This page shows all the Google documents from the integrated user's Google Drive to create a template.</p>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Editing the template</h2>
+                        <p><b>You can add your required fields from the right-side panel into your template:</b></p>
+                        <ol class="slds-list_ordered">
+                            <li>Click on the copy button next to the field name.</li>
+                            <li>Paste it wherever you want in your template.</li>
+                        </ol>
+
+                        <h3>Fields available in the Google template</h3>
+                        <p>There are many fields available for users to insert into the template from the right side panel.</p>
+                        <ol class="slds-list_ordered">
+                            <li>You can add the fields directly related to the source object.</li>
+                            <li>You can insert the parent object fields for the current source object.</li>
+                            <li>You can insert the child object records in the form of a table from the related List fields.</li>
+                            <li>You can add the general fields such as the user or organisation details or the current date and time details from the general fields tab.</li>
+                            <li>You can add the static resources and files accessible to you into the template from the Salesforce Image tab.</li>
+                            <li>You can also integrate it with the 'Signature Anywhere' and insert the last signature saved on the record from the Signature Tab.</li>
+                        </ol>
+                        <p>You can insert as many fields as you want in the template.</p>
+                        <p><b>Note:</b></p>
+                        <ol class="slds-list_ordered">
+                            <li>You can insert up to 10 related child object tables each having a maximum of 50 records.</li>
+                            <li>You may insert only one signature per line.</li>
+                        </ol>
+                        <p>Please note that you need to have at least one document in your Google Drive to create a Google Doc Template.</p>
+                        <p>If you create two templates on the same Google Document, the other will be updated when you change the first as the changes are directly reflected in the Google Document.</p>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Previewing the template</h2>
+                        <p>You can preview how the template would look from the preview button.</p>
+                        <ol class="slds-list_ordered">
+                            <li>Click on the preview button at the bottom of the right-side panel.</li>
+                            <li>Select the record for which you want to see the preview.</li>
+                            <li>Click on generate preview.</li>
+                        </ol>
+                        <p><b>Note:</b></p>
+                        <ol class="slds-list_ordered">
+                            <li>If the document is large, the preview may take longer to process.</li>
+                            <li>The preview may hide some special characters. For best results download the template and use any dedicated PDF application.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Generate the Template</h2>
+                        <p>On the preview popup, you can also generate documents</p>
+                        <ol class="slds-list_ordered">
+                            <li>After clicking on the preview button, select a record.</li>
+                            <li>Click on the Generate Document button. It will open the generate Document popup.</li>
+                            <li>From here, select the document type.</li>
+                            <li>After the document type, also select any one of the output channels.</li>
+                            <li>Click on the Generate button.</li>
+                        </ol>
+                        <p>This will generate the document in the requested format create an internal storage record if selected, and upload it to the external storage if selected.</p>
+                        <p><b>Note:</b></p>
+                        <ol class="slds-list_ordered">
+                            <li>There are various limits to uploading to external storage and creating the records for the document. It is advisable to download the document only if it is large and manually upload it to external or internal storage.</li>
+                        </ol>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Template's User Details Tab</h2>
+                        <p>From this tab, the user can view or edit details for the template itself. Only some fields are available for the user to edit such as the template name, description and template status.</p>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>Template Defaults Tab</h2>
+                        <p>This page is used to create a quick action button on the source object for a one-click operation on generating templates.</p>
+                        <ol class="slds-list_ordered">
+                            <li>Select the Document type - PDF or DOCX</li>
+                            <li>Select any one output from Internal Storage, External Storage and Output Channel.</li>
+                            <li>Enter the desired name for the Quick Action button. Once the button is created, you cannot change the name from here.</li>
+                            <li>Click on the Create Custom Button.</li>
+                        </ol>
+                        <p>This will create a custom button. You can add this button on the object's page layout to generate templates.</p>
+                        <p><b>Note:</b> For the external storage, You will need to integrate with them from the user guide. If the storage is not integrated when the button is clicked, the storage upload will be skipped.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
