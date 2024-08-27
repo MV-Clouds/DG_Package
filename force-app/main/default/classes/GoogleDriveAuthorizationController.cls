@@ -197,21 +197,15 @@ public with sharing class GoogleDriveAuthorizationController {
           List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
           System.debug('This is client id'+mdata[0].MVDG__CID__c);
           System.debug('This is client secret'+mdata[0].MVDG__CSEC__c);
-      MVDG__AuthProviderSettings__c defsettings = MVDG__AuthProviderSettings__c.getOrgDefaults();
-      MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
-      string client_id = mdata[0].MVDG__CID__c;
-      string client_secret = mdata[0].MVDG__CSEC__c;
-      // settings.MVDG__ClientId__c = client_id;
-      // settings.MVDG__ClientSecret__c = client_secret;
-      // defsettings.MVDG__ClientId__c = client_id;
-      // defsettings.MVDG__ClientSecret__c = clientSecret;
-      // System.debug(client_id);
-      // System.debug(client_secret);
-      String redirectUri = 'https://mvclouds28-dev-ed.develop.my.salesforce-sites.com/googleauth';          
-      Map<String, String> result = generaterefreshtoken(client_id, client_secret, redirectUri, authcode);
-      String refresh = result.get('refresh_token');
-      String access = result.get('access_token');
-      if(refresh != null){
+          MVDG__AuthProviderSettings__c defsettings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+          MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
+          string clientId = mdata[0].MVDG__CID__c;
+          string clientSecret = mdata[0].MVDG__CSEC__c;
+          String redirectUri = 'https://mvclouds28-dev-ed.develop.my.salesforce-sites.com/googleauth';          
+          Map<String, String> result = generaterefreshtoken(clientId, clientSecret, redirectUri, authcode);
+          String refresh = result.get('refresh_token');
+          String access = result.get('access_token');
+          if(refresh != null){
           settings.MVDG__refresh_token__c = refresh;
           defsettings.MVDG__refresh_token__c = refresh;
         
@@ -391,10 +385,11 @@ public with sharing class GoogleDriveAuthorizationController {
        HttpResponse response = http.send(request);
 
 
-       if(response.getStatusCode() == 200) {
+       if(response.getStatusCode() == 200 && response.getStatusCode() == 400) {
            System.debug('Token revoked successfully');
            return true;
        } else {
+            Response_Handler.store_Callout_Response(response, 'GoogleDriveAuthorizationController', 'revokeToken');
            System.debug('Failed to revoke token. Response: ' + response.getBody());
            return false;
        }
@@ -409,15 +404,18 @@ public with sharing class GoogleDriveAuthorizationController {
   public static Boolean unauthorize(){
       try {
           MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getInstance(UserInfo.getUserId());
+          Integer settingsList = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE Name = 'AuthProviderSettings (Organization)' AND MVDG__refresh_token__c = :settings.MVDG__refresh_token__c];
           if(settings != null){
-               if (!Schema.sObjectType.MVDG__AuthProviderSettings__c.isDeletable()) {
-                   return false;
-               }
-               Boolean isRevoked = revokeToken(settings.MVDG__refresh_token__c);
-               if(isRevoked){
-                   delete settings;
-                   return true;
-               }
+                if (!Schema.sObjectType.MVDG__AuthProviderSettings__c.isDeletable()) {
+                    return false;
+                }
+                if(settingsList == 0 && settings.MVDG__refresh_token__c != null){
+                    revokeToken(settings.MVDG__refresh_token__c);
+                }
+                if(settings != null){
+                    delete settings;
+                    return true;
+                }
           }
           return false;
       } catch (Exception e) {
@@ -432,21 +430,22 @@ public with sharing class GoogleDriveAuthorizationController {
   public static Boolean orgunauthorize(){
       try {
           MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
-          Boolean isRevoked = revokeToken(settings.MVDG__refresh_token__c);
-               if(isRevoked){
-                   if(settings != null){
-                       settings.MVDG__refresh_token__c = '';
-                       settings.MVDG__access_token__c = '';
-                       settings.MVDG__photolink__c = '';
-                       settings.MVDG__LinkedDate__c = '';
-                       settings.MVDG__email__c = '';
-                       settings.MVDG__username__c = '';
-                       settings.MVDG__WorkingStatus__c = false;
-                       update settings;
-                       // delete settings;
-                       return true;
-                   }
-               }
+          Integer settingsList = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE Name != 'AuthProviderSettings (Organization)' AND MVDG__refresh_token__c = :settings.MVDG__refresh_token__c];
+                if(settings.MVDG__refresh_token__c != null && settingsList == 0){
+                    revokeToken(settings.MVDG__refresh_token__c);
+                }
+                if(settings != null){
+                    settings.MVDG__refresh_token__c = '';
+                    settings.MVDG__access_token__c = '';
+                    settings.MVDG__photolink__c = '';
+                    settings.MVDG__LinkedDate__c = '';
+                    settings.MVDG__email__c = '';
+                    settings.MVDG__username__c = '';
+                    settings.MVDG__WorkingStatus__c = false;
+                    update settings;
+                    // delete settings;
+                    return true;
+                }
            return false;
       } catch (Exception e) {
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'orgunauthorize');
