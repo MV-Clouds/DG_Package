@@ -7484,7 +7484,6 @@
                     $dropdown.find('input[type=color]').each(function (idx, item) {
                       
                       external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(item).change(function (e) {
-                        try{
                           // ... DocGenius Changes ... to set recent color
                           // const editor = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()(this).closest('.note-editable');
                           var $parent = external_root_jQuery_commonjs2_jquery_commonjs_jquery_amd_jquery_default()('.' + className).find('.note-dropdown-menu');
@@ -7497,10 +7496,6 @@
                             .attr('data-original-title', color);
 
                           $chip.click();
-                        }
-                        catch(error){
-                          console.log('error : ', error.message);
-                        }
                       });
                     });
                   },
@@ -7652,12 +7647,11 @@
 
                 // ...DocGenius Changes... START ... to add system default font-family
 
-                  var fontNames = styleInfo['font-family'].split(',').map(function (name) {
+                  let fontNames = styleInfo['font-family'].split(',').map(function (name) {
                     return name.replace(/[\'\"]/g, '').replace(/\s+$/, '').replace(/^\s+/, '');
                   });
 
                   let fontName = lists.find(fontNames, _this2.isFontInstalled.bind(_this2));
-                  console.log(' this.options.fontNames : ', _this2.options.fontNames);
                   if(!_this2.options.fontNames.includes(fontName)){
                     _this2.options.fontNames.push(fontName);
                   }

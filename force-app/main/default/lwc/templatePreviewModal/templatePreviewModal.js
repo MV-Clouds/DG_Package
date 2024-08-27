@@ -80,8 +80,12 @@ export default class TemplatePreviewModal extends LightningElement {
         return this.recordId ? true : false;
     }
 
+    get disablePreviewBtn(){
+        return !this.selectedRecordId;
+    }
+
     get disableGenerateBtn(){
-        return this.selectedRecordId ? false : true;
+        return !this.selectedRecordId || !this.isActive;
     }
 
     get loadingInfo(){
@@ -259,12 +263,7 @@ export default class TemplatePreviewModal extends LightningElement {
     @track isGenerate = false;
     generateDocument(){
         try {
-            if(this.isActive){
-                this.isGenerate = true;
-            }
-            else{
-                this.showMessagePopup('Error', "Inactive Template", "Current template is inactive, Please make it active to generate document");
-            }
+            this.isGenerate = true;
         } catch (error) {
             console.warn('error in TemplatePreviewModal > generateDocument : ', error.message);
         }
@@ -286,36 +285,6 @@ export default class TemplatePreviewModal extends LightningElement {
     runTimeoutMethod(event){
         if(event?.detail?.function){
             event.detail.function();
-        }
-    }
-
-    handleMsgPopConfirmation(){
-
-    }
-
-
-    // ========= ========== ============ ========== ========== ========= GENERIC Method ========= ========== ============ ========== ========== =========
-     // Generic Method to test Message Popup and Toast
-     showMessagePopup(Status, Title, Message){
-        const messageContainer = this.template.querySelector('c-message-popup');
-        if(messageContainer){
-            messageContainer.showMessagePopup({
-                status: Status,
-                title: Title,
-                message : Message,
-            });
-        }
-    }
-
-    showMessageToast(Status, Title, Message, Duration){
-        const messageContainer = this.template.querySelector('c-message-popup')
-        if(messageContainer){
-            messageContainer.showMessageToast({
-                status: Status,
-                title: Title,
-                message : Message,
-                duration : Duration
-            });
         }
     }
 

@@ -21,12 +21,11 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     
     @track defaultFieldToSort = 'LastModifiedDate';
     @track sortAS = 'desc';
-    @track filterOpts = {
-        'fieldToSort' : this.defaultFieldToSort,
-    };
+    @track filterOpts = {};
     @track selectedTemplateId;
+    @track selectedTempStatus;
     @track selectedObjectName;
-    @track isFilterApplied;
+    @track previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts))
 
     @track selectedTemplate = {};
     @track dataLoaded = false; 
@@ -90,12 +89,24 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
     get isEmptyState(){
-        return this.templateList.length <= 0 && !this.isSpinner ? true : false;
+        return this.templateList.length <= 0 && !this.isSpinner;
         // return true;
     }
 
-    get enableFilterBtn(){
-        return !this.isFilterApplied && Object.keys(this.filterOpts).length === 0 ? true : false;
+    get isFilterApplied(){
+        return Object.keys(this.filterOpts)?.length !== 0 && JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
+    }
+
+    get disabledFilterApplyBtn(){
+        return JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
+    }
+
+    get disabledFilterClearBtn(){
+        return Object.keys(this.filterOpts)?.length === 0;
+    }
+
+    get sortByField(){
+        return this.filterOpts.hasOwnProperty('fieldToSort') ? this.filterOpts.fieldToSort : this.defaultFieldToSort;
     }
 
     get clearRangeDates(){
@@ -490,11 +501,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 this.maxTempToDisplay = this.filteredTemplateList.length;
                 this.displayedTemplateList = this.filteredTemplateList.slice(0, 50);
 
-                // If There is No option available to filter after filtering... set "isFilterApplied" to false...
-                this.isFilterApplied = Object.keys(this.filterOpts).length === 0 ? false : true;
+                this.previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts));
 
                 // console.log('isClear : ', isClear);
-                !isClear && this.toggleFilterOptions();
+                this.toggleFilterOptions();
             }
         } catch (error) {
             errorDebugger('HomePage', 'applyFilter', error, 'warn');
@@ -504,7 +514,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     sortDisplayTemplates(){
         try {
             var fieldToSort = this.filterOpts['fieldToSort'] ? this.filterOpts['fieldToSort'] : this.defaultFieldToSort;
-            this.filterOpts.fieldToSort = fieldToSort;
+            // this.filterOpts.fieldToSort = fieldToSort;
             var sortAs = this.filterOpts['filterSortAS'] ? this.filterOpts['filterSortAS'] : this.defaultSortAS;
             this.filteredTemplateList = this.filteredTemplateList.sort((a, b) => {
                 if(a[fieldToSort].toLowerCase() > b[fieldToSort].toLowerCase()){
@@ -675,7 +685,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             // apply filter after removing all options
             this.applyFilter(event, true);
             
-            this.isFilterApplied = false;
+            this.previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts));
         } catch (error) {
             errorDebugger('HomePage', 'clearFilterOpts', error, 'warn');
         }
@@ -750,6 +760,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.templateType = event.currentTarget.dataset.type;
             this.selectedTemplateId = event.currentTarget.dataset.id;
             this.selectedObjectName = event.currentTarget.dataset.objapi
+            this.selectedTempStatus = event.currentTarget.dataset.status;
             if(this.templateType === 'Simple Template'){
                 this.isCSVPreview = false;
             }

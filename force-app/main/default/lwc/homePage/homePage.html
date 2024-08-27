@@ -18,6 +18,9 @@
                     </template>
                     <template lwc:else>
                       <svg class="optionOpeneBtn" viewBox="0 0 50 50" fill="none"><path d="M43.7498 8.3335H29.1665"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.8333 8.3335H6.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M43.75 25H25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.6667 25H6.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M43.7502 41.6665H33.3335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 41.6665H6.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M29.1665 4.1665V12.4998" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.6665 20.8335V29.1668" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.3335 37.5V45.8333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <template lwc:if={isFilterApplied}>
+                          <svg class="filterApplied" viewBox="0 0 24 24" ><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11.0026 16L6.75999 11.7574L8.17421 10.3431L11.0026 13.1716L16.6595 7.51472L18.0737 8.92893L11.0026 16Z"></path></svg>
+                        </template>
                     </template>
                   </div>
                   <template lwc:if={dataLoaded}>
@@ -34,7 +37,7 @@
                                     options={sortingFiledList}
                                     placeholder="Select Field To Sort"
                                     onselect={onOptionSelect}
-                                    value={filterOpts.fieldToSort}
+                                    value={sortByField}
                                     multiselect="false"
                                     searchable="false"
                                     dropdown-position="right"
@@ -156,11 +159,11 @@
                               </div>
                             </div>
                             <div class="saveSection">
-                              <button title="Clear Filters" onclick={clearFilterOpts} disabled={enableFilterBtn}>
+                              <button title="Clear Filters" onclick={clearFilterOpts} disabled={disabledFilterClearBtn}>
                                 <svg viewBox="0 0 520 520" ><g><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z"></path></g></svg>
                                 Clear
                               </button>
-                              <button class="apply" title="Apply Filters" onclick={applyFilter} disabled={enableFilterBtn}>
+                              <button class="apply" title="Apply Filters" onclick={applyFilter} disabled={disabledFilterApplyBtn}>
                                 <svg viewBox="0 0 24 24" fill="none"><g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <path d="M5 14L9 17L18 6" stroke="#ffffff" stroke-width="2"></path> </g></svg>
                                 Apply
                               </button>
@@ -264,7 +267,7 @@
                       </div>
                     </div>
                     <div class="tempBtnSection">
-                        <button class="previewBtn" title="Preview Template" data-id={template.Id} data-type={template.MVDG__Template_Type__c} data-objapi={template.MVDG__Object_API_Name__c} onclick={handlePreviewTemplate} disabled={template.disabledPreview}>
+                        <button class="previewBtn" title="Preview Template" data-id={template.Id} data-type={template.MVDG__Template_Type__c} data-objapi={template.MVDG__Object_API_Name__c} data-status={template.MVDG__Template_Status__c} onclick={handlePreviewTemplate} disabled={template.disabledPreview}>
                           <svg viewBox="0 0 32.00 32.00" transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)">
                             <g stroke-linecap="round" stroke-linejoin="round"></g>
                             <g>
@@ -333,7 +336,8 @@
          onclose={closeTemplatePreview}></c-preview-c-s-v>
     </template>
     <template lwc:else>
-      <c-template-preview-modal templateid={selectedTemplateId} objectname={selectedObjectName} template-type={templateType}
+      <c-template-preview-modal templateid={selectedTemplateId} is-active={selectedTempStatus}
+        objectname={selectedObjectName} template-type={templateType}
         onclosepreview={closeTemplatePreview}></c-template-preview-modal>
     </template>
   </template>

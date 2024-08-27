@@ -437,18 +437,22 @@ export default class KeyMappingContainer extends LightningElement {
                 this.isDataRefreshing = false;
                 console.log('getAllContentVersionImgs result => ', result);
                 if(result.isSuccess == true){
-                    this.contentVersionImages = result.cvImages;
-                    this.cvIdVsImageSRC = result.cvIdVsImageSRC;
+                    this.contentVersionImages = result.cdImages;
+                    // this.cvIdVsImageSRC = result.cvIdVsImageSRC;
                     this.contentVersionImages.forEach(ele => {
-                        ele['fileSize'] = ele.ContentSize + ' Bytes';
-                         if (ele.ContentSize < 1000000) {  
-                            ele['fileSize'] =  (ele.ContentSize / 1000).toFixed(2) + ' KB';  
-                        } else if (ele.ContentSize < 1000000000) {  
-                            ele['fileSize'] = (ele.ContentSize / 1000000).toFixed(2) + ' MB';  
+                        ele['fileSize'] = ele.ContentVersion.ContentSize + ' Bytes';
+                         if (ele.ContentVersion.ContentSize < 1000000) {  
+                            ele['fileSize'] =  (ele.ContentVersion.ContentSize / 1000).toFixed(2) + ' KB';  
+                        } else if (ele.ContentVersion.ContentSize < 1000000000) {  
+                            ele['fileSize'] = (ele.ContentVersion.ContentSize / 1000000).toFixed(2) + ' MB';  
                         } else {  
-                            ele['fileSize'] = (ele.ContentSize / 1000000000).toFixed(2) + ' GB';  
+                            ele['fileSize'] = (ele.ContentVersion.ContentSize / 1000000000).toFixed(2) + ' GB';  
                         } 
-                        ele.imageSRC = this.cvIdVsImageSRC[ele.Id];
+                        ele.Title = ele.ContentVersion.Title;
+                        ele.FileExtension = ele.ContentVersion.FileExtension;
+                        ele.FileType = ele.ContentVersion.FileType;
+                        ele.ContentSize = ele.ContentVersion.ContentSize;
+                        ele.imageSRC = ele.ContentDownloadUrl;
                     });
                     this.setContVerImgToDisplay();
                 }

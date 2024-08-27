@@ -126,8 +126,9 @@ export default class MessagePopup extends LightningElement {
         });
     }
 
-    closeModal(){
+    closeModal(event){
         try {
+            const conform = event?.currentTarget?.dataset?.conform === 'true' ? true : false;
             this.showPopup = false;
             this.status = '';
             this.title = '';
@@ -135,7 +136,7 @@ export default class MessagePopup extends LightningElement {
             this.duration = '';
             this.type = '';
             this.dispatchEvent(new CustomEvent('confirmation',{
-                detail : true
+                detail : conform
             }));
 
         } catch (error) {
@@ -147,13 +148,14 @@ export default class MessagePopup extends LightningElement {
         try {
             event.preventDefault();
             var conform = event.currentTarget.dataset.name == 'conform' ? true : false;
+            console.log('conform : ', conform);
 
             // Send data to parent compoent...
             this.dispatchEvent(new CustomEvent('confirmation',{
                 detail : conform
             }));
 
-            this.closeModal();
+            this.closeModal(conform);
             
         } catch (error) {
             console.error('error in handleConfirmation poupMessgae : ', error.stack);

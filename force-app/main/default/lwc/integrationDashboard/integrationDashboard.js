@@ -634,7 +634,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    }
 
    handleConfimation(event){
-       // console.log(event.detail);
+       console.log('handleConfimation : ', event.detail);
        // console.log(this.invoke);
        if(event.detail == true && this.invoke =='google'){
            this.isSpinner = true;

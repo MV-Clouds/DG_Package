@@ -405,7 +405,7 @@ public with sharing class KeyMappingController {
 
             /**
              * Note : We only allow image with public download url, So we get ContentDownloadUrl from ContentDistribution.
-             * There are some contentVersion that not allow public sharing, so can not create ContentDistribution for corresponding contentVersion. 
+             * There are some contentVersion that not allow public sharing, so we can not create ContentDistribution for corresponding contentVersion. 
              */
 
             if(allImgCV.size() > 0){
@@ -417,59 +417,31 @@ public with sharing class KeyMappingController {
                     cDocIds.add(cv.ContentDocumentId);
                 }
 
+                System.debug('total images : ' + cDocIds.size());
+
                 // ...Get All ContentDistribution for existing ContentVersion...
                 List<ContentDistribution> allICDs = [SELECT Id, ContentVersionId, ContentDocumentId FROM ContentDistribution WHERE ContentDocumentId IN :cDocIds WITH SECURITY_ENFORCED];
 
-                // ...Collect all ContentVersion Id which have ContentDistribution...
+                // ...Collect all ContentVersion Id which have ContentDistribution created...
                 Set<Id> cdAvilabeFor = new Set<Id>();
                 for(ContentDistribution cd : allICDs){
                     cdAvilabeFor.add(cd.ContentDocumentId);
                 }
 
-                // ...Collect all ContentDocumentation Id which does not have ContentDistribution. to records for that..
+                // ...Collect all ContentDocumentation Id which does not have ContentDistribution created...
+                // ... It mease we does not have public download and share link for these images....
                 Set<Id> cdNotAvailabeFor = new Set<Id>(cDocIds);
                 cdNotAvailabeFor.removeAll(cdAvilabeFor);
-
-                // ...Collect all ContentDocumnetLink with shareType to check sharing option for each images...
-                Set<Id> conDocWithSharing = new Set<Id>();
-                Set<Id> conDocWithoutSharing = new Set<Id>();
-
-                /**
-                 * ContentDocumentLink used to check sharing type of contentVersion and CotentDoucment, 
-                 * If SharingType is 'I' it mease it share with Library and public sharing is not allowd...
-                 * In That case we can not create contentDistribution record of corresponding contentVerison...
-                 */
-
-                if(cdNotAvailabeFor.size() > 0){
-                    List<ContentDocumentLink> cdls = [SELECT Id, ShareType, ContentDocument.LatestPublishedVersionId FROM ContentDocumentLink WHERE ContentDocumentId IN: cdNotAvailabeFor];
-                    for(ContentDocumentLink cdl : cdls){
-                        if(cdl.ShareType != 'I'){
-                            conDocWithSharing.add(cdl.ContentDocumentId);
-                        }
-                        else if(cdl.ShareType == 'I'){
-                            conDocWithoutSharing.add(cdl.ContentDocumentId);
-                        }
-                    }
-    
-                    // remove without sharing ContentDocumentLink from list...
-                    conDocWithSharing.removeAll(conDocWithoutSharing);
-                }
 
                 // collect all ContentVersion with sharing to create ContentDistribution on it...
                 Map<Id, String> cdTocreatefor = new Map<Id, String>();
                 for(ContentVersion cv : allImgCV){
-                    if(conDocWithSharing.contains(cv.ContentDocumentId)){
+                    if(cdNotAvailabeFor.contains(cv.ContentDocumentId)){
                         cdTocreatefor.put(cv.Id, cv.Title);
                     }
                 }
 
-                System.debug('total images : ' + cDocIds.size());
-                System.debug('images with sharing option : ' + conDocWithSharing.size());
-                System.debug('images without sharing option : ' + conDocWithoutSharing.size());
-                System.debug('cdAvilabeFor : ' + cdAvilabeFor.size());
-                System.debug('cdTocreatefor : ' + cdTocreatefor.size());
-
-                // Create ContentDistribution for ContentVersion which does not have Cd...
+                // Create ContentDistribution Object for ContentVersion which does not have Cd...
                 List<ContentDistribution> cdToCreate = new List<ContentDistribution>();
                 for(Id cvId : cdTocreatefor.keySet()){
                     ContentDistribution cd = new ContentDistribution();
@@ -477,21 +449,42 @@ public with sharing class KeyMappingController {
                     cd.Name = cdTocreatefor.get(cvId);
                     cdToCreate.add(cd);
                 }
+
+                // ...Collect all ContentDocumnet for debug purpose to check whether the are created or not...
+                Set<Id> cdWithPublicSharing = new Set<Id>();
+                Set<Id> cdWithoutPublicSharing = new Set<Id>();
+
+                // Insert ContentDistribution using Database.insert to avoid rollback and get insert result for each ContentDistribution
                 if(cdToCreate.size() > 0 && Schema.sObjectType.ContentDistribution.isCreateable()){
-                    insert cdToCreate;
+                    Database.SaveResult[] results = Database.insert(cdToCreate, false);
+                    // Iterate through the results to check which records were successful and which failed
+                    for (Integer i = 0; i < results.size(); i++) {
+                        if (results[i].isSuccess()) {
+                            // Record was successfully inserted
+                            System.debug('Successfully inserted record: ' + cdToCreate[i].Id);
+                            cdWithPublicSharing.add(cdToCreate[i].Id);
+                        } else {
+                            // Record failed to insert, Mease Image does not have public char option...
+                            cdWithoutPublicSharing.add(cdToCreate[i].Id);
+                        }
+                    }
                 }
 
+                System.debug('cdAvilabeFor : ' + cdAvilabeFor.size());
+                System.debug('cdTocreatefor : ' + cdTocreatefor.size());
+                System.debug('images with sharing option created : ' + cdWithPublicSharing.size());
+                System.debug('images without sharing option not created: ' + cdWithoutPublicSharing.size());
+
                 // Agian Quuery all ContentDistribution with ContentDownloadUrl...
-                // At this time we have ContentDistribution for all ContentVersion....
-                List<ContentDistribution> allICDs2 = [SELECT Id, ContentVersionId, ContentDownloadUrl FROM ContentDistribution WHERE ContentDocumentId IN :cDocIds WITH SECURITY_ENFORCED];
+                // At this time we have ContentDistribution for all ContentVersion that have public sharing....
+                List<ContentDistribution> allICDs2 = [SELECT Id, ContentVersionId, ContentVersion.Title, ContentVersion.FileExtension, ContentVersion.FileType, ContentVersion.ContentSize, ContentDownloadUrl FROM ContentDistribution WHERE ContentDocumentId IN :cDocIds AND ContentVersion.IsLatest =true AND ContentVersion.ContentSize < :maxImageSize WITH SECURITY_ENFORCED];
 
                 // Collect ContentVersion and ContentDownloadUrl into map...
                 for(ContentDistribution cd : allICDs2){
                     cvIdVsImageUrl.put(cd.ContentVersionId, cd.ContentDownloadUrl);
                 }
-                
-                retrunWrapper.cvImages = allImgCV;
-                retrunWrapper.cvIdVsImageSRC = cvIdVsImageUrl;
+
+                retrunWrapper.cdImages = allICDs2;
                 retrunWrapper.isSuccess = true;
             }
             else{
@@ -708,8 +701,7 @@ public with sharing class KeyMappingController {
         @AuraEnabled public Obj_Label_API objectLabelAPI;
         @AuraEnabled public list<MappingObjects> fieldMappingsWithObj;
         @auraEnabled public MVDG__Template__c template;
-        @auraEnabled public List<ContentVersion> cvImages;
-        @auraEnabled public Map<Id, String> cvIdVsImageSRC;
+        @auraEnabled public List<ContentDistribution> cdImages;
         @auraEnabled public list<FormattingField> fieldFormatting;
         @AuraEnabled public String signatureKey;
      }
