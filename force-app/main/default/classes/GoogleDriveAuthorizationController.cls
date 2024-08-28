@@ -385,7 +385,7 @@ public with sharing class GoogleDriveAuthorizationController {
        HttpResponse response = http.send(request);
 
 
-       if(response.getStatusCode() == 200 && response.getStatusCode() == 400) {
+       if(response.getStatusCode() == 200 || response.getStatusCode() == 400) {
            System.debug('Token revoked successfully');
            return true;
        } else {
@@ -404,7 +404,7 @@ public with sharing class GoogleDriveAuthorizationController {
   public static Boolean unauthorize(){
       try {
           MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getInstance(UserInfo.getUserId());
-          Integer settingsList = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE Name = 'AuthProviderSettings (Organization)' AND MVDG__refresh_token__c = :settings.MVDG__refresh_token__c];
+          Integer settingsList = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE Name = 'AuthProviderSettings (Organization)' AND MVDG__email__c = :settings.MVDG__email__c WITH SECURITY_ENFORCED];
           if(settings != null){
                 if (!Schema.sObjectType.MVDG__AuthProviderSettings__c.isDeletable()) {
                     return false;
@@ -430,7 +430,7 @@ public with sharing class GoogleDriveAuthorizationController {
   public static Boolean orgunauthorize(){
       try {
           MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
-          Integer settingsList = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE Name != 'AuthProviderSettings (Organization)' AND MVDG__refresh_token__c = :settings.MVDG__refresh_token__c];
+          Integer settingsList = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE Name != 'AuthProviderSettings (Organization)' AND MVDG__email__c = :settings.MVDG__email__c WITH SECURITY_ENFORCED];
                 if(settings.MVDG__refresh_token__c != null && settingsList == 0){
                     revokeToken(settings.MVDG__refresh_token__c);
                 }
