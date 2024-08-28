@@ -186,7 +186,9 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
         this.nickname = '';
         this.namedCredential = '';
         this.isNamedCredential = !this.isNamedCredential;       
-        // console.log(this.isNamedCredential);        
+        const authBtn = this.template.querySelector('.save-btn');
+        authBtn.style.background = '';
+        authBtn.disabled = true;
     }
 
     handleClientSecret(event) {
@@ -199,7 +201,6 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             this.template.querySelectorAll('label')[2].classList.add("error-label");
             this.isDataInvalid = true;
         }
-        // console.log(this.clientSecret);
         this.checkBtn();
 
     }
