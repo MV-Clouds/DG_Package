@@ -267,11 +267,19 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         }
     }
 
-    cancel() {
+    cancel(event) {
         console.log('this.cancel');
-        
-        this.closePopup();
-        this.navigateToComp("homePage", {});
+        if (this.activeTabName == "basicTab" && event && event.detail) {   
+            this.isSpinner = true;
+            this.template.querySelector(".next").removeAttribute("disabled");
+            this.template.querySelector(`lightning-input[data-name="MVDG__Template_Name__c"]`).classList.remove("error-border");
+            this.activeTabName = "contentTab";
+            this.setActiveTab();
+        }
+        else if (this.showPopup) {
+            this.closePopup();
+            this.navigateToComp("homePage", {});
+        }
     }
 
     setDateAndSize() {
@@ -516,14 +524,19 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     cancelEditTemplate() {
         try {
             console.log('cancelEditTemplate');
-            this.isSpinner = true;
             console.log(this.previousTemplateData);
-            console.log(this.templateRecord);
-
-            this.template.querySelector(".next").removeAttribute("disabled");
-            this.template.querySelector(`lightning-input[data-name="MVDG__Template_Name__c"]`).classList.remove("error-border");
-            this.activeTabName = "contentTab";
-            this.setActiveTab();
+            
+            if (this.previousTemplateData.MVDG__Template_Name__c != this.templateRecord.MVDG__Template_Name__c || this.previousTemplateData.MVDG__Description__c != this.templateRecord.MVDG__Description__c || 
+                this.previousTemplateData.MVDG__Template_Status__c != this.templateRecord.MVDG__Template_Status__c) {
+                    const popup = this.template.querySelector("c-message-popup");
+                    popup.showMessagePopup({
+                        title: "Cancel Changes!",
+                        message: "Are you sure yow want to cancel changes?",
+                        status: "warning"
+                    });
+            } else {
+                this.cancel({detail: true});
+            }
         } catch (error) {
             errorDebugger('googleDocTemplateEditor','cancelEditTemplate', error, 'error', 'Error in cancelEditTemplate. Please try again later');
         }
