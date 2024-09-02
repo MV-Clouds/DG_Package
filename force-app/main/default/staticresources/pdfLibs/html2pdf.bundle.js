@@ -1856,7 +1856,6 @@ Worker.prototype.toContainer = function toContainer() {
     this.prop.container.appendChild(source);
     this.prop.overlay.appendChild(this.prop.container);
     document.body.appendChild(this.prop.overlay);
-
   });
 };
 
@@ -1993,15 +1992,21 @@ Worker.prototype.toImg = function toImg() {
           // Initialize the PDF document
           this.prop.pdf = this.prop.pdf || new jspdf__WEBPACK_IMPORTED_MODULE_8__.jsPDF(opt.jsPDF);
 
+          console.log('this.opt', this.opt);
+          console.log('this.prop', this.prop);
+
           for (var page = 0; page < nPages; page++) {
             /**
              * Do Not render page more than 20 pages...
              */
               if(page < 20){
                 if (page === nPages - 1 && pxFullHeight % pxPageHeight !== 0) {
-                  pageCanvas.height = pxFullHeight % pxPageHeight;
-                  pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
+                //   pageCanvas.height = pxFullHeight % pxPageHeight;
+                //   pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
                 }
+
+                console.log('page : ', page);
+                console.log('pageHeight : ', pageHeight);
     
                 var w = pageCanvas.width;
                 var h = pageCanvas.height;
@@ -2018,7 +2023,7 @@ Worker.prototype.toImg = function toImg() {
                 isHeader && this.prop.pdf.addImage(headerData,  opt.image.type,   this.opt.header.margins[1],   this.opt.header.margins[0],   this.opt.header.width,            headerHeight);
                 isFooter && this.prop.pdf.addImage(footerData,  opt.image.type,   this.opt.footer.margins[1],   footerTop,                    this.opt.footer.width,            footerHeight);
                             this.prop.pdf.addImage(imgData,     opt.image.type,   opt.margin[1],                opt.margin[0],                this.prop.pageSize.inner.width,   pageHeight);
-                        // this.prop.pdf.addImage(imageData,   imageType(i.e., PNG, JPG), left-position,       top-position,                 width,                            height)
+                        //  this.prop.pdf.addImage(imageData,   imageType(i.e., PNG, JPG), left-position,       top-position,                 width,                            height)
               }
             }
         });

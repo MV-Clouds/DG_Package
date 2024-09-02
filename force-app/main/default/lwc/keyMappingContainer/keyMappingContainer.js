@@ -502,8 +502,8 @@ export default class KeyMappingContainer extends LightningElement {
             getSignatureInfo({templateId : this.templateId})
             .then(result => {
                 this.isDataRefreshing = false;
-                this.signatureSize = result;
-                this.savedSignatureSize = result;
+                this.signatureSize = Math.max(result, 1);               // To avoid value lesser than 1
+                this.savedSignatureSize = this.signatureSize;
             })
         } catch (error) {
             errorDebugger('FieldMappingKey', 'fetchSignatureInfo', error ,'warn');

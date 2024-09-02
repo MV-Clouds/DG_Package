@@ -636,7 +636,7 @@
                             node.innerHTML = editorNode.replace('<HTMLContent>', bodyHtml);
                             node.innerHTML = node.innerHTML.replace('@typeClass', '');
 
-                            document.body.appendChild(node);
+                            // document.body.appendChild(node);
     
                             //  ==== Convert URL src into base64 =======
                             const nodeImages = node.querySelectorAll('img');

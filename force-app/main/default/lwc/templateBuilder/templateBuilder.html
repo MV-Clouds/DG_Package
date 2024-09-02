@@ -391,7 +391,7 @@
                                       <div class="optionInputs">
                                         <template for:each={pageConfigs.pageMargins} for:item="margin">
                                           <div class="marginInputContainer" key={margin.name}>{margin.name} : 
-                                            <input class="pageMarginInput" step={inputStep} type="number" data-config="pageMargins" onkeyup={managePageConfigs} onfocus={selectAllOnFocus} value={margin.value} data-name={margin.name} />
+                                            <input class="pageMarginInput" step={inputStep} type="number" data-config="pageMargins" onchange={managePageConfigs} onfocus={selectAllOnFocus} value={margin.value} data-name={margin.name} />
                                           </div>
                                         </template>
                                         <div class="marginInputContainer">Unit : 

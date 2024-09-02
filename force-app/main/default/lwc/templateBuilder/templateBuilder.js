@@ -763,12 +763,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     this.pageConfigs[pageConfig][configName] = event.target.checked;
                 }
                 else{
-                    this.pageConfigs[pageConfig][configName] = value;
+                    this.pageConfigs[pageConfig][configName] = value ? value : 0;
                 }
             }
             
-            this.setPageMarginValue();
-            this.setHeaderFooterMargin();
+            this.setPageMarginValue();                  // Do not remove it, it is added intentionally
+            this.setHeaderFooterMargin();               // Do not remove it, it is added intentionally
             this.setEditorPageSize();
             (pageConfig != 'pageMargins') && this.setPageMarginValue();
             (pageConfig != 'header' && pageConfig != 'footer') && this.setHeaderFooterMargin();
@@ -787,35 +787,41 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
             let k = unitMultiplier(this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c)* 1.3334;
 
-            // configName == 'top' 
             pageMarginsTop = pageMarginsTop ? pageMarginsTop : 0;
-            (pageMarginsTop < 0) && (pageMarginsTop = 0);
+            pageMarginsTop = Math.max(pageMarginsTop, 0);
+            
+            pageMarginsBottom = pageMarginsBottom ? pageMarginsBottom : 0;
+            pageMarginsBottom = Math.max(pageMarginsBottom, 0);
+            
+            pageMarginsLeft = pageMarginsLeft ? pageMarginsLeft : 0;
+            pageMarginsLeft = Math.max(pageMarginsLeft, 0);
+            
+            pageMarginsRight = pageMarginsRight ? pageMarginsRight : 0;
+            pageMarginsRight = Math.max(pageMarginsRight, 0);
 
-            // restrict margin/padding to exceed page page width....
-            // when margin value is more than page width - opposite margin value... restrict to increase margin value...
-            (pageMarginsTop >= (this.currentPageHeight / k - pageMarginsBottom)) && (pageMarginsTop = (this.currentPageHeight /k - pageMarginsBottom));
-
-            // Only update variable when input have some value... because variable set 0 in input when input in empty, which is not practical...
+            // restrict margin/padding to exceed page page width/height....
+            // when margin value is more than page width/height - opposite margin value... restrict to increase margin value...
+            
+            // configName == 'top' 
+            pageMarginsTop = Math.min(pageMarginsTop, (this.currentPageHeight / k - pageMarginsBottom))
+            pageMarginsTop = Math.max(pageMarginsTop, 0);
             (this.pageConfigs['pageMargins'][0].value = pageMarginsTop);
 
             // configName == 'bottom'
-            pageMarginsBottom = pageMarginsBottom ? pageMarginsBottom : 0;
-            (pageMarginsBottom < 0) && (pageMarginsBottom = 0);
-            (pageMarginsBottom >= (this.currentPageHeight / k - pageMarginsTop)) && (pageMarginsBottom = (this.currentPageHeight /k - pageMarginsTop));
+            pageMarginsBottom = Math.min(pageMarginsBottom, (this.currentPageHeight / k - pageMarginsTop))
+            pageMarginsBottom = Math.max(pageMarginsBottom, 0);
             (this.pageConfigs['pageMargins'][1].value = pageMarginsBottom);
 
             // configName == 'left'
-            pageMarginsLeft = pageMarginsLeft ? pageMarginsLeft : 0;
-            (pageMarginsLeft < 0) && (pageMarginsLeft = 0);
-            (pageMarginsLeft >= (this.currentPageWidth / k - pageMarginsRight)) && (pageMarginsLeft = (this.currentPageWidth /k - pageMarginsRight));
+            pageMarginsLeft = Math.min(pageMarginsLeft, (this.currentPageWidth / k - pageMarginsRight))
+            pageMarginsLeft = Math.max(pageMarginsLeft, 0);
             (this.pageConfigs['pageMargins'][2].value = pageMarginsLeft);
 
             // configName == 'right'
-            pageMarginsRight = pageMarginsRight ? pageMarginsRight : 0;
-            (pageMarginsRight < 0) && (pageMarginsRight = 0);
-            (pageMarginsRight >= (this.currentPageWidth / k - pageMarginsLeft)) && (pageMarginsRight = (this.currentPageWidth /k - pageMarginsLeft));
+            pageMarginsRight = Math.min(pageMarginsRight, (this.currentPageWidth / k - pageMarginsLeft))
+            pageMarginsRight = Math.max(pageMarginsRight, 0);
             (this.pageConfigs['pageMargins'][3].value = pageMarginsRight);
-    
+
             this.pageConfigRecord.MVDG__Page_Margin__c = pageMarginsTop+';'+pageMarginsBottom+';'+pageMarginsLeft+';'+pageMarginsRight;
         } catch (error) {
             errorDebugger('TemplateBuilder', 'setPageMarginValue', error, 'warn');

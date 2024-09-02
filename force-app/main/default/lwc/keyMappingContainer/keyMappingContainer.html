@@ -252,7 +252,7 @@
           <div class="sizeSetOpt">
             <lightning-helptext class="tooltip" content="Set Signature size by percentage of Page size"></lightning-helptext>
             <div class="label">Signature Size : </div>
-            <input class=" slds-slider__range" type="range" value={signatureSize} oninput={setSignatureSize} min="0" max="100">
+            <input class=" slds-slider__range" type="range" value={signatureSize} oninput={setSignatureSize} min="1" max="100">
             <div>{signatureSize}%</div>
             <button class="signaturesSetBtn" onclick={updateSignatureSize}  disabled={isSignatureSetBtn}>Update</button>
           </div>
