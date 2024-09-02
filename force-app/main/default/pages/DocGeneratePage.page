@@ -396,7 +396,7 @@
                         let bodyHtml = '{!JSENCODE(bodyHtml)}';
                         let headerHtml = '{!JSENCODE(headerHtml)}';
                         let footerHtml = '{!JSENCODE(footerHtml)}';
-    
+
                         const showHeader = JSON.parse('{!showHeader}');
                         const showFooter = JSON.parse('{!showFooter}');
     
@@ -432,16 +432,15 @@
 
                         const imageMaxSize = '{!imageMaxSize}';
                         
+                        // extract seft tempalte merge key to avoid and handle self merging...
+                        const selfMergeTempKey = Object.keys(mergeTemplateKeys)?.find(key => mergeTemplateKeys[key] === currentTempId);
+                        delete  mergeTemplateKeys[selfMergeTempKey];
+                        
                         let isBatchRequired = '{!isBatchRequired}';
-    
                         // --- ---- if template data is large, add template id to get data using remoteAction --- ---- 
                         if(isBatchRequired == true || isBatchRequired == 'true'){
                             mergeTemplateKeys[currentTempId] = currentTempId;
                         }
-    
-                        // extract seft tempalte merge key to avoid and handle self merging...
-                        const selfMergeTempKey = Object.keys(mergeTemplateKeys)?.find(key => mergeTemplateKeys[key] === currentTempId);
-                        delete  mergeTemplateKeys[selfMergeTempKey];
     
                         //  --- ---- Fetch current template data and and merge template data (if required) --- ---- 
                         if(Object.keys(mergeTemplateKeys)?.length ||  Object.keys(salesforceImages)?.length){
@@ -487,10 +486,10 @@
                                                 templatesData[mergeKey] = unescapeHtml(templatesData[mergeKey]);
                                             
                                                 // When Source tempalte is also fetch using RemoteAction...
-                                                if(mergeKey == currentTempId){
-                                                    bodyHtml = templatesData[currentTempId];
+                                                if(templateId == currentTempId){
+                                                    bodyHtml = templatesData[mergeKey];
                                                     // remove current template instance from mergeTemplateKeys Instance to avoid recursion and oerride issue...
-                                                    delete  mergeTemplateKeys[currentTempId];
+                                                    delete  mergeTemplateKeys[mergeKey];
                                                 }
                                                 else{
                                                     mergeTemplateKeys[mergeKey] = templatesData[mergeKey];
@@ -573,7 +572,7 @@
                             bodyHtml = decodeHTMLEntities(bodyHtml);
                             headerHtml = decodeHTMLEntities(headerHtml);
                             footerHtml = decodeHTMLEntities(footerHtml);
-    
+
                             // ...remove merge Template keys from mergeTemplateKeys ...
                             // Note: this logic will note remove merge Template keys from cuurent template Data as we already remove currentTempId from mergeTemplateKeys to avoid this...
                             for(let key in mergeTemplateKeys){
@@ -636,6 +635,8 @@
                             let node = document.createElement('div');
                             node.innerHTML = editorNode.replace('<HTMLContent>', bodyHtml);
                             node.innerHTML = node.innerHTML.replace('@typeClass', '');
+
+                            document.body.appendChild(node);
     
                             //  ==== Convert URL src into base64 =======
                             const nodeImages = node.querySelectorAll('img');
@@ -730,12 +731,14 @@
                             // For Preview Use
                             docIcon && (docIcon.style = 'animation : none');
                             loadingInfo && (loadingInfo.innerText = 'Rendering Preview...');
+
     
                             html2pdf().set(opt).from(node).outputPdf()
                             .then(function (rawPDF){
                                 if(useMode === 'preview'){
                                     intialLoading.style.display = 'none';
                                     displayPDF(rawPDF);
+
                                 }
                                 else{
                                     const pdfBlob = new Blob([getArrayBuffer(rawPDF)], { type: 'application/pdf' }) 

@@ -236,13 +236,13 @@ export default class KeyMappingContainer extends LightningElement {
             return 'Select Date and Time Format for your DateTime Field';
         }
         else if(this.clickedFieldType == 'TIME'){
-            return 'Select format for your Time Field'
+            return 'Select format for your Time Field';
         }
         else if(this.clickedFieldType == 'CHECKBOX'){
             return 'Set Display text based on checkbox status';
         }  
         else if(this.clickedFieldType == 'TEXT'){
-            return 'Set Text Length by Character Number';
+            return 'Set Text Length by Character';
         }
         else if(this.clickedFieldType == 'CURRENCY' || this.clickedFieldType == 'NUMBER' || this.clickedFieldType == 'PERCENTAGE'){
             return `Format Options for ${this.clickedFieldType} field`;

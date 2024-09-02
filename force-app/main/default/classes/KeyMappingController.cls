@@ -298,9 +298,9 @@ public with sharing class KeyMappingController {
             for(string dateInfo : dateFormats.keySet()){
                 string fieldName = 'Date.'+dateInfo;
                 string fieldKey = generalFieldkeys.replace('mappingKey', 'Date.'+dateInfo);
-                String fieldLabel = dateFormats.get(dateInfo).split('; ')[0];
-                String fieldType = dateFormats.get(dateInfo).split('; ')[1];
-                String isFormatReq = dateFormats.get(dateInfo).split('; ')[2];
+                String fieldLabel = dateFormats.get(dateInfo).split(';')[0];
+                String fieldType = dateFormats.get(dateInfo).split(';')[1];
+                String isFormatReq = dateFormats.get(dateInfo).split(';')[2];
 
                 MappingFields fieldMapping = new MappingFields();
                 fieldMapping.label = fieldLabel;
@@ -329,16 +329,16 @@ public with sharing class KeyMappingController {
         datetime cTime = datetime.now();
 
         map<string, string> dateFormats = new map<string, string>{
-         // 'key' =>        'label; fieldType; isFormatReq; value'
-            'date'      => 'Document Creation Date & Time; DATETIME; true; ' + cTime.format('yyyy-MM-dd hh:mm:ss'),
-            'time'      => 'Document Creation Time; TIME; true; ' + cTime.format('HH:mm:ss'),
-            'Wday'      => 'Document Creation Week Day; INTEGER; false; ' + cTime.format('F'),
-            'Mday'      => 'Document Creation Month Day; INTEGER; false; ' + cTime.format('dd'),
-            'Yday'      => 'Document Creation Year Day; INTEGER; false; ' + cTime.format('DDD'),
-            'WdayName'  => 'Document Creation Week Day Name; STRING; true; ' + cTime.format('EEEEE'),
-            'month'     => 'Document Creation Month; INTEGER; false; '+ cTime.format('MM'),
-            'monthName' => 'Document Creation Month Name; STRING; true; '+ cTime.format('MMMMM'),
-            'Year'      => 'Document Creation Year; STRING; true; '+ cTime.format('yyyy')
+         // 'key' =>        'label;fieldType;isFormatReq;value'
+            'date'      => 'Document Creation Date & Time;DATETIME;true;' + cTime.format('yyyy-MM-dd hh:mm:ss'),
+            'time'      => 'Document Creation Time;TIME;true;' + cTime.format('HH:mm:ss'),
+            'Wday'      => 'Document Creation Week Day;INTEGER;false;' + cTime.format('F'),
+            'Mday'      => 'Document Creation Month Day;INTEGER;false;' + cTime.format('dd'),
+            'Yday'      => 'Document Creation Year Day;INTEGER;false;' + cTime.format('DDD'),
+            'WdayName'  => 'Document Creation Week Day Name;STRING;true;' + cTime.format('EEEEE'),
+            'month'     => 'Document Creation Month;INTEGER;false;'+ cTime.format('MM'),
+            'monthName' => 'Document Creation Month Name;STRING;true;'+ cTime.format('MMMMM'),
+            'Year'      => 'Document Creation Year;STRING;false;'+ cTime.format('yyyy')
         };
 
         return dateFormats;      
@@ -577,8 +577,6 @@ public with sharing class KeyMappingController {
 
             String fieldType = (String)String.valueOf(field.getType());
             fieldMapping.type = fieldType;
-
-            System.debug('label : ' + fieldMapping.label + '   :   Tyep ::: '+ fieldType);
 
             if( fieldType == 'DATE' || fieldType == 'DATETIME' || fieldType == 'BOOLEAN' || fieldType == 'STRING' || 
                 fieldType == 'INTEGER' || fieldType == 'DOUBLE' || fieldType == 'CURRENCY' || fieldType == 'PERCENT'){

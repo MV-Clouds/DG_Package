@@ -42,6 +42,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     searchFieldValue = '';                          
     @track loaderLabel = null;                      // To set label of loaded based on on-going process
 
+    isCloseConfirmation = false                     // To define user click on close button and confirmation popup open
+    noTemplateFound = false;                        // To check weather template available for not
+
     /**
      * variable to store page configuration to display on UI, used in HTML
      * value into this variable assigned from MVDG__Template_Page__c record fetched from backed..
@@ -294,7 +297,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             getTemplateData({templateId : this.templateId})
             .then(result => {
-                console.log('getTemplateData result  : ', result);
                 if(result.isSuccess){
                     // console.log(' get result size : ' , new Blob([JSON.stringify(result)]).size / 1000000, ' mb');
                     this.templateRecord = result.template;
@@ -410,8 +412,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             // extract mapping keys...
             let extractedMappingKeys = this.extractMappingKeys();
 
-            console.log('extractedMappingKeys : ', extractedMappingKeys);
-
             // Separate Template Data By Long TExt area Length....
             let splitLength = 130000;       // character length to store in long text area....
             // (1 record (Portion) = 130000 character = 0.13 MB => 30 records = 3.9 MB )
@@ -475,7 +475,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 for(let i = 1; i <= totalBatches; i++){
                     let start = (i-1)*batchSize;
                     let end = i*batchSize > bodyDataRecords.length ? bodyDataRecords.length : (i*batchSize) - 1;
-                    console.log('batch number : ', i, ' start at : ', start+1, ' end at : ', end+1);
                     const currentBatchRecords ={};
                     for(let j = start ; j <= end; j++){
                         currentBatchRecords[j+1] = bodyDataRecords[j];
@@ -490,7 +489,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             // Call Apex Method to save Template...
             saveTemplateApex({templateRecord : this.templateRecord, templateValues : templateValuePortion, pageConfigs : this.pageConfigRecord})
             .then((result) => {
-                console.log('result of saveTemplateApex : ', result);
                 if(result){
                     completedProcess++;
                     this.handleOngoingAction(actionName, completedProcess, totalProcesses);
@@ -516,7 +514,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 const isLastBatch = i == totalBatches ? true : false;
                 saveTempDataRecordsInBatch({templateDataList : bodyDataBatchesByMB[i-1], tempIdVsValueType : tempIdVsValueType, isLastBatch : isLastBatch})
                 .then((result) => {
-                    console.log('result : ', result);
                     if(result){
                         completedProcess++;
                         this.handleOngoingAction(actionName, completedProcess, totalProcesses);
@@ -566,6 +563,16 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     stopSpinner(completedProcess, totalProcesses){
         return completedProcess == totalProcesses ? false : true;
     }
+
+    handleCloseEdit(){
+        try {
+            this.isCloseConfirmation = true;
+            this.showMessagePopup('Warning', 'Are You Want to Leave?', `Your unsaved changes will be discarded once you leave the this page.`);
+
+        } catch (error) {
+            errorDebugger('TemplateBuilder', 'handleCloseEdit', error, 'warn');
+        }
+    }
     
     closeEditTemplate(){
         try {
@@ -606,7 +613,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             this.isSpinner = false;
             const iframe = this.template.querySelector('iframe');
             const pdfViewer = iframe.querySelector( 'pdf-viewer' );
-            console.log('pdfViewer : ', pdfViewer);
         } catch (error) {
             errorDebugger('TemplateBuilder', 'vfPageLoaded', error, 'warn');
         }
@@ -628,7 +634,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             }
             this.setActiveTab();
         } catch (error) {
-            console.log('error in templateBuilder.activeTab : ', error.stack)
+            errorDebugger('TemplateBuilder', 'activeTab', error, 'warn');
         }
     }
 
@@ -707,11 +713,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     handleEditDetail(event){
         try {
-
-            
             const targetInput = event.currentTarget.dataset.name;
             if(event.target.type === 'checkbox'){
-                console.log('event.target.checked ', event.target.checked);
                 this.templateRecord[targetInput] = event.target.checked;
             }
             else{
@@ -1170,10 +1173,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             const innerHTML = this.headerData + this.bodyData + this.footerData;
         
-            const objectFields = this.extractedKeys(innerHTML, /{{#(.*?)}}/g);
-            const generalFields = this.extractedKeys(innerHTML, /{{Doc.(.*?)}}/g);
-            const mergeTempKeys = this.extractedKeys(innerHTML, /{{Temp.(.*?)}}/g);
-            const signatureKeys = this.extractedKeys(innerHTML, /{{Sign.(.*?)}}/g)
+            // const objectFields = this.extractedKeys(innerHTML, /{{#(.*?)}}/g);
+            // const generalFields = this.extractedKeys(innerHTML, /{{Doc.(.*?)}}/g);
+            // const mergeTempKeys = this.extractedKeys(innerHTML, /{{Temp.(.*?)}}/g);
+            // const signatureKeys = this.extractedKeys(innerHTML, /{{Sign.(.*?)}}/g)
+            
+            const objectFields = this.extractedKeys(innerHTML, /\{\{#([^{}]+)\}\}/g);
+            const generalFields = this.extractedKeys(innerHTML, /\{\{Doc.([^{}]+)\}\}/g);
+            const mergeTempKeys = this.extractedKeys(innerHTML, /\{\{Temp.([^{}]+)\}\}/g);
+            const signatureKeys = this.extractedKeys(innerHTML, /\{\{Sign.([^{}]+)\}\}/g)
             const childRecordTables = this.extractChildRecordTables();
             const sfImages = this.extractSalesforceImages();
 
@@ -1212,19 +1220,28 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             const bodyEle = document.createElement('div');
             bodyEle.innerHTML = $(this.contentEditor).summernote('code');
             bodyEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
-                childRecordTables.push(this.extractChildTableInfo(ele));
+                const childTableInfo = this.extractChildTableInfo(ele);
+                if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
+                    childRecordTables.push(childTableInfo);
+                }
             });
 
             const headerEle = document.createElement('div');
             headerEle.innerHTML = $(this.headerEditor).summernote('code');
             headerEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
-                childRecordTables.push(this.extractChildTableInfo(ele));
+                const childTableInfo = this.extractChildTableInfo(ele);
+                if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
+                    childRecordTables.push(childTableInfo);
+                }
             });
 
             const footerEle = document.createElement('div');
             footerEle.innerHTML = $(this.footerEditor).summernote('code');
             footerEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
-                childRecordTables.push(this.extractChildTableInfo(ele));
+                const childTableInfo = this.extractChildTableInfo(ele);
+                if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
+                    childRecordTables.push(childTableInfo);
+                }
             });
 
             return childRecordTables;
@@ -1244,15 +1261,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 mappingFields : [],
             };
             
-            childTableWrapper.tableHTML = ele.outerHTML;
+            childTableWrapper.tableHTML = ele?.outerHTML;
 
-            const keyRow = ele.querySelector(`[data-name="keyRow"]`);
-            childTableWrapper.keyRow = keyRow.outerHTML;
+            const keyRow = ele?.querySelector(`[data-name="keyRow"]`);
+            childTableWrapper.keyRow = keyRow?.outerHTML;
 
-            childTableWrapper.mappingFields = this.extractedKeys(keyRow.innerText, /{{!(.*?)}}/g);
+            childTableWrapper.mappingFields = this.extractedKeys(keyRow?.innerText,/\{\{!([^{}]+)\}\}/g);
 
-            const infoRow = ele.querySelector(`[data-name="infoRow"]`);
-            childTableWrapper.infoRow = infoRow.outerHTML;
+            const infoRow = ele?.querySelector(`[data-name="infoRow"]`);
+            childTableWrapper.infoRow = infoRow?.outerHTML;
 
             return childTableWrapper;
         } catch (error) {
@@ -1397,8 +1414,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     handleMsgPopConfirmation(event){
         try {
-            if(!this.isLoadedSuccessfully){
-                // ... Popup message show WHEN Editor fail to initialize...
+            if(!this.isLoadedSuccessfully || this.noTemplateFound){
+                /**
+                 * ... Popup message show WHEN Editor fail to initialize... 
+                 * OR
+                 * ... Popup message show WHEN Template Id Not Found...
+                 */
                 this.closeEditTemplate();
             }
             else if(!this.templateRecord.MVDG__Template_Name__c && !this.noTemplateFound){
@@ -1406,9 +1427,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.currentTab = 'basicTab';
                 this.setActiveTab();
             }
-            else if(this.noTemplateFound){
-                // ... Popup message show WHEN Template Id Not Found...
-                this.closeEditTemplate();
+            else if(this.isCloseConfirmation){
+                //... Popup message show WHEN User click on close button select YES...
+                if(event.detail){
+                    this.closeEditTemplate();
+                }
+                this.isCloseConfirmation = false;
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleMsgPopConfirmation', error, 'warn');
@@ -1457,7 +1481,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 }
                 
                   let encodedDef = btoa(JSON.stringify(cmpDef));
-                  console.log('encodedDef : ', encodedDef);
                   this[NavigationMixin.Navigate]({
                     type: "standard__webPage",
                     attributes: {

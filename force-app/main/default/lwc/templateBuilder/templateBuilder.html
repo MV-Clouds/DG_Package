@@ -5,7 +5,7 @@
       <div class="editorSection">
         <div class="tabSection">
           <div class="tabSection_sub">
-            <button class="homeBtn" title="Home" onclick={closeEditTemplate}>
+            <button class="homeBtn" title="Home" onclick={handleCloseEdit}>
               <svg viewBox="0 0 24 24">
                 <g stroke-width="0"></g>
                 <g stroke-linecap="round" stroke-linejoin="round"></g>
@@ -139,7 +139,7 @@
               cancel-button-label="Close" 
               onsave={saveTemplateData} 
               onpreview={handleSaveNPreview}
-              onclose={closeEditTemplate} 
+              onclose={handleCloseEdit} 
               onfullheight={toggleMappingContainerHeight}
               ontogglemapping={showHideMappingContainer}
               onopengenchildtable={openGenChildTablePopup}
@@ -282,7 +282,7 @@
                 </div>
                 <div class="watermarkOptionFooter">
                   <div class="buttonSection">
-                    <button class="footerBtn" title="Cancel" onclick={closeEditTemplate}>
+                    <button class="footerBtn" title="Cancel" onclick={handleCloseEdit}>
                       <svg viewBox="0 0 520 520" ><g><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z"></path></g></svg>
                       Close
                     </button>
@@ -478,7 +478,7 @@
                 </div>
               </div>
               <div class="buttonSection">
-                <button class="footerBtn" title="Cancel" onclick={closeEditTemplate}>
+                <button class="footerBtn" title="Cancel" onclick={handleCloseEdit}>
                   <svg viewBox="0 0 520 520" ><g><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z"></path></g></svg>
                   Close
                 </button>

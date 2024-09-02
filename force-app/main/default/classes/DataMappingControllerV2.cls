@@ -52,8 +52,10 @@ public with sharing class DataMappingControllerV2 {
     
                 // modify child object table...
                 for(ChildTableInfo tableInfo : childTables){
-                    Map<String, String> modifiedChildTable = modifyChildObjectTables(tableInfo, sourceObjectAPI, recordId);
-                    mapingKeyVsValuesGroup?.get('childRecordTable')?.putAll(modifiedChildTable);
+                    if(tableInfo.tableHTML != null && tableInfo.infoRow != null && tableInfo.tableHTML != '' && tableInfo.infoRow != ''){
+                        Map<String, String> modifiedChildTable = modifyChildObjectTables(tableInfo, sourceObjectAPI, recordId);
+                        mapingKeyVsValuesGroup?.get('childRecordTable')?.putAll(modifiedChildTable);
+                    }
                 }
 
                 // Collect and Store Salesforce image SRC in to set ...
@@ -167,7 +169,12 @@ public with sharing class DataMappingControllerV2 {
                 tableInfo.queryFilters = infoRow.substringBetween('$filter:', '$');
                 tableInfo.queryLimit = infoRow.substringBetween('$limit:', '$');
                 // If user enter Invalid (Non numberic) limit string... handle it...
+                system.debug('orginal limit : ' + tableInfo.queryLimit);
                 tableInfo.queryLimit = tableInfo.queryLimit.isNumeric() == true ? tableInfo.queryLimit : '50';
+                system.debug('before set 50 limit : ' + tableInfo.queryLimit);
+                tableInfo.queryLimit = Integer.valueOf(tableInfo.queryLimit) > 50 ? '50' : tableInfo.queryLimit;
+                system.debug('after set 50 limit : ' + tableInfo.queryLimit);
+
 
                 // ==> validate each field... and add into field's list to create query....
                 List<ExtractedKeys> extractedKeys = getValidKeys(tableInfo.mappingFields, tableInfo.childObjetAPI, '!');
