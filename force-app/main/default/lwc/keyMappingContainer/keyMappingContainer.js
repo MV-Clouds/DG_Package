@@ -41,12 +41,12 @@ export default class KeyMappingContainer extends LightningElement {
 
     mappingTypeTabs = [
         {   label: 'Object Fields',        name: 'objectFields',
-            helpText : 'Insert Base Object and Lookup (Related) Object\'s Fields Int Template.',
+            helpText : 'Insert Base Object and Lookup (Related) Object\'s Fields in Template.',
             showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : false,
             showSearchbar : true, searchBarPlaceHolder : 'Search Fields...',
         },
-        {   label: 'Related List Fields',  name: 'relatedListFields',
-            helpText : 'Insert Related List (Child Object) Field In Template as a Table Format.',
+        {   label: 'Related Lists',  name: 'relatedListFields',
+            helpText : 'Insert Related Lists (Child Object Records) In Template as a Table Format.',
             showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : true,
         },
         {   label: 'General Fields',        name: 'generalFields',

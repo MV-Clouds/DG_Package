@@ -137,9 +137,9 @@ export default class MessagePopup extends LightningElement {
             console.log('conform : ', conform);
 
             // Send data to parent compoent...
-            this.dispatchEvent(new CustomEvent('confirmation',{
-                detail : conform
-            }));
+            // this.dispatchEvent(new CustomEvent('confirmation',{
+            //     detail : conform
+            // }));
 
             this.closeModal(conform);
             

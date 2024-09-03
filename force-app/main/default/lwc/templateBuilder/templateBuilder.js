@@ -45,6 +45,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     isCloseConfirmation = false                     // To define user click on close button and confirmation popup open
     noTemplateFound = false;                        // To check weather template available for not
 
+    editorDataChanges = false;                      // To identify any editor data change or not
+
     /**
      * variable to store page configuration to display on UI, used in HTML
      * value into this variable assigned from MVDG__Template_Page__c record fetched from backed..
@@ -58,9 +60,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         ],
         pageSize : [
             {name : 'A4', value : 'a4', size : '8.27" x 11.69"', selected : true},
-            {name : 'A5', value : 'a5', size : '8.5" x 14"', selected : false},
+            {name : 'A5', value : 'a5', size : '5.83" x 8.27"', selected : false},
             {name : 'Letter', value : 'letter', size : '8.5" x 11"', selected : false},
-            {name : 'Legal', value : 'legal', size : '5.83" x 8.27"', selected : false},
+            {name : 'Legal', value : 'legal', size : '8.5" x 14"', selected : false},
             {name : 'Executive', value : 'executive', size : '7.25" x 10.5"', selected : false},
             {name : 'Statement', value : 'statement', size : '5.5" x 8.25"', selected : false},
         ],
@@ -158,14 +160,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         return 0
    }
 
-   _resolvedPromise = 0;
-   get resolvedPromise(){ return this._resolvedPromise };
-   set resolvedPromise(value){
+    _resolvedPromise = 0;
+    get resolvedPromise(){ return this._resolvedPromise };
+    set resolvedPromise(value){
         if(value == 2){
             this.isSpinner = false;
         }
         this._resolvedPromise = value;
-   }
+    }
 
     connectedCallback(){
         try {
@@ -524,7 +526,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                     }
                 })
-                .catch(error => {
+                .catch((error) => {
                     completedProcess++;
                     this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
                     errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
@@ -718,7 +720,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.templateRecord[targetInput] = event.target.checked;
             }
             else{
-                this.templateRecord[targetInput] = event.target.value;
+                this.templateRecord[targetInput] = (event.target.value).trim();
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleEditDetail', error, 'warn');
@@ -1071,7 +1073,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 if(event){
                     const selection = window.getSelection();
                     const cursorNode = selection?.anchorNode;
-                    const cursorNodeRect = cursorNode?.getBoundingClientRect();
+                    const cursorNodeRect = cursorNode && cursorNode.nodeName !== "#text" ? cursorNode.getBoundingClientRect() : null;
                     if(cursorNodeRect?.bottom > pageRect.bottom){
                         event.preventDefault();
                     }

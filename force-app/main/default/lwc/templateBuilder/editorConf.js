@@ -758,6 +758,7 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
                         setFontResizerValue(note);
                         _self.calculateRelatedListTable(note);
                         _self.restrictLargeImageInsert(note);
+                        _self.editorDataChanges = true;
                         // _self.setHeaderFooterMaxHeight(note);
                     },
                     onChangeCodeview: null,

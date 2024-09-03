@@ -10,6 +10,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    --ff_Bahnschrift : Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
   }
   .genChildTablePopup_sub{
     width: 80%;
@@ -196,6 +197,6 @@
   .copyButton_label{
     color: white;
     font-size: 15px;
-    font-family: var(--ff_Montserrat);
+    font-family: var(--ff_Bahnschrift);
   }
   /* --- ---- Generate Child Record Table Popup CSS -- END --- --- ---- ---- */

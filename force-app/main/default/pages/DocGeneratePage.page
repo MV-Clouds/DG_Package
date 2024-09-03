@@ -261,7 +261,8 @@
             </style>
             <!-- <apex:styleSheet value="{!URLFOR($Resource.summerNote_Editor, '/summernote-lite.css')}"/> -->
             <apex:styleSheet value="{!URLFOR($Resource.summerNote_Editor, '/summernote-lite-pdf.css')}"/>
-            <apex:includeScript value="{!URLFOR($Resource.pdfLibs, '/html2pdf.bundle.js')}"/>
+            <!-- <apex:includeScript value="{!URLFOR($Resource.pdfLibs, '/html2pdf.bundle.js')}"/> -->
+            <apex:includeScript value="{!URLFOR($Resource.pdfLibs, '/html2pdf.bundle-0.9.3.js')}"/>
             <apex:includeScript value="{!URLFOR($Resource.pdfLibs, '/pdfJS/web/pdf.js')}"/>
         </head>
         <body>
@@ -615,7 +616,7 @@
                             for(let src in salesforceImages){
                                 if(src === signatureKey){
                                     const signatureImageInPt = (signatureSize * pageFormats()[pageSize][0]) / 100;
-                                    const signatureImageEle = `<img style="width : ${signatureImageInPt}pt; max-width:100%;" src="${salesforceImages[src]}" >`
+                                    const signatureImageEle = `<p><img style="width : ${signatureImageInPt}pt; max-width:100%;" src="${salesforceImages[src]}" ></p>`
                                     
                                     // replace signature key with signature image....
                                     bodyHtml = bodyHtml.replaceAll(signatureKey, signatureImageEle);
