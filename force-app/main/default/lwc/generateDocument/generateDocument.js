@@ -1141,7 +1141,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     handleClose(){
         window.removeEventListener('message', this.simpleTempFileGenResponse);
-        if(this.showCloseButton){
+        if(this.currentPageReference.type === "standard__quickAction"){
+            this.dispatchEvent(new CloseActionScreenEvent())
+        }else if(this.showCloseButton){
             if(this.isCalledFromPreview){
                 this.dispatchEvent(new CustomEvent('close'));
             }else{
@@ -1164,8 +1166,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.showEmailSection = false;
                 window.history.back();
             }
-        }else{
-            this.dispatchEvent(new CloseActionScreenEvent());
         }
     }
 

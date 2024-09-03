@@ -25,7 +25,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     //to handle the confirmation message
     @track isListViewUpdate = false;
     @track isClose = false;
-    // @track isTemplateUpdate = false;
     @track isCancelTemplate = false;
     @track isReset = false;
     @track isClear = false;

@@ -337,6 +337,16 @@ export default class CustomCombobox extends LightningElement {
         }
     }
 
+    preventTabOverlap(event){
+        try {
+            if(event.key === 'Tab'){
+                event.preventDefault();
+            }
+        } catch (error) {
+            errorDebugger('CustomCombobox', 'preventTabOverlap', error, 'warn');
+        }
+    }
+
     /**
      * Method to set option based search value.
      * @param {*} searchValue 

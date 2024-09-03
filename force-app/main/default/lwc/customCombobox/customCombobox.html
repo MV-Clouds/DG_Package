@@ -18,6 +18,7 @@
                   <input type="text" data-id="search-input" class="inputAreaCSS_2 slds-input slds-combobox__input" role="combobox" placeholder={placeholderText} 
                           onfocus={handleShowDropDown}
                           onkeyup={handleSearch}
+                          onkeydown={preventTabOverlap}
                            />
                   <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right">
                     <lightning-icon lwc:if={hideSearchIcon} class="" icon-name="utility:down" alternative-text="Approved" title="Approved" size="x-small" ></lightning-icon>
@@ -27,7 +28,7 @@
                 <!-- === == == -->
                 <!-- === == ==  for non-searchable combobox == == ==  -->
                 <template lwc:else>
-                    <div role="combobox" tabindex="0" onclick={handleShowDropDown} class="inputAreaCSS_2 slds-input_faux slds-combobox__input">
+                    <div role="combobox" tabindex="0" onclick={handleShowDropDown} onkeydown={preventTabOverlap} class="inputAreaCSS_2 slds-input_faux slds-combobox__input">
                       <span class="placeHolderCSS slds-truncate" >{placeholderText}</span>
                     </div>
                     <span class="slds-icon_container slds-icon-utility-down slds-input__icon slds-input__icon_right">
