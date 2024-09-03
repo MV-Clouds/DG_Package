@@ -143,15 +143,18 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
 
     @AuraEnabled
     public static void emailUser(String message) {
-        if(Schema.sObjectType.User.fields.Email.isAccessible()){
-        User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
         String subject = 'Issue in uploading file to AWS';
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(new String[] { currentUser.Email });
+        String userEmail = UserInfo.getUserEmail();
+        if (userEmail != null && userEmail.contains('@')) {
+            mail.setToAddresses(new List<String>{userEmail});
+        } else {
+            // Handle the case when email is null or invalid
+            System.debug('Invalid user email: ' + userEmail);
+        }
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-        }
     }
 
     public static void mailMessage(Integer code){

@@ -44,14 +44,26 @@ public class GoogleDocTemplateEditorControllerTest {
         Test.setMock(HttpCalloutMock.class, new TemplateEditerMock());
         Test.startTest();
         
+        googleDocTemplateEditorController.createNewDocument();
         GoogleDocTemplateEditorController.getAllData(temp.Id, 'Account');
+        googleDocTemplateEditorController.editTemplate(JSON.serialize(temp));
         googleDocTemplateEditorController.editTemplate(JSON.serialize(tempData));
         
-        GoogleDocTemplateEditorController.saveTemplateData(temp.Id, 'googleDocId', 'webViewLink', 'documentName');
+        GoogleDocTemplateEditorController.saveTemplateData(temp.Id, 'googleDocId', 'webViewLink');
+        googleDocTemplateEditorController.updateAuthProviderSettings();
 
+        googleDocTemplateEditorController.responseList.put('first', new HttpResponse());
+        googleDocTemplateEditorController.insertRestResponses();
         Test.stopTest();
 
         GoogleDocTemplateEditorController googleDocTemplateEditorController = new GoogleDocTemplateEditorController();
+    } 
+
+    @isTest
+    public static void testCatchBlocks() {
+        GoogleDocTemplateEditorController.getTemplate('wrongId');
+        GoogleDocTemplateEditorController.getTemplateData('wrongId');
+        GoogleDocTemplateEditorController.getLabel('NoObject');
     }
 
     public class TemplateEditerMock implements HttpCalloutMock {
@@ -64,6 +76,9 @@ public class GoogleDocTemplateEditorControllerTest {
                 res.setBody('{"access_token":"dummyAccessToken","token_type":"Bearer","expires_in":3600,"refresh_token":"dummyRefreshToken","scope":"https://www.googleapis.com/authdrive","id_token":"dummyIdToken"}');
                 res.setStatusCode(200);
             } else if (endpoint == 'https://www.googleapis.com/drive/v3/files/dummyDocumentId2/export') {
+                res.setBodyAsBlob(Blob.valueOf('{"kind":"drive#file","id":"dummyDocumentId","name":"dummyDocumentName","mimeType":"application/vnd.google-apps.document"}'));
+                res.setStatusCode(200);
+            } else if (endpoint == 'https://docs.googleapis.com/v1/documents') {
                 res.setBodyAsBlob(Blob.valueOf('{"kind":"drive#file","id":"dummyDocumentId","name":"dummyDocumentName","mimeType":"application/vnd.google-apps.document"}'));
                 res.setStatusCode(200);
             } else if (endpoint.contains('https://www.googleapis.com/drive/v3/files')) {
