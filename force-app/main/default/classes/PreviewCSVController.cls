@@ -12,9 +12,15 @@ public with sharing class PreviewCSVController {
         PreviewDataWrapper listOfPDW = new PreviewDataWrapper();
         try {
             List<sObject> previewRecords = new List<sObject>();
-            List<MVDG__Template_Data__c> queryData = [SELECT Id, MVDG__CSV_Query__c, MVDG__CSV_Fields__c, MVDG__Template__r.MVDG__Template_Name__c, MVDG__Template__r.MVDG__Template_Status__c, MVDG__Template__r.MVDG__Description__c, MVDG__Template__r.MVDG__Object_API_Name__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
+            List<MVDG__Template_Data__c> queryData = new List<MVDG__Template_Data__c>();
+            if(templateId != null){
+                queryData = [SELECT Id, MVDG__CSV_Query__c, MVDG__CSV_Fields__c, MVDG__Template__r.MVDG__Template_Name__c, MVDG__Template__r.MVDG__Template_Status__c, MVDG__Template__r.MVDG__Description__c, MVDG__Template__r.MVDG__Object_API_Name__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
+            }
             if(queryData.size() > 0){
-                String query = queryData[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId()).substringBeforeLast('LIMIT') + ' LIMIT 25';
+                String query = queryData[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
+                if(Integer.valueOf(query.substringAfterLast('LIMIT ')) > 25){
+                    query = queryData[0].MVDG__CSV_Query__c.substringBeforeLast('LIMIT') + ' LIMIT 25';
+                }
                 previewRecords = Database.query(query);
                 listOfPDW.records = previewRecords;
                 listOfPDW.templateData = queryData[0];

@@ -429,7 +429,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     connectedCallback() {
         this.showSpinner = true;
         try{
-            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
+            window.addEventListener('message', this.simpleTempFileGenResponse);
             this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
@@ -439,7 +439,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.template.host.classList.add('pou-up-view');
                 this.selectedTemplate = this.currentPageReference?.state?.c__templateIdToGenerate;
             }
-            window.addEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
             Promise.resolve(this.objectApiName)
             .then(() => {
                 return Promise.all([
@@ -456,6 +455,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.showSpinner = false;
                 } else if (isAutoGeneration) {
                     this.handleAutoGeneration();
+                } else if(this.currentPageReference.type === "standard__quickAction" && this.currentPageReference?.attributes?.apiName?.split('.')[1] !== 'DG_Generate_Document'){
+                    let templateToAutoGenerate = this.allTemplates.find(item => item.MVDG__Button_Api_Name__c === this.currentPageReference?.attributes?.apiName?.split('.')[1]);
+                    if(templateToAutoGenerate){
+                        this.selectedTemplate = templateToAutoGenerate.Id;
+                        this.handleAutoGeneration();
+                    }else{
+                        this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
+                        this.isClosableError = true;
+                    }
                 }
             })
             .catch(e => {
@@ -469,35 +477,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     disconnectedCallback(){
-        window.removeEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
-    }
-
-    handleCalledFromPreview() {
-        this.isCalledFromPreview = true;
-        this.template.host.classList.add('pou-up-view');
-        this.template.querySelector('.template-select-div').style.display = 'none';
-        this.handleSelectTemplate({ detail: [{ Id: this.templateIdFromParent }] });
-        this.handleEmailTemplateSelect({detail:[null]});
-        this.showSpinner = false;
-    }
-    
-    handleCalledFromDefaults() {
-        try{
-            this.isCalledFromDefaults = true;
-            this.handleSelectTemplate({ detail: [{ Id: this.templateIdFromParent }] });
-            this.fetchAllButtonNames()
-            .then(() => {
-                this.handleAutoGeneration();
-                this.showSpinner = false;
-            })
-            .catch(e => {
-                this.showSpinner = false;
-                errorDebugger('generateDocument', 'handleCalledFromDefaults > fetchAllButtonNames', e, 'warn');
-            });
-        }catch(e){
-            this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleCalledFromDefaults', e, 'warn');
-        }
+        window.removeEventListener('message', this.simpleTempFileGenResponse);
     }
 
     renderedCallback() {
@@ -623,6 +603,34 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     }
 
+    handleCalledFromPreview() {
+        this.isCalledFromPreview = true;
+        this.template.host.classList.add('pou-up-view');
+        this.template.querySelector('.template-select-div').style.display = 'none';
+        this.handleSelectTemplate({ detail: [{ Id: this.templateIdFromParent }] });
+        this.handleEmailTemplateSelect({detail:[null]});
+        this.showSpinner = false;
+    }
+    
+    handleCalledFromDefaults() {
+        try{
+            this.isCalledFromDefaults = true;
+            this.handleSelectTemplate({ detail: [{ Id: this.templateIdFromParent }] });
+            this.fetchAllButtonNames()
+            .then(() => {
+                this.handleAutoGeneration();
+                this.showSpinner = false;
+            })
+            .catch(e => {
+                this.showSpinner = false;
+                errorDebugger('generateDocument', 'handleCalledFromDefaults > fetchAllButtonNames', e, 'warn');
+            });
+        }catch(e){
+            this.showSpinner = false;
+            errorDebugger('generateDocument', 'handleCalledFromDefaults', e, 'warn');
+        }
+    }
+
     handleConfirmation(event){
         if(event.detail){
             if(this.isClosableError){
@@ -644,7 +652,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }
                     this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
                     data?.iStorage?.split(', ')?.forEach((option) => {this.internalStorageOptions.find(item => item.name === option).isSelected = true});
-                    data?.eStorage?.split(', ')?.forEach((option) => {this.externalStorageOptions.find(item => item.name === option).isSelected = true});
+                    data?.eStorage?.split(', ')?.forEach((option) => {
+                        const storageOption = this.externalStorageOptions.find(item => item.name === option);
+                        if (storageOption) storageOption.isSelected = !storageOption.isDisabled;
+                    });
                     data?.oChannel?.split(', ')?.forEach((option) => {this.outputChannels.find(item => item.name === option).isSelected = true});
                     if(data?.emailAddresses?.includes('<|DGE|>')){
                         const splitEmails = data?.emailAddresses.split('<|DGE|>');
@@ -725,10 +736,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
             this.allTemplates = templates.map((temp, index) => {
                 const formattedDate = new Date(temp.LastModifiedDate).toLocaleDateString("en-US");
-                if (temp.MVDG__Button_Api_Name__c && window.location.href.includes(temp.MVDG__Button_Api_Name__c)) {
-                    this.selectedTemplate = temp.Id;
-                    this.handleAutoGeneration();
-                }
                 return {
                     ...temp,
                     LastModifiedDate: formattedDate,
@@ -1077,6 +1084,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 !this.internalStorageOptions[index].isDisabled ? this.internalStorageOptions[index].isSelected = !this.internalStorageOptions[index].isSelected : undefined;
                 if(this.internalStorageOptions[index].name==='Documents'){
                     this.showFolderSelection = this.internalStorageOptions[index].isSelected;
+                    if(this.showFolderSelection) this.selectedFolder = this.selectedFolder ? this.selectedFolder : this.allFolders[0]?.value;
                 }
             }else if(section==='eStorage'){
                 !this.externalStorageOptions[index].isDisabled ? this.externalStorageOptions[index].isSelected = !this.externalStorageOptions[index].isSelected : undefined;
@@ -1132,7 +1140,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     //Bottom Button Controls
 
     handleClose(){
-        window.removeEventListener("message", (message) => { this.simpleTempFileGenResponse(message)});
+        window.removeEventListener('message', this.simpleTempFileGenResponse);
         if(this.showCloseButton){
             if(this.isCalledFromPreview){
                 this.dispatchEvent(new CustomEvent('close'));
@@ -1250,10 +1258,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         if (this.isAdditionalInfo) {
                             const thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
                             thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || 'No Description Available for this template';
-                            csvContent += ' , Name : ,"' + thisTemplate.MVDG__Template_Name__c + '"\n'
-                                + ' , Description : ,"' + thisTemplate.MVDG__Description__c + '"\n'
-                                + ' , Object Api Name : ,' + thisTemplate.MVDG__Object_API_Name__c + '\n'
-                                + ' , CSV Creation Time : , ' + new Date().toLocaleString().replace(',', ' ') + '\n\n';
+                            csvContent += 'Name : ,"' + thisTemplate.MVDG__Template_Name__c + '"\n'
+                                + 'Description : ,"' + thisTemplate.MVDG__Description__c + '"\n'
+                                + 'Object Api Name : ,' + thisTemplate.MVDG__Object_API_Name__c + '\n'
+                                + 'CSV Creation Time : , ' + new Date().toLocaleString().replace(',', ' ') + '\n\n';
                         }
                         csvContent += fieldNames.join(',') + '\n';
     
@@ -1296,10 +1304,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         if (this.isAdditionalInfo) {
                             const thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
                             thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || 'No Description Available for this template';
-                            xlsContent += '<tr> <td> </td> <th> Name : </th><td> ' + thisTemplate.MVDG__Template_Name__c + '</td></tr>'
-                                + '<tr> <td> </td> <th> Description : </th><td> ' + thisTemplate.MVDG__Description__c + '</td></tr>'
-                                + '<tr> <td></td> <th> Object Api Name : </th><td> ' + thisTemplate.MVDG__Object_API_Name__c + '</td></tr>'
-                                + '<tr> <td> </td> <th> CSV Creation Time : </th><td> ' + new Date().toLocaleString().replace(',', ' ') + '</td></tr>' + '<tr></tr>';
+                            xlsContent += '<tr> <th> Name : </th><td> ' + thisTemplate.MVDG__Template_Name__c + '</td></tr>'
+                                + '<tr> <th> Description : </th><td> ' + thisTemplate.MVDG__Description__c + '</td></tr>'
+                                + '<tr> <th> Object Api Name : </th><td> ' + thisTemplate.MVDG__Object_API_Name__c + '</td></tr>'
+                                + '<tr> <th> CSV Creation Time : </th><td> ' + new Date().toLocaleString().replace(',', ' ') + '</td></tr>' + '<tr></tr>';
                         }
                         xlsContent += '<tr> <th> ' + fieldNames.join('</th><th>') + '</th> </tr>';
     
@@ -1661,7 +1669,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         }
     }
 
-    simpleTempFileGenResponse(message){
+    simpleTempFileGenResponse = (message) => {
         try{ 
             if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel === 'unknown'){
                 // this.completedSimTempPros = 0;
@@ -1670,11 +1678,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.showToast('error','Something went Wrong!', 'There was error creating document, please try again.', 5000);
             }
             else if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel !== 'unknown'){
+                
                 if(message.data.completedChannel === 'Download' || message.data.completedChannel === 'Documents' || message.data.completedChannel === 'Notes & Attachments'){
                     this.completedSimTempPros++;
                     this.simpleTemplateFileDone();
                 }else if(message.data.completedChannel === 'External Storage'){
                     let cvId = message.data.cvId;
+                    
                     if(cvId){
                         this.resultPromises.push(this.createFilesChatterEmail(cvId));
                         this.uploadToExternalStorage(cvId);
@@ -1695,6 +1705,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.failed = this.selectedChannels.filter((item) => !this.succeeded.includes(item));
             this.simpleTemplate = false;
             this.completedSimTempPros = 0;
+            this.handleGenerationResult();
         }
     }
 
@@ -2107,7 +2118,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                 redirect: 'follow'
                                 };
                                 fetch(encodeURI(endpoint), requestOptions)
-                                .then(response => response.text())
+                                .then(response => response.json())
                                 .then(result => {
                                     if(result.success){
                                         this.isOldButton = true;

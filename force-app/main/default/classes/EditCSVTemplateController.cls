@@ -34,7 +34,9 @@ public with sharing class EditCSVTemplateController {
     public static MVDG__Template__c getTemplateDetails(String templateId){
         try {
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
-            templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c, MVDG__List_View__c, MVDG__Object_API_Name__c, CreatedDate, CreatedBy.Name, MVDG__Template_Status__c, MVDG__Template_Type__c, LastModifiedDate, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id =:templateId WITH SECURITY_ENFORCED lIMIT 1];
+            if(templateId != null){
+                templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c, MVDG__List_View__c, MVDG__Object_API_Name__c, CreatedDate, CreatedBy.Name, MVDG__Template_Status__c, MVDG__Template_Type__c, LastModifiedDate, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id =:templateId WITH SECURITY_ENFORCED lIMIT 1];
+            }
             if(templates.size() > 0){
                 return templates[0];
             }
@@ -63,7 +65,10 @@ public with sharing class EditCSVTemplateController {
         allData.orders = '';
         allData.maxLimit = 1000000;
         try {
-            List<MVDG__Template_Data__c> tf = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__Template__r.MVDG__List_View__c, MVDG__CSV_Logic__c, MVDG__CSV_Orders__c, MVDG__CSV_Query__c, MVDG__CSV_Limit__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
+            List<MVDG__Template_Data__c> tf = new List<MVDG__Template_Data__c>();
+            if(templateId != null){
+                tf = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__Template__r.MVDG__List_View__c, MVDG__CSV_Logic__c, MVDG__CSV_Orders__c, MVDG__CSV_Query__c, MVDG__CSV_Limit__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
+            }
             // tf.addAll([SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c  WHERE MVDG__Template__c =:templateId ORDER BY MVDG__Order_No_Simple__c asc NULLS Last]);
 
             if(tf.size() >0){
@@ -93,7 +98,9 @@ public with sharing class EditCSVTemplateController {
     public static List<ListView> getListViews(String objName){
         try {
             List<ListView> listViews = new List<ListView>();
-            listViews = [SELECT Id,Name FROM ListView WHERE SobjectType =:objName WITH SECURITY_ENFORCED];
+            if(objName != null){
+                listViews = [SELECT Id,Name FROM ListView WHERE SobjectType =:objName WITH SECURITY_ENFORCED];
+            }
             return listViews;
         }catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'getListViews');
@@ -144,50 +151,6 @@ public with sharing class EditCSVTemplateController {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'saveTemplateFields');
             throw new AuraHandledException(e.getMessage());
         }
-    }
-
-    /*
-    *********************************************************
-    @description    : Method is used to validate the Id entered in the field of ID and the lookups
-    @param objName  : {String} - name of the object
-    @param apiName  : {String} - api name of the field
-    @return         : {String} - Will return the Object Id prefix
-    ********************************************************
-    */
-    @AuraEnabled
-    public static String validateRelatedObject(String objName, String apiName){
-        String prefix = '';
-        try{
-            Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
-            if(apiName == 'ID'){
-                prefix = Schema.getGlobalDescribe().get(objName).getDescribe().getKeyPrefix();
-            }else{
-                // Check if the object exists in the global describe
-                if (globalDescribe.containsKey(objName)) {
-                    Schema.SObjectType sObjectType = globalDescribe.get(objName);
-                    Schema.DescribeSObjectResult describeResult = Schema.getGlobalDescribe().get(objName).getDescribe();
-                    Map<String, Schema.SObjectField> fieldMap = sObjectType.getDescribe().fields.getMap();
-                    
-                    // Check if the field exists on the object
-                    if (fieldMap.containsKey(apiName)) {
-                        Schema.DescribeFieldResult fieldResult = fieldMap.get(apiName).getDescribe();
-                        
-                        // Check if the field is a reference field
-                        if (fieldResult != null && fieldResult.getType() == Schema.DisplayType.REFERENCE) {
-                            // Get the related object name
-                            system.debug(fieldResult.getReferenceTo()[0].getDescribe().getName());
-                            String relatedObjectName = fieldResult.getReferenceTo()[0].getDescribe().getName();
-                            system.debug(Schema.getGlobalDescribe().get(relatedObjectName).getDescribe().getKeyPrefix());
-                            prefix = Schema.getGlobalDescribe().get(relatedObjectName).getDescribe().getKeyPrefix();
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'validateRelatedObject');
-            throw new AuraHandledException(e.getMessage());
-        }
-        return prefix;
     }
 
     /*

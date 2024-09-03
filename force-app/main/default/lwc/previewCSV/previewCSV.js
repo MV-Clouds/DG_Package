@@ -81,48 +81,48 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
         
             const tableBody = this.template.querySelector('tbody');
             tableBody.innerText = '';
-
-            // Display additional fields if checkbox is ticked
-            if(this.showAdditionalInfo){
-                this.additionalFields.forEach(field => {
-                    const tableRow = document.createElement('tr');
-                    tableRow.style.cssText = `
-                        border : 1px solid darkgray;
-                        text-align : center;
-                    `;
-                    const emptyTableCell = document.createElement('td');
-                    emptyTableCell.style.cssText = `
-                            border : 1px solid darkgray;
-                            text-align : center;
-                            padding: 0.1rem 0.5rem;
-                    `;
-                    tableRow.appendChild(emptyTableCell);
-                    const fieldNameCell = document.createElement('th');
-                    fieldNameCell.style.cssText = `
-                            border : 1px solid darkgray;
-                            text-align : center;
-                            padding: 0.1rem 0.5rem;
-                            background-color: #d5ebff;
-                    `;
-                    fieldNameCell.textContent = field+' :';
-                    tableRow.appendChild(fieldNameCell);
-                    const fieldDataCell = document.createElement('td');
-                    fieldDataCell.style.cssText = `
-                            border : 1px solid darkgray;
-                            text-align : center;
-                            padding: 0.1rem 0.5rem;
-                    `;
-                    fieldDataCell.textContent = this.additionalData[field] || ''; // Display empty string for missing values
-                    tableRow.appendChild(fieldDataCell);
-                    tableBody.appendChild(tableRow);
-                });
-                const emptyTableRow = document.createElement('tr');
-                emptyTableRow.style.cssText = `
+            this.additionalFields.forEach(field => {
+                const tableRow = document.createElement('tr');
+                tableRow.style.cssText = `
                     border : 1px solid darkgray;
                     text-align : center;
-                    height : 1.3rem;
+                    display: var(--display-for-additional-info-div, table-row);
                 `;
-                tableBody.appendChild(emptyTableRow);
+                const fieldNameCell = document.createElement('th');
+                fieldNameCell.style.cssText = `
+                        border : 1px solid darkgray;
+                        text-align : center;
+                        padding: 0.1rem 0.5rem;
+                        background-color: #d5ebff;
+                `;
+                fieldNameCell.textContent = field+' :';
+                tableRow.appendChild(fieldNameCell);
+                const fieldDataCell = document.createElement('td');
+                fieldDataCell.style.cssText = `
+                        border : 1px solid darkgray;
+                        text-align : center;
+                        padding: 0.1rem 0.5rem;
+                `;
+                fieldDataCell.textContent = this.additionalData[field] || ''; // Display empty string for missing values
+                tableRow.appendChild(fieldDataCell);
+                if(field === 'CSV Creation Time') fieldDataCell.classList.add('current-time-cell');
+                tableRow.classList.add('additional-info-div');
+                tableBody.appendChild(tableRow);
+            });
+            const emptyTableRow = document.createElement('tr');
+            emptyTableRow.classList.add('additional-info-div');
+            emptyTableRow.style.cssText = `
+                border : 1px solid darkgray;
+                text-align : center;
+                height : 1.3rem;
+                display: var(--display-for-additional-info-div, table-row);
+            `;
+            tableBody.appendChild(emptyTableRow);
+            
+            if(this.showAdditionalInfo){
+                this.template.host.style.setProperty("--display-for-additional-info-div", "table-row");
+            }else{
+                this.template.host.style.setProperty("--display-for-additional-info-div", "none");
             }
             
         
@@ -165,8 +165,9 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
                         border : 1px solid darkgray;
                         text-align : center;
                         padding: 0.1rem 0.5rem;
+                        height : 1.3rem;
                 `;
-                tableCell.textContent = this.getValueByKey(record, field) || ''; // Display empty string for missing values
+                tableCell.textContent = this.getValueByKey(record, field) || ' ';
                 tableRow.appendChild(tableCell);
                 });
         
@@ -182,6 +183,21 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
 
     getValueByKey(obj, key) {
         return key.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
+    }
+
+    showAdditionalInfoDiv(event){
+        try {
+            this.showAdditionalInfo = !this.showAdditionalInfo;
+            this.template.querySelector('.show-additional-info-label').innerText = this.showAdditionalInfo ? 'Hide Additional Info' : 'Show Additional Info';
+            if(this.showAdditionalInfo){
+                this.template.host.style.setProperty("--display-for-additional-info-div", "table-row");
+                this.template.querySelector('.current-time-cell').innerText = new Date().toLocaleString().replace(',', ' ');
+            }else{
+                this.template.host.style.setProperty("--display-for-additional-info-div", "none");
+            }
+        } catch (e) {
+            errorDebugger('previewCSV', 'showAdditionalInfoDiv', e, 'warn');
+        }
     }
 
     // Get Back to the Document Generator

@@ -15,7 +15,9 @@
   --invalidInputBackground : unset;
   --invalidInputBorderColor : unset;
   --invalidInputShadow : unset;
-  --asteriskColor : unset
+  --asteriskColor : unset;
+  --invalidLabelColor : unset;
+  --invalidAsteriskColor: unset;
 
   --placeHolderColor : unset;   
   --placeHolderSize  : unset;   
@@ -151,6 +153,8 @@
       border-width: var(--inputAreaBorderWidth, 1px);
       border-color: var(--inputAreaBorderColor, #8e8e8e);
       border-radius: var(--inputAreaBorderRadius, 4px);
+      display: flex;
+      align-items: center;
     }
   .inputAreaCSS_2:focus, .inputAreaSectiedValueCSS:focus{
     box-shadow : var(--inputOnFocusShadow);
@@ -241,8 +245,16 @@
     color: var(--asteriskColor, #ba0517);
   }
 
-  .invalid-input{
+  .invalid-input .slds-combobox__input{
     background-color: var(--invalidInputBackground, rgb(255, 255, 255)) !important;
     border-color: var(--invalidInputBorderColor,  rgb(238 72 65)) !important;
     box-shadow: var(--invalidInputShadow,  rgb(243 82 76) 0px 0px 1px 1px) !important;
+  }
+
+  .invalid-input .label-div{
+    color : var(--invalidLabelColor, var(--labelColor)) !important;
+  }
+
+  .invalid-input .asterisk{
+    color: var(--invalidAsteriskColor, var(--asteriskColor, #ba0517));
   }

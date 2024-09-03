@@ -44,7 +44,6 @@ public class EditCSVTemplateControllerTest {
         EditCSVTemplateController.CombinedDataWrapper combinedData = EditCSVTemplateController.getCombinedData(testT.Id, 'Account');
         Test.stopTest();
 
-        // System.assert(testFields.size()>0, 'There was an issue in fetching the Fields information...');
         System.assertEquals(testT.MVDG__Template_Name__c, combinedData.template.MVDG__Template_Name__c, 'The template name should match!!');
     }
 
@@ -64,22 +63,6 @@ public class EditCSVTemplateControllerTest {
         Test.stopTest();
 
         System.assertEquals(1, [SELECT COUNT() FROM MVDG__Template_Data__c], 'template data may not be more than one for csv template.');
-    }
-    
-    @IsTest
-    public static void validateRelatedObjectTest() {
-
-        String objName = 'Contact';
-        String fieldName = 'AccountId';
-
-        Test.startTest();
-        String accPrefix = EditCSVTemplateController.validateRelatedObject(objName, fieldName);
-        fieldName = 'ID';
-        String conPrefix = EditCSVTemplateController.validateRelatedObject(objName, fieldName);
-        Test.stopTest();
-        
-        System.assertEquals('001', accPrefix, 'Account prefix is wrong!');
-        System.assertEquals('003', conPrefix, 'Contact prefix is wrong!');
     }
 
 @isTest

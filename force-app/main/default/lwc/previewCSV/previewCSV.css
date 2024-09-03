@@ -1,3 +1,7 @@
+:host{
+    --display-for-additional-info-div : none;
+}
+
 .main-preview-div{
     background-color: white;
     width: 100%;
@@ -13,13 +17,13 @@
 }
 
 .main-preview-div:has(.close-div){
-    position: absolute;
+    position: fixed;
     width: 80%;
     height: 90%;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 100;
+    z-index: 1000;
 }
 
 .title-text {
@@ -36,6 +40,7 @@
     user-select: none;
     margin: 1rem 0 0.5rem 0;
 }
+
 .close-div {
     position: absolute;
     top: -2rem;
@@ -58,9 +63,15 @@
     color: red;
 }
 
+.additional-info-div{
+    display: var(--display-for-additional-info-div, none);
+}
+
 .preview-container {
     flex-grow: 1;
-    overflow-y: scroll;
+    overflow: scroll;
+    scrollbar-color: #00aeff transparent;
+    scrollbar-width: thin;
 }
 
 .preview-container table {
@@ -104,7 +115,7 @@
     align-items: center;
     font-size: 15px;
     padding: 0.5rem 1rem;
-    width: 10.5rem;
+    width: 12.5rem;
     height: 2rem;
     cursor: pointer;
     font-weight: 400;

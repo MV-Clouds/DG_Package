@@ -26,6 +26,19 @@ export default class ButtonGenerator extends LightningElement {
     @track objOptionsForLVButton = [];
     @track objOptionsForQAButton = [];
     @track objOptionsForBPButton = [];
+
+
+    get enableLVCreate(){
+        return this.selectedLVObjects.length > 0;
+    }
+
+    get enableQACreate(){
+        return this.selectedQAObjects.length > 0;
+    }
+
+    get enableBPCreate(){
+        return this.selectedBPObjects.length > 0;
+    }
     
     connectedCallback(){
         this.showSpinner = true;
@@ -58,6 +71,10 @@ export default class ButtonGenerator extends LightningElement {
                     this.isNoLVObjectCreated = this.createdLVButtonObj.length > 0 ? false : true;
                     this.isNoQAObjectCreated = this.createdQAButtonObj.length > 0 ? false : true;
                     this.isNoBPObjectCreated = this.createdBPButtonObj.length > 0 ? false : true;
+
+                    this.template.querySelector('.list-view-generator').value = this.selectedLVObjects.length > 0 ? this.selectedLVObjects : null;
+                    this.template.querySelector('.quick-action-generator').value = this.selectedQAObjects.length > 0 ? this.selectedQAObjects : null;
+                    this.template.querySelector('.basic-print-generator').value = this.selectedBPObjects.length > 0 ? this.selectedBPObjects : null;
                 }else{
                     this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
                 }
@@ -98,13 +115,10 @@ export default class ButtonGenerator extends LightningElement {
             let type = event.target.dataset.type;
             if(type === "listView"){
                 this.selectedLVObjects = event.detail;
-                this.template.querySelector('.list-view-btn').classList.toggle('disabled-btn', this.selectedLVObjects.length === 0);                
             }else if(type === 'quickAction'){
                 this.selectedQAObjects = event.detail;
-                this.template.querySelector('.quick-action-btn').classList.toggle('disabled-btn', this.selectedQAObjects.length === 0);
             }else if(type === 'basicPrint'){
                 this.selectedBPObjects = event.detail;
-                this.template.querySelector('.basic-print-btn').classList.toggle('disabled-btn', this.selectedBPObjects.length === 0);
             }
         }catch(e){
             errorDebugger('buttonGenerator', 'handleObjectSelection', e, 'warn');
@@ -135,10 +149,6 @@ export default class ButtonGenerator extends LightningElement {
                     }
                     this.handleCreateWebLinkButton('basicPrint')
                 }
-    
-                this.template.querySelector('.list-view-btn').classList.add('disabled-btn');  
-                this.template.querySelector('.quick-action-btn').classList.add('disabled-btn');
-                this.template.querySelector('.basic-print-btn').classList.add('disabled-btn');
             }else{
                 this.showToast('error','Something went wrong!','Action Could not be performed, please try again...', 5000);
             }
@@ -184,8 +194,7 @@ export default class ButtonGenerator extends LightningElement {
             this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
             errorDebugger('buttonGenerator', 'handleCreateWebLinkButton', e, 'warn');
         }finally{
-            this.selectedLVObjects = [];
-            this.selectedBPObjects = [];
+            type === 'listView' ? this.selectedLVObjects = [] : this.selectedBPObjects = [];
         }
     }
 
@@ -201,14 +210,14 @@ export default class ButtonGenerator extends LightningElement {
                 myHeaders.append("Content-Type", "application/json");
                 myHeaders.append("Authorization", "Bearer "+sessionId);
 
-                let requestBodyExpanded = this.selectedQAObjects.map(record => ({
+                let requestBodyExpanded = this.selectedQAObjects.map(obj => ({
                     Metadata: {
                         label: "DG Generate Document",
                         optionsCreateFeedItem: false,
                         type: "LightningWebComponent",
                         lightningWebComponent: "MVDG__generateDocument"
                     },
-                    FullName: `${record}.DG_Generate_Document`
+                    FullName: `${obj}.DG_Generate_Document`
                 }));
                 let failedButtonsNumber = 0;
                 requestBodyExpanded.forEach((requestBody, i) => {

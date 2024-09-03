@@ -77,16 +77,8 @@
         <div lwc:if={isTabSection} class="tabSection">
             <div class="tabSection_sub">
                 <div class="homeBtn" onclick={handleClose}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <g stroke-width="0"></g>
-                      <g stroke-linecap="round" stroke-linejoin="round"></g>
-                      <g>
-                        <path
-                          d="M21.71,11.29l-9-9a1,1,0,0,0-1.42,0l-9,9a1,1,0,0,0,1.42,1.42l.29-.3V20.3A1.77,1.77,0,0,0,5.83,22H8.5a1,1,0,0,0,1-1V16.1a1,1,0,0,1,1-1h3a1,1,0,0,1,1,1V21a1,1,0,0,0,1,1h2.67A1.77,1.77,0,0,0,20,20.3V12.41l.29.3a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,11.29Z">
-                        </path>
-                      </g>
-                    </svg>
-                  </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="#003b57"><path d="M21.71,11.29l-9-9a1,1,0,0,0-1.42,0l-9,9a1,1,0,0,0,1.42,1.42l.29-.3V20.3A1.77,1.77,0,0,0,5.83,22H8.5a1,1,0,0,0,1-1V16.1a1,1,0,0,1,1-1h3a1,1,0,0,1,1,1V21a1,1,0,0,0,1,1h2.67A1.77,1.77,0,0,0,20,20.3V12.41l.29.3a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,11.29Z"></path></svg>
+                </div>
                 <div class="tab edit-tab active-tab" data-name="editTab" onclick={activeTab}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 2V5H3V4H5V9H3.5V11H8.5V9H7V4H9V5H11V2H1ZM21 3H14V5H20V19H4V14H2V20C2 20.5523 2.44772 21 3 21H21C21.5523 21 22 20.5523 22 20V4C22 3.44772 21.5523 3 21 3Z"></path></svg>
                     <div>Edit Template</div>
@@ -109,7 +101,7 @@
             </div>
         </div>
 
-        <div class="main-flex-div" if:true={showEditTemplateTab}>
+        <div class="main-flex-div override-css-from-js">
             <div class="main-fields-div">
                 <div class="title-div title-with-btn">
                     <div class="title-text">
@@ -120,7 +112,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" data-name="fields" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path data-name="fields" d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
                         Clear
                     </button>
-                    <button data-name="fields" class="reset-btn" onclick={handleReset}>
+                    <button data-name="fields" class="reset-btn" onclick={handleReset} if:false={isChild}>
                         <svg xmlns="http://www.w3.org/2000/svg" data-name="fields" viewBox="0 0 24 24" fill="currentColor">
                             <path data-name="fields" d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
                         </svg>
@@ -152,7 +144,6 @@
                         </div>
                         <div class="selection-div">
                             <ul>
-
                                 <template for:each={fieldOptionsToShow} for:item="option">
                                     <li class="field-li-to-select" key={option.apiName} data-api={option.apiName} data-value={option.fieldName} onclick={handleAvailableClick}>
                                         <p class={option.isSelected}>{option.fieldName}</p>
@@ -166,7 +157,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" height="20" width="17.5" viewBox="0 0 448 512"><path fill="#ffffff" d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"/></svg>
                         </div>
                         <div class="selected-count">
-                            <span class="bold-text">{selectedAvailableFields} Selected to Move</span>
+                            <span class="bold-text selected-field-count">Move {selectedAvailableFields} fields</span>
                         </div>
                         <div class="arrow-btn" onclick={handleRight}>
                             <svg xmlns="http://www.w3.org/2000/svg" height="20" width="17.5" viewBox="0 0 448 512"><path fill="#ffffff" d="M201.4 374.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 306.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
@@ -179,7 +170,7 @@
                             <div class="selection-div selection-div-full-height">
                                 <ul>
                                     <template for:each={selectedFields} for:item="option">
-                                        <li key={option.apiName} data-api={option.apiName} data-value={option.fieldName} onclick={handleSelectedClick} >
+                                        <li class="field-li-to-selected" key={option.apiName} data-api={option.apiName} data-value={option.fieldName} onclick={handleSelectedClick} >
                                             <p class={option.isSelected}>{option.fieldName}</p>
                                         </li>
                                     </template>
@@ -216,7 +207,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" data-name="filters" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path data-name="filters" d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
                                 Clear
                             </button>
-                            <button data-name="filters" class="reset-btn" onclick={handleReset}>
+                            <button data-name="filters" class="reset-btn" onclick={handleReset} if:false={isChild}>
                                 <svg xmlns="http://www.w3.org/2000/svg" data-name="filters" viewBox="0 0 24 24" fill="currentColor">
                                     <path data-name="filters" d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
                                 </svg>Reset
@@ -287,6 +278,7 @@
                                         <lightning-input
                                             type={filter.inputType}
                                             step="0.0001"
+                                            maxlength={filter.maxLImit}
                                             label="Value"
                                             placeholder="Enter Value"
                                             class="value-select-for-toggle"
@@ -353,7 +345,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" data-name="orders" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path data-name="orders" d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
                                 Clear
                             </button>
-                            <button data-name="orders" class="reset-btn" onclick={handleReset}>
+                            <button data-name="orders" class="reset-btn" onclick={handleReset} if:false={isChild}>
                                 <svg xmlns="http://www.w3.org/2000/svg" data-name="orders" viewBox="0 0 24 24" fill="currentColor">
                                     <path data-name="orders" d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
                                 </svg>Reset
@@ -405,7 +397,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" data-name="limit" viewBox="-0.5 -0.5 20 20" stroke="#00AEFF" stroke-linecap="round"><path data-name="limit" d="M17.48 1.52L1.52 17.48 M1.52 1.52L17.48 17.48" stroke-width="2"></path></svg>
                                 Clear
                             </button>
-                            <button data-name="limit" class="reset-btn" onclick={handleReset}>
+                            <button data-name="limit" class="reset-btn" onclick={handleReset} if:false={isChild}>
                                 <svg xmlns="http://www.w3.org/2000/svg" data-name="limit" viewBox="0 0 24 24" fill="currentColor">
                                     <path data-name="limit" d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"></path>
                                 </svg>Reset
@@ -454,10 +446,10 @@
             </div>
         </div>
 
-        <div class="basic-detail-div" if:true={showBasicDetailTab}>
+        <div class="basic-detail-div override-css-from-js" if:true={showBasicDetailTab}>
             <div class="title-div">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="#fff" stroke-width="1" height="20" width="30"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.7461250000000001 1.0111249999999998C0.885 1.8721875 0.885 3.258125 0.885 6.029999999999999V8.97C0.885 11.7418125 0.885 13.127812500000001 1.7461250000000001 13.988875C2.6071875 14.850000000000001 3.993125 14.850000000000001 6.765 14.850000000000001H8.235C11.0068125 14.850000000000001 12.392812499999998 14.850000000000001 13.253874999999999 13.988875C14.115 13.127812500000001 14.115 11.7418125 14.115 8.97V6.029999999999999C14.115 3.258125 14.115 1.8721875 13.253874999999999 1.0111249999999998C12.392812499999998 0.15 11.0068125 0.15 8.235 0.15H6.765C3.993125 0.15 2.6071875 0.15 1.7461250000000001 1.0111249999999998ZM4.00875 4.5600000000000005C4.00875 4.2555625 4.2555625 4.00875 4.5600000000000005 4.00875H10.440000000000001C10.7444375 4.00875 10.991249999999999 4.2555625 10.991249999999999 4.5600000000000005S10.7444375 5.11125 10.440000000000001 5.11125H4.5600000000000005C4.2555625 5.11125 4.00875 4.8644375 4.00875 4.5600000000000005ZM4.00875 7.5C4.00875 7.1955625 4.2555625 6.94875 4.5600000000000005 6.94875H10.440000000000001C10.7444375 6.94875 10.991249999999999 7.1955625 10.991249999999999 7.5S10.7444375 8.05125 10.440000000000001 8.05125H4.5600000000000005C4.2555625 8.05125 4.00875 7.8044375 4.00875 7.5ZM4.5600000000000005 9.88875C4.2555625 9.88875 4.00875 10.135562499999999 4.00875 10.440000000000001S4.2555625 10.991249999999999 4.5600000000000005 10.991249999999999H8.235C8.5394375 10.991249999999999 8.786249999999999 10.7444375 8.786249999999999 10.440000000000001S8.5394375 9.88875 8.235 9.88875H4.5600000000000005Z"></path></svg>
-                Template Details
+                Basic Details
             </div>
             <div class="basic-main-div">
                 <div class="edit-detail-div">
@@ -578,4 +570,6 @@
         <div class="slds-backdrop slds-backdrop_open"></div>
         <c-preview-c-s-v is-popup="true" template-id={templateId} object-name={objectName} onclose={closePreview}></c-preview-c-s-v>
     </div>
+
+    <c-chat-bot></c-chat-bot>
 </template>

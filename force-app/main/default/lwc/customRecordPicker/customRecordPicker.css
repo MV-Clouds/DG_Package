@@ -139,6 +139,12 @@
     }
     .inputAreaCSS_2, .inputAreaSectiedValueCSS{
       font-size: var(--inputAreaFontSize, unset) !important;
+      box-shadow: none;
+      border: 1px solid var(--inputAreaBorderColor, gray);
+
+      &:focus{
+        border-color : var(--inputOnFocusBorderColor, #00aeff);
+      }
     }
     .inputAreaCSS_2::placeholder, .placeHolderCSS{
       display: flex !important;

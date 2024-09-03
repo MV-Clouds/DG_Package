@@ -1,5 +1,12 @@
 public with sharing class ButtonGeneratorController {
 
+/*
+*********************************************************
+@description     : Method is used to combine all the data to be intially fetched to improve performance
+@param           : none
+@return          : combinedData {CombinedDataWrapper} - wrapper containing all objects, all buttons and a success message
+********************************************************
+*/
     @AuraEnabled
     public static CombinedDataWrapper getCombinedData(){
         CombinedDataWrapper combinedData = new CombinedDataWrapper();

@@ -1,8 +1,7 @@
 import { LightningElement , api, track} from 'lwc';
 import getAllObjects from '@salesforce/apex/ButtonGeneratorController.getAllObjects';
-import getTemplateTypes from '@salesforce/apex/NewTemplateCreationController.getTemplateTypes';
+import getCombinedData from '@salesforce/apex/NewTemplateCreationController.getCombinedData';
 import saveTemplate from '@salesforce/apex/NewTemplateCreationController.saveTemplate';
-import isGoogleIntegrated from '@salesforce/apex/NewTemplateCreationController.isGoogleIntegrated';
 import { NavigationMixin } from 'lightning/navigation';
 import {navigationComps, nameSpace} from 'c/globalProperties';
 
@@ -12,7 +11,6 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     @track isShowSpinner = false;
     @track objectNames = [];
     @track templateTypes = [];
-    @track cellDivs = [];
     
     isImageLoaded;
     templateId = '';
@@ -21,10 +19,6 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     selectedObject = '';
     selectedTemplateType = '';
     isDataInvalid = false;
-    selectedRows = null;
-    selectedColumns = null;
-    totalRows = 5;
-    totalColumns = 3;
     
     connectedCallback() {
         try {
@@ -32,9 +26,8 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
             this.showSpinner = true;
             this.isImageLoaded = false;
             this.fetchData();
-            this.createDivs();
-        } catch (error) {
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+        } catch (e) {
+            errorDebugger('newTemplateCreation', 'connectedCallback', e, 'warn');
         }
     }
       
@@ -48,59 +41,48 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
         }
         return true;
     }
-    
-    createDivs() {
-        try {
-            this.cellDivs = [];
-            for (let i = 0; i < 5; i++) {
-                for (let j = 0; j < 3; j++) {
-                i === 0 && j === 0
-                    ? this.cellDivs.push('table-cell unselected-cell selected-cell d' + i + '' + j)
-                    : this.cellDivs.push('table-cell unselected-cell d' + i + '' + j);
-                }
-            }
-        } catch (error) {
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
-        }
-    }
     fetchData() {
         try {
             this.showSpinner = true; // Start spinner
             getAllObjects()
             .then((data) => {
-                if (data) {
-
-                    // Process object names
-                    this.objectNames = data.slice().sort((a, b) => a.label.localeCompare(b.label))
-
-                    isGoogleIntegrated()
-                    .then((isIntegrated) => {
-
-                        getTemplateTypes()
-                        .then((result) => {
-                            this.templateTypes = result.map(type => {
-                                return {
-                                    label: type,
-                                    value: type,
-                                    disabled: type === 'Google Doc Template' ? !isIntegrated : false,
-                                }
-                            });
-                        }).catch(error => {
-                            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
-                        });
-                        
-                    }).catch(error => {
-                        errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+                if(data) {
+                    this.objectNames = data.slice().sort((a, b) => a.label.localeCompare(b.label)).map(obj => {
+                        return {
+                            ...obj,
+                            description : obj.value
+                        }
+                    })
+                    getCombinedData()
+                    .then((combinedData) => {
+                        if(combinedData){
+                            if(combinedData?.templateTypes){
+                                this.templateTypes = combinedData.templateTypes.map(type => {
+                                    return {
+                                        label: type,
+                                        value: type,
+                                        disabled: type === 'Google Doc Template' ? (!combinedData?.isGoogleIntegrated ? !combinedData?.isGoogleIntegrated : false) : false,
+                                    }
+                                });
+                            }
+                        }else{
+                            errorDebugger('newTemplateCreation', 'fetchData > getCombinedData', 'Could not fetch template types or integration status', 'warn');
+                            this.showToast('error', 'Something went wrong!', 'Could not fetch required data, please try again!', 5000);
+                        }
+                    }).catch(e=> {
+                        this.showToast('error', 'Something went wrong!', 'Could not fetch required data, please try again!', 5000);
+                        errorDebugger('newTemplateCreation', 'fetchData > getCombinedData', e, 'warn');
                     });
-                } else {
-                    errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+                }else {
+                    this.showToast('error', 'Something went wrong!', 'Could not get all the objects, please try again!', 5000);
+                    errorDebugger('newTemplateCreation', 'fetchData > getAllObjects', 'Could not get all the objects', 'warn');
                 }
-            }).catch(error => {
-                errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+            }).catch(e=> {
+                this.showToast('error', 'Something went wrong!', 'Could not fetch required data, please try again!', 5000);
+                errorDebugger('newTemplateCreation', 'fetchData > getAllObjects', e, 'warn');
             });
-    
-        } catch (error) {
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+        } catch (e) {
+            errorDebugger('newTemplateCreation', 'fetchData', e, 'warn');
         } finally {
             this.showSpinner = false; // End spinner
         }
@@ -118,41 +100,31 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 this.template.querySelectorAll('label')[0].classList.add('error-label');
                 this.isDataInvalid = true;
             }
-        } catch (error) {
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+        } catch (e) {
+            errorDebugger('newTemplateCreation', 'handleTemplateNameChange', e, 'warn');
         }
     }
       
     handleTemplateDescriptionChange(event) {
         try {
             this.templateDescription = event.target.value.trim() ? event.target.value.trim() : '';
-        } catch (error) {
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+        } catch (e) {
+            errorDebugger('newTemplateCreation', 'handleTemplateDescriptionChange', e, 'warn');
         }
     }
     
     handleObjectChange(event) {
         try {
             this.selectedObject = event.detail[0];
-            if (this.selectedObject) {
-                this.template.querySelectorAll('.select-dropdown')[0].classList.remove('error-combo-box');
-            } else {
-                this.template.querySelectorAll('.select-dropdown')[0].classList.add('error-combo-box');
-            }
-        } catch (error) {
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+        } catch (e) {
+            errorDebugger('newTemplateCreation', 'handleObjectChange', e, 'warn');
         }
     }
     handleTypeChange(event) {
         try {
             this.selectedTemplateType = event.detail[0];
-            if (this.selectedTemplateType) {
-                this.template.querySelectorAll('.select-dropdown')[1].classList.remove('error-combo-box');
-            } else {
-                this.template.querySelectorAll('.select-dropdown')[1].classList.add('error-combo-box');
-            }
-        } catch (error) {
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+        } catch (e) {
+            errorDebugger('newTemplateCreation', 'handleTypeChange', e, 'warn');
         }
     }
     
@@ -174,8 +146,8 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
             }else if(this.selectedTemplateType === 'Google Doc Template'){
                 this.navigateToComp(navigationComps.googleDocTemplateEditor, paramToPass);
             }
-        } catch (error) {
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+        } catch (e) {
+            errorDebugger('newTemplateCreation', 'handleNavigate', e, 'warn');
         }
     }
 
@@ -186,9 +158,6 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
             this.template.querySelectorAll('label')[0].classList.remove("error-label");
             this.template.querySelector('.t-description').classList.remove("error-border");
             this.template.querySelectorAll('label')[1].classList.remove("error-label");
-            this.template.querySelectorAll('.select-dropdown').forEach(element => {
-                element.classList.remove("error-combo-box");
-            });
             this.isDataInvalid = false;
 
             if (!this.templateName) {
@@ -197,11 +166,11 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 this.isDataInvalid = true;
             }
             if (!this.selectedObject) {
-                this.template.querySelectorAll('.select-dropdown')[0].classList.add("error-combo-box");
+                this.template.querySelectorAll('.select-dropdown')[0].isInvalidInput(true);
                 this.isDataInvalid = true;
             }
             if (!this.selectedTemplateType) {
-                this.template.querySelectorAll('.select-dropdown')[1].classList.add("error-combo-box");
+                this.template.querySelectorAll('.select-dropdown')[1].isInvalidInput(true);
                 this.isDataInvalid = true;
             }
             if(!this.isDataInvalid){
@@ -218,17 +187,17 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                     this.dispatchEvent(new CustomEvent('aftersave'));
                     this.closeModel();
                 })
-                .catch(error => {
+                .catch(e => {
                     this.isShowSpinner = false;
-                    errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+                    errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate', e, 'warn');
                     this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
                 });
             }else{
                 this.isShowSpinner = false;
             }
-        } catch (error) {
+        } catch (e) {
             this.isShowSpinner = false;
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+            errorDebugger('newTemplateCreation', 'saveNewTemplate', e, 'warn');
         }
     }
 
@@ -267,8 +236,8 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 url:  "/one/one.app#" + encodedDef
                 }
             });
-        } catch (error) {
-            errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+        } catch (e) {
+            errorDebugger('newTemplateCreation', 'navigateToComp', e, 'warn');
         }
     }
 }

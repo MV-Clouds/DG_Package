@@ -1,9 +1,19 @@
 public with sharing class NewTemplateCreationController {
 
+/*
+*********************************************************
+@description     : Method is used to fetch the combined data to reduce apex calls
+@param           : none
+@return          : combinedData {CombinedData} - wrapper containing google integrated status and template types 
+********************************************************
+*/
     @AuraEnabled
-    public static List<String> getTemplateTypes() {
-        List<String> picklistValues = new List<String>();
+    public static CombinedData getCombinedData() {
+        CombinedData combinedData = new CombinedData();
+        combinedData.isGoogleIntegrated = false;
+        combinedData.templateTypes = null;
         try {
+            List<String> picklistValues = new List<String>();
             Schema.DescribeFieldResult fieldResult = Schema.getGlobalDescribe().get('MVDG__Template__c').getDescribe().fields.getMap().get('MVDG__Template_Type__c').getDescribe();
             if(fieldResult.getType() == Schema.DisplayType.Picklist) {
                 List<Schema.PicklistEntry> picklistEntries = fieldResult.getPicklistValues();
@@ -11,28 +21,26 @@ public with sharing class NewTemplateCreationController {
                     picklistValues.add(entry.getLabel());
                 }
             }
-        } catch (Exception e) {
-            System.debug('Error in getTemplateTypes =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'NewTemplateCreationController', 'getTemplateTypes');
-        }
-        return picklistValues;
-    }
-
-    @AuraEnabled
-    public static Boolean isGoogleIntegrated(){
-        Boolean isIntegrated = false;
-        try {
-            List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            combinedData.templateTypes = picklistValues;
+            Boolean isIntegrated = false;
+            List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
                 isIntegrated = googleDriveSetting[0].MVDG__WorkingStatus__c;
             }
-        } catch (Exception e) {
-            System.debug('Error in isGoogleIntegrated =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'NewTemplateCreationController', 'isGoogleIntegrated');
+            combinedData.isGoogleIntegrated = isIntegrated;
+        }catch (Exception e) {
+            Log_Handler.store_Exception(e, 'NewTemplateCreationController', 'getCombinedData');
         }
-        return isIntegrated;
+        return combinedData;
     }
 
+/*
+*********************************************************
+@description     : Method is used to save the template with the template data
+@param           : templateData {Map<String, String>} - Map containing the template data
+@return          : templateId {String} - ID of the template just got created
+********************************************************
+*/
     @AuraEnabled
     public static String saveTemplate(Map<String, String> templateData){
         String templateId;
@@ -73,11 +81,9 @@ public with sharing class NewTemplateCreationController {
         return templateId;
     }
 
-    public class TemplateData{
-        @AuraEnabled public String templateName;
-        @AuraEnabled public String templateDescription;
-        @AuraEnabled public String sourceObject;
-        @AuraEnabled public String templateType;
+    public class CombinedData{
+        @AuraEnabled public List<String> templateTypes;
+        @AuraEnabled public Boolean isGoogleIntegrated;
     }
     
 }
