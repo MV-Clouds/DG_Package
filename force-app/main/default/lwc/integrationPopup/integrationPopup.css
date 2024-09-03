@@ -186,7 +186,7 @@ section {
     transition: all 0.1s linear;
     -webkit-transition: all 0.1s linear;
     -moz-transition: all 0.1s linear;
-    background: linear-gradient(180deg, white 51%, #ffffff00 50%);
+    background: white;
     padding: 0rem 0.5rem;
     box-sizing: border-box;
     border-radius: 6px;

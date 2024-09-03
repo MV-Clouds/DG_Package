@@ -10,14 +10,14 @@
                         <img src={logo} alt="">
                     </div>
                     <div class="switch">
-                        <a class="text0 cursor" onclick={handleSetActive} data-name="text0" href="#setup" id="setup">DG Setup</a>
-                        <a class="text1 cursor enable" onclick={handleSetActive} data-name="text1" href="#integration" id="integration">Integration</a>
-                        <a class="text2 cursor" onclick={handleSetActive} data-name="text2" href="#limitations" id="limitations">Limitations</a>
-                        <a class="text3 cursor" onclick={handleSetActive} data-name="text3" href="#userguide" id="userguide">User Guide</a>
+                        <a class="text0 cursor" onclick={handleSetActive} data-name="text0" href="#setup" id="setup" draggable="false">DG Setup</a>
+                        <a class="text1 cursor enable" onclick={handleSetActive} data-name="text1" href="#integration" id="integration" draggable="false">Integration</a>
+                        <a class="text2 cursor" onclick={handleSetActive} data-name="text2" href="#limitations" id="limitations" draggable="false">Limitations</a>
+                        <a class="text3 cursor" onclick={handleSetActive} data-name="text3" href="#userguide" id="userguide" draggable="false">User Guide</a>
                     </div>
                     <div class="company-info">
                         <p>
-                            <b><a href="https://mvclouds.com/docgenius/privacy-policy/">Privacy Policy</a></b><br><b lwc-5bp29urscpl="">Copyright © 2024 ・ MV Clouds</b>
+                            <b><a href="https://mvclouds.com/docgenius/privacy-policy/" target="_blank">Privacy Policy</a></b><br><b lwc-5bp29urscpl="">Copyright © 2024 ・ MV Clouds</b>
                         </p>
                     </div>
                 </div>
@@ -59,8 +59,8 @@ Integration</h3>
                         </div>
                         <div class="dropstatus">
                             <div class="dragparent">
-                                <div class="dragbackground">
-                                    <img src={dropable} alt="" width="100%" height="100%" style="object-fit: cover;" ondrop={handledDrop} ondragover={handleDragOver}>
+                                <div class="dragbackground" draggable="false">
+                                    <img src={dropable} alt="" width="100%" height="100%" style="object-fit: cover;" ondrop={handledDrop} ondragover={handleDragOver} draggable="false">
                                 </div>
                                 <div class="dropandstatus" ondrop={handledDrop} ondragover={handleDragOver}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="none" >
@@ -75,9 +75,9 @@ Integration</h3>
                                         <template if:false={isActiveDropboxAuth}>
                                             <template if:false={isActiveOnedriveAuth}>
                                                 <template if:false={isActiveOrgGoogleAuth}>
-                                                    <div class="noInt">
-                                                        <div class="noIntImg">
-                                                            <img src={nointegration} alt="">
+                                                    <div class="noInt" draggable="false">
+                                                        <div class="noIntImg" draggable="false">
+                                                            <img src={nointegration} alt="" draggable="false">
                                                         </div>
                                                         <div class="noIntText">
                                                             <p><b>Integration is not set up</b></p>
