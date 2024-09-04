@@ -36,7 +36,9 @@ public with sharing class GenerateDocumentController {
     public static List<MVDG__Template__c> fetchTemplates(String objName){
         try {
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
-            templates = [ SELECT Id, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, LastModifiedDate, MVDG__Button_Api_Name__c FROM MVDG__Template__c WHERE MVDG__Object_API_Name__c=:objName WITH SECURITY_ENFORCED];
+            if(objName != null){
+                templates = [ SELECT Id, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, LastModifiedDate, MVDG__Button_Api_Name__c FROM MVDG__Template__c WHERE MVDG__Object_API_Name__c=:objName WITH SECURITY_ENFORCED];
+            }
             return templates;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'fetchTemplates');
@@ -116,7 +118,9 @@ public with sharing class GenerateDocumentController {
     public static String storeInFiles(String contentVersionId, String recordId){
         try {
             ContentDocumentLink cdl = new ContentDocumentLink();
-            cdl.ContentDocumentId = [Select Id, ContentDocumentId from ContentVersion WHERE Id=:contentVersionId WITH SECURITY_ENFORCED LIMIT 1].ContentDocumentId;
+            if(contentVersionId != null){
+                cdl.ContentDocumentId = [Select Id, ContentDocumentId from ContentVersion WHERE Id=:contentVersionId WITH SECURITY_ENFORCED LIMIT 1].ContentDocumentId;
+            }
             cdl.LinkedEntityId = recordId;   
             cdl.Sharetype = 'V';
             if(Schema.sObjectType.ContentDocumentLink.isCreateable()){
@@ -243,7 +247,10 @@ public with sharing class GenerateDocumentController {
     public static List<String> getButtonNames(String objName){
         List<String> buttonNames = new List<String>();
         try{
-            List<WebLink> listViewButtons = [SELECT Name FROM WebLink WHERE PageOrSobjectType=:objName WITH SECURITY_ENFORCED];
+            List<WebLink> listViewButtons = new List<WebLink>();
+            if(objName != null){
+                listViewButtons = [SELECT Name FROM WebLink WHERE PageOrSobjectType=:objName WITH SECURITY_ENFORCED];
+            }
             for (WebLink wl : listViewButtons) {
                 buttonNames.add(wl.Name);
             }
@@ -275,9 +282,13 @@ public with sharing class GenerateDocumentController {
     public static String getTemplateData(String templateId){
         String allData = '';
         try{
-            List<MVDG__Template_Data__c> tfList = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last LIMIT 1];
 
-            if(!tfList.isEmpty()){
+            List<MVDG__Template_Data__c> tfList = new List<MVDG__Template_Data__c>();
+            if(templateId != null){
+                tfList = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last LIMIT 1];
+            }
+
+            if(tfList.size() > 0){
                 String fields = tfList[0].MVDG__CSV_Fields__c;
                 String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
                 String sessionId = '';
@@ -304,7 +315,10 @@ public with sharing class GenerateDocumentController {
     public static DefaultDataWrapper getTemplateDefaultValues(String templateId){
         try {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
-            List<MVDG__Template__c> templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c,	MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+            List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
+            if(templateId != null){
+                templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c,	MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+            }
             if(templates.size() > 0){
                 ddw.templateId = templates[0].Id;
                 ddw.templateName = templates[0].MVDG__Template_Name__c;

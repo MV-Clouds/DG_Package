@@ -4,7 +4,7 @@ section {
     align-items: center;
 }
 
-.main-div {
+.main-template-creator-div {
     border-radius: 0.5rem;
     display: flex;
     flex-direction: row;
@@ -98,7 +98,7 @@ section {
     -webkit-transition: all 0.1s linear;
     -moz-transition: all 0.1s linear;
     background-color: white;
-    padding: 0 0.3125rem;
+    padding: 0 0.5rem;
     box-sizing: border-box;
     border-radius: 50%;
     font-size: 0.8125rem;
@@ -110,11 +110,7 @@ section {
 .required-input-label:before{
     content: "*";
     color: red;
-}
-
-.error-combo-box{
-    --inputAreaBorderColor : red !important;
-    --labelColor : red !important;
+    padding-right: 1px;
 }
 
 .error-border {
@@ -269,6 +265,10 @@ input[type=number]::-webkit-outer-spin-button {
     --labelTop : -10px;
     --labelFontSize: 0.8125rem;
     --labelColor : #00AEFF;
+    --asteriskColor : red;
+    --invalidInputBorderColor : red;
+    --invalidInputShadow : none;
+    --invalidLabelColor : red;
 }
 
 @media only screen and (min-width: 48rem) and (max-width: 64rem) {
@@ -285,13 +285,13 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 @media only screen and (min-width: 84.375rem) and (max-width: 106.25rem) {
-    .main-div{
+    .main-template-creator-div{
         width: 50%;
     }
 }
 
 @media only screen and (min-width: 106.25rem) {
-    .main-div{
+    .main-template-creator-div{
         width: 40%;
     }
 }

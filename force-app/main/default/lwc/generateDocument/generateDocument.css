@@ -147,12 +147,19 @@ li.info-topic {
 }
 
 .template-select, .folder-select{
-    --inputAreaBorderWidth: 0px;
+    height: 2.5rem !important;
+    font-size: 0.8rem;
+    border : none !important;
+    --inputAreaBorderWidth: 1px;
+    --inputOnFocusBorderColor : #00aeff;
     --inputAreaBorderColor : white;
     --inputAreaHeight : 2.5rem;
-    height: 2.5rem !important;
-    --inputAreaBorderRadius : 0.5rem;
-    font-size: 0.8rem;
+    --inputAreaBorderRadius : 6px;
+    --invalidInputBorderColor : red;
+    --invalidInputShadow : none;
+    --invalidLabelColor : red;
+    --asteriskColor : red;
+    --inputOnFocusShadow : none;
 }
 
 
@@ -223,7 +230,7 @@ li.info-topic {
     height: 3rem;
     border-radius: 6px;
     border: 1px solid transparent;
-    box-shadow: 0px 0px 3px -1px #0000009c;
+    box-shadow: 0px 0px 5px 0px lightgray;
     cursor: pointer;
 }
 

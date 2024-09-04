@@ -43,7 +43,7 @@
     --labelBackgroundColor: white;
     --labelLeft: 0.938rem;
     --labelPosition: absolute;
-    --labelTop: -7px;
+    --labelTop: -10px;
     --labelColor: #00AEFF;
     --dropDownMaxHeight: 9rem;
 }
@@ -66,7 +66,7 @@
     font-size: 1rem;
 }
 
-.disabled-btn{
+.create-btn:has(svg.false){
     background: lightgray;
     pointer-events: none;
 }

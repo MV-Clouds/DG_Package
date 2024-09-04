@@ -4,7 +4,7 @@
             <c-message-popup></c-message-popup>
             <c-document-loader display={doShowSpinner} ></c-document-loader>
 
-            <div class="main-div">
+            <div class="main-template-creator-div">
                 <div class="image-div">
                     <img class="image" onload={imageLoaded} src="/resource/MVDG__new_template_image" alt="New Template Image">
                 </div>
@@ -31,6 +31,7 @@
                         class="select-dropdown object-dd"
                         onselect={handleObjectChange}
                         options={objectNames}
+                        show-description="true"
                         multiselect="false"
                         placeholder ="Select Source Object"
                         value ={selectedObject}
@@ -49,7 +50,7 @@
                         dropdown-position="left"
                         placeholder ="Select Template Type"
                         value ={selectedTemplateType}
-                        searchable="true"
+                        searchable="false"
                         required="true"
                         ></c-custom-combobox>
                     </div>
