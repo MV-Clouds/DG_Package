@@ -74,8 +74,8 @@
                                     <div class="detailEditSection">
                                         <div class="previewTwise" lwc:if={showTempDetail}>
                                             <div class="previewField">
-                                                <div class="previewLabel">Template Name</div>
-                                                <lightning-input type="text" value={templateRecord.MVDG__Template_Name__c} variant="label-hidden" data-name="MVDG__Template_Name__c" onkeyup={handleEditDetail} max-length="255"></lightning-input>
+                                                <div class="previewLabel"><abbr>*</abbr>Template Name</div>
+                                                <lightning-input type="text" value={templateRecord.MVDG__Template_Name__c} variant="label-hidden" data-name="MVDG__Template_Name__c" onkeyup={handleEditDetail} max-length="255" pattern=".*\S.*" required></lightning-input>
                                             </div>
                                         </div>
                                         <div class="previewTwise">
@@ -195,10 +195,15 @@
                     </div>
                     <div class="right-side-button">
                         <div class="button-div">
-                            <button class="new-button" onclick={createNewDocument}>New</button>
+                            <button class="new-button" onclick={createNewDocument}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-0.5 -0.5 24 24" height="12" width="12">
+                                    <path fill="#FFFFFF" fill-rule="evenodd" d="M12.626952083333334 1.3570479166666667c0 -0.6224854166666667 -0.5045145833333333 -1.127 -1.1269520833333335 -1.127 -0.6224854166666667 0 -1.127 0.5045145833333333 -1.127 1.127V10.373000000000001H1.3569520833333335C0.7345625 10.373000000000001 0.23 10.877610416666668 0.23 11.5c0 0.6224854166666667 0.5045625 1.127 1.1269520833333335 1.127H10.373000000000001v9.015952083333334c0 0.6224854166666667 0.5045145833333333 1.1270479166666667 1.127 1.1270479166666667 0.6224375 0 1.1269520833333335 -0.5045145833333333 1.1269520833333335 -1.1270479166666667V12.627H21.643c0.6223895833333334 0 1.127 -0.5045145833333333 1.127 -1.127 0 -0.6224375 -0.5046104166666666 -1.127 -1.127 -1.127H12.626952083333334V1.3570479166666667Z" clip-rule="evenodd" stroke-width="1"></path>
+                                </svg>
+                                <div>New</div>
+                            </button>
                         </div>
                         <div class="refresh-div" onclick={refreshDocs}>
-                            <svg class="refresh" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="refresh" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" height="16" width="16">
                                 <path d="M21 3L15.6 3C15.2686 3 15 3.26863 15 3.6V3.6L15 9" stroke="#00AEFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 <path d="M15.5 3.5C18.7983 4.80851 21 8.29825 21 12C21 16.8715 16.9706 21 12 21C7.02944 21 3 16.8715 3 12C3 8.73514 4.80989 5.52512 7.5 4" stroke="#00AEFF" stroke-width="2" stroke-linecap="round" />
                             </svg>
@@ -309,7 +314,8 @@
                         </svg>
 
                         <div class="empty-text1">No Document files yet...</div>
-                        <div class="empty-text2">Please upload documents in your Google Drive.</div>
+                        <!-- <div class="empty-text2">Please upload documents in your Google Drive.</div> -->
+                        <div class="empty-text2">Please create a new document.</div>
                     </div>
                 </template>
                 <hr style="margin: 0 2%" />
@@ -333,7 +339,7 @@
             label={loaderLabel}>
         </c-document-loader>
         <c-message-popup 
-            onconfirmation={cancel}>
+            onconfirmation={handleConfirmation}>
         </c-message-popup>>
         <c-template-preview-modal 
             lwc:if={isPreview} 
@@ -341,7 +347,7 @@
             objectname={objectName} 
             objectlabel={objectlabel} 
             onclosepreview={closeTemplatePreview} 
-            is-active={templateRecord.MVDG__Template_Status}
+            is-active={templateRecord.MVDG__Template_Status__c}
             template-type="Google Doc Template">
         </c-template-preview-modal>
         <c-child-object-table-builder></c-child-object-table-builder>

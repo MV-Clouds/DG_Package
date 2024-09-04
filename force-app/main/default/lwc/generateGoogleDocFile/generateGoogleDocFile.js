@@ -274,7 +274,16 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                                     }
                                                 } else {
                                                     // For any other text
-                                                    if (fieldName != '') {   
+                                                    if (fieldName.includes(this.signatureKey)) {
+                                                        if (signatureImageValues && signatureImageValues["Signature Image"] && signatureImageValues["Signature Image"][0].ContentDownloadUrl) {
+                                                            let imageLink = signatureImageValues["Signature Image"][0].ContentDownloadUrl;
+                                                            let originalPageWidth = this.docPageSize.pageSize.width.magnitude - (this.docPageSize.marginLeft.magnitude + this.docPageSize.marginRight.magnitude);
+                                                            let width = originalPageWidth * (this.signatureSize / 100);
+                                                            this.insertImageRequest(tableEndIndex, imageLink, width);
+                                                            this.tableOffset++;
+                                                            tableEndIndex++;
+                                                        }
+                                                    }else if (fieldName != '') {   
                                                         let obj = {};
                                                         obj[fieldName] = fieldName;
                                                         this.createRowUpdateRequest(tableEndIndex, fieldName, obj);
