@@ -6,6 +6,8 @@ export default class MessagePopup extends LightningElement {
     @track title;
     @track message;
     @track duration;
+    timeoutInstance
+
 
     @track showPopup = false;
     designCurveColor = '#00ffee5c';
@@ -93,8 +95,6 @@ export default class MessagePopup extends LightningElement {
             console.error('error in showPopup poupMessgae : ', error.stack);
         }
     }
-
-    timeoutInstance
 
     @api
     showMessageToast(messageData){

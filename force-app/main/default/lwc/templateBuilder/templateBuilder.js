@@ -207,9 +207,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         loadScript(this, summerNote_Editor + '/codeMirror/formatting.js'),
                         loadScript(this, summerNote_Editor + '/codeMirror/xml.js'),
                     ])
-                    .then(res => {
+                    .then(() => {
                         this.isInitialRender = false;
-                        console.log('library loaded SuccessFully', {res});
+                        console.log('library loaded SuccessFully');
                         this.initialize_Content_Editor();
                         this.initialize_Header_Editor();
                         this.initialize_Footer_Editor();
@@ -398,6 +398,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             this.loaderLabel = 'Saving Data...'
 
+            /**
+             * To get editor content, do not use .summernote('code') directly, 
+             * Please create dom element and add innerHTML into it and then get that element's innerHTML as editor content,
+             * This is doing in order to maintain formatting with extracted child table,
+             * If we directly use .summernote('code') method to get editor content, it result in unmatched attribute position for child table during the document creation...
+             */
             const headerEle = document.createElement('div');
             headerEle.innerHTML = $(this.headerEditor).summernote('code');
 
