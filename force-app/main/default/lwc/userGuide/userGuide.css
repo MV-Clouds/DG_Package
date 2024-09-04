@@ -11,8 +11,10 @@
 }
 
 .left-section {
+    white-space: pre;
     width: 0;
     overflow: scroll;
+    scrollbar-color: #00AEFF white;
     transition: all 0.5s;
 }
 
@@ -33,8 +35,9 @@
 .tabs {
     background-color: #fff;
     height: 2.5rem;
-    width: 90%;
-    min-width: 10rem;
+    width: 8rem;
+    min-width: 80%;
+    /* min-width: 10rem; */
     border: solid 1px #00AEFF;
     border-radius: 1rem;
     display: flex;
@@ -109,20 +112,32 @@
 }
 
 .white-background{
+    scroll-behavior: smooth;
     width: 100%;
     font-size: 16px;
     font-family: Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
     background-color: #fff;
+    scrollbar-color: #00AEFF white;
     overflow: scroll;
     outline: none;
+    transition: all 0.5s;
 }
 
 .content p{
     width: fit-content;
 }
 
+.content{
+    scroll-behavior: smooth;
+    background-image: url('/resource/MVDG__homePageImgs/HomeNoRecordBg.png');
+    background-size: contain;
+    transition: all 0.5s;
+}
+
 .tab-content {
+    scroll-behavior: smooth;
     padding: 2rem;
+    transition: all 0.5s;
 }
 
 /* .tab-content h1, h2, h3 {

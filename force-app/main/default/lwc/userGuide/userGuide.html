@@ -84,11 +84,9 @@
             </div>
             <div class="bottom-line"></div>
         </div>
-
         <!-- Content -->
         <div class="white-background">
             <div class="content">
-
                 <!-- Button Generator -->
                  <div class="tab-content" lwc:if={btngenTab}>
                     <h1 onclick={toggleTab}>Button Generator</h1><br/>
@@ -215,7 +213,7 @@
                         <div class="img"><img src={dropbox8} alt="error" onclick={openModal}></div>
                         <p><b>Step 6:</b> Copy the Redirect URI from Doc Genius and paste it into the "Redirect URIs" field. Then, click the "Add" button.</p>
                         <div class="img"><img src={dropbox9} alt="error" onclick={openModal}></div>
-                        <p><b>Step 7:</b> Click on "Authorize" in Doc Genius and verify that the integration is active.</p>
+                        event.key);>Step 7:</b> Click on "Authorize" in Doc Genius and verify that the integration is active.</p>
                         <div class="img"><img src={dropbox10} alt="error" onclick={openModal}></div>
                         <p class="note">[ NOTE: DROPBOX will automatically log you in as per your current  logged in account if you wish to choose, use Incognito mode(Private window) during integration process ].</p>
                     </div>
@@ -785,7 +783,6 @@
                             <li>The Button, created by the button generator on the object.</li>
                         </ol>
                     </div><br/>
-
                     <div class="section">
                         <h2>Purpose of Document Generator:</h2>
                         <ol class="slds-list_dotted">
@@ -796,11 +793,21 @@
                     <div class="section">
                         <h2>Generate Document:</h2>
                         <ol class="slds-list_dotted">
-                            <li>Navigate to the list view or record page where you have created your generation button.</li>
+                            <li>Navigate to the list view or record page where you have created your generation button.
+                                <br/><div class="img"><img src={docgen1} alt="error"></div>
+                                <br/><div class="img"><img src={docgen2} alt="error"></div>
+                            </li>
                             <li>Click on the generation button, DG Generate Document if generating from the record detail page or DG Generate CSV, if generating from the List view.</li>
-                            <li>You will see the Generate Document Pop-up to generate the Document, with the template selection dropdown having all the active templates.</li>
-                            <li>If you want to see all the templates including your inactive templates, you can click on the 'View All' Button.</li>
-                            <li>As soon as you select the template, all the generation options will be visible to you.</li>
+                            <li>You will see the Generate Document Pop-up to generate the Document, with the template selection dropdown having all the active templates.
+                                <br/><div class="img"><img src={docgen3} alt="error"></div>
+                                <br/><div class="img"><img src={docgen4} alt="error"></div>
+                            </li>
+                            <li>If you want to see all the templates including your inactive templates, you can click on the 'View All' Button.
+                                <br/><div class="img"><img src={docgen5} alt="error"></div>
+                            </li>
+                            <li>As soon as you select the template, all the generation options will be visible to you.
+                                <br/><div class="img"><img src={docgen6} alt="error"></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -837,7 +844,9 @@
                         <h2>Output Channel:</h2>
                         <ol class="slds-list_dotted">
                             <li>You can Email your document directly or download the document to your local system storage.</li>
-                            <li>When you select the email, the email composer will be visible to you, which will take inputs like, to recipient's email addresses, email templates, email subject and email body.</li>
+                            <li>When you select the email, the email composer will be visible to you, which will take inputs like, to recipient's email addresses, email templates, email subject and email body.
+                                <br/><div class="img"><img src={docgen7} alt="error"></div>
+                            </li>
                             <li>You can add the recipient by typing the correct email address and putting a space or a comma after that.</li>
                             <li>You can also use a tab or enter/return on your keyboard to add the email address.</li>
                             <li>You can also add multiple emails at once which are separated by a space or a comma.</li>

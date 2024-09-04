@@ -135,7 +135,7 @@ export default class UserGuide extends LightningElement {
         return Userguide + '/onedrivescope2.png';
     }
     get odrive9(){
-        return Userguide + '/onedrivescope3.png';
+        return Userguide + '/onedrivescope2.png';
     }
     get odrive10(){
         return Userguide + '/onedrivepermissions.png';
@@ -221,6 +221,34 @@ export default class UserGuide extends LightningElement {
     get csv9() {
         return Userguide + '/TemplateDefaultstab.png';
     }
+
+    // Button Generator
+    get btngen1() {
+        return Userguide + '/Buttongenerator.png';
+    }
+
+    // Document Generator
+    get docgen1() {
+        return Userguide + '/DGGenerateCSV.png';
+    }
+    get docgen2() {
+        return Userguide + '/DGGenerateDocument.png';
+    }
+    get docgen3() {
+        return Userguide + '/Selecttemplatetogenerate.png';
+    }
+    get docgen4() {
+        return Userguide + '/viewalltemplatesbutton.png';
+    }
+    get docgen5() {
+        return Userguide + '/viewalltemplatesUI.png';
+    }
+    get docgen6() {
+        return Userguide + '/generatedocument.png';
+    }
+    get docgen7() {
+        return Userguide + '/composeemail.png';
+    }
     
     activeSections = [];
     @track selectedImage = this.aws1;
@@ -236,6 +264,7 @@ export default class UserGuide extends LightningElement {
     @track gdtempTab = false;
     @track keysecTab = false;
     @track docgenTab = false;
+    @track tabList = ['dochomeTab', 'btngenTab', 'awsTab', 'gdriveTab', 'odriveTab', 'dropboxTab', 'stempTab', 'csvtempTab', 'gdtempTab', 'keysecTab', 'docgenTab'];
 
     @track isOpen = false;
     @track showModal = false;
@@ -252,25 +281,20 @@ export default class UserGuide extends LightningElement {
     handleTabSelection(event) {
         try {
             this.closeTab();
-            
             let tabName = event.target.dataset.tab;
-            this.dochomeTab = false;
-            this.btngenTab = false;
-            this.awsTab = false;
-            this.gdriveTab = false;
-            this.odriveTab = false;
-            this.dropboxTab = false;
-            this.stempTab = false;
-            this.csvtempTab = false;
-            this.gdtempTab = false;
-            this.keysecTab = false;
-            this.docgenTab = false;
+            this.tabList.forEach(tab => {
+                this[tab] = false;
+            });
             this[tabName + 'Tab'] = true;
             
             let currentTab = this.template.querySelector('.selected-tab');
             currentTab.classList.remove('selected-tab');
             let tab = this.template.querySelector(`.tabs[data-tab="${tabName}"]`);
             tab.classList.add('selected-tab');
+
+            this.template.querySelector('.tab-content').scrollTop = 0;
+            this.template.querySelector('.content').scrollTop = 0;
+            this.template.querySelector('.white-background').scrollTop = 0;
         } catch (error) {
             console.log(error);
         }
