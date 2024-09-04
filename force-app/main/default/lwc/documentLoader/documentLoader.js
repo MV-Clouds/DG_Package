@@ -73,10 +73,10 @@ export default class DocumentLoader extends LightningElement {
 	// ** === Custom Styling / CSS Method - START - =====
 	get loadStyle(){
 		var style = `--scaleOutTime : ${this.scaleOutTime}ms;`;
-		style += this.fullSize == "true" ? `position : fixed !important;` : '';
-		style += this.noneBackdrop == "true" ? `background : transparent !important; backdrop-filter : none !important;` : '';
+		style += this.fullSize == "true" || this.fullSize == true ? `position : fixed !important;` : '';
+		style += this.noneBackdrop == "true" || this.noneBackdrop == true ? `background : transparent !important; backdrop-filter : none !important;` : '';
 		style += this.customScale ? `--documentScale : ${this.customScale};` : '';
-		style += this.fixTop == 'true' ? '--docTop: 0rem;' : '';
+		style += this.fixTop == 'true' || this.fixTop == true ? '--docTop: 0rem;' : '';
 		return style;
 	}
 	// === Custom Styling / CSS Method - END - =====

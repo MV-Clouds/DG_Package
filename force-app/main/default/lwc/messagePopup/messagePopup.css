@@ -143,9 +143,9 @@
     top: 6rem;
     left: 50%;
     transform: translate( -50%, 0% );
-    min-width: 30rem;
+    min-width: fit-content;
     max-width: 70%;
-    width: 100%;
+    width: fit-content;
 
     display: flex;
     flex-direction: column;
@@ -303,6 +303,7 @@
   .closeBtnSection_Toast{
     width: 3rem;
     height: 100%;
+    padding-right: 1rem;
 
     display: flex;
     justify-content: center;

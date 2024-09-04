@@ -89,7 +89,7 @@ global with sharing class DocGenerateController {
                     // So only send 'Header Value' and 'Footer values' and send body value is batch...
                     isBatchRequired = totalTemplateDataRecords > 25;
                     List<String> getValueTypes = new List<String>{'Header Value', 'Footer Value', 'Watermark Value'};
-                    
+
                     if(isBatchRequired == false){
                         getValueTypes.add('Body Value');
                     }
@@ -144,7 +144,7 @@ global with sharing class DocGenerateController {
                     pageSize = pageConfigs.MVDG__Page_Size__c;
                     headerMarginTop = pageConfigs.MVDG__Header_margin_top__c;
                     footerMarginBottom = pageConfigs.MVDG__Footer_margin_bottom__c;
-    
+                    
                     for(MVDG__Template_Data__c fieldData : temp[0].MVDG__Template_Data__r){
                         String value = fieldData.MVDG__Template_Value_Simple__c != null ? fieldData.MVDG__Template_Value_Simple__c : '';
                         if(fieldData.MVDG__Value_Type__c == 'Body Value'){
@@ -157,7 +157,6 @@ global with sharing class DocGenerateController {
                             footerHtml += value;
                         }
                         else if(fieldData.MVDG__Value_Type__c == 'Watermark Value' && showWatermark == true){
-                            system.debug(' watermarkValue : ' + watermarkValue);
                             watermarkValue += value;
                         }
                     }
@@ -195,7 +194,6 @@ global with sharing class DocGenerateController {
      */
     @RemoteAction
     global static list<string> fetchTemplateData(Integer offset, String templateId, String mappingKey){
-        System.debug('heap size 1 : '+ Limits.getHeapSize());
 
         Boolean isLastBatch = false;
         List<String> bodyHtml = new List<String>();
@@ -225,6 +223,8 @@ global with sharing class DocGenerateController {
                 String data = fieldData.MVDG__Template_Value_Simple__c;
                 bodyHtml.add(data);
             }
+
+
 
             return new list<string>{string.valueOf(isLastBatch), string.join(bodyHtml,'').unescapeHtml4()};
         }

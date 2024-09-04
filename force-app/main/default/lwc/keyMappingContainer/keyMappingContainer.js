@@ -41,12 +41,12 @@ export default class KeyMappingContainer extends LightningElement {
 
     mappingTypeTabs = [
         {   label: 'Object Fields',        name: 'objectFields',
-            helpText : 'Insert Base Object and Lookup (Related) Object\'s Fields Int Template.',
+            helpText : 'Insert Base Object and Lookup (Related) Object\'s Fields in Template.',
             showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : false,
             showSearchbar : true, searchBarPlaceHolder : 'Search Fields...',
         },
-        {   label: 'Related List Fields',  name: 'relatedListFields',
-            helpText : 'Insert Related List (Child Object) Field In Template as a Table Format.',
+        {   label: 'Related Lists',  name: 'relatedListFields',
+            helpText : 'Insert Related Lists (Child Object Records) In Template as a Table Format.',
             showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : true,
         },
         {   label: 'General Fields',        name: 'generalFields',
@@ -236,13 +236,13 @@ export default class KeyMappingContainer extends LightningElement {
             return 'Select Date and Time Format for your DateTime Field';
         }
         else if(this.clickedFieldType == 'TIME'){
-            return 'Select format for your Time Field'
+            return 'Select format for your Time Field';
         }
         else if(this.clickedFieldType == 'CHECKBOX'){
             return 'Set Display text based on checkbox status';
         }  
         else if(this.clickedFieldType == 'TEXT'){
-            return 'Set Text Length by Character Number';
+            return 'Set Text Length by Character';
         }
         else if(this.clickedFieldType == 'CURRENCY' || this.clickedFieldType == 'NUMBER' || this.clickedFieldType == 'PERCENTAGE'){
             return `Format Options for ${this.clickedFieldType} field`;
@@ -437,18 +437,22 @@ export default class KeyMappingContainer extends LightningElement {
                 this.isDataRefreshing = false;
                 console.log('getAllContentVersionImgs result => ', result);
                 if(result.isSuccess == true){
-                    this.contentVersionImages = result.cvImages;
-                    this.cvIdVsImageSRC = result.cvIdVsImageSRC;
+                    this.contentVersionImages = result.cdImages;
+                    // this.cvIdVsImageSRC = result.cvIdVsImageSRC;
                     this.contentVersionImages.forEach(ele => {
-                        ele['fileSize'] = ele.ContentSize + ' Bytes';
-                         if (ele.ContentSize < 1000000) {  
-                            ele['fileSize'] =  (ele.ContentSize / 1000).toFixed(2) + ' KB';  
-                        } else if (ele.ContentSize < 1000000000) {  
-                            ele['fileSize'] = (ele.ContentSize / 1000000).toFixed(2) + ' MB';  
+                        ele['fileSize'] = ele.ContentVersion.ContentSize + ' Bytes';
+                         if (ele.ContentVersion.ContentSize < 1000000) {  
+                            ele['fileSize'] =  (ele.ContentVersion.ContentSize / 1000).toFixed(2) + ' KB';  
+                        } else if (ele.ContentVersion.ContentSize < 1000000000) {  
+                            ele['fileSize'] = (ele.ContentVersion.ContentSize / 1000000).toFixed(2) + ' MB';  
                         } else {  
-                            ele['fileSize'] = (ele.ContentSize / 1000000000).toFixed(2) + ' GB';  
+                            ele['fileSize'] = (ele.ContentVersion.ContentSize / 1000000000).toFixed(2) + ' GB';  
                         } 
-                        ele.imageSRC = this.cvIdVsImageSRC[ele.Id];
+                        ele.Title = ele.ContentVersion.Title;
+                        ele.FileExtension = ele.ContentVersion.FileExtension;
+                        ele.FileType = ele.ContentVersion.FileType;
+                        ele.ContentSize = ele.ContentVersion.ContentSize;
+                        ele.imageSRC = ele.ContentDownloadUrl;
                     });
                     this.setContVerImgToDisplay();
                 }
@@ -498,8 +502,8 @@ export default class KeyMappingContainer extends LightningElement {
             getSignatureInfo({templateId : this.templateId})
             .then(result => {
                 this.isDataRefreshing = false;
-                this.signatureSize = result;
-                this.savedSignatureSize = result;
+                this.signatureSize = Math.max(result, 1);               // To avoid value lesser than 1
+                this.savedSignatureSize = this.signatureSize;
             })
         } catch (error) {
             errorDebugger('FieldMappingKey', 'fetchSignatureInfo', error ,'warn');

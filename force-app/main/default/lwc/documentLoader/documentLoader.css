@@ -6,7 +6,8 @@
     --documentPageHeight : 14rem;
     --documentScale : 1;
     --docTop: -0.75rem;
- }
+    --ff_Bahnschrift : Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+}
 .loader_mainDiv{
     position: absolute;
     top: 0px;
@@ -209,7 +210,8 @@
     font-size: 20px;
     /* margin-top: 1rem; */
     margin-inline: auto;
-    font-family: Coiny, Cambria, Cochin, Georgia, Times, 'Times New Roman', serif !important;
+    font-family: var(--ff_Bahnschrift);
+    font-weight: 600;
     opacity: 1;
     background: linear-gradient(to right, #ace5fe 0%, #aeffe9 100%);
     background-clip : text !important;

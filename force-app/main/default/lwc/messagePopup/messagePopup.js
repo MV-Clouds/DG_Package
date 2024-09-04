@@ -6,6 +6,8 @@ export default class MessagePopup extends LightningElement {
     @track title;
     @track message;
     @track duration;
+    timeoutInstance
+
 
     @track showPopup = false;
     designCurveColor = '#00ffee5c';
@@ -97,7 +99,8 @@ export default class MessagePopup extends LightningElement {
     @api
     showMessageToast(messageData){
         try {
-            this.showPopup = true;
+
+            clearTimeout(this.timeoutInstance)
 
             this.type = 'toast';
             this.status = messageData['status'] ? messageData['status'].toLowerCase() : 'warning';
@@ -107,7 +110,8 @@ export default class MessagePopup extends LightningElement {
 
             this.template.host.style.setProperty('--duration', duration + 'ms');
 
-            setTimeout(() => {
+            this.showPopup = true;
+            this.timeoutInstance = setTimeout(() => {
                 this.showPopup = false;
             }, duration);
             
@@ -126,7 +130,30 @@ export default class MessagePopup extends LightningElement {
         });
     }
 
-    closeModal(){
+    handleConfirmation(event){
+        try {
+            event.preventDefault();
+            var conform = event.currentTarget.dataset.name == 'conform' ? true : false;
+            console.log('conform : ', conform);
+
+            // Send data to parent compoent...
+            // this.dispatchEvent(new CustomEvent('confirmation',{
+            //     detail : conform
+            // }));
+
+            this.closeModal(conform);
+            
+        } catch (error) {
+            console.error('error in handleConfirmation poupMessgae : ', error.stack);
+        }
+    }
+
+    handleCloseModal(event){
+        const conform = event.currentTarget.dataset.type === 'popup' ? true : false;
+        this.closeModal(conform);
+    }
+
+    closeModal(conform){
         try {
             this.showPopup = false;
             this.status = '';
@@ -135,28 +162,11 @@ export default class MessagePopup extends LightningElement {
             this.duration = '';
             this.type = '';
             this.dispatchEvent(new CustomEvent('confirmation',{
-                detail : true
+                detail : conform
             }));
 
         } catch (error) {
             console.error('error in closeModal poupMessgae', error.stack);
-        }
-    }
-
-    handleConfirmation(event){
-        try {
-            event.preventDefault();
-            var conform = event.currentTarget.dataset.name == 'conform' ? true : false;
-
-            // Send data to parent compoent...
-            this.dispatchEvent(new CustomEvent('confirmation',{
-                detail : conform
-            }));
-
-            this.closeModal();
-            
-        } catch (error) {
-            console.error('error in handleConfirmation poupMessgae : ', error.stack);
         }
     }
 

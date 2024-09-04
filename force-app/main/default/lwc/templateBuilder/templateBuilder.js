@@ -42,6 +42,11 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     searchFieldValue = '';                          
     @track loaderLabel = null;                      // To set label of loaded based on on-going process
 
+    isCloseConfirmation = false                     // To define user click on close button and confirmation popup open
+    noTemplateFound = false;                        // To check weather template available for not
+
+    editorDataChanges = false;                      // To identify any editor data change or not
+
     /**
      * variable to store page configuration to display on UI, used in HTML
      * value into this variable assigned from MVDG__Template_Page__c record fetched from backed..
@@ -55,9 +60,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         ],
         pageSize : [
             {name : 'A4', value : 'a4', size : '8.27" x 11.69"', selected : true},
-            {name : 'A5', value : 'a5', size : '8.5" x 14"', selected : false},
+            {name : 'A5', value : 'a5', size : '5.83" x 8.27"', selected : false},
             {name : 'Letter', value : 'letter', size : '8.5" x 11"', selected : false},
-            {name : 'Legal', value : 'legal', size : '5.83" x 8.27"', selected : false},
+            {name : 'Legal', value : 'legal', size : '8.5" x 14"', selected : false},
             {name : 'Executive', value : 'executive', size : '7.25" x 10.5"', selected : false},
             {name : 'Statement', value : 'statement', size : '5.5" x 8.25"', selected : false},
         ],
@@ -155,14 +160,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         return 0
    }
 
-   _resolvedPromise = 0;
-   get resolvedPromise(){ return this._resolvedPromise };
-   set resolvedPromise(value){
+    _resolvedPromise = 0;
+    get resolvedPromise(){ return this._resolvedPromise };
+    set resolvedPromise(value){
         if(value == 2){
             this.isSpinner = false;
         }
         this._resolvedPromise = value;
-   }
+    }
 
     connectedCallback(){
         try {
@@ -202,9 +207,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         loadScript(this, summerNote_Editor + '/codeMirror/formatting.js'),
                         loadScript(this, summerNote_Editor + '/codeMirror/xml.js'),
                     ])
-                    .then(res => {
+                    .then(() => {
                         this.isInitialRender = false;
-                        console.log('library loaded SuccessFully', {res});
+                        console.log('library loaded SuccessFully');
                         this.initialize_Content_Editor();
                         this.initialize_Header_Editor();
                         this.initialize_Footer_Editor();
@@ -294,7 +299,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             getTemplateData({templateId : this.templateId})
             .then(result => {
-                console.log('getTemplateData result  : ', result);
                 if(result.isSuccess){
                     // console.log(' get result size : ' , new Blob([JSON.stringify(result)]).size / 1000000, ' mb');
                     this.templateRecord = result.template;
@@ -394,6 +398,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             this.loaderLabel = 'Saving Data...'
 
+            /**
+             * To get editor content, do not use .summernote('code') directly, 
+             * Please create dom element and add innerHTML into it and then get that element's innerHTML as editor content,
+             * This is doing in order to maintain formatting with extracted child table,
+             * If we directly use .summernote('code') method to get editor content, it result in unmatched attribute position for child table during the document creation...
+             */
             const headerEle = document.createElement('div');
             headerEle.innerHTML = $(this.headerEditor).summernote('code');
 
@@ -473,7 +483,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 for(let i = 1; i <= totalBatches; i++){
                     let start = (i-1)*batchSize;
                     let end = i*batchSize > bodyDataRecords.length ? bodyDataRecords.length : (i*batchSize) - 1;
-                    console.log('batch number : ', i, ' start at : ', start+1, ' end at : ', end+1);
                     const currentBatchRecords ={};
                     for(let j = start ; j <= end; j++){
                         currentBatchRecords[j+1] = bodyDataRecords[j];
@@ -488,7 +497,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             // Call Apex Method to save Template...
             saveTemplateApex({templateRecord : this.templateRecord, templateValues : templateValuePortion, pageConfigs : this.pageConfigRecord})
             .then((result) => {
-                console.log('result of saveTemplateApex : ', result);
                 if(result){
                     completedProcess++;
                     this.handleOngoingAction(actionName, completedProcess, totalProcesses);
@@ -514,7 +522,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 const isLastBatch = i == totalBatches ? true : false;
                 saveTempDataRecordsInBatch({templateDataList : bodyDataBatchesByMB[i-1], tempIdVsValueType : tempIdVsValueType, isLastBatch : isLastBatch})
                 .then((result) => {
-                    console.log('result : ', result);
                     if(result){
                         completedProcess++;
                         this.handleOngoingAction(actionName, completedProcess, totalProcesses);
@@ -525,7 +532,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                     }
                 })
-                .catch(error => {
+                .catch((error) => {
                     completedProcess++;
                     this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
                     errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
@@ -563,6 +570,16 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     stopSpinner(completedProcess, totalProcesses){
         return completedProcess == totalProcesses ? false : true;
+    }
+
+    handleCloseEdit(){
+        try {
+            this.isCloseConfirmation = true;
+            this.showMessagePopup('Warning', 'Are You Want to Leave?', `Your unsaved changes will be discarded once you leave the this page.`);
+
+        } catch (error) {
+            errorDebugger('TemplateBuilder', 'handleCloseEdit', error, 'warn');
+        }
     }
     
     closeEditTemplate(){
@@ -604,7 +621,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             this.isSpinner = false;
             const iframe = this.template.querySelector('iframe');
             const pdfViewer = iframe.querySelector( 'pdf-viewer' );
-            console.log('pdfViewer : ', pdfViewer);
         } catch (error) {
             errorDebugger('TemplateBuilder', 'vfPageLoaded', error, 'warn');
         }
@@ -626,7 +642,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             }
             this.setActiveTab();
         } catch (error) {
-            console.log('error in templateBuilder.activeTab : ', error.stack)
+            errorDebugger('TemplateBuilder', 'activeTab', error, 'warn');
         }
     }
 
@@ -705,15 +721,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     handleEditDetail(event){
         try {
-
-            
             const targetInput = event.currentTarget.dataset.name;
             if(event.target.type === 'checkbox'){
-                console.log('event.target.checked ', event.target.checked);
                 this.templateRecord[targetInput] = event.target.checked;
             }
             else{
-                this.templateRecord[targetInput] = event.target.value;
+                this.templateRecord[targetInput] = (event.target.value).trim();
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleEditDetail', error, 'warn');
@@ -758,12 +771,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     this.pageConfigs[pageConfig][configName] = event.target.checked;
                 }
                 else{
-                    this.pageConfigs[pageConfig][configName] = value;
+                    this.pageConfigs[pageConfig][configName] = value ? value : 0;
                 }
             }
             
-            this.setPageMarginValue();
-            this.setHeaderFooterMargin();
+            this.setPageMarginValue();                  // Do not remove it, it is added intentionally
+            this.setHeaderFooterMargin();               // Do not remove it, it is added intentionally
             this.setEditorPageSize();
             (pageConfig != 'pageMargins') && this.setPageMarginValue();
             (pageConfig != 'header' && pageConfig != 'footer') && this.setHeaderFooterMargin();
@@ -782,35 +795,41 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
             let k = unitMultiplier(this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c)* 1.3334;
 
-            // configName == 'top' 
             pageMarginsTop = pageMarginsTop ? pageMarginsTop : 0;
-            (pageMarginsTop < 0) && (pageMarginsTop = 0);
+            pageMarginsTop = Math.max(pageMarginsTop, 0);
+            
+            pageMarginsBottom = pageMarginsBottom ? pageMarginsBottom : 0;
+            pageMarginsBottom = Math.max(pageMarginsBottom, 0);
+            
+            pageMarginsLeft = pageMarginsLeft ? pageMarginsLeft : 0;
+            pageMarginsLeft = Math.max(pageMarginsLeft, 0);
+            
+            pageMarginsRight = pageMarginsRight ? pageMarginsRight : 0;
+            pageMarginsRight = Math.max(pageMarginsRight, 0);
 
-            // restrict margin/padding to exceed page page width....
-            // when margin value is more than page width - opposite margin value... restrict to increase margin value...
-            (pageMarginsTop >= (this.currentPageHeight / k - pageMarginsBottom)) && (pageMarginsTop = (this.currentPageHeight /k - pageMarginsBottom));
-
-            // Only update variable when input have some value... because variable set 0 in input when input in empty, which is not practical...
+            // restrict margin/padding to exceed page page width/height....
+            // when margin value is more than page width/height - opposite margin value... restrict to increase margin value...
+            
+            // configName == 'top' 
+            pageMarginsTop = Math.min(pageMarginsTop, (this.currentPageHeight / k - pageMarginsBottom))
+            pageMarginsTop = Math.max(pageMarginsTop, 0);
             (this.pageConfigs['pageMargins'][0].value = pageMarginsTop);
 
             // configName == 'bottom'
-            pageMarginsBottom = pageMarginsBottom ? pageMarginsBottom : 0;
-            (pageMarginsBottom < 0) && (pageMarginsBottom = 0);
-            (pageMarginsBottom >= (this.currentPageHeight / k - pageMarginsTop)) && (pageMarginsBottom = (this.currentPageHeight /k - pageMarginsTop));
+            pageMarginsBottom = Math.min(pageMarginsBottom, (this.currentPageHeight / k - pageMarginsTop))
+            pageMarginsBottom = Math.max(pageMarginsBottom, 0);
             (this.pageConfigs['pageMargins'][1].value = pageMarginsBottom);
 
             // configName == 'left'
-            pageMarginsLeft = pageMarginsLeft ? pageMarginsLeft : 0;
-            (pageMarginsLeft < 0) && (pageMarginsLeft = 0);
-            (pageMarginsLeft >= (this.currentPageWidth / k - pageMarginsRight)) && (pageMarginsLeft = (this.currentPageWidth /k - pageMarginsRight));
+            pageMarginsLeft = Math.min(pageMarginsLeft, (this.currentPageWidth / k - pageMarginsRight))
+            pageMarginsLeft = Math.max(pageMarginsLeft, 0);
             (this.pageConfigs['pageMargins'][2].value = pageMarginsLeft);
 
             // configName == 'right'
-            pageMarginsRight = pageMarginsRight ? pageMarginsRight : 0;
-            (pageMarginsRight < 0) && (pageMarginsRight = 0);
-            (pageMarginsRight >= (this.currentPageWidth / k - pageMarginsLeft)) && (pageMarginsRight = (this.currentPageWidth /k - pageMarginsLeft));
+            pageMarginsRight = Math.min(pageMarginsRight, (this.currentPageWidth / k - pageMarginsLeft))
+            pageMarginsRight = Math.max(pageMarginsRight, 0);
             (this.pageConfigs['pageMargins'][3].value = pageMarginsRight);
-    
+
             this.pageConfigRecord.MVDG__Page_Margin__c = pageMarginsTop+';'+pageMarginsBottom+';'+pageMarginsLeft+';'+pageMarginsRight;
         } catch (error) {
             errorDebugger('TemplateBuilder', 'setPageMarginValue', error, 'warn');
@@ -1060,7 +1079,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 if(event){
                     const selection = window.getSelection();
                     const cursorNode = selection?.anchorNode;
-                    const cursorNodeRect = cursorNode?.getBoundingClientRect();
+                    const cursorNodeRect = cursorNode && cursorNode.nodeName !== "#text" ? cursorNode.getBoundingClientRect() : null;
                     if(cursorNodeRect?.bottom > pageRect.bottom){
                         event.preventDefault();
                     }
@@ -1168,10 +1187,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             const innerHTML = this.headerData + this.bodyData + this.footerData;
         
-            const objectFields = this.extractedKeys(innerHTML, /{{#(.*?)}}/g);
-            const generalFields = this.extractedKeys(innerHTML, /{{Doc.(.*?)}}/g);
-            const mergeTempKeys = this.extractedKeys(innerHTML, /{{Temp.(.*?)}}/g);
-            const signatureKeys = this.extractedKeys(innerHTML, /{{Sign.(.*?)}}/g)
+            // const objectFields = this.extractedKeys(innerHTML, /{{#(.*?)}}/g);
+            // const generalFields = this.extractedKeys(innerHTML, /{{Doc.(.*?)}}/g);
+            // const mergeTempKeys = this.extractedKeys(innerHTML, /{{Temp.(.*?)}}/g);
+            // const signatureKeys = this.extractedKeys(innerHTML, /{{Sign.(.*?)}}/g)
+            
+            const objectFields = this.extractedKeys(innerHTML, /\{\{#([^{}]+)\}\}/g);
+            const generalFields = this.extractedKeys(innerHTML, /\{\{Doc.([^{}]+)\}\}/g);
+            const mergeTempKeys = this.extractedKeys(innerHTML, /\{\{Temp.([^{}]+)\}\}/g);
+            const signatureKeys = this.extractedKeys(innerHTML, /\{\{Sign.([^{}]+)\}\}/g)
             const childRecordTables = this.extractChildRecordTables();
             const sfImages = this.extractSalesforceImages();
 
@@ -1210,19 +1234,28 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             const bodyEle = document.createElement('div');
             bodyEle.innerHTML = $(this.contentEditor).summernote('code');
             bodyEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
-                childRecordTables.push(this.extractChildTableInfo(ele));
+                const childTableInfo = this.extractChildTableInfo(ele);
+                if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
+                    childRecordTables.push(childTableInfo);
+                }
             });
 
             const headerEle = document.createElement('div');
             headerEle.innerHTML = $(this.headerEditor).summernote('code');
             headerEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
-                childRecordTables.push(this.extractChildTableInfo(ele));
+                const childTableInfo = this.extractChildTableInfo(ele);
+                if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
+                    childRecordTables.push(childTableInfo);
+                }
             });
 
             const footerEle = document.createElement('div');
             footerEle.innerHTML = $(this.footerEditor).summernote('code');
             footerEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
-                childRecordTables.push(this.extractChildTableInfo(ele));
+                const childTableInfo = this.extractChildTableInfo(ele);
+                if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
+                    childRecordTables.push(childTableInfo);
+                }
             });
 
             return childRecordTables;
@@ -1242,15 +1275,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 mappingFields : [],
             };
             
-            childTableWrapper.tableHTML = ele.outerHTML;
+            childTableWrapper.tableHTML = ele?.outerHTML;
 
-            const keyRow = ele.querySelector(`[data-name="keyRow"]`);
-            childTableWrapper.keyRow = keyRow.outerHTML;
+            const keyRow = ele?.querySelector(`[data-name="keyRow"]`);
+            childTableWrapper.keyRow = keyRow?.outerHTML;
 
-            childTableWrapper.mappingFields = this.extractedKeys(keyRow.innerText, /{{!(.*?)}}/g);
+            childTableWrapper.mappingFields = this.extractedKeys(keyRow?.innerText,/\{\{!([^{}]+)\}\}/g);
 
-            const infoRow = ele.querySelector(`[data-name="infoRow"]`);
-            childTableWrapper.infoRow = infoRow.outerHTML;
+            const infoRow = ele?.querySelector(`[data-name="infoRow"]`);
+            childTableWrapper.infoRow = infoRow?.outerHTML;
 
             return childTableWrapper;
         } catch (error) {
@@ -1395,8 +1428,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     handleMsgPopConfirmation(event){
         try {
-            if(!this.isLoadedSuccessfully){
-                // ... Popup message show WHEN Editor fail to initialize...
+            if(!this.isLoadedSuccessfully || this.noTemplateFound){
+                /**
+                 * ... Popup message show WHEN Editor fail to initialize... 
+                 * OR
+                 * ... Popup message show WHEN Template Id Not Found...
+                 */
                 this.closeEditTemplate();
             }
             else if(!this.templateRecord.MVDG__Template_Name__c && !this.noTemplateFound){
@@ -1404,9 +1441,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.currentTab = 'basicTab';
                 this.setActiveTab();
             }
-            else if(this.noTemplateFound){
-                // ... Popup message show WHEN Template Id Not Found...
-                this.closeEditTemplate();
+            else if(this.isCloseConfirmation){
+                //... Popup message show WHEN User click on close button select YES...
+                if(event.detail){
+                    this.closeEditTemplate();
+                }
+                this.isCloseConfirmation = false;
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleMsgPopConfirmation', error, 'warn');
@@ -1455,7 +1495,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 }
                 
                   let encodedDef = btoa(JSON.stringify(cmpDef));
-                  console.log('encodedDef : ', encodedDef);
                   this[NavigationMixin.Navigate]({
                     type: "standard__webPage",
                     attributes: {

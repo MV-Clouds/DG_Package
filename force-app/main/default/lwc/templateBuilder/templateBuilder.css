@@ -78,7 +78,7 @@ input[type=number]::-webkit-outer-spin-button {
       border-bottom: 1px solid #51c7ff;
       user-select: none;
     }
-    .tabSection::after{
+    .tabSection::before{
       content: '';
       position: absolute;
       top: 0px;
@@ -92,7 +92,7 @@ input[type=number]::-webkit-outer-spin-button {
     .tabSection.hideToolbar{
       border-radius: 6px;
     }
-    .tabSection.hideToolbar::after{
+    .tabSection.hideToolbar::before{
       display: none;
     }
     .tabSection_sub{
@@ -103,7 +103,7 @@ input[type=number]::-webkit-outer-spin-button {
       justify-content: flex-start;
       align-items: center;
       position: relative;
-      z-index: 10;
+      /* z-index: 10; */
       /* border-bottom: 1px solid #00aeff; */
     }
     .tabSection_sub:last-child{

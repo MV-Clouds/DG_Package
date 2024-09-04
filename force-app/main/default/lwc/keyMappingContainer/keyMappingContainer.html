@@ -118,16 +118,16 @@
       <template lwc:if={mappingTypeTabArea.relatedListFields}>
         <div class="relatedListSection">
           <div class="keyInfoTitle">
-            insert related list (child object) Record in tabular format.
+            insert related list (child object) Records in tabular format.
             <div class="keyInfoUlListText">
               <ul>
                 <li>You can insert upto 10 tables</li>
-                <li>You can add upto 50 Record in single table</li>
+                <li>You can add upto 50 Records in single table</li>
               </ul>
             </div>
           </div>
           <button class="selectFieldBtn" onclick={openChildSelection} disabled={isChildObjTableDisable}>
-            Generate Table for Relate List 
+            Generate Table for Related Lists 
           </button>
           <div lwc:if={isExceedRelatedListLimit} class="relatedListMaxTableError">{childTableLimitErrorMsg}</div>
           <div class="keyInfoUlListText">
@@ -252,7 +252,7 @@
           <div class="sizeSetOpt">
             <lightning-helptext class="tooltip" content="Set Signature size by percentage of Page size"></lightning-helptext>
             <div class="label">Signature Size : </div>
-            <input class=" slds-slider__range" type="range" value={signatureSize} oninput={setSignatureSize} min="0" max="100">
+            <input class=" slds-slider__range" type="range" value={signatureSize} oninput={setSignatureSize} min="1" max="100">
             <div>{signatureSize}%</div>
             <button class="signaturesSetBtn" onclick={updateSignatureSize}  disabled={isSignatureSetBtn}>Update</button>
           </div>

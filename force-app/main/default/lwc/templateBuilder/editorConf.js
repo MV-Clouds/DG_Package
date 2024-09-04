@@ -599,6 +599,27 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
               return createPageSetupBtn(note, context)
             }
 
+            const toolbarOptions = [
+
+              // Customized Toolbar 
+              // ['custom_backup', ['undo','redo']],
+              // 'fontsize'
+              ['custom_pageSetup', ['pageSetup']],
+              ['custom_fontFormattings', ['fontname', 'fontResizer','forecolor', 'backcolor', 'bold','italic', 'underline', 'strikethrough','superscript', 'subscript']],
+              ['custom_paragraphFormatting', ['ul', 'ol', 'paragraph', 'height']],
+              ['custom_style', ['style']],
+              ['custom_insert', ['table','link', 'picture', 'hr']],
+              // ['custom_clearFormatting', ['truncate','clear']],
+              ['custom_clearFormatting', ['clear']],
+              ['custom_view', ['codeview', 'help']],
+              ['custom_title', ['titleBtn']],
+            ]
+            
+            // remove page backer for header and footer editor.
+            if(note.selector == 'headerEditor' || note.selector == 'footerEditor'){
+              (toolbarOptions[4][1])?.splice(3, 1);
+            }
+
             // Initialize SummerNote Editor...
             $(note.summerNote).summernote({
     
@@ -615,22 +636,7 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
                     col: 10,
                     row: 10,
                   },
-                toolbar: [
-
-                  // Customized Toolbar 
-                  // ['custom_backup', ['undo','redo']],
-                  // 'fontsize'
-                  ['custom_pageSetup', ['pageSetup']],
-                  ['custom_fontFormattings', ['fontname', 'fontResizer','forecolor', 'backcolor', 'bold','italic', 'underline', 'strikethrough','superscript', 'subscript']],
-                  ['custom_paragraphFormatting', ['ul', 'ol', 'paragraph', 'height']],
-                  ['custom_style', ['style']],
-                  ['custom_insert', ['table','link', 'picture', 'hr']],
-                  // ['custom_clearFormatting', ['truncate','clear']],
-                  ['custom_clearFormatting', ['clear']],
-                  ['custom_view', ['codeview', 'help']],
-                  ['custom_title', ['titleBtn']],
-
-                ],
+                toolbar: toolbarOptions,
                 popover: {
                     image: [
                         ['image', ['resizeFull', 'resizeHalf', 'resizeQuarter', 'resizeNone']],
@@ -752,6 +758,7 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
                         setFontResizerValue(note);
                         _self.calculateRelatedListTable(note);
                         _self.restrictLargeImageInsert(note);
+                        _self.editorDataChanges = true;
                         // _self.setHeaderFooterMaxHeight(note);
                     },
                     onChangeCodeview: null,
