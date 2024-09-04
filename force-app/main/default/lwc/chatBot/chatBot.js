@@ -95,8 +95,10 @@ export default class ChatBot extends LightningElement {
         .then((result) =>{
             if(result != null){
                 this.isChatStarted = true;
-                this.hideChatBar = false;
+                this.hideChatBar = true;
                 this.isOnlyEmail = false;
+                this.isSol = true;
+                this.isIssue = false;
                 // console.log(result);
                 this.messages = JSON.parse(result);
                 this.oldChats = true;
