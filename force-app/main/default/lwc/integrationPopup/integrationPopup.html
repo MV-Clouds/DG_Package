@@ -59,14 +59,14 @@
                     <template if:true={isNamedCredential}>
                         <div class="label-float">
                             <input type="text" class="t-named" placeholder="Enter API Name" oninput={handleNamedCredentials} onkeypress={handleNamedCredentials}/>
-                            <label>Named Credential</label>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Named Credential</label>
                         </div>
                     </template>
                     <template if:false={isGoogleDrive}>
                         <template if:false={isNamedCredential}>
                         <div class="label-float">
                             <input type="text" class="t-clientid inputhelp" placeholder="Enter Client Id" oninput={handleClientId} onkeypress={handleClientId}/>
-                            <label>Client Id</label>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Client Id</label>
                         </div>
                         </template>
                     </template>
@@ -74,7 +74,7 @@
                         <template if:false={isNamedCredential}>
                         <div class="label-float">
                             <input type="password" class="t-clientsecret inputhelp" placeholder="Enter Client Secret" oninput={handleClientSecret} onkeypress={handleClientSecret}/>
-                            <label>Client Secret</label>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Client Secret</label>
                             
                         </div>
                         </template>
@@ -83,7 +83,7 @@
                         <template if:false={isNamedCredential}>
                         <div class="label-float">
                             <input type="text" class="t-name" placeholder="Enter Nickname" oninput={handleNickname} onkeypress={handleNickname}/>
-                            <label>Nickname</label>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Nickname</label>
                         </div>
                         </template>
                     </template>
@@ -91,7 +91,7 @@
                         <template if:false={isNamedCredential}>
                         <div class="label-float">
                             <input type="text" class="t-bucket" placeholder="Enter Bucket Name" oninput={handleBucket} onkeypress={handleBucket}/>
-                            <label>Bucket Name</label>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Bucket Name</label>
                         </div>
                         </template>
                     </template>
@@ -101,7 +101,7 @@
                     <template if:true={isGoogleDrive}>
                         <div class="label-float">
                             <input type="text" class="t-authorizationcode" placeholder="Enter Authorization code" oninput={handleAuthorizationCode} onkeypress={handleAuthorizationCode} onchange={handleAuthorizationCode}/>
-                            <label>Authorization Code</label>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Authorization Code</label>
                         </div>
                     </template>
 

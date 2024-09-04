@@ -9,6 +9,10 @@
 .create-buttons-div {
     padding: 1rem 0;
     height: 100%;
+}
+
+.button-creation {
+    height: calc(100% - 1.5rem);
     overflow: scroll;
 }
 
@@ -191,11 +195,9 @@ h2{
 }
 
 .switch{
-    position: fixed;
-    width: calc(20% - 12px);
     box-sizing: border-box;
-    padding-top: 3%;
-    padding-left: 3%;
+    padding-top: 15%;
+    padding-left: 15%;
     height: 80%;
     overflow: hidden;
 }

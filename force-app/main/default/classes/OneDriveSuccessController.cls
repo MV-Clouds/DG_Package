@@ -27,10 +27,13 @@ public with sharing class OneDriveSuccessController {
                System.debug('redirectUri-->'+redirectUri);
                System.debug('Lets generate refresh token');
                Map<String, String> tokens = generaterefreshtoken(clientid, clientsecret, redirectUri, authcode);
-               String refreshToken = tokens.get('refresh_token');
+               String refreshToken;
+               if(tokens?.get('refresh_token') != null){
+                refreshToken = tokens.get('refresh_token');
+               }
                List<String> parts2 = new List<String>();
                Integer firstpartlength = 254;
-               if (refreshToken != null && refreshToken.length() > firstpartlength) {
+               if (refreshToken != null) {
                    parts2.add(refreshToken.substring(0, firstpartlength));
                    parts2.add(refreshToken.substring(firstpartlength));
                } else {

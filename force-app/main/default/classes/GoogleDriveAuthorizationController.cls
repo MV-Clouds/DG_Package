@@ -171,8 +171,8 @@ public with sharing class GoogleDriveAuthorizationController {
   public static String authcode(String clientId, String clientSecret){
       try{
           String authorizeUrl = 'https://accounts.google.com/o/oauth2/auth';
-          String redirectUri = 'https://mvclouds28-dev-ed.develop.my.salesforce-sites.com/googleauth';  //REPLACE IT WITH VFPAGE URL
-          String googleDriveScope = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly';
+          String redirectUri = System.label.AuthCode;  //REPLACE IT WITH VFPAGE URL
+          String googleDriveScope = 'https://www.googleapis.com/auth/drive.file';
           String authUrl = authorizeUrl + '?response_type=code' +
                           '&client_id=' + clientId +
                           '&redirect_uri=' + redirectUri +
@@ -201,7 +201,7 @@ public with sharing class GoogleDriveAuthorizationController {
           MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
           string clientId = mdata[0].MVDG__CID__c;
           string clientSecret = mdata[0].MVDG__CSEC__c;
-          String redirectUri = 'https://mvclouds28-dev-ed.develop.my.salesforce-sites.com/googleauth';          
+          String redirectUri = System.Label.AuthCode;          
           Map<String, String> result = generaterefreshtoken(clientId, clientSecret, redirectUri, authcode);
           String refresh = result.get('refresh_token');
           String access = result.get('access_token');
@@ -327,7 +327,7 @@ public with sharing class GoogleDriveAuthorizationController {
           System.debug(clientId);
           System.debug(clientSecret);
           System.debug(redirectUri);
-          String scope = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly';
+          String scope = 'https://www.googleapis.com/auth/drive.file';
           String endpoint = 'https://oauth2.googleapis.com/token';
           HttpRequest request = new HttpRequest();
           request.setEndpoint(endpoint);
@@ -369,49 +369,18 @@ public with sharing class GoogleDriveAuthorizationController {
       }
   }
 
-  public static Boolean revokeToken(String token){
-       try{
-       Http http = new Http();
-       HttpRequest request = new HttpRequest();
-       request.setEndpoint('https://oauth2.googleapis.com/revoke');
-       request.setMethod('POST');
-       request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-
-       String body = 'token=' + EncodingUtil.urlEncode(token, 'UTF-8');
-       request.setBody(body);
-
-
-       HttpResponse response = http.send(request);
-
-
-       if(response.getStatusCode() == 200 || response.getStatusCode() == 400) {
-           System.debug('Token revoked successfully');
-           return true;
-       } else {
-            Response_Handler.store_Callout_Response(response, 'GoogleDriveAuthorizationController', 'revokeToken');
-           System.debug('Failed to revoke token. Response: ' + response.getBody());
-           return false;
-       }
-       }catch(Exception e){
-           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'revokeToken');
-           return false;
-       }
-  }
+  
 
 
    @AuraEnabled
   public static Boolean unauthorize(){
       try {
           MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getInstance(UserInfo.getUserId());
-          Integer settingsList = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE Name = 'AuthProviderSettings (Organization)' AND MVDG__email__c = :settings.MVDG__email__c WITH SECURITY_ENFORCED];
           if(settings != null){
                 if (!Schema.sObjectType.MVDG__AuthProviderSettings__c.isDeletable()) {
                     return false;
                 }
-                if(settingsList == 0 && settings.MVDG__refresh_token__c != null){
-                    revokeToken(settings.MVDG__refresh_token__c);
-                }
+                
                 if(settings != null){
                     delete settings;
                     return true;
@@ -430,10 +399,6 @@ public with sharing class GoogleDriveAuthorizationController {
   public static Boolean orgunauthorize(){
       try {
           MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
-          Integer settingsList = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE Name != 'AuthProviderSettings (Organization)' AND MVDG__email__c = :settings.MVDG__email__c WITH SECURITY_ENFORCED];
-                if(settings.MVDG__refresh_token__c != null && settingsList == 0){
-                    revokeToken(settings.MVDG__refresh_token__c);
-                }
                 if(settings != null){
                     settings.MVDG__refresh_token__c = '';
                     settings.MVDG__access_token__c = '';
