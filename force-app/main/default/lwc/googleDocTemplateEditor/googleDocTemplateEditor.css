@@ -208,10 +208,19 @@ c-key-mapping-container {
     color: white;
     border: none;
     border-radius: 6px;
-    padding: 0.5rem 1rem;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
     cursor: pointer;
+    width: 4rem;
+    box-shadow: 0px 0px 5px 0px #00000040;
     transition: all 0.3s ease;
 }
+.new-button:hover {
+    background: #0084C1;
+}
+
 /* ----- ------- ------- ------ ------ ------ ------ ------ -------  */
 /* ----- ------ ------- ------- --- Search Section --------------- ------- ---------- */
 
@@ -263,8 +272,7 @@ c-key-mapping-container {
 /* ===== ===== ========== ===== ===== ========== ===== ===== ========== ===== ===== ==========  */
 
 .refresh-div {
-    height: 100%;
-    width: 2rem;
+    /* height: 100%; */
     cursor: pointer;
     border-radius: 6px;
     /* margin-right: 2%; */
@@ -280,9 +288,6 @@ c-key-mapping-container {
 .refresh-div:hover svg.refresh {
     transform: rotate(-360deg);
     transition: 0.5s;
-}
-.refresh {
-    width: 90%;
 }
 
 .footer {
@@ -1020,6 +1025,10 @@ c-generate-document {
     color: #009ae1;
     font-family: var(--fontFamily1);
 }
+.previewLabel abbr {
+    color: red !important;
+}
+
 .nonEditInput {
     width: 100%;
     --lwc-heightInput: 2rem !important;

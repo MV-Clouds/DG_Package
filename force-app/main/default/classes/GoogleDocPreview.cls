@@ -639,11 +639,15 @@ public with sharing class GoogleDocPreview {
     public static MVDG__AuthProviderSettings__c getAuthProviderSettings() {
         try {
             List<MVDG__AuthProviderSettings__c> aps = new List<MVDG__AuthProviderSettings__c>();
-            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+            // User
+            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
             if (aps.size() > 0) {
                 return aps[0];
             }
-            return MVDG__AuthProviderSettings__c.getOrgDefaults();
+            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+            if (aps.size() > 0) {
+                return aps[0];
+            }
         } catch (Exception e) {
             System.debug('Error in getAuthProviderSettings==>' + e.getMessage() + e.getLineNumber());
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'getAuthProviderSettings');

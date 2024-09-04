@@ -29,6 +29,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     @track allTemplates;
     @track serachString = "";
     @track profile;
+    @track warning = false;
 
     templateBg = new_template_bg;
 
@@ -56,7 +57,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     get showNoDocumentFiles() {
         return this.allTemplates && this.allTemplates.length == 0;
     }
-    
 
     connectedCallback() {
         try {
@@ -81,6 +81,24 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 this.resizeFunction();
                 this.initialRender = false;
             }
+
+            let templateDetails = this.template.querySelector(".templateDetails");
+            let styleEle = document.createElement('style');
+            styleEle.innerText = `
+                .slds-input {
+                    box-shadow: none;
+                }
+                .slds-input:focus {
+                    --slds-c-input-shadow: none;
+                }
+                .slds-has-error {
+                    border-color: red;
+                }`;
+            
+            if (templateDetails) {
+                templateDetails.appendChild(styleEle);
+            }
+
         } catch (error) {
             errorDebugger('googleDocTemplateEditor', 'renderedCallback', error, 'error', 'Error in renderedCallback. Please try again later');
         }
@@ -267,19 +285,35 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         }
     }
 
-    cancel(event) {
+    handleConfirmation(event) {
+        try {
+
+            console.log('this.cancel');
+            if (this.activeTabName == "basicTab" && this.warning && event && event.detail) {   
+                this.isSpinner = true;
+                this.templateRecord = JSON.parse(JSON.stringify(this.previousTemplateData));
+                this.template.querySelector(".next").removeAttribute("disabled");
+                // this.template.querySelector(`lightning-input[data-name="MVDG__Template_Name__c"]`).classList.remove("slds-has-error");
+                this.activeTabName = "contentTab";
+                this.setActiveTab();
+                this.warning = false;
+            } else if (this.activeTabName == "basicTab" && this.warning && event && !event.detail) {
+                
+                this.warning = false;
+            } else {
+                this.closePopup();
+                this.navigateToComp("homePage", {});
+            }
+        } catch(error) {
+            errorDebugger('googleDocTemplateEditor', 'handleConfirmation', error, 'error', 'Error in handleConfirmation. Please try again later');
+        }
+    }
+
+    cancel() {
         console.log('this.cancel');
-        if (this.activeTabName == "basicTab" && event && event.detail) {   
-            this.isSpinner = true;
-            this.template.querySelector(".next").removeAttribute("disabled");
-            this.template.querySelector(`lightning-input[data-name="MVDG__Template_Name__c"]`).classList.remove("error-border");
-            this.activeTabName = "contentTab";
-            this.setActiveTab();
-        }
-        else if (this.showPopup) {
-            this.closePopup();
-            this.navigateToComp("homePage", {});
-        }
+        
+        this.closePopup();
+        this.navigateToComp("homePage", {});
     }
 
     setDateAndSize() {
@@ -433,7 +467,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     setActiveTab() {
         try {
             console.log("activeTabName : ", this.activeTabName);
-            this.templateRecord = JSON.parse(JSON.stringify(this.previousTemplateData));
+            // this.templateRecord = JSON.parse(JSON.stringify(this.previousTemplateData));
 
             let activeTabBar = this.template.querySelector(`.activeTabBar`);
 
@@ -476,11 +510,11 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             const targetInput = event.currentTarget.dataset.name;
             if (targetInput === "MVDG__Template_Name__c") {
                 const next = this.template.querySelector(".next");
-                if (!event.target.value) {
-                    event.currentTarget.classList.add("error-border");
+                if (!event.target.value || event.target.value.trim().length <= 0) {
+                    // event.currentTarget.classList.add("slds-has-error");
                     next.setAttribute("disabled", true);
                 } else {
-                    event.currentTarget.classList.remove("error-border");
+                    // event.currentTarget.classList.remove("slds-has-error");
                     next.removeAttribute("disabled");
                 }
             }
@@ -514,7 +548,13 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     });
                 })
                 .catch((error) => {
-                    console.log("Error in editTemplateDetails==> ", error);
+                    this.isSpinner = false;
+                    const popup = this.template.querySelector("c-message-popup");
+                    popup.showMessageToast({
+                        title: "Error Saving Template",
+                        message: "Error saving template data to backend. Please try again later.",
+                        status: "error"
+                    });
                 });
         } catch (error) {
             errorDebugger('googleDocTemplateEditor','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
@@ -523,6 +563,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     cancelEditTemplate() {
         try {
+            this.warning = true;
             console.log('cancelEditTemplate');
             console.log(this.previousTemplateData);
             
@@ -530,12 +571,12 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 this.previousTemplateData.MVDG__Template_Status__c != this.templateRecord.MVDG__Template_Status__c) {
                     const popup = this.template.querySelector("c-message-popup");
                     popup.showMessagePopup({
-                        title: "Cancel Changes!",
-                        message: "Are you sure yow want to cancel changes?",
+                        title: "Do You Want to Leave?",
+                        message: "Your unsaved changes will be discarded once you leave this page.",
                         status: "warning"
                     });
             } else {
-                this.cancel({detail: true});
+                this.handleConfirmation({detail: true});
             }
         } catch (error) {
             errorDebugger('googleDocTemplateEditor','cancelEditTemplate', error, 'error', 'Error in cancelEditTemplate. Please try again later');
