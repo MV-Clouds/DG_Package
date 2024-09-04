@@ -172,7 +172,7 @@ public with sharing class GoogleDriveAuthorizationController {
       try{
           String authorizeUrl = 'https://accounts.google.com/o/oauth2/auth';
           String redirectUri = System.label.AuthCode;  //REPLACE IT WITH VFPAGE URL
-          String googleDriveScope = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly';
+          String googleDriveScope = 'https://www.googleapis.com/auth/drive.file';
           String authUrl = authorizeUrl + '?response_type=code' +
                           '&client_id=' + clientId +
                           '&redirect_uri=' + redirectUri +
@@ -327,7 +327,7 @@ public with sharing class GoogleDriveAuthorizationController {
           System.debug(clientId);
           System.debug(clientSecret);
           System.debug(redirectUri);
-          String scope = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly';
+          String scope = 'https://www.googleapis.com/auth/drive.file';
           String endpoint = 'https://oauth2.googleapis.com/token';
           HttpRequest request = new HttpRequest();
           request.setEndpoint(endpoint);
