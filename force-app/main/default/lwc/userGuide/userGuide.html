@@ -107,7 +107,9 @@
                     <div class="section">
                         <h2>Creating Buttons using button generator:</h2>
                         <ol class="slds-list_dotted">
-                            <li>Navigate to the User Configuration tab of the DocGenius app and then go to 'DG Setup' from the left sidebar.</li>
+                            <li>Navigate to the User Configuration tab of the DocGenius app and then go to 'DG Setup' from the left sidebar.
+                                <br><div class="img"><img src={btngen1} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>You can create three types of buttons for your objects.
                                 <ol class="slds-list_dotted">
                                     <li><b>List View Button</b>: This button can be used to generate the CSV Template document. The name of the generated button will be 'DG Generate CSV'.</li>
@@ -552,29 +554,35 @@
                             <li>Select a Souce object on which you want to create the template. (For example, if you want to add data from Opportunity and its related object then select Opportunity object.).</li>
                             <li>Select Template Type. (To learn more about Template Type, refer to the template type section.)</li>
                             <li>Once you are done, click the Save button.</li>
-                            <li>After clicking the save button your template will created and you will be redirected to the template edit section as per your template type.</li>
+                            <li>After clicking the save button your template will created and you will be redirected to the template edit section as per your template type.
+                                <br/><div class="img"><img src={dochome1} alt="error" onclick={openModal}></div>
+                                <br/><div class="img"><img src={dochome2} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol><br/>
                         <p>If you have created some templates already, you can click on the top-left corner button to create a new template.</p>
+                        <div class="img"><img src={dochome3} alt="error" onclick={openModal}></div>
 
                         <h3>Template Information and Template Action Buttons on the Home Page:</h3>
                         <ol class="slds-list_dotted">
-                            <li>Template Information and Template Action Buttons on the Home Page:
+                            <li>Home Page provides the following information related to the templates.
                                 <ol class="slds-list_ordered">
-                                    <li>Template Name</li>
-                                    <li>Source Object</li>
-                                    <li>Template Description</li>
-                                    <li>Template Created date</li>
-                                    <li>Template Created User</li>
-                                    <li>Template Type</li>
+                                    <li><b>Template Name:</b> This is the primary identifier for each template.</li>
+                                    <li><b>Object Name:</b> Indicates the Salesforce object (e.g., Account, Contact) associated with the template.</li>
+                                    <li><b>Description:</b> A brief description or notes about the template.</li>
+                                    <li><b>Created date:</b> The date and time when the template was created.</li>
+                                    <li><b>Created by:</b> The name of the user who created the template.</li>
+                                    <li><b>Templaet Type:</b> The Type of the template (e.g., Simple Template, Google Doc Template, CSV Template).</li>
                                 </ol>
                             </li>
                             <li>Action Buttons Provided for each template on the Home Page are:
                                 <ol class="slds-list_ordered">
-                                    <li>Template Status</li>
-                                    <li>Template Edit Button</li>
-                                    <li>Preview Button</li>
-                                    <li>Clone Button</li>
-                                    <li>Delete Button</li>
+                                    <li><b>Template Status:</b> A toggle switch labeled “Active” to enable or disable the template.</li>
+                                    <li><b>Edit:</b> Opens the template in edit mode for modifications.</li>
+                                    <li><b>Preview:</b> Provides a visual preview of the template</li>
+                                    <li><b>Delete:</b> Deletes the template from the list.</li>
+                                    <li><b>Clone:</b> Creates a duplicate of the template for further modifications.
+                                        <br/><div class="img"><img src={dochome4} alt="error" onclick={openModal}></div>
+                                    </li>
                                 </ol>
                             </li>
                         </ol>
@@ -596,6 +604,8 @@
                                 <ol class="slds-list_dotted">
                                     <li>A searching option is provided to search your template by template name.</li>
                                 </ol>
+                                <br/><div class="img"><img src={dochome5} alt="error" onclick={openModal}></div>
+                                <br/><div class="img"><img src={dochome6} alt="error" onclick={openModal}></div>
                             </li>
                         </ol>
                     </div><br/>
@@ -664,12 +674,15 @@
                             <li>Users can select the object from which they want to pull data for the fields. This data will be dynamically inserted into the template when generating the document.</li>
                             <li>A search box is provided to search for specific fields within the selected object. Users can enter either the label or the API name (technical name) of the field they wish to map into the document.</li>
                             <li>There is an icon that allows users to copy the mapping key. Users can then paste this key into the desired location in the document template.</li>
-                            <li>Another icon (format icon) provides options to format the field value before it is inserted into the document. This could include formatting text, numbers, percentages, currency, dates, datetime, time, and checkbox fields.</li>
+                            <li>Another icon (format icon) provides options to format the field value before it is inserted into the document. This could include formatting text, numbers, percentages, currency, dates, datetime, time, and checkbox fields.
+                                <br/><div class="img"><img src={keysec1} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
                     <div class="section">
-                        <h2>Formatting options for fields</h2>
+                        <h2>Formatting options for fields:</h2>
+                        <div class="img"><img src={keysec2} alt="error" onclick={openModal}></div>
                         <h3>Text Field format options:</h3>
                         <ol class="slds-list_dotted">
                             <li>This functionality allows users to truncate the text of a field value to a specific number of characters.</li>
@@ -677,7 +690,9 @@
                             <li>To Apply this formatting, Navigate to the field you want to format. Click on three dots. Input the desired number of characters you want to display for this text field.</li>
                             <li>This number represents the maximum length of the text that will be shown in the generated document.</li>
                             <li>Once you've set the text length, a new mapping key will be generated.</li>
-                            <li>Go to the template content area where you want the truncated text to appear.</li>
+                            <li>Go to the template content area where you want the truncated text to appear.
+                                <br/><div class="img"><img src={keysec3} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
 
                         <h3>DateTime field format options:</h3>
@@ -686,19 +701,25 @@
                             <li>Format <b>DateTime</b> field value by selecting format option for date and time.</li>
                             <li>By selecting date and time formats from dropdown menus, users can generate a new mapping key, which can be copied and pasted into their templates.</li>
                             <li>If you only need to display the date or time component of the datetime field, select the desired format from the corresponding dropdown menu while leaving the other dropdown blank.</li>
-                            <li>Users can create their own date, time, and datetime formatting by referring to the guidelines provided on this site: <a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html" target="_blank">Oracle SimpleDateFormat Documentation</a>.</li>
+                            <li>Users can create their own date, time, and datetime formatting by referring to the guidelines provided on this site: <a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html" target="_blank">Oracle SimpleDateFormat Documentation</a>.
+                                <br/><div class="img"><img src={keysec4} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
 
                         <h3>Date field format options:</h3>
+                        <div class="img"><img src={keysec5} alt="error" onclick={openModal}></div>
 
                         <h3>Time field format options:</h3>
+                        <div class="img"><img src={keysec6} alt="error" onclick={openModal}></div>
 
                         <h3>Number, Percentage and Currency field format options:</h3>
                         <ol class="slds-list_dotted">
                             <li>This functionality allows you to customize the display format of Number, Percentage, and Currency fields in generated document.</li>
                             <li><b>Salesforce Standard Formatting</b>: This includes predefined formats based on Salesforce's established standards for these field types.</li>
                             <li><b>Set Decimal Places</b>: Use the provided option to determine the number of decimal places to display.</li>
-                            <li><b>Select Rounding Option</b>: If desired, you can round the field value by selecting a rounding option.</li>
+                            <li><b>Select Rounding Option</b>: If desired, you can round the field value by selecting a rounding option.
+                                <br/><div class="img"><img src={keysec7} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
 
                         <h3>Checkbox field format options:</h3>
@@ -706,19 +727,25 @@
                             <li>This Option allows users to customize the displayed value of a checkbox field in the generated document.</li>
                             <li>By default, Salesforce represents checkbox values as true (checked) or false (unchecked). </li>
                             <li>However, with this functionality, users can replace these default values with their own custom text.</li>
-                            <li>For example, user might choose to display "Yes/No," "Active/Inactive," or any other text that aligns with your business terminology.</li>
+                            <li>For example, user might choose to display "Yes/No," "Active/Inactive," or any other text that aligns with your business terminology.
+                                <br/><div class="img"><img src={keysec8} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
 
                         <h3>Related List fields:</h3>
                         <ol class="slds-list_dotted">
                             <li>This is a key feature for generating tables in the template that display data from related records.</li>
-                            <li>Once a related list is selected, a button labeled <b>Generate Table For Related List</b> becomes enabled. Clicking this button allows the user to insert a table into the template that displays data from the related list.</li>
+                            <li>Once a related list is selected, a button labeled <b>Generate Table For Related List</b> becomes enabled. Clicking this button allows the user to insert a table into the template that displays data from the related list.
+                                <br/><div class="img"><img src={keysec9} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>By clicking <b>Generate Table For Related List</b>, a popup will open as shown in the image,</li>
                             <li>Select specific fields from a related object to be added to a table column.</li>
                             <li>Apply filter on records.</li>
                             <li>Order table column by field value.</li>
                             <li>The maximum limit of the records (raws) that can be added to the table is 50.</li>
-                            <li>If the user wants to display records (raws) less than 50, the user can set it.</li>
+                            <li>If the user wants to display records (raws) less than 50, the user can set it.
+                                <br/><div class="img"><img src={keysec10} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>Once done with, the fields, filter, ordering, and limits, click on <b>Generate Table</b> button.</li>
                             <li>By clicking on the <b>Generate Table</b>, it generates and displays the table as per selected fields and other options, (shown in the image). You have the option to show/hide the index column.</li>
                             <li>The first row indicates the label of each column, by default, it is set to the field label, user can set it according to them after paste into the template.</li>
@@ -726,7 +753,9 @@
                             <li>The third row is the temporary row, that removed after the document generation.</li>
                             <li><b>Warning</b>: Do Not make any changes to the second and third rows.</li>
                             <li>Once the user all done, There is a copy button to copy the generated table and paste it into the template.</li>
-                            <li>For the limitation of the related list field, please refer to the limitation section.</li>
+                            <li>For the limitation of the related list field, please refer to the limitation section.
+                                <br/><div class="img"><img src={keysec11} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -738,7 +767,9 @@
                             <li><b>Creation User Details</b>: Add details about the user who created the document or the template, such as their name or ID.</li>
                             <li><b>Organization Details</b>: Include information about the organization, like the company name, address, and other relevant details.</li> 
                             <li>Click on the desired field to copy the mapping key.</li>
-                            <li>Paste the copied key into the template where you want the dynamic data to appear.</li>
+                            <li>Paste the copied key into the template where you want the dynamic data to appear.
+                                <br/><div class="img"><img src={keysec12} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -749,7 +780,9 @@
                             <li>From the Merge Templates tab, you will see a list of available templates that share the same source object as your current template.</li>
                             <li>Copy the Mapping key to merge into your current template.</li>
                             <li>If the merged template contains any further merge keys, those additional merge keys will not be merged into the final document. Instead, those nested merge keys will be removed during the merge process.</li>
-                            <li>If the template you are merging contains its own merge keys, it will show an error message in the final document.</li>
+                            <li>If the template you are merging contains its own merge keys, it will show an error message in the final document.
+                                <br/><div class="img"><img src={keysec13} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -765,7 +798,9 @@
                                     <li>Google Doc Template: 1000MB</li>
                                 </ol>
                             </li>
-                            <li>Allows image extensions are: <b>png, jpg, jpeg, avif, webp, heic, ico, jfif, jps, jpe</b></li>
+                            <li>Allows image extensions are: <b>png, jpg, jpeg, avif, webp, heic, ico, jfif, jps, jpe</b>
+                                <br/><div class="img"><img src={keysec14} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -778,7 +813,9 @@
                             <li>If a matching signature image is found, it will replace the signature key in the template with this image.</li>
                             <li>If no matching signature image is found, the document will display a blank space where the signature image should be.</li>
                             <li>You can specify the size of the signature image as a percentage of the page size. This allows you to control how large or small the signature appears in the final document.</li>
-                            <li>For generating e-signatures within your Salesforce organization, you can use the Signature Anywhere AppExchange app. This app facilitates the collection and management of e-signatures, ensuring seamless integration with your DocGenius templates.</li>
+                            <li>For generating e-signatures within your Salesforce organization, you can use the Signature Anywhere AppExchange app. This app facilitates the collection and management of e-signatures, ensuring seamless integration with your DocGenius templates.
+                                <br/><div class="img"><img src={keysec15} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div>
                 </div>

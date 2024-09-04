@@ -1,5 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import Userguide from "@salesforce/resourceUrl/Userguide";
+import Userguide2 from "@salesforce/resourceUrl/Userguide2";
 import integrationImages from "@salesforce/resourceUrl/integrationImages";
 import homePageImgs from "@salesforce/resourceUrl/homePageImgs";
 
@@ -35,9 +36,8 @@ export default class UserGuide extends LightningElement {
     get aws2(){
         return Userguide + '/aws/aws2.png';
     }
-    // new
     get aws3(){
-        return Userguide + '/aws/aws3.png';
+        return Userguide + '/aws/remotesiteaws.png';
     }
     get aws4(){
         return Userguide + '/aws/aws3.png';
@@ -53,6 +53,9 @@ export default class UserGuide extends LightningElement {
     }
     get aws8(){
         return Userguide + '/aws/aws8.png';
+    }
+    get aws9(){
+        return Userguide + '/aws/awsnamedcredential.png';
     }
 
     // Google Drive Images
@@ -123,11 +126,17 @@ export default class UserGuide extends LightningElement {
     get odrive4(){
         return Userguide + '/onedrive/onedriveapp.png';
     }
+    get odrive5(){
+        return Userguide + '/onedrive/odriveclientid.png';
+    }
     get odrive6(){
         return Userguide + '/onedrive/onedrivecredentials2.png';
     }
     get odrive7(){
         return Userguide + '/onedrive/onedrivecredentials.png';
+    }
+    get odrive8(){
+        return Userguide + '/onedrive/odriveaddscope.png';
     }
     get odrive9(){
         return Userguide + '/onedrive/onedrivescope.png';
@@ -138,11 +147,11 @@ export default class UserGuide extends LightningElement {
     get odrive11(){
         return Userguide + '/onedrive/onedrivescope2.png';
     }
-    get odrive13(){
-        return Userguide + '/onedrive/onedrivepermissions.png';
-    }
     get odrive12(){
         return Userguide + '/onedrive/onedriveaddpermissions.png';
+    }
+    get odrive13(){
+        return Userguide + '/onedrive/onedrivepermissions.png';
     }
     get odrive14(){
         return Userguide + '/onedrive/onedriveaddpermissions2.png';
@@ -249,6 +258,73 @@ export default class UserGuide extends LightningElement {
     }
     get docgen7() {
         return Userguide + '/document/composeemail.png';
+    }
+
+    // Home Page Images
+    get dochome1() {
+        return Userguide2 + '/home/homeemptycreate.png';
+    }
+    get dochome2() {
+        return Userguide2 + '/home/homenewtemplates.png';
+    }
+    get dochome3() {
+        return Userguide2 + '/home/homenewbutton.png';
+    }
+    get dochome4() {
+        return Userguide2 + '/home/homebuttons.png';
+    }
+    get dochome5() {
+        return Userguide2 + '/home/hometemplates.png';
+    }
+    get dochome6() {
+        return Userguide2 + '/home/homefilters.png';
+    }
+
+    // key mapping container
+    get keysec1() {
+        return Userguide2 + '/key/keyoptions2.png';
+    }
+    get keysec2() {
+        return Userguide2 + '/key/keyoptions.png';
+    }
+    get keysec3() {
+        return Userguide2 + '/key/keyoptionscopy.png';
+    }
+    get keysec4() {
+        return Userguide2 + '/key/datetimeformat.png';
+    }
+    get keysec5() {
+        return Userguide2 + '/key/dateformat.png';
+    }
+    get keysec6() {
+        return Userguide2 + '/key/timeformat.png';
+    }
+    get keysec7() {
+        return Userguide2 + '/key/numberformat.png';
+    }
+    get keysec8() {
+        return Userguide2 + '/key/checkboxformat.png';
+    }
+    get keysec9() {
+        return Userguide2 + '/key/relatedlistfields.png';
+    }
+    get keysec10() {
+        return Userguide2 + '/key/copytable2.png';
+    }
+    get keysec11() {
+        return Userguide2 + '/key/copytable.png';
+    }
+    get keysec12() {
+        return Userguide2 + '/key/generalfields.png';
+    }
+    get keysec13() {
+        return Userguide2 + '/key/mergetemplates.png';
+    }
+    get keysec14() {
+        return Userguide2 + '/key/salesforceimages.png';
+    }
+    get keysec15() {
+        return Userguide2 + '/key/signatureimages.png';
     }
     
     activeSections = [];
