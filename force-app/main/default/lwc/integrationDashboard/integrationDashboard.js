@@ -495,6 +495,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                    if(result === 'success'){
                       
                        // console.log('success');
+                       this.isSpinner = false;
                        const messageContainer = this.template.querySelector('c-message-popup')
                        messageContainer.showMessageToast({
                            status: 'success',
@@ -549,6 +550,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            authorizeNamed({ named: this.namedCredential })
            .then(result =>{
                // console.log(result);
+               this.isSpinner = false;
                if(result === 'Success'){
                const messageContainer = this.template.querySelector('c-message-popup')
                    messageContainer.showMessageToast({
@@ -590,6 +592,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            awsAuthorization({ clientId: this.clientId, clientSecret: this.clientSecret, bucket: this.bucket, awsNickname: this.nickname })
            .then(result =>{
                console.log(result);
+               this.isSpinner = false;
                if(result === 'Success'){
                const messageContainer = this.template.querySelector('c-message-popup')
                    messageContainer.showMessageToast({
@@ -610,6 +613,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                    });
                }
            }); 
+           this.isSpinner = false;
            this.bucket = '';
            this.clientId = '';
            this.clientSecret = '';
@@ -793,6 +797,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            window.location.href = durl;
        })
        .catch(error => {
+        this.isSpinner = false;
            console.error('Error:', error);
        });
        this.clientId = '';
@@ -823,6 +828,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            window.location.href = durl;
        })
        .catch(error => {
+            this.isSpinner = false;
            console.error('Error:', error);
        });
        this.clientId = '';
@@ -872,24 +878,25 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            // console.log('1');
            this.handleAwsAuthorization();
            this.ispopup = false;
-           this.isSpinner = false;
+           this.isAws = false;
        }
        else if(this.isGoogle){
            // console.log('2');
            this.handleGoogleAuthorization();
+           this.isGoogle = false;
        }
        else if(this.isDropBox){
            // console.log('3');
            this.handleDropboxAuthorization();
+           this.isDropBox = false;
            this.ispopup = false;
-           this.isSpinner = false;
 
        }
        else if(this.isOneDrive){
            // console.log('4');
            this.handleOneDriveAuthorization();
+           this.isOneDrive = false;
            this.ispopup = false;
-           this.isSpinner = false;
        }
    }
 }

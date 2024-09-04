@@ -240,9 +240,11 @@ public class ChildRelationshipInfo {
     public static String getObjectIdByApiName(String objectApiName) {
         // String cleanApiName = objectApiName.endsWith('__c') ? objectApiName.substring(0, objectApiName.length() - 3) : objectApiName;
     // String objectApiNameQuery = objectApiName.endsWith('__c') ? objectApiName : objectApiName + '__c';
-        if(Schema.sObjectType.EntityDefinition.Fields.DurableId.isAccessible() && Schema.sObjectType.EntityDefinition.Fields.QualifiedApiName.isAccessible() && objectApiName != null){
+        if(Schema.sObjectType.EntityDefinition.Fields.DurableId.isAccessible() && Schema.sObjectType.EntityDefinition.Fields.QualifiedApiName.isAccessible()){
+            if( objectApiName != null){
             EntityDefinition objectInfo = [SELECT DurableId FROM EntityDefinition WHERE QualifiedApiName = :objectApiName WITH SECURITY_ENFORCED LIMIT 1];
             return objectInfo != null ? objectInfo.DurableId : null;
+            }
         }
         return null;
     }
