@@ -188,7 +188,6 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     showAdditionalInfoDiv(event){
         try {
             this.showAdditionalInfo = !this.showAdditionalInfo;
-            this.template.querySelector('.show-additional-info-label').innerText = this.showAdditionalInfo ? 'Hide Additional Info' : 'Show Additional Info';
             if(this.showAdditionalInfo){
                 this.template.host.style.setProperty("--display-for-additional-info-div", "table-row");
                 this.template.querySelector('.current-time-cell').innerText = new Date().toLocaleString().replace(',', ' ');
