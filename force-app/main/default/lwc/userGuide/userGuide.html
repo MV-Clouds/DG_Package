@@ -4,9 +4,9 @@
     <div class="custom-modal-overlay" if:true={showModal}>
         <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="custom-modal-heading" class="custom-modal-container">
             <div class="custom-modal-content">
-                <button class="custom-modal-close" onclick={closeModal} title="Close">
+                <!-- <button class="custom-modal-close" onclick={closeModal} title="Close">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-0.5 -0.5 24 24" id="Close--Streamline-Ionic-Filled" height="24" width="24"><path fill="#000000" d="M14.31175 11.500095833333333 22.18172708333333 3.629975c0.37346250000000003 -0.3727916666666667 0.5835770833333334 -0.8787916666666667 0.5840083333333334 -1.4064979166666667 0.000575 -0.5278499999999999 -0.20867708333333335 -1.0341854166666669 -0.5815166666666667 -1.4076000000000002 -0.37288750000000004 -0.3735104166666667 -0.8788875 -0.5836729166666667 -1.4066416666666668 -0.5841041666666668 -0.52770625 -0.00043125 -1.0340416666666667 0.208725 -1.4075041666666666 0.5816125L11.5 8.683410416666668 3.629975 0.8133854166666667C3.2564645833333334 0.439875 2.7498416666666667 0.23 2.2217041666666666 0.23c-0.5283770833333333 0 -1.03485625 0.209875 -1.4084145833333332 0.5833854166666667C0.43977916666666667 1.1868479166666668 0.23 1.6934229166666668 0.23 2.2217041666666666c0 0.5282333333333333 0.20977916666666668 1.0347604166666666 0.5832895833333334 1.4082708333333334l7.870120833333335 7.870120833333335L0.8132895833333333 19.37007291666667C0.43977916666666667 19.743535416666667 0.23 20.25011041666667 0.23 20.778391666666668c0 0.5282333333333333 0.20977916666666668 1.03485625 0.5832895833333334 1.4083666666666668 0.3735583333333333 0.37346250000000003 0.8800375 0.5832416666666668 1.4084145833333332 0.5832416666666668 0.5281375 0 1.0347604166666666 -0.20977916666666668 1.4082708333333334 -0.5832416666666668L11.5 14.316685416666667l7.8700729166666665 7.8700729166666665c0.37346250000000003 0.37346250000000003 0.8800854166666667 0.5832416666666668 1.40831875 0.5832416666666668 0.5281854166666667 0 1.0347604166666666 -0.20977916666666668 1.4082708333333334 -0.5832416666666668 0.37346250000000003 -0.3735104166666667 0.5833375000000001 -0.8801333333333333 0.5833375000000001 -1.4083666666666668 0 -0.52828125 -0.209875 -1.03485625 -0.5833375000000001 -1.40831875L14.311702083333333 11.500095833333333Z" stroke-width="1"></path></svg>
-                </button>
+                </button> -->
                 <div class="custom-modal-body">
                     <div class="img"><img src={selectedImage} alt="error"></div>
                 </div>
@@ -84,14 +84,12 @@
             </div>
             <div class="bottom-line"></div>
         </div>
-
         <!-- Content -->
         <div class="white-background">
             <div class="content">
-
                 <!-- Button Generator -->
                  <div class="tab-content" lwc:if={btngenTab}>
-                    <h1 onclick={toggleTab}>Button Generator</h1><br/>
+                    <h1>Button Generator</h1><br/>
                     <div class="section">
                         <h2>Prerequisite:</h2>
                         <ol class="slds-list_dotted">
@@ -109,7 +107,9 @@
                     <div class="section">
                         <h2>Creating Buttons using button generator:</h2>
                         <ol class="slds-list_dotted">
-                            <li>Navigate to the User Configuration tab of the DocGenius app and then go to 'DG Setup' from the left sidebar.</li>
+                            <li>Navigate to the User Configuration tab of the DocGenius app and then go to 'DG Setup' from the left sidebar.
+                                <br><div class="img"><img src={btngen1} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>You can create three types of buttons for your objects.
                                 <ol class="slds-list_dotted">
                                     <li><b>List View Button</b>: This button can be used to generate the CSV Template document. The name of the generated button will be 'DG Generate CSV'.</li>
@@ -127,29 +127,37 @@
 
                 <!-- AWS -->
                 <div class="tab-content" lwc:if={awsTab}>
-                    <h1 onclick={toggleTab}> AWS Integration</h1><br/>
+                    <h1>AWS Integration</h1><br/>
                     <div class="section">
-                        <p><b>Step:1</b> Create a bucket or use existing bucket if any in your <a href="https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin" target="_blank">aws account</a> and copy bucket name.</p>
-                        <p class="note">[ NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 ]</p>
+                        <p><b>Step 1:</b> Create a new S3 bucket or use an existing one in <a href="https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin" target="_blank">aws account</a> .Ensure you copy the bucket name for later use.</p>
+                        <p class="note">[NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 OR use Named Credential]</p>
                         <div class="img"><img src={aws1} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={aws2} alt="error" onclick={openModal}></div>
-                        <p><b>Step:2</b> Just paste bucket name here after drag and drop aws logo. </p>
+                        <p><b>Step 2:</b> Add Remote Site setting in you salesforce org URL: https://&lbrace;bucketname&rbrace;.s3.amazonaws.com</p>
+                        <p>Replace “&lbrace;bucketname&rbrace;” with your bucket name.</p>
                         <div class="img"><img src={aws3} alt="error" onclick={openModal}></div>
+                        <p><b>Step 3:</b> Drag the AWS logo to the designated drop area, and then paste the copied S3 bucket name into the provided input field. </p>
                         <div class="img"><img src={aws4} alt="error" onclick={openModal}></div>
-                        <p><b>Step:3</b> Create a bucket or use existing bucket if any in your aws account and copy bucket name.</p>
+                        <p><b>Step 4:</b> Create a new Client ID and Client Secret, or use an existing one if available.</p>
                         <div class="img"><img src={aws5} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={aws6} alt="error" onclick={openModal}></div>
-                        <p><b>Step:4</b> Just paste bucket name here after drag and drop aws logo. </p>
+                        <p><b>Step 5:</b> Paste the Client ID and Client Secret into the designated fields, and Provide Nickname then click on 'Authorize'. </p>
                         <div class="img"><img src={aws7} alt="error" onclick={openModal}></div>
-                        <p><b>Step:5</b> Check whether the status is updated or not.</p>
+                        <p><b>Step 6:</b> Verify if the status has been updated successfully.</p>
                         <div class="img"><img src={aws8} alt="error" onclick={openModal}></div>
-                        <p>If it is active means authorization was successful.</p>
+                        <p>Verify if the status has been updated to "Active" to confirm successful authorization.</p>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>AWS using Named Credential</h2>
+                        <div class="img"><img src={aws9} alt="error" onclick={openModal}></div>
+                        <p>In URL use https://&lbrace;YourBucketName&rbrace;.s3.amazonaws.com and also add it in Remote Site Settings.</p>
                     </div>
                 </div> 
 
                 <!-- Google Drive -->
                 <div class="tab-content" lwc:if={gdriveTab}>
-                    <h1 onclick={toggleTab}>  Google Drive Integration</h1><br/>
+                    <h1>Google Drive Integration</h1><br/>
                     <div class="section">
                         <p><b>Step 1:</b> Drag and drop the Google Drive logo into the designated droppable area.</p>
                         <div class="img"><img src={gdrive1} alt="error" onclick={openModal}></div>
@@ -157,22 +165,22 @@
                         <div class="img"><img src={gdrive2} alt="error" onclick={openModal}></div>
                         <p><b>Step 3:</b> Select your Google account or log in to another Google account.</p>
                         <div class="img"><img src={gdrive3} alt="error" onclick={openModal}></div>
-                        <p><b>Step 4:</b> Click on advanced and click on “Go to salesforce-sites.com”.</p>
+                        <!-- <p><b>Step 4:</b> Click on advanced and click on “Go to salesforce-sites.com”.</p>
+                        <div class="img"><img src={gdrive4} alt="error" onclick={openModal}></div> -->
+                        <p><b>Step 4:</b> Copy this authorization code.</p>
                         <div class="img"><img src={gdrive4} alt="error" onclick={openModal}></div>
-                        <p><b>Step 5:</b> Copy this authorization code.</p>
+                        <p><b>Step 5:</b> Paste the authorization code into the designated field and click "Authorize" to complete the integration.</p>
                         <div class="img"><img src={gdrive5} alt="error" onclick={openModal}></div>
-                        <p><b>Step 6:</b> Paste the authorization code into the designated field and click "Authorize" to complete the integration.</p>
+                        <p>This will enable google doc template option in order to store files to google drive you need to select <b>"Set as Org Wide"</b> to store files in the specified Google Drive account.</p><br/>
+                        <p><b>Step 6:</b> Check whether the status is updated to confirm successful configuration.</p>
                         <div class="img"><img src={gdrive6} alt="error" onclick={openModal}></div>
-                        <p>This will enable google doc template option in order to store files to google drive you need to select <b>"Set as Org Wide"</b> to store files in the specified Google Drive account.</p>
-                        <p><b>Step 7:</b> Check whether the status is updated to confirm successful configuration.</p>
-                        <div class="img"><img src={gdrive7} alt="error" onclick={openModal}></div>
                         <p>Verify if the status has been updated to "Active" to confirm successful authorization.</p>
                     </div>
                 </div>
 
                 <!-- One Drive -->
                 <div class="tab-content" lwc:if={odriveTab}>
-                    <h1 onclick={toggleTab}>  One Drive Integration</h1><br/>
+                    <h1>One Drive Integration</h1><br/>
                     <div class="section">
                         <p><b>Step 1:</b> Sign in to your <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank">Microsoft Azure account</a> or create a new one if you don't have an account. Once signed in, navigate to the Azure portal and create a new app registration.</p>
                         <div class="img"><img src={odrive1} alt="error" onclick={openModal}></div>
@@ -180,7 +188,7 @@
                         <div class="img"><img src={odrive2} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={odrive3} alt="error" onclick={openModal}></div>
                         <p><b>Step 3:</b> Click on "Certificates & secrets" in the app registration menu, then click on "New client secret" to add a new certificate or secret.</p>
-                        <div class="img"><img src={odrive4} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive4} alt="error" onclick={openModal}></div> 
                         <p><b>Step 4:</b> Click on "New client secret" to generate a new secret. Copy the generated value and paste it into the "Client Secret" field in Doc Genius. Also, copy the "Application (client) ID" from the Azure portal and paste it into the "Client ID" field in Doc Genius.</p>
                         <div class="img"><img src={odrive5} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={odrive6} alt="error" onclick={openModal}></div>
@@ -191,14 +199,16 @@
                         <div class="img"><img src={odrive10} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={odrive11} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={odrive12} alt="error" onclick={openModal}></div>
-                        <p><b>Step 6:</b> After entering the details, click on "Authorize" and check if the integration is active. If the integration status is active, it means the authorization was successful.</p>
                         <div class="img"><img src={odrive13} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive14} alt="error" onclick={openModal}></div>
+                        <p><b>Step 6:</b> After entering the details, click on "Authorize" and check if the integration is active. If the integration status is active, it means the authorization was successful.</p>
+                        <div class="img"><img src={odrive15} alt="error" onclick={openModal}></div>
                     </div>
                 </div>
 
                 <!-- Dropbox -->
                 <div class="tab-content" lwc:if={dropboxTab}>
-                    <h1 onclick={toggleTab}>  Dropbox Integration</h1><br/>
+                    <h1>Dropbox Integration</h1><br/>
                     <div class="section">
                         <p><b>Step 1:</b> Sign in to your <a href="https://www.dropbox.com/developers" target="_blank">Dropbox developer account</a> or create a new one if you don't have an account yet. Once signed in, navigate to the Dropbox App Console and click on "Create App."</p>
                         <div class="img"><img src={dropbox1} alt="error" onclick={openModal}></div>
@@ -223,7 +233,7 @@
                 
                 <!-- Google Docs -->
                 <div class="tab-content" lwc:if={gdtempTab}>
-                    <h1 onclick={toggleTab}>  Google Docs Template</h1><br/>
+                    <h1>Google Docs Template</h1><br/>
 
                     <div class="section">
                         <h2>Prerequisites:</h2>
@@ -346,7 +356,7 @@
 
                 <!-- Simple Template -->
                 <div class="tab-content" lwc:if={stempTab}>
-                    <h1 onclick={toggleTab}>  Simple Template</h1><br/>
+                    <h1>Simple Template</h1><br/>
 
                     <div class="section">
                         <h2>How to build and edit a simple template?</h2>
@@ -423,7 +433,7 @@
 
                 <!-- CSV Template -->
                 <div class="tab-content" lwc:if={csvtempTab}>
-                    <h1 onclick={toggleTab}>  CSV Template</h1><br/>
+                    <h1>CSV Template</h1><br/>
                     
                     <div class="section">
                         <h2>Prerequisite:</h2>
@@ -544,29 +554,35 @@
                             <li>Select a Souce object on which you want to create the template. (For example, if you want to add data from Opportunity and its related object then select Opportunity object.).</li>
                             <li>Select Template Type. (To learn more about Template Type, refer to the template type section.)</li>
                             <li>Once you are done, click the Save button.</li>
-                            <li>After clicking the save button your template will created and you will be redirected to the template edit section as per your template type.</li>
+                            <li>After clicking the save button your template will created and you will be redirected to the template edit section as per your template type.
+                                <br/><div class="img"><img src={dochome1} alt="error" onclick={openModal}></div>
+                                <br/><div class="img"><img src={dochome2} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol><br/>
                         <p>If you have created some templates already, you can click on the top-left corner button to create a new template.</p>
+                        <div class="img"><img src={dochome3} alt="error" onclick={openModal}></div>
 
                         <h3>Template Information and Template Action Buttons on the Home Page:</h3>
                         <ol class="slds-list_dotted">
-                            <li>Template Information and Template Action Buttons on the Home Page:
+                            <li>Home Page provides the following information related to the templates.
                                 <ol class="slds-list_ordered">
-                                    <li>Template Name</li>
-                                    <li>Source Object</li>
-                                    <li>Template Description</li>
-                                    <li>Template Created date</li>
-                                    <li>Template Created User</li>
-                                    <li>Template Type</li>
+                                    <li><b>Template Name:</b> This is the primary identifier for each template.</li>
+                                    <li><b>Object Name:</b> Indicates the Salesforce object (e.g., Account, Contact) associated with the template.</li>
+                                    <li><b>Description:</b> A brief description or notes about the template.</li>
+                                    <li><b>Created date:</b> The date and time when the template was created.</li>
+                                    <li><b>Created by:</b> The name of the user who created the template.</li>
+                                    <li><b>Templaet Type:</b> The Type of the template (e.g., Simple Template, Google Doc Template, CSV Template).</li>
                                 </ol>
                             </li>
                             <li>Action Buttons Provided for each template on the Home Page are:
                                 <ol class="slds-list_ordered">
-                                    <li>Template Status</li>
-                                    <li>Template Edit Button</li>
-                                    <li>Preview Button</li>
-                                    <li>Clone Button</li>
-                                    <li>Delete Button</li>
+                                    <li><b>Template Status:</b> A toggle switch labeled “Active” to enable or disable the template.</li>
+                                    <li><b>Edit:</b> Opens the template in edit mode for modifications.</li>
+                                    <li><b>Preview:</b> Provides a visual preview of the template</li>
+                                    <li><b>Delete:</b> Deletes the template from the list.</li>
+                                    <li><b>Clone:</b> Creates a duplicate of the template for further modifications.
+                                        <br/><div class="img"><img src={dochome4} alt="error" onclick={openModal}></div>
+                                    </li>
                                 </ol>
                             </li>
                         </ol>
@@ -588,6 +604,8 @@
                                 <ol class="slds-list_dotted">
                                     <li>A searching option is provided to search your template by template name.</li>
                                 </ol>
+                                <br/><div class="img"><img src={dochome5} alt="error" onclick={openModal}></div>
+                                <br/><div class="img"><img src={dochome6} alt="error" onclick={openModal}></div>
                             </li>
                         </ol>
                     </div><br/>
@@ -656,12 +674,15 @@
                             <li>Users can select the object from which they want to pull data for the fields. This data will be dynamically inserted into the template when generating the document.</li>
                             <li>A search box is provided to search for specific fields within the selected object. Users can enter either the label or the API name (technical name) of the field they wish to map into the document.</li>
                             <li>There is an icon that allows users to copy the mapping key. Users can then paste this key into the desired location in the document template.</li>
-                            <li>Another icon (format icon) provides options to format the field value before it is inserted into the document. This could include formatting text, numbers, percentages, currency, dates, datetime, time, and checkbox fields.</li>
+                            <li>Another icon (format icon) provides options to format the field value before it is inserted into the document. This could include formatting text, numbers, percentages, currency, dates, datetime, time, and checkbox fields.
+                                <br/><div class="img"><img src={keysec1} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
                     <div class="section">
-                        <h2>Formatting options for fields</h2>
+                        <h2>Formatting options for fields:</h2>
+                        <div class="img"><img src={keysec2} alt="error" onclick={openModal}></div>
                         <h3>Text Field format options:</h3>
                         <ol class="slds-list_dotted">
                             <li>This functionality allows users to truncate the text of a field value to a specific number of characters.</li>
@@ -669,7 +690,9 @@
                             <li>To Apply this formatting, Navigate to the field you want to format. Click on three dots. Input the desired number of characters you want to display for this text field.</li>
                             <li>This number represents the maximum length of the text that will be shown in the generated document.</li>
                             <li>Once you've set the text length, a new mapping key will be generated.</li>
-                            <li>Go to the template content area where you want the truncated text to appear.</li>
+                            <li>Go to the template content area where you want the truncated text to appear.
+                                <br/><div class="img"><img src={keysec3} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
 
                         <h3>DateTime field format options:</h3>
@@ -678,19 +701,25 @@
                             <li>Format <b>DateTime</b> field value by selecting format option for date and time.</li>
                             <li>By selecting date and time formats from dropdown menus, users can generate a new mapping key, which can be copied and pasted into their templates.</li>
                             <li>If you only need to display the date or time component of the datetime field, select the desired format from the corresponding dropdown menu while leaving the other dropdown blank.</li>
-                            <li>Users can create their own date, time, and datetime formatting by referring to the guidelines provided on this site: <a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html" target="_blank">Oracle SimpleDateFormat Documentation</a>.</li>
+                            <li>Users can create their own date, time, and datetime formatting by referring to the guidelines provided on this site: <a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html" target="_blank">Oracle SimpleDateFormat Documentation</a>.
+                                <br/><div class="img"><img src={keysec4} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
 
                         <h3>Date field format options:</h3>
+                        <div class="img"><img src={keysec5} alt="error" onclick={openModal}></div>
 
                         <h3>Time field format options:</h3>
+                        <div class="img"><img src={keysec6} alt="error" onclick={openModal}></div>
 
                         <h3>Number, Percentage and Currency field format options:</h3>
                         <ol class="slds-list_dotted">
                             <li>This functionality allows you to customize the display format of Number, Percentage, and Currency fields in generated document.</li>
                             <li><b>Salesforce Standard Formatting</b>: This includes predefined formats based on Salesforce's established standards for these field types.</li>
                             <li><b>Set Decimal Places</b>: Use the provided option to determine the number of decimal places to display.</li>
-                            <li><b>Select Rounding Option</b>: If desired, you can round the field value by selecting a rounding option.</li>
+                            <li><b>Select Rounding Option</b>: If desired, you can round the field value by selecting a rounding option.
+                                <br/><div class="img"><img src={keysec7} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
 
                         <h3>Checkbox field format options:</h3>
@@ -698,19 +727,25 @@
                             <li>This Option allows users to customize the displayed value of a checkbox field in the generated document.</li>
                             <li>By default, Salesforce represents checkbox values as true (checked) or false (unchecked). </li>
                             <li>However, with this functionality, users can replace these default values with their own custom text.</li>
-                            <li>For example, user might choose to display "Yes/No," "Active/Inactive," or any other text that aligns with your business terminology.</li>
+                            <li>For example, user might choose to display "Yes/No," "Active/Inactive," or any other text that aligns with your business terminology.
+                                <br/><div class="img"><img src={keysec8} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
 
                         <h3>Related List fields:</h3>
                         <ol class="slds-list_dotted">
                             <li>This is a key feature for generating tables in the template that display data from related records.</li>
-                            <li>Once a related list is selected, a button labeled <b>Generate Table For Related List</b> becomes enabled. Clicking this button allows the user to insert a table into the template that displays data from the related list.</li>
+                            <li>Once a related list is selected, a button labeled <b>Generate Table For Related List</b> becomes enabled. Clicking this button allows the user to insert a table into the template that displays data from the related list.
+                                <br/><div class="img"><img src={keysec9} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>By clicking <b>Generate Table For Related List</b>, a popup will open as shown in the image,</li>
                             <li>Select specific fields from a related object to be added to a table column.</li>
                             <li>Apply filter on records.</li>
                             <li>Order table column by field value.</li>
                             <li>The maximum limit of the records (raws) that can be added to the table is 50.</li>
-                            <li>If the user wants to display records (raws) less than 50, the user can set it.</li>
+                            <li>If the user wants to display records (raws) less than 50, the user can set it.
+                                <br/><div class="img"><img src={keysec10} alt="error" onclick={openModal}></div>
+                            </li>
                             <li>Once done with, the fields, filter, ordering, and limits, click on <b>Generate Table</b> button.</li>
                             <li>By clicking on the <b>Generate Table</b>, it generates and displays the table as per selected fields and other options, (shown in the image). You have the option to show/hide the index column.</li>
                             <li>The first row indicates the label of each column, by default, it is set to the field label, user can set it according to them after paste into the template.</li>
@@ -718,7 +753,9 @@
                             <li>The third row is the temporary row, that removed after the document generation.</li>
                             <li><b>Warning</b>: Do Not make any changes to the second and third rows.</li>
                             <li>Once the user all done, There is a copy button to copy the generated table and paste it into the template.</li>
-                            <li>For the limitation of the related list field, please refer to the limitation section.</li>
+                            <li>For the limitation of the related list field, please refer to the limitation section.
+                                <br/><div class="img"><img src={keysec11} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -730,7 +767,9 @@
                             <li><b>Creation User Details</b>: Add details about the user who created the document or the template, such as their name or ID.</li>
                             <li><b>Organization Details</b>: Include information about the organization, like the company name, address, and other relevant details.</li> 
                             <li>Click on the desired field to copy the mapping key.</li>
-                            <li>Paste the copied key into the template where you want the dynamic data to appear.</li>
+                            <li>Paste the copied key into the template where you want the dynamic data to appear.
+                                <br/><div class="img"><img src={keysec12} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -741,7 +780,9 @@
                             <li>From the Merge Templates tab, you will see a list of available templates that share the same source object as your current template.</li>
                             <li>Copy the Mapping key to merge into your current template.</li>
                             <li>If the merged template contains any further merge keys, those additional merge keys will not be merged into the final document. Instead, those nested merge keys will be removed during the merge process.</li>
-                            <li>If the template you are merging contains its own merge keys, it will show an error message in the final document.</li>
+                            <li>If the template you are merging contains its own merge keys, it will show an error message in the final document.
+                                <br/><div class="img"><img src={keysec13} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -757,7 +798,9 @@
                                     <li>Google Doc Template: 1000MB</li>
                                 </ol>
                             </li>
-                            <li>Allows image extensions are: <b>png, jpg, jpeg, avif, webp, heic, ico, jfif, jps, jpe</b></li>
+                            <li>Allows image extensions are: <b>png, jpg, jpeg, avif, webp, heic, ico, jfif, jps, jpe</b>
+                                <br/><div class="img"><img src={keysec14} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -770,7 +813,9 @@
                             <li>If a matching signature image is found, it will replace the signature key in the template with this image.</li>
                             <li>If no matching signature image is found, the document will display a blank space where the signature image should be.</li>
                             <li>You can specify the size of the signature image as a percentage of the page size. This allows you to control how large or small the signature appears in the final document.</li>
-                            <li>For generating e-signatures within your Salesforce organization, you can use the Signature Anywhere AppExchange app. This app facilitates the collection and management of e-signatures, ensuring seamless integration with your DocGenius templates.</li>
+                            <li>For generating e-signatures within your Salesforce organization, you can use the Signature Anywhere AppExchange app. This app facilitates the collection and management of e-signatures, ensuring seamless integration with your DocGenius templates.
+                                <br/><div class="img"><img src={keysec15} alt="error" onclick={openModal}></div>
+                            </li>
                         </ol>
                     </div>
                 </div>
@@ -785,7 +830,6 @@
                             <li>The Button, created by the button generator on the object.</li>
                         </ol>
                     </div><br/>
-
                     <div class="section">
                         <h2>Purpose of Document Generator:</h2>
                         <ol class="slds-list_dotted">
@@ -796,11 +840,21 @@
                     <div class="section">
                         <h2>Generate Document:</h2>
                         <ol class="slds-list_dotted">
-                            <li>Navigate to the list view or record page where you have created your generation button.</li>
+                            <li>Navigate to the list view or record page where you have created your generation button.
+                                <br/><div class="img"><img src={docgen1} alt="error"></div>
+                                <br/><div class="img"><img src={docgen2} alt="error"></div>
+                            </li>
                             <li>Click on the generation button, DG Generate Document if generating from the record detail page or DG Generate CSV, if generating from the List view.</li>
-                            <li>You will see the Generate Document Pop-up to generate the Document, with the template selection dropdown having all the active templates.</li>
-                            <li>If you want to see all the templates including your inactive templates, you can click on the 'View All' Button.</li>
-                            <li>As soon as you select the template, all the generation options will be visible to you.</li>
+                            <li>You will see the Generate Document Pop-up to generate the Document, with the template selection dropdown having all the active templates.
+                                <br/><div class="img"><img src={docgen3} alt="error"></div>
+                                <br/><div class="img"><img src={docgen4} alt="error"></div>
+                            </li>
+                            <li>If you want to see all the templates including your inactive templates, you can click on the 'View All' Button.
+                                <br/><div class="img"><img src={docgen5} alt="error"></div>
+                            </li>
+                            <li>As soon as you select the template, all the generation options will be visible to you.
+                                <br/><div class="img"><img src={docgen6} alt="error"></div>
+                            </li>
                         </ol>
                     </div><br/>
 
@@ -837,7 +891,9 @@
                         <h2>Output Channel:</h2>
                         <ol class="slds-list_dotted">
                             <li>You can Email your document directly or download the document to your local system storage.</li>
-                            <li>When you select the email, the email composer will be visible to you, which will take inputs like, to recipient's email addresses, email templates, email subject and email body.</li>
+                            <li>When you select the email, the email composer will be visible to you, which will take inputs like, to recipient's email addresses, email templates, email subject and email body.
+                                <br/><div class="img"><img src={docgen7} alt="error"></div>
+                            </li>
                             <li>You can add the recipient by typing the correct email address and putting a space or a comma after that.</li>
                             <li>You can also use a tab or enter/return on your keyboard to add the email address.</li>
                             <li>You can also add multiple emails at once which are separated by a space or a comma.</li>

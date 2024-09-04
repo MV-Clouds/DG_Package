@@ -1,5 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import Userguide from "@salesforce/resourceUrl/Userguide";
+import Userguide2 from "@salesforce/resourceUrl/Userguide2";
 import integrationImages from "@salesforce/resourceUrl/integrationImages";
 import homePageImgs from "@salesforce/resourceUrl/homePageImgs";
 
@@ -30,196 +31,300 @@ export default class UserGuide extends LightningElement {
 
     // AWS Images
     get aws1(){
-        return Userguide + '/aws1.png';
+        return Userguide + '/aws/aws1.png';
     }
     get aws2(){
-        return Userguide + '/aws2.png';
+        return Userguide + '/aws/aws2.png';
     }
     get aws3(){
-        return Userguide + '/aws3.png';
+        return Userguide + '/aws/remotesiteaws.png';
     }
     get aws4(){
-        return Userguide + '/aws4.png';
+        return Userguide + '/aws/aws3.png';
     }
     get aws5(){
-        return Userguide + '/aws5.png';
+        return Userguide + '/aws/aws5.png';
     }
     get aws6(){
-        return Userguide + '/aws6.png';
+        return Userguide + '/aws/aws6.png';
     }
     get aws7(){
-        return Userguide + '/aws7.png';
+        return Userguide + '/aws/aws7.png';
     }
     get aws8(){
-        return Userguide + '/aws8.png';
+        return Userguide + '/aws/aws8.png';
+    }
+    get aws9(){
+        return Userguide + '/aws/awsnamedcredential.png';
     }
 
     // Google Drive Images
     get gdrive1(){
-        return Userguide + '/googlescreen.png';
+        return Userguide + '/google/googlescreen.png';
     }
     get gdrive2(){
-        return Userguide + '/generatecode.png';
+        return Userguide + '/google/generatecode.png';
     }
     get gdrive3(){
-        return Userguide + '/accounts.png';
+        return Userguide + '/google/accounts.png';
     }
+    // get gdrive4(){
+    //     return Userguide + '/verification.png';
+    // }
     get gdrive4(){
-        return Userguide + '/verification.png';
+        return Userguide + '/google/googlecopycode.png';
     }
     get gdrive5(){
-        return Userguide + '/googlecopycode.png';
+        return Userguide + '/google/googleauthorise.png';
     }
     get gdrive6(){
-        return Userguide + '/googleauthorise.png';
-    }
-    get gdrive7(){
-        return Userguide + '/googlescreen2.png';
+        return Userguide + '/google/googlescreen2.png';
     }
 
     // Dropbox Images
     get dropbox1(){
-        return Userguide + '/dropboxsite.png';
+        return Userguide + '/dropbox/dropboxsite.png';
     }
     get dropbox2(){
-        return Userguide + '/dropboxnewapp.png';
+        return Userguide + '/dropbox/dropboxnewapp.png';
     }
     get dropbox3(){
-        return Userguide + '/dropboxusersenable.png';
+        return Userguide + '/dropbox/dropboxusersenable.png';
     }
     get dropbox4(){
-        return Userguide + '/dropboxpermissions.png';
+        return Userguide + '/dropbox/dropboxpermissions.png';
     }
     get dropbox5(){
-        return Userguide + '/dropboxpermissions2.png';
+        return Userguide + '/dropbox/dropboxpermissions2.png';
     }
     get dropbox6(){
-        return Userguide + '/dropboxsettings.png';
+        return Userguide + '/dropbox/dropboxsettings.png';
     }
     get dropbox7(){
-        return Userguide + '/dropboxcredentials.png';
+        return Userguide + '/dropbox/dropboxcredentials.png';
     }
     get dropbox8(){
-        return Userguide + '/dropboxscreen.png';
+        return Userguide + '/dropbox/dropboxscreen.png';
     }
     get dropbox9(){
-        return Userguide + '/dropboxapp.png';
+        return Userguide + '/dropbox/dropboxapp.png';
     }
     get dropbox10(){
-        return Userguide + '/dropboxactive.png';
+        return Userguide + '/dropbox/dropboxactive.png';
     }
 
     // One Drive Images
     get odrive1(){
-        return Userguide + '/onedriveappregister.png';
+        return Userguide + '/onedrive/onedriveappregister.png';
     }
     get odrive2(){
-        return Userguide + '/onedriveappregister2.png';
+        return Userguide + '/onedrive/onedriveappregister2.png';
     }
     get odrive3(){
-        return Userguide + '/onedriveauthorise.png';
+        return Userguide + '/onedrive/onedriveauthorise.png';
     }
     get odrive4(){
-        return Userguide + '/onedriveapp.png';
+        return Userguide + '/onedrive/onedriveapp.png';
     }
     get odrive5(){
-        return Userguide + '/onedrivecredentials.png';
+        return Userguide + '/onedrive/odriveclientid.png';
     }
     get odrive6(){
-        return Userguide + '/onedrivecredentials2.png';
+        return Userguide + '/onedrive/onedrivecredentials2.png';
     }
     get odrive7(){
-        return Userguide + '/onedrivescope.png';
+        return Userguide + '/onedrive/onedrivecredentials.png';
     }
     get odrive8(){
-        return Userguide + '/onedrivescope2.png';
+        return Userguide + '/onedrive/odriveaddscope.png';
     }
     get odrive9(){
-        return Userguide + '/onedrivescope3.png';
+        return Userguide + '/onedrive/onedrivescope.png';
     }
     get odrive10(){
-        return Userguide + '/onedrivepermissions.png';
+        return Userguide + '/onedrive/onedrivescope2.png';
     }
     get odrive11(){
-        return Userguide + '/onedriveaddpermissions.png';
+        return Userguide + '/onedrive/onedrivescope2.png';
     }
     get odrive12(){
-        return Userguide + '/onedriveaddpermissions2.png';
+        return Userguide + '/onedrive/onedriveaddpermissions.png';
     }
     get odrive13(){
-        return Userguide + '/onedriveactive.png';
+        return Userguide + '/onedrive/onedrivepermissions.png';
+    }
+    get odrive14(){
+        return Userguide + '/onedrive/onedriveaddpermissions2.png';
+    }
+    get odrive15(){
+        return Userguide + '/onedrive/onedriveactive.png';
     }
 
     // Simple Template
     get stemp1() {
-        return Userguide + '/homescreen.png';
+        return Userguide + '/simple/homescreen.png';
     }
     get stemp2() {
-        return Userguide + '/pageconfig.png';
+        return Userguide + '/simple/pageconfig.png';
     }
     get stemp3() {
-        return Userguide + '/header.png';
+        return Userguide + '/simple/header.png';
     }
     get stemp4() {
-        return Userguide + '/footer.png';
+        return Userguide + '/simple/footer.png';
     }
     get stemp5() {
-        return Userguide + '/basicdetails.png';
+        return Userguide + '/simple/basicdetails.png';
     }
 
     // Google Doc Images
     get gdtemp1() {
-        return Userguide + '/creationpage.png';
+        return Userguide + '/googledoc/creationpage.png';
     }
     get gdtemp2() {
-        return Userguide + '/alltemplates.png';
+        return Userguide + '/googledoc/alltemplates.png';
     }
     get gdtemp3() {
-        return Userguide + '/keymappingpage.png';
+        return Userguide + '/googledoc/keymappingpage.png';
     }
     get gdtemp4() {
-        return Userguide + '/previewbutton.png';
+        return Userguide + '/googledoc/previewbutton.png';
     }
     get gdtemp5() {
-        return Userguide + '/previewpage.png';
+        return Userguide + '/googledoc/previewpage.png';
     }
     get gdtemp6() {
-        return Userguide + '/previewpage2.png';
+        return Userguide + '/googledoc/previewpage2.png';
     }
     get gdtemp7() {
-        return Userguide + '/gbasicdetails.png';
+        return Userguide + '/googledoc/gbasicdetails.png';
     }
     get gdtemp8() {
-        return Userguide + '/setdefaults.png';
+        return Userguide + '/googledoc/setdefaults.png';
     }
 
     // CSV Template
     get csv1() {
-        return Userguide + '/NewCSVTemplateCreation.png';
+        return Userguide + '/csv/NewCSVTemplateCreation.png';
     }
     get csv2() {
-        return Userguide + '/ListViewPopUp.png';
+        return Userguide + '/csv/ListViewPopUp.png';
     }
     get csv3() {
-        return Userguide + '/EditTemplatetab.png';
+        return Userguide + '/csv/EditTemplatetab.png';
     }
     get csv4() {
-        return Userguide + '/Selectcolumns.png';
+        return Userguide + '/csv/Selectcolumns.png';
     }
     get csv5() {
-        return Userguide + '/ApplyFilters.png';
+        return Userguide + '/csv/ApplyFilters.png';
     }
     get csv6() {
-        return Userguide + '/OrderBy.png';
+        return Userguide + '/csv/OrderBy.png';
     }
     get csv7() {
-        return Userguide + '/Limit.png';
+        return Userguide + '/csv/Limit.png';
     }
     get csv8() {
-        return Userguide + '/BasicDetailstab.png';
+        return Userguide + '/csv/BasicDetailstab.png';
     }
     get csv9() {
-        return Userguide + '/TemplateDefaultstab.png';
+        return Userguide + '/csv/TemplateDefaultstab.png';
+    }
+
+    // Button Generator
+    get btngen1() {
+        return Userguide + '/button/Buttongenerator.png';
+    }
+
+    // Document Generator
+    get docgen1() {
+        return Userguide + '/document/DGGenerateCSV.png';
+    }
+    get docgen2() {
+        return Userguide + '/document/DGGenerateDocument.png';
+    }
+    get docgen3() {
+        return Userguide + '/document/Selecttemplatetogenerate.png';
+    }
+    get docgen4() {
+        return Userguide + '/document/viewalltemplatesbutton.png';
+    }
+    get docgen5() {
+        return Userguide + '/document/viewalltemplatesUI.png';
+    }
+    get docgen6() {
+        return Userguide + '/document/generatedocument.png';
+    }
+    get docgen7() {
+        return Userguide + '/document/composeemail.png';
+    }
+
+    // Home Page Images
+    get dochome1() {
+        return Userguide2 + '/home/homeemptycreate.png';
+    }
+    get dochome2() {
+        return Userguide2 + '/home/homenewtemplates.png';
+    }
+    get dochome3() {
+        return Userguide2 + '/home/homenewbutton.png';
+    }
+    get dochome4() {
+        return Userguide2 + '/home/homebuttons.png';
+    }
+    get dochome5() {
+        return Userguide2 + '/home/hometemplates.png';
+    }
+    get dochome6() {
+        return Userguide2 + '/home/homefilters.png';
+    }
+
+    // key mapping container
+    get keysec1() {
+        return Userguide2 + '/key/keyoptions2.png';
+    }
+    get keysec2() {
+        return Userguide2 + '/key/keyoptions.png';
+    }
+    get keysec3() {
+        return Userguide2 + '/key/keyoptionscopy.png';
+    }
+    get keysec4() {
+        return Userguide2 + '/key/datetimeformat.png';
+    }
+    get keysec5() {
+        return Userguide2 + '/key/dateformat.png';
+    }
+    get keysec6() {
+        return Userguide2 + '/key/timeformat.png';
+    }
+    get keysec7() {
+        return Userguide2 + '/key/numberformat.png';
+    }
+    get keysec8() {
+        return Userguide2 + '/key/checkboxformat.png';
+    }
+    get keysec9() {
+        return Userguide2 + '/key/relatedlistfields.png';
+    }
+    get keysec10() {
+        return Userguide2 + '/key/copytable2.png';
+    }
+    get keysec11() {
+        return Userguide2 + '/key/copytable.png';
+    }
+    get keysec12() {
+        return Userguide2 + '/key/generalfields.png';
+    }
+    get keysec13() {
+        return Userguide2 + '/key/mergetemplates.png';
+    }
+    get keysec14() {
+        return Userguide2 + '/key/salesforceimages.png';
+    }
+    get keysec15() {
+        return Userguide2 + '/key/signatureimages.png';
     }
     
     activeSections = [];
@@ -236,6 +341,7 @@ export default class UserGuide extends LightningElement {
     @track gdtempTab = false;
     @track keysecTab = false;
     @track docgenTab = false;
+    @track tabList = ['dochomeTab', 'btngenTab', 'awsTab', 'gdriveTab', 'odriveTab', 'dropboxTab', 'stempTab', 'csvtempTab', 'gdtempTab', 'keysecTab', 'docgenTab'];
 
     @track isOpen = false;
     @track showModal = false;
@@ -251,26 +357,23 @@ export default class UserGuide extends LightningElement {
     // Switch Tabs
     handleTabSelection(event) {
         try {
-            this.closeTab();
-            
+            if (window && window.innerWidth && window.innerWidth < 1024 ) {
+                this.closeTab();
+            }
             let tabName = event.target.dataset.tab;
-            this.dochomeTab = false;
-            this.btngenTab = false;
-            this.awsTab = false;
-            this.gdriveTab = false;
-            this.odriveTab = false;
-            this.dropboxTab = false;
-            this.stempTab = false;
-            this.csvtempTab = false;
-            this.gdtempTab = false;
-            this.keysecTab = false;
-            this.docgenTab = false;
+            this.tabList.forEach(tab => {
+                this[tab] = false;
+            });
             this[tabName + 'Tab'] = true;
             
             let currentTab = this.template.querySelector('.selected-tab');
             currentTab.classList.remove('selected-tab');
             let tab = this.template.querySelector(`.tabs[data-tab="${tabName}"]`);
             tab.classList.add('selected-tab');
+
+            this.template.querySelector('.tab-content').scrollTop = 0;
+            this.template.querySelector('.content').scrollTop = 0;
+            this.template.querySelector('.white-background').scrollTop = 0;
         } catch (error) {
             console.log(error);
         }
