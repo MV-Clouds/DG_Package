@@ -65,6 +65,7 @@
     border: solid 1px black;
     margin: 0.5rem;
     width: 600px;
+    cursor: pointer;
 }
 
 .content{
@@ -221,10 +222,6 @@ lightning-accordion-section {
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-}
-
-.custom-modal-body {
-    padding: 1rem;
 }
 
 @keyframes fadeIn {

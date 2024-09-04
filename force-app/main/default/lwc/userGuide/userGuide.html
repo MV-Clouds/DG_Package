@@ -4,9 +4,9 @@
     <div class="custom-modal-overlay" if:true={showModal}>
         <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="custom-modal-heading" class="custom-modal-container">
             <div class="custom-modal-content">
-                <button class="custom-modal-close" onclick={closeModal} title="Close">
+                <!-- <button class="custom-modal-close" onclick={closeModal} title="Close">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-0.5 -0.5 24 24" id="Close--Streamline-Ionic-Filled" height="24" width="24"><path fill="#000000" d="M14.31175 11.500095833333333 22.18172708333333 3.629975c0.37346250000000003 -0.3727916666666667 0.5835770833333334 -0.8787916666666667 0.5840083333333334 -1.4064979166666667 0.000575 -0.5278499999999999 -0.20867708333333335 -1.0341854166666669 -0.5815166666666667 -1.4076000000000002 -0.37288750000000004 -0.3735104166666667 -0.8788875 -0.5836729166666667 -1.4066416666666668 -0.5841041666666668 -0.52770625 -0.00043125 -1.0340416666666667 0.208725 -1.4075041666666666 0.5816125L11.5 8.683410416666668 3.629975 0.8133854166666667C3.2564645833333334 0.439875 2.7498416666666667 0.23 2.2217041666666666 0.23c-0.5283770833333333 0 -1.03485625 0.209875 -1.4084145833333332 0.5833854166666667C0.43977916666666667 1.1868479166666668 0.23 1.6934229166666668 0.23 2.2217041666666666c0 0.5282333333333333 0.20977916666666668 1.0347604166666666 0.5832895833333334 1.4082708333333334l7.870120833333335 7.870120833333335L0.8132895833333333 19.37007291666667C0.43977916666666667 19.743535416666667 0.23 20.25011041666667 0.23 20.778391666666668c0 0.5282333333333333 0.20977916666666668 1.03485625 0.5832895833333334 1.4083666666666668 0.3735583333333333 0.37346250000000003 0.8800375 0.5832416666666668 1.4084145833333332 0.5832416666666668 0.5281375 0 1.0347604166666666 -0.20977916666666668 1.4082708333333334 -0.5832416666666668L11.5 14.316685416666667l7.8700729166666665 7.8700729166666665c0.37346250000000003 0.37346250000000003 0.8800854166666667 0.5832416666666668 1.40831875 0.5832416666666668 0.5281854166666667 0 1.0347604166666666 -0.20977916666666668 1.4082708333333334 -0.5832416666666668 0.37346250000000003 -0.3735104166666667 0.5833375000000001 -0.8801333333333333 0.5833375000000001 -1.4083666666666668 0 -0.52828125 -0.209875 -1.03485625 -0.5833375000000001 -1.40831875L14.311702083333333 11.500095833333333Z" stroke-width="1"></path></svg>
-                </button>
+                </button> -->
                 <div class="custom-modal-body">
                     <div class="img"><img src={selectedImage} alt="error"></div>
                 </div>
@@ -89,7 +89,7 @@
             <div class="content">
                 <!-- Button Generator -->
                  <div class="tab-content" lwc:if={btngenTab}>
-                    <h1 onclick={toggleTab}>Button Generator</h1><br/>
+                    <h1>Button Generator</h1><br/>
                     <div class="section">
                         <h2>Prerequisite:</h2>
                         <ol class="slds-list_dotted">
@@ -125,29 +125,37 @@
 
                 <!-- AWS -->
                 <div class="tab-content" lwc:if={awsTab}>
-                    <h1 onclick={toggleTab}> AWS Integration</h1><br/>
+                    <h1>AWS Integration</h1><br/>
                     <div class="section">
-                        <p><b>Step:1</b> Create a bucket or use existing bucket if any in your <a href="https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin" target="_blank">aws account</a> and copy bucket name.</p>
-                        <p class="note">[ NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 ]</p>
+                        <p><b>Step 1:</b> Create a new S3 bucket or use an existing one in <a href="https://console.aws.amazon.com/console/home?nc2=h_ct&src=header-signin" target="_blank">aws account</a> .Ensure you copy the bucket name for later use.</p>
+                        <p class="note">[NOTE: Region of S3 bucket should be US East (N. Virginia) us-east-1 OR use Named Credential]</p>
                         <div class="img"><img src={aws1} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={aws2} alt="error" onclick={openModal}></div>
-                        <p><b>Step:2</b> Just paste bucket name here after drag and drop aws logo. </p>
+                        <p><b>Step 2:</b> Add Remote Site setting in you salesforce org URL: https://&lbrace;bucketname&rbrace;.s3.amazonaws.com</p>
+                        <p>Replace “&lbrace;bucketname&rbrace;” with your bucket name.</p>
                         <div class="img"><img src={aws3} alt="error" onclick={openModal}></div>
+                        <p><b>Step 3:</b> Drag the AWS logo to the designated drop area, and then paste the copied S3 bucket name into the provided input field. </p>
                         <div class="img"><img src={aws4} alt="error" onclick={openModal}></div>
-                        <p><b>Step:3</b> Create a bucket or use existing bucket if any in your aws account and copy bucket name.</p>
+                        <p><b>Step 4:</b> Create a new Client ID and Client Secret, or use an existing one if available.</p>
                         <div class="img"><img src={aws5} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={aws6} alt="error" onclick={openModal}></div>
-                        <p><b>Step:4</b> Just paste bucket name here after drag and drop aws logo. </p>
+                        <p><b>Step 5:</b> Paste the Client ID and Client Secret into the designated fields, and Provide Nickname then click on 'Authorize'. </p>
                         <div class="img"><img src={aws7} alt="error" onclick={openModal}></div>
-                        <p><b>Step:5</b> Check whether the status is updated or not.</p>
+                        <p><b>Step 6:</b> Verify if the status has been updated successfully.</p>
                         <div class="img"><img src={aws8} alt="error" onclick={openModal}></div>
-                        <p>If it is active means authorization was successful.</p>
+                        <p>Verify if the status has been updated to "Active" to confirm successful authorization.</p>
+                    </div><br/>
+
+                    <div class="section">
+                        <h2>AWS using Named Credential</h2>
+                        <div class="img"><img src={aws9} alt="error" onclick={openModal}></div>
+                        <p>In URL use https://&lbrace;YourBucketName&rbrace;.s3.amazonaws.com and also add it in Remote Site Settings.</p>
                     </div>
                 </div> 
 
                 <!-- Google Drive -->
                 <div class="tab-content" lwc:if={gdriveTab}>
-                    <h1 onclick={toggleTab}>  Google Drive Integration</h1><br/>
+                    <h1>Google Drive Integration</h1><br/>
                     <div class="section">
                         <p><b>Step 1:</b> Drag and drop the Google Drive logo into the designated droppable area.</p>
                         <div class="img"><img src={gdrive1} alt="error" onclick={openModal}></div>
@@ -155,22 +163,22 @@
                         <div class="img"><img src={gdrive2} alt="error" onclick={openModal}></div>
                         <p><b>Step 3:</b> Select your Google account or log in to another Google account.</p>
                         <div class="img"><img src={gdrive3} alt="error" onclick={openModal}></div>
-                        <p><b>Step 4:</b> Click on advanced and click on “Go to salesforce-sites.com”.</p>
+                        <!-- <p><b>Step 4:</b> Click on advanced and click on “Go to salesforce-sites.com”.</p>
+                        <div class="img"><img src={gdrive4} alt="error" onclick={openModal}></div> -->
+                        <p><b>Step 4:</b> Copy this authorization code.</p>
                         <div class="img"><img src={gdrive4} alt="error" onclick={openModal}></div>
-                        <p><b>Step 5:</b> Copy this authorization code.</p>
+                        <p><b>Step 5:</b> Paste the authorization code into the designated field and click "Authorize" to complete the integration.</p>
                         <div class="img"><img src={gdrive5} alt="error" onclick={openModal}></div>
-                        <p><b>Step 6:</b> Paste the authorization code into the designated field and click "Authorize" to complete the integration.</p>
+                        <p>This will enable google doc template option in order to store files to google drive you need to select <b>"Set as Org Wide"</b> to store files in the specified Google Drive account.</p><br/>
+                        <p><b>Step 6:</b> Check whether the status is updated to confirm successful configuration.</p>
                         <div class="img"><img src={gdrive6} alt="error" onclick={openModal}></div>
-                        <p>This will enable google doc template option in order to store files to google drive you need to select <b>"Set as Org Wide"</b> to store files in the specified Google Drive account.</p>
-                        <p><b>Step 7:</b> Check whether the status is updated to confirm successful configuration.</p>
-                        <div class="img"><img src={gdrive7} alt="error" onclick={openModal}></div>
                         <p>Verify if the status has been updated to "Active" to confirm successful authorization.</p>
                     </div>
                 </div>
 
                 <!-- One Drive -->
                 <div class="tab-content" lwc:if={odriveTab}>
-                    <h1 onclick={toggleTab}>  One Drive Integration</h1><br/>
+                    <h1>One Drive Integration</h1><br/>
                     <div class="section">
                         <p><b>Step 1:</b> Sign in to your <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank">Microsoft Azure account</a> or create a new one if you don't have an account. Once signed in, navigate to the Azure portal and create a new app registration.</p>
                         <div class="img"><img src={odrive1} alt="error" onclick={openModal}></div>
@@ -178,7 +186,7 @@
                         <div class="img"><img src={odrive2} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={odrive3} alt="error" onclick={openModal}></div>
                         <p><b>Step 3:</b> Click on "Certificates & secrets" in the app registration menu, then click on "New client secret" to add a new certificate or secret.</p>
-                        <div class="img"><img src={odrive4} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive4} alt="error" onclick={openModal}></div> 
                         <p><b>Step 4:</b> Click on "New client secret" to generate a new secret. Copy the generated value and paste it into the "Client Secret" field in Doc Genius. Also, copy the "Application (client) ID" from the Azure portal and paste it into the "Client ID" field in Doc Genius.</p>
                         <div class="img"><img src={odrive5} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={odrive6} alt="error" onclick={openModal}></div>
@@ -189,14 +197,16 @@
                         <div class="img"><img src={odrive10} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={odrive11} alt="error" onclick={openModal}></div>
                         <div class="img"><img src={odrive12} alt="error" onclick={openModal}></div>
-                        <p><b>Step 6:</b> After entering the details, click on "Authorize" and check if the integration is active. If the integration status is active, it means the authorization was successful.</p>
                         <div class="img"><img src={odrive13} alt="error" onclick={openModal}></div>
+                        <div class="img"><img src={odrive14} alt="error" onclick={openModal}></div>
+                        <p><b>Step 6:</b> After entering the details, click on "Authorize" and check if the integration is active. If the integration status is active, it means the authorization was successful.</p>
+                        <div class="img"><img src={odrive15} alt="error" onclick={openModal}></div>
                     </div>
                 </div>
 
                 <!-- Dropbox -->
                 <div class="tab-content" lwc:if={dropboxTab}>
-                    <h1 onclick={toggleTab}>  Dropbox Integration</h1><br/>
+                    <h1>Dropbox Integration</h1><br/>
                     <div class="section">
                         <p><b>Step 1:</b> Sign in to your <a href="https://www.dropbox.com/developers" target="_blank">Dropbox developer account</a> or create a new one if you don't have an account yet. Once signed in, navigate to the Dropbox App Console and click on "Create App."</p>
                         <div class="img"><img src={dropbox1} alt="error" onclick={openModal}></div>
@@ -213,7 +223,7 @@
                         <div class="img"><img src={dropbox8} alt="error" onclick={openModal}></div>
                         <p><b>Step 6:</b> Copy the Redirect URI from Doc Genius and paste it into the "Redirect URIs" field. Then, click the "Add" button.</p>
                         <div class="img"><img src={dropbox9} alt="error" onclick={openModal}></div>
-                        event.key);>Step 7:</b> Click on "Authorize" in Doc Genius and verify that the integration is active.</p>
+                        <p><b>Step 7:</b> Click on "Authorize" in Doc Genius and verify that the integration is active.</p>
                         <div class="img"><img src={dropbox10} alt="error" onclick={openModal}></div>
                         <p class="note">[ NOTE: DROPBOX will automatically log you in as per your current  logged in account if you wish to choose, use Incognito mode(Private window) during integration process ].</p>
                     </div>
@@ -221,7 +231,7 @@
                 
                 <!-- Google Docs -->
                 <div class="tab-content" lwc:if={gdtempTab}>
-                    <h1 onclick={toggleTab}>  Google Docs Template</h1><br/>
+                    <h1>Google Docs Template</h1><br/>
 
                     <div class="section">
                         <h2>Prerequisites:</h2>
@@ -344,7 +354,7 @@
 
                 <!-- Simple Template -->
                 <div class="tab-content" lwc:if={stempTab}>
-                    <h1 onclick={toggleTab}>  Simple Template</h1><br/>
+                    <h1>Simple Template</h1><br/>
 
                     <div class="section">
                         <h2>How to build and edit a simple template?</h2>
@@ -421,7 +431,7 @@
 
                 <!-- CSV Template -->
                 <div class="tab-content" lwc:if={csvtempTab}>
-                    <h1 onclick={toggleTab}>  CSV Template</h1><br/>
+                    <h1>CSV Template</h1><br/>
                     
                     <div class="section">
                         <h2>Prerequisite:</h2>
