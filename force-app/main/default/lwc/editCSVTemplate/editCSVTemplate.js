@@ -272,6 +272,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 box-shadow: none;
                             }
 
+                            .basic-detail-div .slds-input:not(c-custom-combobox .slds-input):focus{
+                                border: 1px solid #00aeff;
+                            }
+
                             .override-css-from-js .slds-textarea{
                                 height: 3.5rem;
                                 border-radius: 0.5rem 0.5rem 0 0.5rem;
@@ -392,6 +396,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     combinedData.template ? this.setupTemplateDetails(combinedData.template) : undefined;
                     combinedData.templateData ? this.setupTemplateDataDetails(combinedData.templateData) : undefined;
                     combinedData.listViews ? this.setUpListViews(combinedData.listViews) : undefined;
+                    this.showListViewPopup = !this.selectedFields?.length>0 && this.allListViews?.length>0 ?  true : false;
                 }else{
                     this.showWarningPopup('error','Something went wrong!', 'Couldn\'t fetch the required data for this template, please try again...');
                     this.isClose = true;
@@ -435,8 +440,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     
     setUpListViews(data) {
         try {
-            this.allListViews = data.map(listView => ({ label: listView.Name, value: listView.Id }));
-            this.showListViewPopup = this.isNew && this.allListViews.length>0 ?  true : false;
+            this.allListViews = data.map(listView => ({ label: listView.Name, value: listView.Id }));  
         }catch(e) {
             this.showSpinner = false;
             this.showToast('error', 'Something went wrong!', 'Error setting up list views.', 5000);
@@ -861,7 +865,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 // -=-=- To remove clicked filter from the filters list -=-=-
     removeFilter(event){
         try {
-            const index = event.target.dataset.index;
+            const index = event?.target?.dataset?.index;
             if(this.filters.length >1){
                 this.filters.splice(index, 1);
             }else if(this.filters.length ==1){
@@ -1278,6 +1282,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     validateCustomLogic(){
         try{
+            this.isCustomLogicValid = this.validateOnEachCharacter();
             const logicStringInput = this.template.querySelector('.logic-string-input');
             const errorString =  this.template.querySelector('.error-text');
             logicStringInput.classList.remove('error-in-input');
@@ -1869,7 +1874,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                             this.showSpinner = false;
                             this.showPreview = true;
                         }else{
-                            this.showToast('success', 'Yay! Everything worked!', 'The template fields were saved successfully', 5000);
+                            this.showToast('success', 'Action Performed!', 'The template fields were saved successfully', 5000);
                         }
                     })
                     .catch(e=> {
@@ -2027,16 +2032,17 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.filters = JSON.parse(JSON.stringify(this.existingFilters));
                 for(let i = 0; i < this.filters.length ; i++){
                     this.updateOperatorOptions(i);
-                    this.template.querySelectorAll('.filter-field-select')[i].classList.toggle('error-in-custom-combobox', !this.filters[i].fieldName);
-                    this.template.querySelectorAll('.operator-select')[i].classList.toggle('error-in-custom-combobox', this.filters[i].fieldName && !this.filters[i].operator);
-                    this.template.querySelectorAll('.value-select-div')[i].classList.toggle('error-in-value-input', this.filters[i].fieldName && this.filters[i].operator && !this.filters[i].value);
+                    this.template.querySelectorAll('.filter-field-select')[i]?.classList.toggle('error-in-custom-combobox', !this.filters[i].fieldName);
+                    this.template.querySelectorAll('.operator-select')[i]?.classList.toggle('error-in-custom-combobox', this.filters[i].fieldName && !this.filters[i].operator);
+                    this.template.querySelectorAll('.value-select-div')[i]?.classList.toggle('error-in-value-input', this.filters[i].fieldName && this.filters[i].operator && !this.filters[i].value);
                 }
                 this.filtersCount = this.filters.length;
                 this.initialFilters = true;
                 this.selectedLogic = this.existingLogic;
-                this.template.querySelector('.logic-select').classList.remove('error-in-custom-combobox');
                 this.isCustomLogic = this.selectedLogic=='Custom' ? true : false;
                 this.customLogicString = this.existingCustomLogicString;
+                this.isCustomLogicValid = this.validateOnEachCharacter();
+                this.template.querySelector('.logic-select')?.classList.remove('error-in-custom-combobox');
             }else if(this.resetSection === "orders"){
                 this.sorts = JSON.parse(JSON.stringify(this.existingSorts));
                 this.sortsCount = this.sorts.length;
@@ -2045,7 +2051,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.limit = this.existingLimit;
                 this.showLimitInput = this.existingShowLimitInput;
             }
-    
             this.resetSection = '';
             this.isEditTabChanged = true;
         }catch(e){
@@ -2065,7 +2070,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     }
     handleTemplateNameChange(event){
         try{
-            this.newTemplateData.MVDG__Template_Name__c = event.target.value;
+            this.newTemplateData.MVDG__Template_Name__c = event.target.value.trim();
             this.isBasicTabChanged = true;
         }catch(e){
             errorDebugger('editCSVTemplate', 'handleTemplateNameChange', e, 'warn');
@@ -2079,7 +2084,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleListViewChange(event){
         try{
-            if(this.isNew && !this.showBasicDetailTab){
+            if(!this.showBasicDetailTab && !this.isBasicTabChanged){
                 this.selectedListView = event.currentTarget.dataset.value;
                 this.newTemplateData.MVDG__List_View__c = this.selectedListView;
                 this.existingTemplateData.MVDG__List_View__c = this.selectedListView;
@@ -2173,7 +2178,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 .finally(()=>{
                     if(!this.selectedListView || !this.isListViewUpdated){
                         this.showSpinner = false;
-                        this.showToast('success', 'Everything worked!', 'The Template Details are updated successfully!', 5000);
+                        this.showToast('success', 'Action Performed!', 'The Template Details are updated successfully!', 5000);
                         this.isBasicTabChanged = false;
                     }
                 })
