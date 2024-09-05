@@ -513,10 +513,8 @@ export default class GenerateGoogleDocFile extends LightningElement {
             doPreview({ googleDocId: this.documentId, requests: this.changeRequests, format: this.format })
                 .then((res) => {
                     if (!res.startsWith("error")) {
-                        // Process complete
                         this.dispatchEvent(new CustomEvent("complete", { detail: { blob: res } }));
                     } else {
-                        // An error occured in recieving / make change requests
                         let splitList = res.split(":");
                         this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: splitList[2] } }));
                         console.log("Cannot Preview the result is null");

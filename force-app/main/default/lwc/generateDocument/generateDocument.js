@@ -738,11 +738,17 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 const formattedDate = new Date(temp.LastModifiedDate).toLocaleDateString("en-US");
                 return {
                     ...temp,
+                    isSelectable : temp.MVDG__Template_Status__c,
                     LastModifiedDate: formattedDate,
                     index: +index + 1
                 };
             });
-            this.activeTemplates = this.allTemplates.filter(temp => temp.MVDG__Template_Status__c === true);
+            if(this.templateIdFromParent && !this.allTemplates.find(temp => temp.Id === this.templateIdFromParent)){
+                this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
+                this.isClosableError = true;
+                return;
+            } 
+            this.activeTemplates = this.allTemplates.filter(temp => temp.isSelectable === true);
             this.templateList =  this.activeTemplates.map((template) =>{
                 return {
                     label:template.MVDG__Template_Name__c, value:template.Id
@@ -761,6 +767,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.externalStorageOptions.find( o => o.name=== 'One Drive').isDisabled = !integrations.isOneDriveIntegrated;
             if(!integrations.isUserWideAccessible && !integrations.isGoogleDriveIntegrated){
                 this.isNotGoogleNotGenerable = true;
+                this.allTemplates = this.allTemplates.map((t)=> {
+                    return {
+                        ...t,
+                        isSelectable: t.MVDG__Template_Type__c === 'Google Doc Template' ? false : t.isSelectable
+                    }
+                })
             }
         } catch (e) {
             errorDebugger('generateDocument', 'setUpIntegrationStatus', e, 'warn');
@@ -2084,7 +2096,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             }else{
                                 this.isOldButton = true;
                                 this.bottomBtnLabel = 'Update Defaults';
-                                this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                                this.showToast('success', 'Action Performed!','The button is created with defaults!', 5000);
                             }
                         })
                         .catch((e) => {
@@ -2123,7 +2135,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                     if(result.success){
                                         this.isOldButton = true;
                                         this.bottomBtnLabel = 'Update Defaults'
-                                        this.showToast('success', 'Everything worked!','The button is created with defaults!', 5000);
+                                        this.showToast('success', 'Action Performed!','The button is created with defaults!', 5000);
                                     }else{
                                         this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
                                     }
@@ -2142,7 +2154,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }else{
                     this.isOldButton = true;
                     this.bottomBtnLabel = 'Update Defaults'
-                    this.showToast('success', 'Everything worked!', 'The defaults for ' + this.buttonLabel + ' button is updated!', 5000);
+                    this.showToast('success', 'Action Performed!', 'The defaults for ' + this.buttonLabel + ' button is updated!', 5000);
                 }
             })
             .catch(e => {
