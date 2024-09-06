@@ -294,6 +294,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     sessionId;
 
     @track isCSVOnly = false;
+    @track isAllExceptCSV = false;
 
     //PDF - DOC
     @track showSimplePreview = false;
@@ -373,6 +374,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         if(this.isCSVOnly){
             filters.push({field : 'MVDG__Template_Type__c', operator : 'eq', value : 'CSV Template'});
         }
+        if(this.isAllExceptCSV){
+            filters.push({field : 'MVDG__Template_Type__c', operator : 'ne', value : 'CSV Template'});
+        }
         if(this.isNotGoogleNotGenerable){
             filters.push({field : 'MVDG__Template_Type__c', operator : 'ne', value : 'Google Doc Template'});
         }
@@ -450,7 +454,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.handleCalledFromPreview();
                 } else if (this.calledFromWhere === 'defaults') {
                     this.handleCalledFromDefaults();
-                } else if(this.isCSVOnly || this.currentPageReference?.attributes?.apiName?.split('.')[1] == 'DG_Generate_Document'){
+                } else if(this.isCSVOnly){
                     this.handleEmailTemplateSelect({detail:[]});
                     this.showSpinner = false;
                 } else if (isAutoGeneration) {
@@ -464,6 +468,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
                         this.isClosableError = true;
                     }
+                } else if(this.currentPageReference.type === "standard__quickAction" && this.currentPageReference?.attributes?.apiName?.split('.')[1] === 'DG_Generate_Document'){
+                    this.handleEmailTemplateSelect({detail:[]});
+                    this.isAllExceptCSV = true;
+                    this.allTemplates = this.allTemplates.filter(item => item.MVDG__Template_Type__c !== 'CSV Template');
+                    this.showSpinner = false;
                 }
             })
             .catch(e => {
@@ -2017,7 +2026,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             Promise.all(this.resultPromises)
                 .then(() => {
-                    this.handleClose();
+                    console.log('Selected Channels ::', this.selectedChannels);
+                    console.log('The Succeeded are ::', this.succeeded);
+                    console.log('The Failed Processes are :::', this.failed);
+                    // this.handleClose();
                     this.showSpinner = false;
                 })
                 .catch(e => {
