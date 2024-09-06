@@ -2,7 +2,7 @@ import { LightningElement, track } from 'lwc';
 import Userguide from "@salesforce/resourceUrl/Userguide";
 import Userguide2 from "@salesforce/resourceUrl/Userguide2";
 import integrationImages from "@salesforce/resourceUrl/integrationImages";
-import homePageImgs from "@salesforce/resourceUrl/homePageImgs";
+import { errorDebugger } from 'c/globalProperties';
 
 export default class UserGuide extends LightningElement {
 
@@ -68,9 +68,6 @@ export default class UserGuide extends LightningElement {
     get gdrive3(){
         return Userguide + '/google/accounts.png';
     }
-    // get gdrive4(){
-    //     return Userguide + '/verification.png';
-    // }
     get gdrive4(){
         return Userguide + '/google/googlecopycode.png';
     }
@@ -327,8 +324,7 @@ export default class UserGuide extends LightningElement {
         return Userguide2 + '/key/signatureimages.png';
     }
     
-    activeSections = [];
-    @track selectedImage = this.aws1;
+    @track selectedImage;
 
     @track dochomeTab = false;
     @track btngenTab = false;
@@ -375,7 +371,7 @@ export default class UserGuide extends LightningElement {
             this.template.querySelector('.content').scrollTop = 0;
             this.template.querySelector('.white-background').scrollTop = 0;
         } catch (error) {
-            console.log(error);
+            errorDebugger("userGuide", 'handleTabSelection', error, 'error', 'Error in changing tabs. Please try again later');
         }
     }
 

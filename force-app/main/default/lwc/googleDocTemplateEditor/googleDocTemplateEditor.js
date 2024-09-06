@@ -75,6 +75,17 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         try {
             console.log("renderedCallback");
 
+            if (this.selectedTemplate && this.selectedTemplate.id) {   
+                console.log("this.selectedTemplate.id==>", this.selectedTemplate.id);
+                let template = this.template.querySelector(`[data-id='${this.selectedTemplate.id}']`);
+                console.log("template==>", template);
+                
+                if (template) {   
+                    template.classList.add("selected");
+                    template.classList.remove("hover-effect");
+                }
+            }
+
             this.template.host.style.setProperty("--background-image-url", `url(${new_template_bg})`);
             this.template.host.style.setProperty("--main-background-image-url", `url(${homePageImgs}/HomBg.png)`);
             if (this.initialRender && this.template.querySelector("c-key-mapping-container")) {
