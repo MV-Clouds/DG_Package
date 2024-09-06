@@ -341,7 +341,9 @@
 
                     if(apexError && apexError !== null && apexError !== ''){
                         // We faced issue in apex.. so stop process here and send message to parent compoent....
-                        sendInfoToLWC('unknown', false, apexError)
+                        loadingInfo && (loadingInfo.innerText = 'Facing Issue While Generating Preview, Please Try Again...');
+                        docIcon?.classList.add('error');
+                        sendInfoToLWC('unknown', false, apexError);
                     }
                     else{
     

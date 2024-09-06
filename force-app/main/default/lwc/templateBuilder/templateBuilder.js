@@ -341,6 +341,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 }
                 else{
                     this.resolvedPromise++
+                    this.noTemplateFound = true;
                     this.showMessagePopup('Error', 'Error While Fetching Template Data', result.returnMessage);
                 }
             })
@@ -1110,7 +1111,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     const imageSize = base64.length * 3 / 4; 
                     if(imageSize > this.maxImageSize){
                         ele.remove();
-                        this.showMessageToast('error', 'Image size larger than 3 MB', 'You can only inset image upto 3 MB.')
+                        this.showMessageToast('error', 'Image size larger than 3 MB', 'You can only insert image upto 3 MB.')
                     }
                 }
             })
