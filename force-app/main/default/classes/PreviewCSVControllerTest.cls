@@ -19,7 +19,7 @@ public with sharing class PreviewCSVControllerTest {
 
         MVDG__Template_Data__c td= new MVDG__Template_Data__c(
             MVDG__Template__c = template.Id,
-            MVDG__CSV_Query__c = 'SELECT Id FROM Account LIMIT 12',
+            MVDG__CSV_Query__c = 'SELECT Id FROM Account LIMIT 222',
             MVDG__CSV_Fields__c = 'Id, Name'
         );
         insert td;
@@ -27,6 +27,8 @@ public with sharing class PreviewCSVControllerTest {
 
         Test.startTest();
         PreviewCSVController.PreviewDataWrapper result = PreviewCSVController.fetchPreviewData(template.Id);
+        td.MVDG__CSV_Query__c = 'SELECT Id FROM Account LIMIT 20';
+        PreviewCSVController.fetchPreviewData(template.Id);
         Test.stopTest();
 
         System.assertNotEquals(null, result.records, 'Records should not be null');

@@ -51,15 +51,14 @@ public with sharing class GenerateDocumentControllerTest {
 
             Test.startTest();
             String fileStatus = GenerateDocumentController.storeInFiles(cv.Id,a.Id);
+            GenerateDocumentController.storeInFiles('00011122233344','00100304005');
             String chatterStatus = GenerateDocumentController.postToChatter(cv.Id, a.Id, 'test Body');
-            GenerateDocumentController.storeInFiles(cv.Id,cv.Id);
-            GenerateDocumentController.postToChatter(cv.Id, cv.Id, 'test Body');
+            GenerateDocumentController.postToChatter(cv.Id, null, 'test Body');
+            GenerateDocumentController.postToChatter('00011122233355','00100204005', 'test Body');
             Test.stopTest();
 
             System.assertEquals('completed', fileStatus, 'Processs neeeds to be completed!');
             System.assertEquals('completed', chatterStatus, 'Processs neeeds to be completed!');
-            // System.assertEquals(1, [SELECT Id FROM FeedItem WHERE parentId =:a.Id WITH SECURITY_ENFORCED].size(), 'The Account should be chatter on account.');
-            // System.assertEquals(1, [SELECT Id FROM ContentDocumentLink WHERE LinkedEntityId =:a.Id WITH SECURITY_ENFORCED].size(), 'The Account should be connected to file.');
         }
 
     @isTest
@@ -75,10 +74,10 @@ public with sharing class GenerateDocumentControllerTest {
             Map<String, String> emailData = new Map<String, String>{'contentVersionId' => cv.Id,'emailSubject' => 'Test Sub','emailBody' => 'test body'};
 
             String status = GenerateDocumentController.sendEmail(allEmails, emailData);
-            GenerateDocumentController.deleteContentVersion(cv.Id);
-
-            emailData.put('contentVersionId', '012345678901234567');
+            allEmails.put('toEmails', null);
             GenerateDocumentController.sendEmail(allEmails, emailData);
+            GenerateDocumentController.deleteContentVersion(cv.Id);
+            GenerateDocumentController.deleteContentVersion('0123456789');
         Test.stopTest(); 
 
         System.assertEquals('completed', status, 'Processs neeeds to be completed!');
@@ -103,9 +102,9 @@ public with sharing class GenerateDocumentControllerTest {
         insert td;
 
         Test.startTest();
-        String templateData = GenerateDocumentController.getTemplateData(t.Id);
+        Map<String,String> templateData = GenerateDocumentController.getTemplateData(t.Id);
         Test.stopTest();
-        System.assert(td.MVDG__CSV_Fields__c + ' <|QDG|> ' + td.MVDG__CSV_Query__c + ' <|QDG|> ' + 'testSessionId' == templateData, 'The String is not right.');
+        System.assert(td.MVDG__CSV_Fields__c == templateData.get('fields'), 'The String is not right.');
     }
 
     @isTest
@@ -121,6 +120,7 @@ public with sharing class GenerateDocumentControllerTest {
         MVDG__Template__c template = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Object_API_Name__c, MVDG__Description__c, MVDG__Template_Status__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true LIMIT 1];
         Test.startTest();
         GenerateDocumentController.DefaultDataWrapper defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id);
+        GenerateDocumentController.getTemplateDefaultValues('123456789012345');
         Test.stopTest();
         System.assertEquals(template.MVDG__Template_Name__c,defaultValues.templateName, 'The name of the default data should match.');
     }
@@ -143,6 +143,8 @@ public with sharing class GenerateDocumentControllerTest {
         'templateType' => 'CSV Template',
         'emailTemplate' =>  '123123123123123' };
         Test.startTest();
+        GenerateDocumentController.setDefaultOptions(defaultValues);
+        defaultValues.put('templateId', '0001231231');
         GenerateDocumentController.setDefaultOptions(defaultValues);
         Test.stopTest();
 

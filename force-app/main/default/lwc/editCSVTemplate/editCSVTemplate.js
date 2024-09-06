@@ -13,7 +13,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     // -=-=- the values we got from the Home page/new template popup -=-=-
     @api objectName;
     @api templateId;
-    @api isNew;
 
     //-=-=- to Show/hide the Spinner -=-=-
     @track showSpinner;
@@ -203,7 +202,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     get adjustedFilters() {
         return this.filters?.map((filter, index) => {
-
             this.template.querySelectorAll('.operator-select')[index]?.classList.add('dont-display-div');
             this.template.querySelectorAll('.value-select-div')[index]?.classList.add('dont-display-div');
             if(this.filters.length==1 && !filter.fieldName){
@@ -224,7 +222,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 filter.value = '';
                 this.template.querySelectorAll('.value-select-div')[index]?.classList.add('dont-display-div');
             }            
-            return {...filter,step : '0.001', maxLImit:filter.inputType === 'number' ? '19' : ['id','reference'].includes(filter.type?.toLowerCase()) ? '18' : filter.type?.toLowerCase() === 'phone' ? '40' : '255', displayIndex: index + 1, isPicklist: ['PICKLIST' , 'MULTIPICKLIST' , 'BOOLEAN'].includes(filter.type) , isMultiple: filter.operator == 'IN' || filter.operator == 'notIN' || filter.type =='MULTIPICKLIST'};
+            return {...filter,step : '0.0001', maxLImit:filter.inputType === 'number' ? '19' : ['id','reference'].includes(filter.type?.toLowerCase()) ? '18' : filter.type?.toLowerCase() === 'phone' ? '40' : '255', displayIndex: index + 1, isPicklist: ['PICKLIST' , 'MULTIPICKLIST' , 'BOOLEAN'].includes(filter.type) , isMultiple: filter.operator == 'IN' || filter.operator == 'notIN' || filter.type =='MULTIPICKLIST'};
         });
     }
 
@@ -1012,6 +1010,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }else{
                 this.template.querySelectorAll('.filter-field-select')[index].classList.add('error-in-custom-combobox');
                 this.filters[index].fieldName = null;
+                this.filters[index].type = '';
                 this.filters[index].value = '';
                 this.filters[index].operators = '';
             }

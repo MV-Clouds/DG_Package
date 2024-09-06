@@ -279,10 +279,9 @@ public with sharing class GenerateDocumentController {
 ********************************************************
 */
     @AuraEnabled
-    public static String getTemplateData(String templateId){
-        String allData = '';
+    public static Map<String,String> getTemplateData(String templateId){
+        Map<String,String> mapOfData = new Map<String,String>{'fields' => null, 'query' => null, 'sessionId' => null};
         try{
-
             List<MVDG__Template_Data__c> tfList = new List<MVDG__Template_Data__c>();
             if(templateId != null){
                 tfList = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last LIMIT 1];
@@ -293,14 +292,15 @@ public with sharing class GenerateDocumentController {
                 String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
                 String sessionId = '';
                 sessionId = getSessionId();
-
-                allData = fields + ' <|QDG|> ' + query + ' <|QDG|> ' + sessionId;
-                System.debug('All the Data to be Sent is :: ' + allData);
+                mapOfData.put('fields', fields);
+                mapOfData.put('query', query);
+                mapOfData.put('sessionId', sessionId);
+                System.debug('All the Data to be Sent is :: ' + mapOfData);
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateData');
         }
-        return allData;
+        return mapOfData;
     }
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Used to set default generation options for the templates -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

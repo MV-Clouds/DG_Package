@@ -137,7 +137,6 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
             let paramToPass = {
                 templateId: this.templateId,
                 objectName: this.selectedObject,
-                isNew: true
             };
             if (this.selectedTemplateType === 'Simple Template') {
                 this.navigateToComp(navigationComps.simpleTemplateBuilder, paramToPass);

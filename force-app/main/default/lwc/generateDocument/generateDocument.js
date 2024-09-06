@@ -392,7 +392,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return this.selectedTemplate || this.isCalledFromDefaults ? false : true;
     }
 
-    get templateType(){        
+    get templateType(){
         return !this.isCalledFromDefaults ? this.allTemplates.find(t => t.Id === this.selectedTemplate)?.MVDG__Template_Type__c || 'CSV Template' : this.templateTypeFromParent;
     }
 
@@ -1256,12 +1256,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 getTemplateData({ templateId: this.selectedTemplate })
                 .then(data => {
                     if (!data) {
-                        this.showToast('error', 'Something went wrong!', 'No matching data found, Please Update the Template..', 5000);
+                        this.showToast('error', 'Something went wrong!', 'Nothing to generate, Please Update the Template...', 5000);
                         return;
                     }
-                    const [fieldNamesString, query, sessionId] = data.split(' <|QDG|> ');
-                    this.sessionId = sessionId;
-                    const fieldNames = fieldNamesString.split(',');
+                    let fieldNames = data?.fields?.split(',');
+                    let query = data?.query;
+                    this.sessionId = data?.sessionId;
+                    if(!fieldNames || fieldNames?.length < 1){
+                        this.showToast('error', 'Something went wrong!', 'No Columns Selected, Please Update the Template...', 5000);
+                        return;
+                    }
                     const generationCount = parseInt(query.split('LIMIT ')[1]);
     
                     if (this.selectedExtension === ".csv") {
@@ -1279,7 +1283,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         const newQuery = '/services/data/v59.0/query/?q=' + query.split('LIMIT')[0];
     
-                        this.fetchRecords(newQuery, sessionId, generationCount)
+                        this.fetchRecords(newQuery, this.sessionId, generationCount)
                         .then(isSuccess => {
                             if (isSuccess) {
                                 if (this.fetchedResults.length === 0) {
@@ -1325,7 +1329,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         const newQuery = '/services/data/v59.0/query/?q=' + query.split('LIMIT')[0];
     
-                        this.fetchRecords(newQuery, sessionId, generationCount)
+                        this.fetchRecords(newQuery, this.sessionId, generationCount)
                         .then(isSuccess => {
                             this.labelOfLoader = 'Arranging data...';
                             if (isSuccess) {

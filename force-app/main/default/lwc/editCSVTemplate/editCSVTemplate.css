@@ -975,6 +975,10 @@ button:hover{
     flex-grow: 1;
 }
 
+.object-select{
+    --dropDownWidth : fit-content;
+}
+
 .field-select{
     --dropDownWidth : 15rem !important;
 }

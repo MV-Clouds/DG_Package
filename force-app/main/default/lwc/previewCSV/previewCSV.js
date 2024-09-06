@@ -13,7 +13,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     set isPopup(value){ this._popup= value === "true" ?  true : false }
     @api showAdditionalInfo = false;
     @track noResultsFound = false;
-    @track noDataFoundText = 'No records match your applied filters, try changing filter...';
+    @track noDataFoundText = 'Could not found any data to preview, update template and try again...';
 
 
     //to show spinner
@@ -54,10 +54,18 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
                 this.additionalData['Description'] = result.templateData.MVDG__Template__r.MVDG__Description__c || 'No Description Available for this template';
                 this.isTemplateInactive = !result.templateData.MVDG__Template__r.MVDG__Template_Status__c;
                 this.additionalData['CSV Creation Time'] = new Date().toLocaleString().replace(',', ' ');
-                if(this.fields.length > 0 && this.previewData.length > 0){
-                    this.setData();
-                    this.noResultsFound = false;
+                if(!this.fields || this.fields?.length < 1){
+                    this.noDataFoundText = 'No columns selected, select columns to see preview...';
+                    this.showSpinner = false;
+                    return;
                 }
+                if(!this.previewData || this.previewData.length < 1){
+                    this.noDataFoundText = "No matching records to preview, try updating the filters...";
+                    this.showSpinner = false;
+                    return;
+                }
+                this.setData();
+                this.noResultsFound = false;
                 this.showSpinner = false;
             })
             .catch(e=>{
