@@ -200,34 +200,36 @@ lightning-accordion-section {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 98;
+    z-index: 101;
 }
 
 .custom-modal-container {
-    background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    /* width: 100%; */
     margin-top: 5.5rem;
     margin-inline: 5.5rem;
     animation: fadeIn 0.3s ease-in-out;
-    z-index: 100;
+    z-index: 103;
 }
 
-.custom-modal-close {
-    position: absolute;
-    right: 0;
-    top: 5.5rem;
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
+.custom-modal-content, .custom-modal-body, .img {
+    width: fit-content;
+}
+
+.custom-modal-body .img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.custom-modal-body img {
+    max-height: 70vh;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.1);
     }
     to {
         opacity: 1;
@@ -237,7 +239,7 @@ lightning-accordion-section {
 
 .backdrop {
     background: rgba(0, 0, 0, 0.6);
-    z-index: 99;
+    z-index: 102;
     position: fixed;
     top: 0;
     left: 0;
