@@ -386,14 +386,14 @@ export default class UserGuide extends LightningElement {
     openTab() {
         this.template.querySelector('.svg-arrow').style.transform = 'rotate3d(0, 1, 0, 180deg)';
         this.template.querySelector('.left-section').style.width = '30%';
-        this.template.querySelector('.container').style.gap = '20px';
+        // this.template.querySelector('.container').style.gap = '20px';
         this.isOpen = true;
     } 
     
     closeTab() {
         this.template.querySelector('.svg-arrow').style.transform = 'rotate3d(0, 0, 0, 180deg)';
         this.template.querySelector('.left-section').style.width = '0';
-        this.template.querySelector('.container').style.gap = '0';
+        // this.template.querySelector('.container').style.gap = '0';
         this.isOpen = false;
     }
 }
