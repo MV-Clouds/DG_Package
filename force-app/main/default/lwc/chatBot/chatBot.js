@@ -241,7 +241,7 @@ export default class ChatBot extends LightningElement {
     }
 
     checkWord(){
-    const keywords = ["EndChat", "Template Builder", "Template", "GoogleDrive", "Dropbox" ,"Integration"];
+    const keywords = ["EndChat", "GoogleDrive", "Dropbox", "OneDrive", "AWS" ,"Integration", "Simple Template", "CSV Template", "Google Doc Template", "Template Builder", "Template Status", "Template Limit", "Template Preview", "Template default button", "Template", "Unable to Perform Operations", "Doc Genius", "Email Us"];
     const keywordVariations = keywords.reduce((acc, keyword) => {
         const noSpaceKeyword = keyword.replace(/\s+/g, '').toLowerCase();
         acc[keyword] = new RegExp(noSpaceKeyword, 'i');
