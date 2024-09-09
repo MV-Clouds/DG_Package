@@ -84,8 +84,8 @@
                                         <div class="editStatus">
                                             <span class="statusLabel">Status: </span>
                                             <div class="tempToggle">
-                                                    <input if:true={templateRecord.MVDG__Template_Status__c} class="checkBox checked" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" />
-                                                    <input if:false={templateRecord.MVDG__Template_Status__c} class="checkBox" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" checked />
+                                                <input if:true={templateRecord.MVDG__Template_Status__c} class="checkBox checked" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" />
+                                                <input if:false={templateRecord.MVDG__Template_Status__c} class="checkBox" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" checked />
                                                 <label for={templateRecord.Id}>
                                                     <div class="toggleDiv">
                                                         <div class="toggleBtnBg">
