@@ -14,6 +14,7 @@
                         <a class="text1 cursor enable" onclick={handleSetActive} data-name="text1" href="#integration" id="integration" draggable="false">Integration</a>
                         <a class="text2 cursor" onclick={handleSetActive} data-name="text2" href="#limitations" id="limitations" draggable="false">Limitations</a>
                         <a class="text3 cursor" onclick={handleSetActive} data-name="text3" href="#userguide" id="userguide" draggable="false">User Guide</a>
+                        <a class="text4 cursor" onclick={handleSetActive} data-name="text4" href="#faqs" id="faqs" draggable="false">FAQs</a>
                     </div>
                     <div class="company-info">
                         <p>
@@ -260,95 +261,23 @@ Integration</h3>
                     </div>
                             <c-user-guide></c-user-guide>
                 </template>
+                <template if:true={isFaq}>
+                    <div class="heading">
+                        <h3 draggable="false">FAQs</h3>
+                    </div>
+                    <div class="main-limit-div">
+                        <iframe src="https://mvclouds.com/docgenius/faqs/" frameborder="0" height="100%" width="100%" onload={handleIframeLoad}></iframe>
+                    </div>
+                </template>
 
             </div>
             </div>
         </div>
     </div>
     <template if:true={ispopup}>   
-        <c-integration-popup onauthorize={handleAfterSave} onclosemodal={closeCreateTemplate} ononimgload={closeSpinner} draggedkey={draggedkey} redirecturi={redirectUri} onauthcode={handleAuthCode}></c-integration-popup> 
-        <!-- <div class="popupwindow slds-modal slds-fade-in-open slds-theme_default">    
-        <div class="closebar">
-            <button class="slds-button slds-button_icon" title="Close" onclick={hideModalBox}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M20.7334 2.5537C20.8179 2.46918 20.885 2.36885 20.9307 2.25843C20.9765 2.14801 21 2.02966 21 1.91013C21 1.79061 20.9765 1.67226 20.9307 1.56184C20.885 1.45142 20.8179 1.35109 20.7334 1.26657C20.6489 1.18206 20.5486 1.11502 20.4382 1.06928C20.3277 1.02354 20.2094 1 20.0899 1C19.9703 1 19.852 1.02354 19.7416 1.06928C19.6311 1.11502 19.5308 1.18206 19.4463 1.26657L11 9.71469L2.5537 1.26657C2.46918 1.18206 2.36885 1.11502 2.25843 1.06928C2.14801 1.02354 2.02966 1 1.91013 1C1.79061 1 1.67226 1.02354 1.56184 1.06928C1.45142 1.11502 1.35109 1.18206 1.26657 1.26657C1.18206 1.35109 1.11502 1.45142 1.06928 1.56184C1.02354 1.67226 1 1.79061 1 1.91013C1 2.02966 1.02354 2.14801 1.06928 2.25843C1.11502 2.36885 1.18206 2.46918 1.26657 2.5537L9.71469 11L1.26657 19.4463C1.09589 19.617 1 19.8485 1 20.0899C1 20.3312 1.09589 20.5627 1.26657 20.7334C1.43726 20.9041 1.66875 21 1.91013 21C2.15152 21 2.38301 20.9041 2.5537 20.7334L11 12.2853L19.4463 20.7334C19.617 20.9041 19.8485 21 20.0899 21C20.3312 21 20.5627 20.9041 20.7334 20.7334C20.9041 20.5627 21 20.3312 21 20.0899C21 19.8485 20.9041 19.617 20.7334 19.4463L12.2853 11L20.7334 2.5537Z" fill="black" stroke="black"/>
-                    </svg>
-                <span class="slds-assistive-text">Close</span>
-             </button>
-        </div>
-        <div class="popup-container">
-            <div class="left-popup">
-                <img src={popupimg} alt="error" onload={closeSpinner}>
-            </div>
-                <div class="right-popup">
-                    <template if:true={isGoogle}>
-                        <p>Google Drive</p>
-                    </template>
-                    <template if:true={isOneDrive}>
-                        <p>One Drive</p>
-                    </template>
-                    <template if:true={isDropBox}>
-                        <p>Dropbox</p>
-                    </template>
-                    <template if:true={isAws}>
-                        <p>AWS</p>
-                    </template>
-                    <template if:false={isAws}>
-                        <div class="redirect">
-                            <div class="text_field label-float">
-                                <input type="text" value={redirectUri} class="clipboard"></input>
-                                <label>Redirect Uri</label>
-                            </div>
-                            <div class="icon-copy">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none" onclick={copyToClipboard}>
-                                    <path d="M16.7587 5.89744L10.6935 0.225641C10.5394 0.0813411 10.3303 0.000179541 10.1123 0H7.40323C6.6033 0 5.83613 0.29716 5.2705 0.826109C4.70487 1.35506 4.3871 2.07247 4.3871 2.82051V4.10256H3.01613C2.2162 4.10256 1.44904 4.39972 0.883404 4.92867C0.31777 5.45762 0 6.17503 0 6.92308V17.1795C0 17.9275 0.31777 18.6449 0.883404 19.1739C1.44904 19.7028 2.2162 20 3.01613 20H10.6935C11.4935 20 12.2606 19.7028 12.8263 19.1739C13.3919 18.6449 13.7097 17.9275 13.7097 17.1795V15.8974H13.9839C14.7838 15.8974 15.551 15.6003 16.1166 15.0713C16.6822 14.5424 17 13.825 17 13.0769V6.41026C16.9914 6.21703 16.9052 6.03393 16.7587 5.89744ZM10.9677 2.62564L14.1923 5.64103H10.9677V2.62564ZM12.0645 17.1795C12.0645 17.5195 11.9201 17.8456 11.663 18.086C11.4059 18.3265 11.0572 18.4615 10.6935 18.4615H3.01613C2.65253 18.4615 2.30381 18.3265 2.04671 18.086C1.7896 17.8456 1.64516 17.5195 1.64516 17.1795V6.92308C1.64516 6.58306 1.7896 6.25696 2.04671 6.01653C2.30381 5.7761 2.65253 5.64103 3.01613 5.64103H4.3871V13.0769C4.3871 13.825 4.70487 14.5424 5.2705 15.0713C5.83613 15.6003 6.6033 15.8974 7.40323 15.8974H12.0645V17.1795ZM13.9839 14.359H7.40323C7.03962 14.359 6.69091 14.2239 6.43381 13.9835C6.1767 13.743 6.03226 13.4169 6.03226 13.0769V2.82051C6.03226 2.48049 6.1767 2.1544 6.43381 1.91397C6.69091 1.67353 7.03962 1.53846 7.40323 1.53846H9.32258V6.41026C9.32542 6.61344 9.413 6.80756 9.56665 6.95125C9.7203 7.09493 9.92788 7.17683 10.1452 7.17949H15.3548V13.0769C15.3548 13.4169 15.2104 13.743 14.9533 13.9835C14.6962 14.2239 14.3475 14.359 13.9839 14.359Z" fill="#00AEFF"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </template>
-                    <template if:true={isAws}>
-                        <div class="label-float">
-                            <input type="text" onchange={handleNickname} placeholder="Enter Nickname"></input> 
-                            <label>Nickname</label>
-                        </div>
-                    </template>
-                    <div class="label-float">
-                        <input type="text" onchange={handleClientId} placeholder="Enter Client ID"></input> 
-                        <label>Client Id</label>
-                    </div>
-                    <div class="label-float">
-                        <input type="text" onchange={handleClientSecret} placeholder="Enter Client Secret"></input> 
-                        <label>Client Secret</label>
-                    </div>
-                    <template if:true={isAws}>
-                        <div class="label-float">
-                            <input type="text" onchange={handleBucket} placeholder="Enter Bucket Name"></input> 
-                            <label>Bucket Name</label>
-                        </div>
-                    </template>
-                    
-                    <template if:true={isAws}>
-                        <button class="slds-button slds-button_brand" onclick={handleAwsAuthorization}>Authorize</button>
-                     </template>
-                     <template if:true={isGoogle}>
-                        <button class="slds-button slds-button_brand" onclick={handleGoogleAuthorization}>Authorize</button>
-                    </template>
-                    <template if:true={isDropBox}>
-                        <button class="slds-button slds-button_brand" onclick={handleDropboxAuthorization}>Authorize</button>
-                    </template>
-                    <template if:true={isOneDrive}>
-                        <button class="slds-button slds-button_brand" onclick={handleOneDriveAuthorization}>Authorize</button>
-                    </template>
-                </div>
-
-            </div>
-        </div>
-        <div class="slds-backdrop slds-backdrop_open"></div>         -->
+        <c-integration-popup onauthorize={handleAfterSave} onclosemodal={closeCreateTemplate} ononimgload={closeSpinner} draggedkey={draggedkey} redirecturi={redirectUri} onauthcode={handleAuthCode}></c-integration-popup>
     </template>
-    
-    <!-- <template if:true={isSpinner}>
-        <c-spinner></c-spinner>
-    </template> -->
+
     <c-document-loader display={isSpinner} fix-top="true" label="loading..." ></c-document-loader>
 
     <c-message-popup onconfirmation={handleConfimation}></c-message-popup>

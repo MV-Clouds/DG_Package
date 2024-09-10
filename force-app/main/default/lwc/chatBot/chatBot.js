@@ -230,10 +230,10 @@ export default class ChatBot extends LightningElement {
         // console.log('FEEDBACK'+this.feedbackRating);
         if(this.feedbackRating != null){
             sendFeedbackEmail({toAddress: this.toAddress, key: this.feedbackRating, feedback: this.userFeedback, chats: JSON.stringify(this.messages)})
-            .then((result) => {
+            .then(() => {
                 this.handleClearClose();
             })
-            .catch((error) => {
+            .catch(() => {
                 console.error('error sending feedback');
                 this.handleClearClose();
             })
@@ -357,7 +357,7 @@ export default class ChatBot extends LightningElement {
     
 
     redirectToFaq(){
-        window.open('https://www.google.com', '_blank');
+        window.open('https://mvclouds.com/docgenius/faqs/', '_blank');
     }
 
     
@@ -479,7 +479,7 @@ export default class ChatBot extends LightningElement {
                             this.messages.push({text: this.solution, isSolution: true, time: this.currentTime});
                             this.updateScroll();
                             storeMessages({msg: JSON.stringify(this.messages)})
-                            .then((result)=>{
+                            .then(()=>{
                                 // console.log(result);
                             })
                         }
@@ -524,7 +524,7 @@ export default class ChatBot extends LightningElement {
             fileNames: fileNames,
             fileContents: fileContents
         }})
-        .then(result => {
+        .then(() => {
             // handle success, show a success message or toast
             // console.log('Email sent successfully');
             this.mailSent = true;
@@ -609,7 +609,7 @@ export default class ChatBot extends LightningElement {
         this.isSol = false;
         this.isSpinner = true;
         this.isTimer = false;
-        this.checkSpinnerDuration((result) => {
+        this.checkSpinnerDuration(() => {
             // console.log(result); // Will log 'success' after a random time
         });
         // console.log(event.currentTarget.dataset.key);
@@ -620,7 +620,7 @@ export default class ChatBot extends LightningElement {
         this.messages.push({text: this.question, isQuestion: true, time: this.currentTime});
         this.messages.push({text: event.currentTarget.dataset.value, isAnswer: true, time: this.currentTime});
         storeMessages({msg: JSON.stringify(this.messages)})
-        .then((result)=>{
+        .then(()=>{
             // console.log(result);
         })
         // console.log('this is message -->',JSON.stringify(this.messages));
@@ -654,10 +654,10 @@ export default class ChatBot extends LightningElement {
         this.oldChats = false;
         // this.toggleClear();
         deleteOldChats()
-        .then(result=>{
+        .then(()=>{
             this.connectedCallback();
         })
-        .catch((error) =>{
+        .catch(() =>{
             this.connectedCallback();
         });
         this.isTimer = false;
@@ -719,7 +719,7 @@ export default class ChatBot extends LightningElement {
                     this.messages.push({text: 'Sorry, I couldn\'t understand.', isQuestion: true, time: this.currentTime});
                     this.isSpinner = false;
                     storeMessages({msg: JSON.stringify(this.messages)})
-                    .then((result)=>{
+                    .then(()=>{
                         // console.log(result);
                     });
                 }
@@ -763,7 +763,7 @@ export default class ChatBot extends LightningElement {
                         .captureCurrentTime();
                             this.messages.push({text: this.solution, isSolution: true, time: this.currentTime});
                             storeMessages({msg: JSON.stringify(this.messages)})
-                            .then((result)=>{
+                            .then(()=>{
                                 // console.log(result);
                             })
                         }
@@ -776,7 +776,7 @@ export default class ChatBot extends LightningElement {
         .captureCurrentTime();
             this.messages.push({text: this.textValue, isAnswer: true, time: this.currentTime});
             storeMessages({msg: JSON.stringify(this.messages)})
-            .then((result)=>{
+            .then(()=>{
                 // console.log(result);
             });
             this.query = this.checkWord();
@@ -787,7 +787,7 @@ export default class ChatBot extends LightningElement {
                 this.messages.push({text: 'Sorry, I couldn\'t understand that.', isQuestion: true, time: this.currentTime});
                 this.isSpinner = false;
                 storeMessages({msg: JSON.stringify(this.messages)})
-                .then((result)=>{
+                .then(()=>{
                     // console.log(result);
                 });
             }
@@ -828,7 +828,7 @@ export default class ChatBot extends LightningElement {
                             .captureCurrentTime();
                                 this.messages.push({text: this.solution, isSolution: true, time: this.currentTime});
                                 storeMessages({msg: JSON.stringify(this.messages)})
-                                .then((result)=>{
+                                .then(()=>{
                                     // console.log(result);
                                 })
                             }
