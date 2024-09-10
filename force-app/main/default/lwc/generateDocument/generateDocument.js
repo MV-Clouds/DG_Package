@@ -4,12 +4,12 @@ import getSessionId from '@salesforce/apex/GenerateDocumentController.getSession
 import storeInFiles from '@salesforce/apex/GenerateDocumentController.storeInFiles';
 import postToChatter from '@salesforce/apex/GenerateDocumentController.postToChatter';
 import sendEmail from '@salesforce/apex/GenerateDocumentController.sendEmail';
+import sendResultsEmail from '@salesforce/apex/GenerateDocumentController.sendResultsEmail';
 import getButtonNames from '@salesforce/apex/GenerateDocumentController.getButtonNames';
 import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.createListViewButtons';
 import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
-import { NavigationMixin } from 'lightning/navigation';
+import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import { CloseActionScreenEvent } from "lightning/actions";
-import { CurrentPageReference } from "lightning/navigation";
 
 //CSV Generation methods
 import getTemplateData from '@salesforce/apex/GenerateDocumentController.getTemplateData';
@@ -26,6 +26,7 @@ import getTemplateDefaultValues from '@salesforce/apex/GenerateDocumentControlle
 
 //Delete content version if needed
 import deleteContentVersion from '@salesforce/apex/GenerateDocumentController.deleteContentVersion';
+import Description from '@salesforce/schema/Account.Description';
 export default class GenerateDocument extends NavigationMixin(LightningElement) {
 
     @track showSpinner = true;
@@ -317,7 +318,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     //Results
     @track succeeded = [];
-    @track failed = [];
+    @track failed = {};
     resultPromises = [];
     // @track resultList = [];
 
@@ -1164,7 +1165,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         window.removeEventListener('message', this.simpleTempFileGenResponse);
         if(this.currentPageReference.type === "standard__quickAction"){
             this.dispatchEvent(new CloseActionScreenEvent())
-        }else if(this.showCloseButton){
+        }else if(this.showCloseButton){ 
             if(this.isCalledFromPreview){
                 this.dispatchEvent(new CustomEvent('close'));
             }else{
@@ -1185,7 +1186,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.emailBody = '';
                 this.selectedEmailTemplate = null;
                 this.showEmailSection = false;
-                window.history.back();
+                window.open(window.location.origin + '/lightning/o/' + this.objectApiName + '/list' ,"_self");
             }
         }
     }
@@ -1315,7 +1316,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         .catch(e => {
                             reject(e);
                             errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords > csv', e, 'warn');
-                            this.showToast('error', 'Oops! Something went wrong', 'Some error occurred, Please try again.', 5000);
+                            this.showToast('error', 'Oops! Something went wrong', 'Please make sure you have trusted url from user guide in effect...', 5000);
                         });
                     } else if (this.selectedExtension === '.xls') {
                         let xlsContent = '<table>';
@@ -1363,15 +1364,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         .catch(e => {
                             reject(e);
                             errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords  > xls', e, 'warn');
-                            this.showToast('error', 'Oops! Something went wrong', 'Some error occurred, Please try again.', 5000);
-                        });
+                            this.showToast('error', 'Oops! Something went wrong', 'Please make sure you have trusted url from user guide in effect...', 5000);                        });
                     }
                 })
                 .catch(e => {
                     reject(e);
                     errorDebugger('generateDocument', 'getTemplateData', e, 'warn');
                     this.showSpinner = false;
-                    this.showToast('error', 'Oops! Something went wrong', 'Some error occurred, Please try again.', 5000);
+                    this.showToast('error', 'Oops! Something went wrong', 'Could not fetch the template data, Please try again.', 5000);
                 });
             } catch (e) {
                 reject(e);
@@ -1456,12 +1456,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             if(fileSizeInByte < 5*1020*1020 && this.selectedChannels.includes('Documents')){
                 this.showSpinner = true;
                 this.resultPromises.push(this.createDocument(btoa(unescape(encodeURIComponent(this.generatedCSVData)))));
+            }else{
+                this.failed['Documents'] = 'File Size Limit Exceeded';
             }
 
             if(fileSizeInByte < 25*1020*1020 && this.selectedChannels.includes('Notes & Attachments')){
                 this.showSpinner = true;
                 let contentType = this.selectedExtension === '.csv' ? "text/csv" : "application/vnd.ms-excel";
                 this.resultPromises.push(this.createAttachments(btoa(unescape(encodeURIComponent(this.generatedCSVData))), contentType));
+            }else{
+                this.failed['Notes & Attachments'] = 'File Size Limit Exceeded';
             }
 
             if(fileSizeInByte < 37.5*1020*1020 && (this.selectedChannels.includes('Files') || this.selectedChannels.includes('Chatter') || this.selectedChannels.includes('Email') || this.selectedChannels.includes('Google Drive') || this.selectedChannels.includes('AWS') || this.selectedChannels.includes('One Drive') || this.selectedChannels.includes('Dropbox'))){
@@ -1488,6 +1492,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 });
         
             } else {
+                this.failed['Files'] = 'File Size Limit Exceeded';
+                this.failed['Chatter'] = 'File Size Limit Exceeded';
+                this.failed['Email'] = 'File Size Limit Exceeded';
+                this.failed['Google Drive'] = 'File Size Limit Exceeded';
+                this.failed['AWS'] = 'File Size Limit Exceeded';
+                this.failed['One Drive'] = 'File Size Limit Exceeded';
+                this.failed['Dropbox'] = 'File Size Limit Exceeded';
+
                 Promise.all(this.resultPromises)
                 .then(() => {
                     this.handleGenerationResult();
@@ -1589,6 +1601,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
                 if (fileSizeInByte < 5 * 1020 * 1020 && this.selectedChannels.includes('Documents')) {
                     this.resultPromises.push(this.createDocument(decodeURIComponent(this.googleDocData)));
+                }else{
+                    this.failed['Documents'] = 'File Size Limit Exceeded';
                 }
                 if (fileSizeInByte < 25 * 1020 * 1020 && this.selectedChannels.includes('Notes & Attachments')) {
                     let contentType = '';
@@ -1600,6 +1614,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         contentType = 'application/vnd.ms-powerpoint';
                     }
                     this.resultPromises.push(this.createAttachments(decodeURIComponent(this.googleDocData), contentType));
+                }else{
+                    this.failed['Notes & Attachments'] = 'File Size Limit Exceeded';
                 }
                 if (fileSizeInByte < 37.5 * 1020 * 1020 && (this.selectedChannels.includes('Files') || this.selectedChannels.includes('Chatter') || this.selectedChannels.includes('Email') || this.selectedChannels.includes('Google Drive') || this.selectedChannels.includes('AWS') || this.selectedChannels.includes('One Drive') || this.selectedChannels.includes('Dropbox'))) {
                     this.showSpinner = true;
@@ -1623,6 +1639,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.showSpinner = false;
                     });
                 }else{
+                    this.failed['Files'] = 'File Size Limit Exceeded';
+                    this.failed['Chatter'] = 'File Size Limit Exceeded';
+                    this.failed['Email'] = 'File Size Limit Exceeded';
+                    this.failed['Google Drive'] = 'File Size Limit Exceeded';
+                    this.failed['AWS'] = 'File Size Limit Exceeded';
+                    this.failed['One Drive'] = 'File Size Limit Exceeded';
+                    this.failed['Dropbox'] = 'File Size Limit Exceeded';
                     Promise.all(this.resultPromises)
                     .then(() => {
                         this.handleGenerationResult();
@@ -1705,6 +1728,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             else if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel !== 'unknown'){
                 
                 if(message.data.completedChannel === 'Download' || message.data.completedChannel === 'Documents' || message.data.completedChannel === 'Notes & Attachments'){
+                    this.succeeded.push(message.data.completedChannel);
                     this.completedSimTempPros++;
                     this.simpleTemplateFileDone();
                 }else if(message.data.completedChannel === 'External Storage'){
@@ -1853,78 +1877,97 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     addToFiles(cvId) {
-        try {
-            this.showSpinner = true;
-            this.labelOfLoader = 'Saving in Internal Storage...';
-    
-            if (!this.isCSVTemplate) {
-                storeInFiles({ contentVersionId: cvId, recordId: this.recordId ? this.recordId : this.selectedTemplate })
+        return new Promise((resolve, reject) => {
+            try {
+                this.showSpinner = true;
+                this.labelOfLoader = 'Saving in Internal Storage...';
+        
+                if (!this.isCSVTemplate) {
+                    storeInFiles({ contentVersionId: cvId, recordId: this.recordId ? this.recordId : this.selectedTemplate })
                     .then(() => {
                         this.succeeded.push('Files');
+                        resolve();
                     })
                     .catch(e => {
                         errorDebugger('generateDocument', 'addToFiles > storeInFiles', e, 'warn');
                         this.showSpinner = false;
+                        reject(e);
                     });
+                }else{
+                    this.succeeded.push('Files');
+                    resolve();
+                }
+            } catch (e) {
+                errorDebugger('generateDocument', 'addToFiles', e, 'warn');
+                this.showSpinner = false;
+                reject(e);
             }
-        } catch (e) {
-            errorDebugger('generateDocument', 'addToFiles', e, 'warn');
-            this.showSpinner = false;
-        }
+        })
     }
 
     addToChatter(cvId) {
-        try {
-            this.showSpinner = true;
-            this.labelOfLoader = 'Saving in Internal Storage...';
-            let bodyString = 'Generated "' + this.fileName + this.selectedExtension + '".';
-            postToChatter({ contentVersionId: cvId, recordId: this.recordId, body: bodyString })
-            .then(() => {
-                this.succeeded.push('Chatter');
+        return new Promise((resolve, reject) => {
+            try {
+                this.showSpinner = true;
+                this.labelOfLoader = 'Saving in Internal Storage...';
+                let bodyString = 'Generated "' + this.fileName + this.selectedExtension + '".';
+                postToChatter({ contentVersionId: cvId, recordId: this.recordId, body: bodyString })
+                .then(() => {
+                    this.succeeded.push('Chatter');
+                    if (this.selectedChannels.includes('Files')) {
+                        this.succeeded.push('Files');
+                    }
+                    resolve();
+                })
+                .catch((e)=>{
+                    reject(e);
+                    errorDebugger('generateDocument', 'addToChatter > postToChatter', e, 'warn');
+                })
+            } catch (e) {
+                errorDebugger('generateDocument', 'addToChatter', e, 'warn');
+                this.showSpinner = false;
                 if (this.selectedChannels.includes('Files')) {
-                    this.succeeded.push('Files');
+                    this.resultPromises.push(this.addToFiles(cvId));
+                    resolve();
                 }
-            })
-            .catch((e)=>{
-                errorDebugger('generateDocument', 'addToChatter > postToChatter', e, 'warn');
-            })
-        } catch (e) {
-            errorDebugger('generateDocument', 'addToChatter', e, 'warn');
-            this.showSpinner = false;
-            if (this.selectedChannels.includes('Files')) {
-                this.resultPromises.push(this.addToFiles(cvId));
+                reject(e);
             }
-        }
+        })
     }
 
     sendWithEmail(cvId) {
-        try {
-            this.showSpinner = true;
-            this.labelOfLoader = 'Sending email...';
-    
-            let emailData = {
-                contentVersionId: cvId,
-                emailSubject: this.emailSubject,
-                emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue : this.emailBody
-            };
-            let allEmails = {
-                toEmails: this.toEmails,
-                ccEmails: this.ccEmails,
-                bccEmails: this.bccEmails
+        return new Promise((resolve, reject) => {
+            try {
+                this.showSpinner = true;
+                this.labelOfLoader = 'Sending email...';
+        
+                let emailData = {
+                    contentVersionId: cvId,
+                    emailSubject: this.emailSubject,
+                    emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue : this.emailBody
+                };
+                let allEmails = {
+                    toEmails: this.toEmails,
+                    ccEmails: this.ccEmails,
+                    bccEmails: this.bccEmails
+                }
+        
+                sendEmail({ allEmails:allEmails, emailData:emailData })
+                    .then(() => {
+                        this.succeeded.push('Email');
+                        resolve();
+                    })
+                    .catch(e => {
+                        errorDebugger('generateDocument', 'sendWithEmail > sendEmail', e, 'warn');
+                        this.showSpinner = false;
+                        reject(e);
+                    });
+            } catch (e) {
+                errorDebugger('generateDocument', 'sendWithEmail', e, 'warn');
+                this.showSpinner = false;
+                reject(e);
             }
-    
-            sendEmail({ allEmails:allEmails, emailData:emailData })
-                .then(() => {
-                    this.succeeded.push('Email');
-                })
-                .catch(e => {
-                    errorDebugger('generateDocument', 'sendWithEmail > sendEmail', e, 'warn');
-                    this.showSpinner = false;
-                });
-        } catch (e) {
-            errorDebugger('generateDocument', 'sendWithEmail', e, 'warn');
-            this.showSpinner = false;
-        }
+        })
     }
 
     createContentVersion(fileData) {
@@ -2026,10 +2069,34 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             Promise.all(this.resultPromises)
                 .then(() => {
-                    console.log('Selected Channels ::', this.selectedChannels);
-                    console.log('The Succeeded are ::', this.succeeded);
-                    console.log('The Failed Processes are :::', this.failed);
-                    // this.handleClose();
+                    let combinedLists = {
+                        succeeded : [],
+                        inProgress : []
+                    }
+                    let combinedMaps = {
+                        failed : {},
+                        templateData : {
+                            'name' : this.templateName,
+                            'type' : this.templateType,
+                            'object' : this.objectApiName,
+                            'fileName' : this.fileName + this.selectedExtension
+                        }
+                    }
+                    this.selectedChannels.forEach(channel => {
+                        if(['Google Drive', 'AWS', 'One Drive', 'Dropbox'].includes(channel)){
+                            combinedLists.inProgress.push(channel);
+                            this.succeeded = this.succeeded.filter(item => !item.includes(channel));
+                        } else if (this.failed[channel] && !this.succeeded.includes(channel)){
+                            combinedMaps.failed[channel] = this.failed[channel];
+                        } else if (!this.succeeded.includes(channel)) {
+                            // Step 2: Add new property with 'Internal Error' if channel is in selectedChannels but not in succeeded or failed
+                            combinedMaps.failed[channel] = 'Internal Error';
+                        }
+                    });
+                    combinedLists.succeeded = this.succeeded;
+                    sendResultsEmail({ combinedLists : combinedLists, combinedMaps : combinedMaps});
+                    
+                    this.handleClose();
                     this.showSpinner = false;
                 })
                 .catch(e => {

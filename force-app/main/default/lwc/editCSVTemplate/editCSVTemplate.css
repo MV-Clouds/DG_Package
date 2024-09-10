@@ -235,9 +235,6 @@
 .main-config-div{
     width: 60%;
     height: 100%;
-    overflow-y: scroll;
-    scrollbar-color: #00aeff transparent;
-    scrollbar-width: thin;
     position: relative;
     display: flex;
     flex-direction: column;

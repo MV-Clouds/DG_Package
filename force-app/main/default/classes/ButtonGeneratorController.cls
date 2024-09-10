@@ -136,10 +136,11 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
 /*
 *********************************************************
 @description     : Method is used to create a list view button 
-@param           : buttonData - {Map<String, Object>} - button data
+@param           : objects - {List<String>} - name of objects
+@param           : buttonData - {Map<String, String>} - button data
 @return          : none
 ********************************************************
-*/
+*/f
     @AuraEnabled
     public static void createListViewButtons(List<String> objects,Map<String, String> buttonData){
         try {

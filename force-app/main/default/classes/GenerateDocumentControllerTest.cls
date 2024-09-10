@@ -78,6 +78,12 @@ public with sharing class GenerateDocumentControllerTest {
             GenerateDocumentController.sendEmail(allEmails, emailData);
             GenerateDocumentController.deleteContentVersion(cv.Id);
             GenerateDocumentController.deleteContentVersion('0123456789');
+
+            Map<String, List<String>> dataList = new Map<String, List<String>>{'succeeded' => new List<String>{'Download'} , 'inProgress' => new List<String>{'AWS'}};
+            Map<String, Map<String, String>> dataMap = new Map<String, Map<String, String>>{'failed' => new Map<String, String>{'Documents' => 'Internal Error'}, 'templateData' => new Map<String, String>{'name' => 'test template', 'type' => 'CSV Template', 'fileName' => 'test.csv', 'object' => 'Account'}};
+
+
+            GenerateDocumentController.sendResultsEmail(dataList, dataMap);
         Test.stopTest(); 
 
         System.assertEquals('completed', status, 'Processs neeeds to be completed!');

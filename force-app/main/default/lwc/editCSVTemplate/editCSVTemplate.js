@@ -270,8 +270,12 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 box-shadow: none;
                             }
 
-                            .basic-detail-div .slds-input:not(c-custom-combobox .slds-input):focus{
+                            .basic-detail-div .slds-input:not(c-custom-combobox .slds-input):focus, .limit-div .slds-input:not(c-custom-combobox .slds-input):focus{
                                 border: 1px solid #00aeff;
+                            }
+
+                            .override-css-from-js .slds-input[disabled]{
+                                border: none !important;
                             }
 
                             .override-css-from-js .slds-textarea{
@@ -1463,8 +1467,21 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             let maxLimit = this.isChild ? this.childMaxLimit : 1000000;
             limitInput.classList.toggle('error-in-input', this.limit < 1 || this.limit > maxLimit);
             this.isEditTabChanged = true;
+            console.log("Limit is ::", this.limit);
         }catch(e){
             errorDebugger('editCSVTemplate', 'handleLimitUpdate', e, 'warn');
+        }
+    }
+
+    handleLimitInputBlur(){
+        try {
+            this.limit = Math.ceil(this.limit);
+            const limitInput = this.template.querySelector('.input-limit');
+            let maxLimit = this.isChild ? this.childMaxLimit : 1000000;
+            limitInput.classList.remove('slds-has-error');
+            limitInput.classList.toggle('error-in-input', this.limit < 1 || this.limit > maxLimit);
+        } catch (e) {
+            console.log('Error in function handleLimitInputBlur:::', e.message);
         }
     }
 
@@ -2361,6 +2378,11 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
                         this.existingFilters = JSON.parse(JSON.stringify(this.filters));
                         this.existingSorts = JSON.parse(JSON.stringify(this.sorts));
+
+                        this.showLimitInput = false;
+                        this.limit = 1000000;
+                        this.existingShowLimitInput = false;
+                        this.existingLimit = 1000000;
         
                         this.setSelectionFields();
                         //To Save Template just after proceeding with list view

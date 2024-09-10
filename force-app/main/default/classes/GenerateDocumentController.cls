@@ -234,6 +234,75 @@ public with sharing class GenerateDocumentController {
         return sessionId;
     }
 
+/*
+*********************************************************
+@description     : Method is used to send the email after the generation is complete
+@param           : combinedLists {Map<String, List<String>>} - Map containing succeeded and in progress options 
+@param           : combinedMaps {Map<String,Map<String,String>>} - Map containing failed and template data
+@return          : none
+********************************************************
+*/
+@AuraEnabled
+public static void sendResultsEmail(Map<String, List<String>> combinedLists, Map<String,Map<String,String>> combinedMaps){
+    try {
+        List<String> succeeded = combinedLists.get('succeeded');
+        Map<String, String> failed = combinedMaps.get('failed');
+        List<String> inProgress = combinedLists.get('inProgress');
+        Map<String, String> templateData = combinedMaps.get('templateData');
+
+        // Template information section
+        String emailBody = '<h3>Document Information:</h3><ul>';
+        emailBody += '<li><strong>Template Name:</strong> ' + templateData.get('name') + '</li>';
+        emailBody += '<li><strong>Template Source Object:</strong> ' + templateData.get('object') + '</li>';
+        emailBody += '<li><strong>Template Type:</strong> ' + templateData.get('type') + '</li>';
+        emailBody += '<li><strong>File Name:</strong> ' + templateData.get('fileName') + '</li>';
+        emailBody += '</ul>';
+        // Success section
+        if(succeeded.size() > 0){
+            emailBody += '<h3>Success:</h3><ul>';
+            for (String obj : succeeded) {
+                emailBody += '<li>' + obj + '</li>';
+            }
+            emailBody += '</ul>';
+        }
+    
+        // Failure section
+        if(failed.keySet().size() > 0){
+            emailBody += '<h3>Failures:</h3><ul>';
+            for (String obj : failed.keySet()) {
+                emailBody += '<li><strong>' + obj + '</strong>: ' + failed.get(obj) + '</li>';
+            }
+            emailBody += '</ul>';
+        }
+        
+        if(inProgress.size() > 0){
+            emailBody += '<h3>In Progress:</h3><ul>';
+            for (String obj : inProgress) {
+                emailBody += '<li>' + obj + '</li>';
+            }
+            emailBody += '</ul>';
+            emailBody += '<h5>The results of the in progress external storages upload will be sent to you once process completes.</h5>';
+        }
+
+        System.debug('The Email HTMl Body ::'+ emailBody);
+
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        mail.setToAddresses(new String[] {UserInfo.getUserEmail()});
+        mail.setSubject('DocGenius Generation Results - '+ templateData.get('name'));
+        mail.setHtmlBody(emailBody);
+
+        Messaging.SendEmailResult[] result = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        if(!result[0].isSuccess()) {
+            if(Test.isRunningTest() == false){
+                throw new AuraHandledException('Email send was unsuccessfull');     
+            }
+        }
+    }catch (Exception e){
+        System.debug('Exception::' + e.getLineNumber() + ': ' + e.getMessage());
+        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'sendResultsEmail');
+    }
+}
+
 
 /*
 *********************************************************
@@ -317,7 +386,7 @@ public with sharing class GenerateDocumentController {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
             if(templateId != null){
-                templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c,	MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+                templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
             }
             if(templates.size() > 0){
                 ddw.templateId = templates[0].Id;
@@ -387,14 +456,14 @@ public with sharing class GenerateDocumentController {
     @AuraEnabled
     public static void deleteContentVersion(String cvId){
         try {
-            String hour = String.valueOf(Datetime.now().hour());
-            String min = String.valueOf(Datetime.now().minute() + 10); 
-            String ss = String.valueOf(Datetime.now().second());
-
+            Datetime timeToTrigger = System.now();
+            timeToTrigger = timeToTrigger.addMinutes(10);
+            String hour = String.valueOf(timeToTrigger.hour());
+            String min = String.valueOf(timeToTrigger.minute()); 
+            String ss = String.valueOf(timeToTrigger.second());
             String deleteTimeCron = ss + ' ' + min + ' ' + hour + ' * * ?';
-
             DeleteContentDocumentController deleteController = new DeleteContentDocumentController(cvId);
-            System.schedule('delete temp Content Version - ' + Datetime.now(), deleteTimeCron, deleteController);
+            System.schedule('delete temp Content Version - ' + timeToTrigger, deleteTimeCron, deleteController);
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'deleteContentVersion');
         }
