@@ -236,25 +236,25 @@ export default class UserGuide extends LightningElement {
 
     // Document Generator
     get docgen1() {
-        return Userguide + '/document/DGGenerateCSV.png';
+        return Userguide2 + '/document/DGGenerateCSV.png';
     }
     get docgen2() {
-        return Userguide + '/document/DGGenerateDocument.png';
+        return Userguide2 + '/document/DGGenerateDocument.png';
     }
     get docgen3() {
-        return Userguide + '/document/Selecttemplatetogenerate.png';
+        return Userguide2 + '/document/Selecttemplatetogenerate.png';
     }
     get docgen4() {
-        return Userguide + '/document/viewalltemplatesbutton.png';
+        return Userguide2 + '/document/viewalltemplatesbutton.png';
     }
     get docgen5() {
-        return Userguide + '/document/viewalltemplatesUI.png';
+        return Userguide2 + '/document/viewalltemplatesUI.png';
     }
     get docgen6() {
-        return Userguide + '/document/generatedocument.png';
+        return Userguide2 + '/document/generatedocument.png';
     }
     get docgen7() {
-        return Userguide + '/document/composeemail.png';
+        return Userguide2 + '/document/composeemail.png';
     }
 
     // Home Page Images
@@ -357,15 +357,23 @@ export default class UserGuide extends LightningElement {
                 this.closeTab();
             }
             let tabName = event.target.dataset.tab;
+            if (!tabName) {
+                tabName = event.target.parentElement.dataset.tab;
+            }
             this.tabList.forEach(tab => {
                 this[tab] = false;
             });
             this[tabName + 'Tab'] = true;
             
             let currentTab = this.template.querySelector('.selected-tab');
-            currentTab.classList.remove('selected-tab');
-            let tab = this.template.querySelector(`.tabs[data-tab="${tabName}"]`);
-            tab.classList.add('selected-tab');
+            if (currentTab) {
+                currentTab.classList.remove('selected-tab');
+            }
+
+            let tab = this.template.querySelector(`div.tabs[data-tab="${tabName}"]`);
+            if (tab) {
+                tab.classList.add('selected-tab');
+            }
 
             this.template.querySelector('.tab-content').scrollTop = 0;
             this.template.querySelector('.content').scrollTop = 0;

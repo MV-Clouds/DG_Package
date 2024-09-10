@@ -51,6 +51,16 @@
     color: rgba(123, 126, 127, 1);
 }
 
+.tabs:hover {
+    box-shadow: 2px 2px 4px rgba(0, 174, 255, 0.33);
+}
+
+.tabs p {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .selected-tab {
     color: black;
     background: linear-gradient(90deg, rgb(205,239,255), rgb(205,255,241));
