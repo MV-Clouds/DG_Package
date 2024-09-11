@@ -5,6 +5,7 @@ import storeInFiles from '@salesforce/apex/GenerateDocumentController.storeInFil
 import postToChatter from '@salesforce/apex/GenerateDocumentController.postToChatter';
 import sendEmail from '@salesforce/apex/GenerateDocumentController.sendEmail';
 import sendResultsEmail from '@salesforce/apex/GenerateDocumentController.sendResultsEmail';
+import upsertActivity from '@salesforce/apex/GenerateDocumentController.upsertActivity';
 import getButtonNames from '@salesforce/apex/GenerateDocumentController.getButtonNames';
 import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.createListViewButtons';
 import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
@@ -99,19 +100,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             extension: '.pdf',
             isDisabled : false,
         },
-        // {
-        //     paths: [
-        //         {
-        //             fill:"black",
-        //             path:"M26 8.15625V25.375C26 26.3364 25.6087 27.2584 24.9121 27.9383C24.2155 28.6181 23.2708 29 22.2857 29H20.4286V27.1875H22.2857C22.7783 27.1875 23.2506 26.9965 23.5989 26.6566C23.9472 26.3167 24.1429 25.8557 24.1429 25.375V8.15625H20.4286C19.6898 8.15625 18.9812 7.86981 18.4588 7.35995C17.9363 6.85008 17.6429 6.15856 17.6429 5.4375V1.8125H7.42857C6.93603 1.8125 6.46365 2.00346 6.11537 2.34337C5.76709 2.68328 5.57143 3.14429 5.57143 3.625V19.9375H3.71429V3.625C3.71429 2.66359 4.10561 1.74156 4.80217 1.06174C5.49874 0.381919 6.44348 0 7.42857 0L17.6429 0L26 8.15625ZM2.97143 21.4781H0V28.7263H1.469V26.2939H2.96029C3.49267 26.2939 3.94581 26.1894 4.31971 25.9804C4.69733 25.7689 4.98395 25.4825 5.17957 25.1212C5.38347 24.7433 5.48631 24.3212 5.47857 23.8942C5.47857 23.4411 5.38076 23.032 5.18514 22.6671C4.98917 22.3064 4.69312 22.0068 4.33086 21.8026C3.95943 21.5851 3.50629 21.4769 2.97143 21.4781ZM3.98357 23.8942C3.98988 24.133 3.93565 24.3695 3.82571 24.5829C3.72713 24.7689 3.57299 24.9212 3.38371 25.0197C3.16737 25.1237 2.92835 25.1747 2.68729 25.1684H1.46343V22.62H2.68914C3.094 22.62 3.41095 22.7294 3.64 22.9481C3.86905 23.1692 3.98357 23.4846 3.98357 23.8942ZM9.21514 21.4781H6.24371V28.7263H7.71271V26.2939H9.204C9.73638 26.2939 10.1895 26.1894 10.5634 25.9804C10.941 25.7689 11.2277 25.4825 11.4233 25.1212C11.6239 24.7563 11.7235 24.3473 11.7223 23.8942C11.7223 23.4411 11.6245 23.032 11.4289 22.6671C11.2329 22.3064 10.9368 22.0068 10.5746 21.8026C10.2031 21.5851 9.75 21.4769 9.21514 21.4781ZM10.2273 23.8942C10.2336 24.133 10.1794 24.3695 10.0694 24.5829C9.97085 24.7689 9.81671 24.9212 9.62743 25.0197C9.41108 25.1237 9.17206 25.1747 8.931 25.1684H7.70714V22.62H8.93286C9.33771 22.62 9.65467 22.7294 9.88371 22.9481C10.1128 23.1692 10.2273 23.4846 10.2273 23.8942ZM15.366 22.6798V28.7263H13.8914V22.678H11.7854V21.4781H17.4776V22.678L15.366 22.6798Z"
-        //         }
-        //     ],
-        //     name:"PPT",
-        //     viewBox: "0 0 30 30",
-        //     isSelected : false,
-        //     isDisabled : true,
-        //     extension: '.ppt',
-        // },
         {
             paths: [
                 {
@@ -328,6 +316,22 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @track isClosableError = false;
 
     @track isNotGoogleNotGenerable = false;
+    @track activity = {
+        Id : null,
+        DocGenius_Template__c : null,
+        Selected_Channels__c : null,
+        File_Name__c : null,
+        Download__c : null,
+        Email__c : null,
+        Google_Drive__c : null,
+        AWS__c : null,
+        One_Drive__c : null,
+        Dropbox__c : null,
+        Notes_Attachments__c : null,
+        Files__c : null,
+        Chatter__c : null,
+        Documents__c : null,
+    }
 
     get showCloseButton(){
         return this.isCSVOnly || this.isDefaultGenerate || this.isCalledFromPreview;
@@ -478,11 +482,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             })
             .catch(e => {
                 this.showSpinner = false;
-                errorDebugger('generateDocument', 'connectedCallback > promise', e, 'warn');
+                errorDebugger('generateDocument', 'connectedCallback > promise', e, 'error');
             });
         }catch(e){
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'connectedCallback', e, 'warn');
+            errorDebugger('generateDocument', 'connectedCallback', e, 'error');
         }
     }
 
@@ -608,7 +612,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.template.querySelector('.main-generate-document-div').appendChild(STYLE);
             this.isInitialStyleLoaded = true;
         }catch (e) {
-            errorDebugger('generateDocument', 'renderedCallback', e, 'warn');
+            errorDebugger('generateDocument', 'renderedCallback', e, 'error');
         }
 
     }
@@ -633,11 +637,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             })
             .catch(e => {
                 this.showSpinner = false;
-                errorDebugger('generateDocument', 'handleCalledFromDefaults > fetchAllButtonNames', e, 'warn');
+                errorDebugger('generateDocument', 'handleCalledFromDefaults > fetchAllButtonNames', e, 'error');
             });
         }catch(e){
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleCalledFromDefaults', e, 'warn');
+            errorDebugger('generateDocument', 'handleCalledFromDefaults', e, 'error');
         }
     }
 
@@ -700,12 +704,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             })
             .catch((e) =>{
-                errorDebugger('generateDocument', 'getTemplateDefaultValues', e, 'warn');
+                errorDebugger('generateDocument', 'getTemplateDefaultValues', e, 'error');
                 this.showToast('error', 'Something went Wrong!', e.body.message.includes('Insufficient permissions') ? 'Please check the permissions to access the object...' : 'Couldn\'t get default values, please try again...', 5000);
             })
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleAutoGeneration', e, 'warn');
+            errorDebugger('generateDocument', 'handleAutoGeneration', e, 'error');
             this.showToast('error', 'Something went Wrong!', 'Couldn\'t get default values, please try again...', 5000);
         }
     }
@@ -723,19 +727,18 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     } else {
                         this.showWarningPopup('error', 'Something Went Wrong!', 'We couldn\'t fetch the required data, please try again!');
                         this.isClosableError = true;
-                        // this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
                     }
                     resolve();
                 })
                 .catch((e) =>{
                     reject(e);
-                    errorDebugger('generateDocument', 'getCombinedData', e, 'warn');
+                    errorDebugger('generateDocument', 'getCombinedData', e, 'error');
                     this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
                 })
             })
         } catch (e) {
             reject(e);
-            errorDebugger('generateDocument', 'fetchCombinedData', e, 'warn');
+            errorDebugger('generateDocument', 'fetchCombinedData', e, 'error');
         }
     }
 
@@ -765,7 +768,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             });
         } catch (e) {
-            errorDebugger('generateDocument', 'setUpAllTemplates', e, 'warn');
+            errorDebugger('generateDocument', 'setUpAllTemplates', e, 'error');
         }
     }
 
@@ -785,7 +788,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'setUpIntegrationStatus', e, 'warn');
+            errorDebugger('generateDocument', 'setUpIntegrationStatus', e, 'error');
         }
     }
 
@@ -794,7 +797,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.allFolders = folders;
             this.selectedFolder = this.allFolders[0].value;
         } catch (e) {
-            errorDebugger('generateDocument', 'setUpAllFolders', e, 'warn');
+            errorDebugger('generateDocument', 'setUpAllFolders', e, 'error');
         }
     }
 
@@ -811,7 +814,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             } catch (e) {
                 this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch email templates!', 5000);
-                errorDebugger('generateDocument', 'setUpAllEmailTemplates', e, 'warn');
+                errorDebugger('generateDocument', 'setUpAllEmailTemplates', e, 'error');
             }
     }
 
@@ -826,12 +829,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 .catch((e) =>{
                     reject();
                     this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch buttons on object!', 5000);
-                    errorDebugger('generateDocument', 'getButtonNames', e, 'warn');
+                    errorDebugger('generateDocument', 'getButtonNames', e, 'error');
                 })
             }catch (e) {
                 reject();
                 this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch buttons on object!', 5000);
-                errorDebugger('generateDocument', 'fetchAllButtonNames', e, 'warn');
+                errorDebugger('generateDocument', 'fetchAllButtonNames', e, 'error');
             }
         })
     }
@@ -856,7 +859,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = false;
             }
         }catch(e){
-            errorDebugger('generateDocument', 'handleSelectTemplate', e, 'warn');
+            errorDebugger('generateDocument', 'handleSelectTemplate', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -867,7 +870,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     handleRecordPickerError(event){
-        errorDebugger('generateDocument', 'handleRecordPickerError', event, 'warn');
+        errorDebugger('generateDocument', 'handleRecordPickerError', event, 'error');
     }
 
     handleFileNameChange(event){
@@ -889,14 +892,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
             if(this.templateType === 'Simple Template'){
                 this.navigateToComp(navigationComps.simpleTemplateBuilder, paramToPass);
-                // };
             }else if(this.templateType === 'CSV Template'){
                 this.navigateToComp(navigationComps.csvTemplateBuilder, paramToPass);
             }else if(this.templateType === 'Google Doc Template'){
                 this.navigateToComp(navigationComps.googleDocTemplateEditor, paramToPass);
             }
         }catch(e){
-            errorDebugger('generateDocument', 'handleEditClick', e, 'warn');
+            errorDebugger('generateDocument', 'handleEditClick', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -907,7 +909,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             this.showCC = !this.showCC;
         }catch (e) {
-            errorDebugger('generateDocument', 'toggleCC', e, 'warn');
+            errorDebugger('generateDocument', 'toggleCC', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -917,7 +919,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             this.showBCC = !this.showBCC;
         }catch (e) {
-            errorDebugger('generateDocument', 'toggleBCC', e, 'warn');
+            errorDebugger('generateDocument', 'toggleBCC', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -980,7 +982,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
             }
         }catch (e) {
-            errorDebugger('generateDocument', 'handleToEmailChange', e, 'warn');
+            errorDebugger('generateDocument', 'handleToEmailChange', e, 'error');
         }
     }
 
@@ -996,7 +998,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             typeOfEmail === "cc" ? this.ccEmails.splice(index, 1) : undefined;
             typeOfEmail === "bcc" ? this.bccEmails.splice(index, 1) : undefined;        
         }catch (e) {
-            errorDebugger('generateDocument', 'handleRemoveAddedEmail', e, 'warn');
+            errorDebugger('generateDocument', 'handleRemoveAddedEmail', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -1014,7 +1016,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.template.querySelector(".to-error-div").classList.add("not-display-div");
             }
         }catch(e){
-            errorDebugger('generateDocument', 'validateToEmails', e, 'warn');
+            errorDebugger('generateDocument', 'validateToEmails', e, 'error');
         }
     }
 
@@ -1023,7 +1025,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             this.emailSubject = event.target.value;
         }catch (e) {
-            errorDebugger('generateDocument', 'handleSubjectChange', e, 'warn');
+            errorDebugger('generateDocument', 'handleSubjectChange', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -1034,7 +1036,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             this.emailBody = event.target.value;
         }catch (e) {
-            errorDebugger('generateDocument', 'handleBodyChange', e, 'warn');
+            errorDebugger('generateDocument', 'handleBodyChange', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -1044,7 +1046,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             this.emailBody = event.target.value;
         } catch (e) {
-            errorDebugger('generateDocument', 'handlePlainBodyChange', e, 'warn');
+            errorDebugger('generateDocument', 'handlePlainBodyChange', e, 'error');
         }
     }
 
@@ -1062,7 +1064,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.template.host.style.setProperty('--display-for-email-preview-div',"none");
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'handleEmailTemplateSelect', e, 'warn');
+            errorDebugger('generateDocument', 'handleEmailTemplateSelect', e, 'error');
         }
     }
 
@@ -1079,7 +1081,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'handleViewAsTypeSelect', e, 'warn');
+            errorDebugger('generateDocument', 'handleViewAsTypeSelect', e, 'error');
         }
     }
 
@@ -1129,7 +1131,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'handleOptionSelection', e, 'warn');
+            errorDebugger('generateDocument', 'handleOptionSelection', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -1146,7 +1148,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.handleSelectTemplate({detail:[{Id: this.selectedTemplate}]});
             this.backToGenerate();
         }catch(e){
-            errorDebugger('generateDocument', 'handleTemplateSelection', e, 'warn');
+            errorDebugger('generateDocument', 'handleTemplateSelection', e, 'error');
         }
     }
 
@@ -1155,7 +1157,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.selectedTemplate = event.currentTarget.dataset.value;
             this.handleEditClick();
         }catch(e){
-            errorDebugger('generateDocument', 'handleTemplateEditClick', e, 'warn');
+            errorDebugger('generateDocument', 'handleTemplateEditClick', e, 'error');
         }
     }
 
@@ -1202,6 +1204,28 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     }
 
+    generateActivity() {
+        return new Promise((resolve, reject) => {
+            try {
+                upsertActivity({ activity: this.activity })
+                    .then((result) => {
+                        if(result){
+                            this.activity.Id = result;
+                            resolve(true);
+                        }else{
+                            reject('There was an error creating an activity for generation, please go back and try again...');
+                        }
+                    })
+                    .catch((e) => {
+                        errorDebugger('generateDocument', 'generateActivity > upsertActivity', e, 'error');
+                        reject(e);
+                    });
+            } catch (e) {
+                errorDebugger('generateDocument', 'generateActivity', e, 'error');
+                reject(e);
+            }
+        });
+    }
 
     handleGenerate() {
         this.showSpinner = true;
@@ -1224,24 +1248,44 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showToast('error', 'Something Went Wrong!', 'Please select folder to save document.', 5000);
             return;
         }
-    
-        // Handle CSV template
-        if (this.isCSVTemplate) {
-            this.showSpinner = true;
-            this.handleGenerateCSVData();
-        }
-    
-        // Handle Google Doc template
-        if (this.templateType === 'Google Doc Template') {
-            this.showSpinner = true;
-            this.generateGoogleDoc();
-        }
-    
-        // Handle Simple Template
-        if (this.templateType === 'Simple Template') {
-            this.showSpinner = true;
-            this.generateSimpleTemplateFile();
-        }
+        this.activity.DocGenius_Template__c = this.selectedTemplate;
+        this.activity.Selected_Channels__c = this.selectedChannels.join(',');
+        this.activity.File_Name__c = this.fileName + this.selectedExtension;
+        this.generateActivity()
+        .then((result) => {
+            if(result){
+                // Handle CSV template
+                if (this.isCSVTemplate) {
+                    this.showSpinner = true;
+                    this.handleGenerateCSVData()
+                    .catch((e) => {
+                        console.log('Error in generating ::', e);
+                        ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error in Creating File => '+ e?.message || e?.body?.message || JSON.stringify(e) || 'Unknown Error');
+                        this.handleGenerationResult();
+                    })
+                }
+            
+                // Handle Google Doc template
+                if (this.templateType === 'Google Doc Template') {
+                    this.showSpinner = true;
+                    this.generateGoogleDoc();
+                }
+            
+                // Handle Simple Template
+                if (this.templateType === 'Simple Template') {
+                    this.showSpinner = true;
+                    this.generateSimpleTemplateFile();
+                }
+            }else{
+                this.showWarningPopup('error', 'Something went wrong!', 'The activity couldn\'t be created for generation, please go back and try again...');
+                this.isClosableError = true;
+            }
+        })
+        .catch((e) => {
+            ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = e?.message);
+            this.showWarningPopup('error', 'Something went wrong!', e);
+                this.isClosableError = true;
+        })
     }
 
     stopSpinner(){
@@ -1251,7 +1295,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     //Back to generate
     backToGenerate(){
         this.showAllTemplates = false;
-        // this.showGenerateCSV = false;
         this.showCSVPreview = false;
         this.showGDocPreview = false;
         this.showSimplePreview = false;
@@ -1280,7 +1323,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                     if (this.selectedExtension === ".csv") {
                         let csvContent = '';
-    
                         if (this.isAdditionalInfo) {
                             const thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
                             thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || 'No Description Available for this template';
@@ -1315,7 +1357,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         })
                         .catch(e => {
                             reject(e);
-                            errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords > csv', e, 'warn');
+                            errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords > csv', e, 'error');
                             this.showToast('error', 'Oops! Something went wrong', 'Please make sure you have trusted url from user guide in effect...', 5000);
                         });
                     } else if (this.selectedExtension === '.xls') {
@@ -1363,21 +1405,20 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         })
                         .catch(e => {
                             reject(e);
-                            errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords  > xls', e, 'warn');
-                            this.showToast('error', 'Oops! Something went wrong', 'Please make sure you have trusted url from user guide in effect...', 5000);                        });
+                            errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords  > xls', e, 'error');
+                            });
                     }
                 })
                 .catch(e => {
                     reject(e);
-                    errorDebugger('generateDocument', 'getTemplateData', e, 'warn');
+                    errorDebugger('generateDocument', 'getTemplateData', e, 'error');
                     this.showSpinner = false;
-                    this.showToast('error', 'Oops! Something went wrong', 'Could not fetch the template data, Please try again.', 5000);
                 });
             } catch (e) {
                 reject(e);
-                errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'warn');
+                errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'error');
                 this.showSpinner = false;
-                this.showToast('error', 'Oops! Something went wrong', 'Some error occurred, Please try again.', 5000);
+                this.handleGenerationResult();
             }
         })
     }
@@ -1385,7 +1426,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return key.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
     }
 
-// -=-=- Used to call the SF API repeatedly until no of records reaches to the limit -=-=-
     fetchRecords(queryURL, sessionId, limitOfRecords) {
         try{
             const myHeaders = new Headers();
@@ -1405,14 +1445,22 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
             return fetch(encodeURI(domainURL + queryURL), requestOptions)
             .then(response => {
-                if(!response.ok && response.status === 400){
-                    return Promise.reject('SyntaxError');
-                }else if (!response.ok) {
-                    return Promise.reject('ResponseNotOk');
-                }
                 return response.json();
             })
             .then(result => {
+                if(result[0]?.errorCode){
+                    let errorMessage = 'We couldn\'t fetch the records, please try again..';
+                    let regex = /No such column '(\w+)' on entity '(\w+)'/;
+                    let match = result[0].message.match(regex);
+                    let fieldName = match ? match[1] : null;
+                    let entityName = match ? match[2] : null;
+                    if(match && fieldName && entityName){
+                        errorMessage = 'Please check permission of the field \''+ fieldName + '\' on object \'' + entityName + '\'.';
+                    }
+                    this.showToast('error', result[0].errorCode.replaceAll('_', ' '), errorMessage, 5000);
+                    return false;
+                }
+                
                 let thisFetchedBatch = result.records;
                 this.fetchedResults.push(...thisFetchedBatch);
                 this.labelOfLoader = 'Fetching Records - ' + Math.min(Math.round(this.fetchedResults.length * 100 / limitOfRecords), 100) + '%';
@@ -1425,12 +1473,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 return true;
             })
             .catch(e => {
-                errorDebugger('generateDocument', 'fetchRecords > fetch', e, 'warn');
-                error == 'SyntaxError' ? this.showToast('error', 'Oops!, Something went wrong!', 'Error fetching data, please check field permissions...', 5000) : this.showToast('error', 'Sorry, The records could not be fetched!', 'We couldn\'t fetch the records, please try again..', 5000);
+                errorDebugger('generateDocument', 'fetchRecords > fetch', e, 'error');
+                this.showToast('error', 'Sorry, The records could not be fetched!', 'We couldn\'t fetch the records, please try again..', 5000);
                 return false;
             });
         } catch(e){
-            errorDebugger('generateDocument', 'fetchRecords', e, 'warn');
+            errorDebugger('generateDocument', 'fetchRecords', e, 'error');
             this.showToast('error', 'Oops!, Something went wrong!', 'We couldn\'t fetch the records, please try again..');
             return false;
         }
@@ -1473,6 +1521,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.labelOfLoader = 'Creating document to upload in Internal Storage...';
                 this.createContentVersion(btoa(unescape(encodeURIComponent(this.generatedCSVData))))
                 .then(cvId => {
+                    console.log('Created Content version ::', cvId);
+                    
                     this.labelOfLoader = 'Saving in Internal Storage...';
                     this.resultPromises.push(this.createFilesChatterEmail(cvId));
                     this.uploadToExternalStorage(cvId);
@@ -1483,8 +1533,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.fetchedResults = [];
                 })
                 .catch(e => {
+                    console.log('Error e  while creating content version :::', e);
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'generateCSVDocument > createContentVersion', e, 'warn');
+                    errorDebugger('generateDocument', 'generateCSVDocument > generation', e, 'error');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
@@ -1492,13 +1543,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 });
         
             } else {
-                this.failed['Files'] = 'File Size Limit Exceeded';
-                this.failed['Chatter'] = 'File Size Limit Exceeded';
-                this.failed['Email'] = 'File Size Limit Exceeded';
-                this.failed['Google Drive'] = 'File Size Limit Exceeded';
-                this.failed['AWS'] = 'File Size Limit Exceeded';
-                this.failed['One Drive'] = 'File Size Limit Exceeded';
-                this.failed['Dropbox'] = 'File Size Limit Exceeded';
+                ['Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'File Size Limit Exceeded');
 
                 Promise.all(this.resultPromises)
                 .then(() => {
@@ -1507,7 +1552,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'generateCSVDocument > this.resultPromises-Promises', e, 'warn');
+                    errorDebugger('generateDocument', 'generateCSVDocument > this.resultPromises-Promises', e, 'error');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
@@ -1516,11 +1561,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
         }catch(e){
             this.showSpinner =false;
-            errorDebugger('generateDocument', 'generateCSVDocument', e, 'warn');
+            errorDebugger('generateDocument', 'generateCSVDocument', e, 'error');
         }
     }
-    
-
 // -=-=- Used to download the Generated CSV in the local system -=-=-
     downloadCSV(csvContent) {
         this.labelOfLoader = 'Downloading...';
@@ -1544,11 +1587,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
             this.succeeded.push('Download');
         }catch(e){
+            this.failed['Download'] = e?.message;
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'downloadCSV', e, 'warn');
+            errorDebugger('generateDocument', 'downloadCSV', e, 'error');
         }finally{
             this.labelOfLoader = 'Loading...';
         }
@@ -1564,7 +1607,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.template.querySelector('c-generate-google-doc-file')?.generateDocument(this.selectedTemplate, this.objectApiName, this.recordId, this.selectedExtension);
 
         }catch(e){
-            errorDebugger('generateDocument', 'generateGoogleDoc', e, 'warn');
+            errorDebugger('generateDocument', 'generateGoogleDoc', e, 'error');
         }
     }
     downloadGDocTemplate(){
@@ -1577,12 +1620,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            // this.showSpinner = false;
-            this.succeeded.push('Download');
             this.labelOfLoader = 'Loading ...';
+            this.succeeded.push('Download');
         }catch(e){
+            this.failed['Download'] = e?.message;
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'downloadGDocTemplate', e, 'warn');
+            errorDebugger('generateDocument', 'downloadGDocTemplate', e, 'error');
         }
     }
 
@@ -1632,20 +1675,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     })
                     .catch(e => {
                         this.showSpinner = false;
-                        errorDebugger('generateDocument', 'handleGoogleDocFile > createContentVersion', e, 'warn');
+                        errorDebugger('generateDocument', 'handleGoogleDocFile > createContentVersion', e, 'error');
                     })
                     .finally(() => {
                         this.labelOfLoader = 'Loading...';
                         this.showSpinner = false;
                     });
                 }else{
-                    this.failed['Files'] = 'File Size Limit Exceeded';
-                    this.failed['Chatter'] = 'File Size Limit Exceeded';
-                    this.failed['Email'] = 'File Size Limit Exceeded';
-                    this.failed['Google Drive'] = 'File Size Limit Exceeded';
-                    this.failed['AWS'] = 'File Size Limit Exceeded';
-                    this.failed['One Drive'] = 'File Size Limit Exceeded';
-                    this.failed['Dropbox'] = 'File Size Limit Exceeded';
+                    ['Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'File Size Limit Exceeded');
+
                     Promise.all(this.resultPromises)
                     .then(() => {
                         this.handleGenerationResult();
@@ -1653,7 +1691,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     })
                     .catch(e => {
                         this.showSpinner = false;
-                        errorDebugger('generateDocument', 'handleGoogleDocFile > this.resultPromises - Promises', e, 'warn');
+                        errorDebugger('generateDocument', 'handleGoogleDocFile > this.resultPromises - Promises', e, 'error');
                     })
                     .finally(() => {
                         this.labelOfLoader = 'Loading...';
@@ -1661,10 +1699,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     });
                 }
     
+            }else{
+                ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error Generating File => '+event);
+                this.handleGenerationResult();
             }
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleGoogleDocFile', e, 'warn');
+            errorDebugger('generateDocument', 'handleGoogleDocFile', e, 'error');
         }
     }
     
@@ -1676,8 +1717,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     handleGDocError(event){
         this.showSpinner = false;
-        errorDebugger('generateDocument', 'handleGDocError', event, 'warn');
+        errorDebugger('generateDocument', 'handleGDocError', event, 'error');
+        ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error Creating File => '+event?.detail?.message);
         this.showToast('error', 'Something went Wrong!', 'There was error generating file, please try again.', 5000);
+        this.handleGenerationResult();
     }
 
 //-------------------------------------------------------PDF / DOC Generation Methods --------------------------------------------------------
@@ -1713,45 +1756,53 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         }
         catch(e){
             this.labelOfLoader = 'loading...';
-            errorDebugger('generateDocument', 'generateSimpleTemplateFile', e, 'warn');
+            errorDebugger('generateDocument', 'generateSimpleTemplateFile', e, 'error');
         }
     }
 
     simpleTempFileGenResponse = (message) => {
         try{ 
             if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel === 'unknown'){
-                // this.completedSimTempPros = 0;
                 this.completedSimTempPros = this.selectedChannels.length;
+                ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error In File Generation => '+ message.data.error?.message);
                 this.simpleTemplateFileDone();
                 this.showToast('error','Something went Wrong!', 'There was error creating document, please try again.', 5000);
+                console.log('the message from the ' , message.data.messageFrom ,' with error :::' , message.data.error?.message);
+                
             }
             else if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel !== 'unknown'){
                 
                 if(message.data.completedChannel === 'Download' || message.data.completedChannel === 'Documents' || message.data.completedChannel === 'Notes & Attachments'){
-                    this.succeeded.push(message.data.completedChannel);
+                    
+                    if(message.data.status){
+                        this.succeeded.push(message.data.completedChannel);
+                    }else{
+                        this.failed[message.data.completedChannel] = message.data.error?.message;
+                    }
                     this.completedSimTempPros++;
                     this.simpleTemplateFileDone();
+                    console.log('Completed Channel: ' + message.data.completedChannel + ' :: Status :: '+ message.data.status + ' :: ' + this.failed );
                 }else if(message.data.completedChannel === 'External Storage'){
                     let cvId = message.data.cvId;
-                    
                     if(cvId){
                         this.resultPromises.push(this.createFilesChatterEmail(cvId));
                         this.uploadToExternalStorage(cvId);
                     }else{
+                        ['Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = message.data.error?.message);
                         this.showToast('error', 'Something Went wrong!', 'The Document couldn\'t be created!', 5000);
                     }
                     this.handleGenerationResult();
                 }
             }
         }catch(e){
-            errorDebugger('generateDocument', 'simpleTempFileGenResponse', e, 'warn');
+            errorDebugger('generateDocument', 'simpleTempFileGenResponse', e, 'error');
         }
     }
 
     simpleTemplateFileDone(){
         if(this.selectedChannels.length === this.completedSimTempPros){
             this.showSpinner = false;
-            this.failed = this.selectedChannels.filter((item) => !this.succeeded.includes(item));
+            // this.failed = this.selectedChannels.filter((item) => !this.succeeded.includes(item));
             this.simpleTemplate = false;
             this.completedSimTempPros = 0;
             this.handleGenerationResult();
@@ -1774,9 +1825,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             getSessionId()
                 .then(sessionId => {
                     if (!sessionId) {
-                        errorDebugger('generateDocument', 'createDocument > getSessionId', 'Session ID not obtained', 'warn');
+                        errorDebugger('generateDocument', 'createDocument > getSessionId', 'Session ID not obtained', 'error');
                         this.showSpinner = false;
-                        throw new Error('Session ID not obtained'); // Exit if session ID is not obtained
+                        throw new Error('Session ID not obtained');
                     }
 
                     const domainURL = window.location.origin.replace('lightning.force.com', 'my.salesforce.com');
@@ -1804,20 +1855,24 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
                 .then(response => response.json())
                 .then(result => {
+                    console.log('Result of Document ::' , result);
+                    
                     if (result.success) {
                         this.succeeded.push('Documents');
+                    }else{
+                        this.failed['Documents'] ='Error Code => '+  result[0]?.errorCode + '\n Error Message =>  ' + result[0]?.message + '\n Error Fields (if any) => ' + result[0]?.fields ;
                     }
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'createDocument > fetch', e, 'warn');
+                    errorDebugger('generateDocument', 'createDocument > fetch', e, 'error');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
                 });
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'createDocument', e, 'warn');
+            errorDebugger('generateDocument', 'createDocument', e, 'error');
         }
     }
 
@@ -1829,9 +1884,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             getSessionId()
                 .then(sessionId => {
                     if (!sessionId) {
-                        errorDebugger('generateDocument', 'createAttachments > getSessionId', 'Session ID not obtained', 'warn');
+                        errorDebugger('generateDocument', 'createAttachments > getSessionId', 'Session ID not obtained', 'error');
                         this.showSpinner = false;
-                        throw new Error('Session ID not obtained'); // Exit if session ID is not obtained
+                        throw new Error('Session ID not obtained'); 
                     }
     
                     const domainURL = window.location.origin.replace('lightning.force.com', 'my.salesforce.com');
@@ -1859,20 +1914,23 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
                 .then(response => response.json())
                 .then(result => {
+                    console.log('Result of Document ::' , result);
                     if (result.success) {
                         this.succeeded.push('Notes & Attachments');
+                    }else{
+                        this.failed['Notes & Attachments'] ='Error Code => '+  result[0]?.errorCode + '\n Error Message =>  ' + result[0]?.message + '\n Error Fields (if any) => ' + result[0]?.fields ;
                     }
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'createAttachments > fetch', e, 'warn');
+                    errorDebugger('generateDocument', 'createAttachments > fetch', e, 'error');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
                 });
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'createAttachments', e, 'warn');
+            errorDebugger('generateDocument', 'createAttachments', e, 'error');
         }
     }
 
@@ -1889,18 +1947,19 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         resolve();
                     })
                     .catch(e => {
-                        errorDebugger('generateDocument', 'addToFiles > storeInFiles', e, 'warn');
+                        this.failed['Files'] = e?.body?.message;
+                        errorDebugger('generateDocument', 'addToFiles > storeInFiles', e, 'error');
                         this.showSpinner = false;
-                        reject(e);
+                        resolve();
                     });
                 }else{
                     this.succeeded.push('Files');
                     resolve();
                 }
             } catch (e) {
-                errorDebugger('generateDocument', 'addToFiles', e, 'warn');
+                errorDebugger('generateDocument', 'addToFiles', e, 'error');
                 this.showSpinner = false;
-                reject(e);
+                resolve();
             }
         })
     }
@@ -1920,17 +1979,19 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     resolve();
                 })
                 .catch((e)=>{
-                    reject(e);
-                    errorDebugger('generateDocument', 'addToChatter > postToChatter', e, 'warn');
+                    this.failed['Chatter'] = e?.body?.message;
+                    this.failed['Files'] = e?.body?.message;
+                    errorDebugger('generateDocument', 'addToChatter > postToChatter', e, 'error');
+                    resolve();
                 })
             } catch (e) {
-                errorDebugger('generateDocument', 'addToChatter', e, 'warn');
+                errorDebugger('generateDocument', 'addToChatter', e, 'error');
                 this.showSpinner = false;
                 if (this.selectedChannels.includes('Files')) {
                     this.resultPromises.push(this.addToFiles(cvId));
                     resolve();
                 }
-                reject(e);
+                resolve();
             }
         })
     }
@@ -1953,19 +2014,20 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
         
                 sendEmail({ allEmails:allEmails, emailData:emailData })
-                    .then(() => {
-                        this.succeeded.push('Email');
-                        resolve();
-                    })
-                    .catch(e => {
-                        errorDebugger('generateDocument', 'sendWithEmail > sendEmail', e, 'warn');
-                        this.showSpinner = false;
-                        reject(e);
-                    });
+                .then(() => {
+                    this.succeeded.push('Email');
+                    resolve();
+                })
+                .catch(e => {
+                    this.failed['Email'] = e?.body?.message;
+                    errorDebugger('generateDocument', 'sendWithEmail > sendEmail', e, 'error');
+                    this.showSpinner = false;
+                    resolve();
+                });
             } catch (e) {
-                errorDebugger('generateDocument', 'sendWithEmail', e, 'warn');
+                errorDebugger('generateDocument', 'sendWithEmail', e, 'error');
                 this.showSpinner = false;
-                reject(e);
+                resolve();
             }
         })
     }
@@ -1974,10 +2036,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         this.showSpinner = true;
         this.labelOfLoader = 'Generating File...';
     
-        return getSessionId() // Assuming getSessionId returns a Promise
+        return getSessionId()
             .then(sessionId => {
                 if (!sessionId) {
-                    errorDebugger('generateDocument', 'createContentVersion > getSessionId', 'Session ID not obtained', 'warn');
+                    errorDebugger('generateDocument', 'createContentVersion > getSessionId', 'Session ID not obtained', 'error');
                     this.showSpinner = false;
                     throw new Error('Session ID not obtained');
                 }
@@ -2012,7 +2074,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 return result.id;
             })
             .catch(e => {
-                errorDebugger('generateDocument', 'createContentVersion > fetch', e, 'warn');
+                errorDebugger('generateDocument', 'createContentVersion > fetch', e, 'error');
                 this.showSpinner = false;
             })
             .finally(() => {
@@ -2034,7 +2096,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.resultPromises.push(this.sendWithEmail(contentVersionId));
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'createFilesChatterEmail', e, 'warn');
+            errorDebugger('generateDocument', 'createFilesChatterEmail', e, 'error');
             this.showSpinner = false;
         }
     }
@@ -2061,7 +2123,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 deleteContentVersion({cvId: contentVersionId});
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'uploadToExternalStorage', e, 'warn');
+            errorDebugger('generateDocument', 'uploadToExternalStorage', e, 'error');
         }
     }
 
@@ -2083,29 +2145,48 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         }
                     }
                     this.selectedChannels.forEach(channel => {
-                        if(['Google Drive', 'AWS', 'One Drive', 'Dropbox'].includes(channel)){
+                        if (this.failed[channel] && !this.succeeded.includes(channel)){
+                           combinedMaps.failed[channel] = this.failed[channel];
+                        } else if(['Google Drive', 'AWS', 'One Drive', 'Dropbox'].includes(channel)){
                             combinedLists.inProgress.push(channel);
                             this.succeeded = this.succeeded.filter(item => !item.includes(channel));
-                        } else if (this.failed[channel] && !this.succeeded.includes(channel)){
-                            combinedMaps.failed[channel] = this.failed[channel];
                         } else if (!this.succeeded.includes(channel)) {
-                            // Step 2: Add new property with 'Internal Error' if channel is in selectedChannels but not in succeeded or failed
                             combinedMaps.failed[channel] = 'Internal Error';
                         }
                     });
+
+                    this.failed = {...combinedMaps.failed};
                     combinedLists.succeeded = this.succeeded;
-                    sendResultsEmail({ combinedLists : combinedLists, combinedMaps : combinedMaps});
+                    if(this.failed.length > 0) sendResultsEmail({ combinedLists : combinedLists, combinedMaps : combinedMaps});
+
+                    console.log('Combined Lists ::', combinedLists);
+                    console.log('Combined Maps ::', combinedMaps);
+                    console.log('Failed ::', this.failed);
                     
-                    this.handleClose();
+                    Object.keys(this.failed).forEach(key => {
+                        this.activity[key.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c'] = this.failed[key];
+                    });
+                    this.succeeded.forEach(item => {
+                        this.activity[item.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c'] = 'Success';
+                    });
+                    combinedLists.inProgress.forEach(item => {
+                        this.activity[item.replaceAll(' ', '_') + '__c'] = 'In Progress';
+                    });
+
+                    console.log('Updated activity is ::', this.activity);
+                    
+                    this.generateActivity();
+                    
+                    // this.handleClose();
                     this.showSpinner = false;
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'handleGenerationResult > this.resultPromises - Promises', e, 'warn');
+                    errorDebugger('generateDocument', 'handleGenerationResult > this.resultPromises - Promises', e, 'error');
                 });
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleGenerationResult', e, 'warn');
+            errorDebugger('generateDocument', 'handleGenerationResult', e, 'error');
         }
     }
     
@@ -2184,7 +2265,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         })
                         .catch((e) => {
                             this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
-                            errorDebugger('generateDocument', 'handleSetDefaults > createListViewButtons', e, 'warn');
+                            errorDebugger('generateDocument', 'handleSetDefaults > createListViewButtons', e, 'error');
                         })
                     }else{
                         getSessionId()
@@ -2225,13 +2306,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                 })
                                 .catch(e => {
                                     this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
-                                    errorDebugger('generateDocument', 'handleSetDefaults > fetch (create quick action button)', e, 'warn');
+                                    errorDebugger('generateDocument', 'handleSetDefaults > fetch (create quick action button)', e, 'error');
                                 });
                             })
                         .catch((e)=>{
                             this.showSpinner = false;
                             this.showToast('error', 'Something went wrong!','Some technical issue occurred, please try again!', 5000);
-                            errorDebugger('generateDocument', 'handleSetDefaults > getSessionId', e, 'warn');
+                            errorDebugger('generateDocument', 'handleSetDefaults > getSessionId', e, 'error');
                         })
                     }
                 }else{
@@ -2242,11 +2323,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             })
             .catch(e => {
                 this.showSpinner = false;
-                errorDebugger('generateDocument', 'handleSetDefaults > setDefaultOptions', e, 'warn');
+                errorDebugger('generateDocument', 'handleSetDefaults > setDefaultOptions', e, 'error');
             })
         }catch(e){
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleSetDefaults', e, 'warn');
+            errorDebugger('generateDocument', 'handleSetDefaults', e, 'error');
         }
     }
 
@@ -2263,7 +2344,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
 
 // --------------------------------------------------------General Use Methods ---------------------------------------------------------
-    // -=-=- Used to Show The Toasts
     showToast(status, title, message, duration){
         this.showSpinner = false;
         const messageContainer = this.template.querySelector('c-message-popup')
@@ -2285,7 +2365,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         });
     }
 
-// -=-=- Used to navigate to the other Components -=-=-
     navigateToComp(componentName, paramToPass){
         try {
             let cmpDef;
@@ -2309,7 +2388,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             });
         } catch (e) {
-            errorDebugger('generateDocument', 'navigateToComp', e, 'warn');
+            errorDebugger('generateDocument', 'navigateToComp', e, 'error');
         }
     }
 }

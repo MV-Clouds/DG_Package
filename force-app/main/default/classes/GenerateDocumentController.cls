@@ -121,7 +121,7 @@ public with sharing class GenerateDocumentController {
             if(contentVersionId != null){
                 cdl.ContentDocumentId = [Select Id, ContentDocumentId from ContentVersion WHERE Id=:contentVersionId WITH SECURITY_ENFORCED LIMIT 1].ContentDocumentId;
             }
-            cdl.LinkedEntityId = recordId;   
+            cdl.LinkedEntityId = recordId;
             cdl.Sharetype = 'V';
             if(Schema.sObjectType.ContentDocumentLink.isCreateable()){
                 insert cdl;
@@ -232,6 +232,31 @@ public with sharing class GenerateDocumentController {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getSessionId');
         }
         return sessionId;
+    }
+
+/*
+*********************************************************
+@description      : Method is used to create a new activity record for a template
+@param {none}
+@return           : activityId {String} - new activity Id
+********************************************************
+*/
+    @AuraEnabled
+    public static String upsertActivity(Generate_Document_Activity__c activity){
+        try{
+            if(activity != null){
+                if(Schema.sObjectType.Generate_Document_Activity__c.isCreateable() && Schema.sObjectType.Generate_Document_Activity__c.isUpdateable()){
+                    upsert activity;
+                    return activity.Id;
+                }
+                return null;
+            }
+            return null;
+        }catch(Exception e){
+            System.debug('Error in getSessionId =>' + e.getMessage());
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'upsertActivity');
+            return null;
+        }
     }
 
 /*
@@ -368,6 +393,7 @@ public static void sendResultsEmail(Map<String, List<String>> combinedLists, Map
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateData');
+            throw new AuraHandledException(e.getMessage());
         }
         return mapOfData;
     }
