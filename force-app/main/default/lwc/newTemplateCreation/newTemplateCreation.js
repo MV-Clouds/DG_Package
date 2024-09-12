@@ -3,7 +3,7 @@ import getAllObjects from '@salesforce/apex/ButtonGeneratorController.getAllObje
 import getCombinedData from '@salesforce/apex/NewTemplateCreationController.getCombinedData';
 import saveTemplate from '@salesforce/apex/NewTemplateCreationController.saveTemplate';
 import { NavigationMixin } from 'lightning/navigation';
-import {navigationComps, nameSpace} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
 
 export default class NewTemplateCreation extends NavigationMixin(LightningElement) {
 
@@ -188,8 +188,12 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                 })
                 .catch(e => {
                     this.isShowSpinner = false;
-                    errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate', e, 'warn');
-                    this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
+                    errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate', e, 'warn', e?.body?.message);
+                    if( e?.body?.message.includes('STORAGE_LIMIT_EXCEEDED')){
+                        this.showToast('error', 'Storage Limit Exceeded!', 'You are running out of your data storage, please clean up data and try again...', 5000);
+                    }else{
+                        this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
+                    }
                 });
             }else{
                 this.isShowSpinner = false;

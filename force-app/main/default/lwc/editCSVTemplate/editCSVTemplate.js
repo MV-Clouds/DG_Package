@@ -1467,7 +1467,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             let maxLimit = this.isChild ? this.childMaxLimit : 1000000;
             limitInput.classList.toggle('error-in-input', this.limit < 1 || this.limit > maxLimit);
             this.isEditTabChanged = true;
-            console.log("Limit is ::", this.limit);
         }catch(e){
             errorDebugger('editCSVTemplate', 'handleLimitUpdate', e, 'warn');
         }
@@ -1481,7 +1480,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             limitInput.classList.remove('slds-has-error');
             limitInput.classList.toggle('error-in-input', this.limit < 1 || this.limit > maxLimit);
         } catch (e) {
-            console.log('Error in function handleLimitInputBlur:::', e.message);
+            errorDebugger('editCSVTemplate', 'handleLimitInputBlur', e, 'warn');
         }
     }
 

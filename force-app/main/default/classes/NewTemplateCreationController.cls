@@ -77,7 +77,7 @@ public with sharing class NewTemplateCreationController {
             System.debug('Error in saving Template =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'NewTemplateCreationController', 'saveTemplate');
             if(!Test.isRunningTest()){
-                throw new AuraHandledException('error saving template.');
+                throw new AuraHandledException(e.getMessage());
             }
         }
         return templateId;

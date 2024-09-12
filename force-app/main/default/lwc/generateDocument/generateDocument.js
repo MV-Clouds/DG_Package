@@ -1259,7 +1259,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.showSpinner = true;
                     this.handleGenerateCSVData()
                     .catch((e) => {
-                        console.log('Error in generating ::', e);
                         ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error in Creating File => '+ e?.message || e?.body?.message || JSON.stringify(e) || 'Unknown Error');
                         this.handleGenerationResult();
                     })
@@ -1521,8 +1520,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.labelOfLoader = 'Creating document to upload in Internal Storage...';
                 this.createContentVersion(btoa(unescape(encodeURIComponent(this.generatedCSVData))))
                 .then(cvId => {
-                    console.log('Created Content version ::', cvId);
-                    
                     this.labelOfLoader = 'Saving in Internal Storage...';
                     this.resultPromises.push(this.createFilesChatterEmail(cvId));
                     this.uploadToExternalStorage(cvId);
@@ -1533,7 +1530,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.fetchedResults = [];
                 })
                 .catch(e => {
-                    console.log('Error e  while creating content version :::', e);
                     this.showSpinner = false;
                     errorDebugger('generateDocument', 'generateCSVDocument > generation', e, 'error');
                 })
@@ -1767,7 +1763,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error In File Generation => '+ message.data.error?.message);
                 this.simpleTemplateFileDone();
                 this.showToast('error','Something went Wrong!', 'There was error creating document, please try again.', 5000);
-                console.log('the message from the ' , message.data.messageFrom ,' with error :::' , message.data.error?.message);
                 
             }
             else if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel !== 'unknown'){
@@ -1781,7 +1776,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }
                     this.completedSimTempPros++;
                     this.simpleTemplateFileDone();
-                    console.log('Completed Channel: ' + message.data.completedChannel + ' :: Status :: '+ message.data.status + ' :: ' + this.failed );
                 }else if(message.data.completedChannel === 'External Storage'){
                     let cvId = message.data.cvId;
                     if(cvId){
@@ -1855,7 +1849,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
                 .then(response => response.json())
                 .then(result => {
-                    console.log('Result of Document ::' , result);
                     
                     if (result.success) {
                         this.succeeded.push('Documents');
@@ -1914,7 +1907,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 })
                 .then(response => response.json())
                 .then(result => {
-                    console.log('Result of Document ::' , result);
                     if (result.success) {
                         this.succeeded.push('Notes & Attachments');
                     }else{
@@ -2159,9 +2151,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     combinedLists.succeeded = this.succeeded;
                     if(this.failed.length > 0) sendResultsEmail({ combinedLists : combinedLists, combinedMaps : combinedMaps});
 
-                    console.log('Combined Lists ::', combinedLists);
-                    console.log('Combined Maps ::', combinedMaps);
-                    console.log('Failed ::', this.failed);
                     
                     Object.keys(this.failed).forEach(key => {
                         this.activity[key.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c'] = this.failed[key];
@@ -2173,7 +2162,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.activity[item.replaceAll(' ', '_') + '__c'] = 'In Progress';
                     });
 
-                    console.log('Updated activity is ::', this.activity);
                     
                     this.generateActivity();
                     
