@@ -53,7 +53,7 @@ public with sharing class NewTemplateCreationController {
             template.MVDG__Template_Status__c = true;
     
             if(Schema.sObjectType.MVDG__Template__c.isCreateable()){
-                insert template;
+                insert as User template;
             }
             templateId = template.Id;
 
@@ -70,7 +70,7 @@ public with sharing class NewTemplateCreationController {
                 page.MVDG__Show_Footer__c = true;
                 page.MVDG__Footer_margin_bottom__c = 0.10;       // px to inch
                 // page.MVDG__Show_Watermark__c = true;       
-                insert page;
+                insert as User page;
             }
 
         } catch (Exception e) {

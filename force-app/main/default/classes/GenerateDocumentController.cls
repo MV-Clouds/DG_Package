@@ -124,7 +124,7 @@ public with sharing class GenerateDocumentController {
             cdl.LinkedEntityId = recordId;
             cdl.Sharetype = 'V';
             if(Schema.sObjectType.ContentDocumentLink.isCreateable()){
-                insert cdl;
+                insert as User cdl;
             }
         }catch (Exception e) {
             System.debug('Error in storeInFiles =>' + e.getMessage());
@@ -157,7 +157,7 @@ public with sharing class GenerateDocumentController {
             feed.RelatedRecordId = contentVersionId;
             feed.Body = body;
             if(Schema.sObjectType.FeedItem.isCreateable()){
-                insert feed;
+                insert as User feed;
             }
         }catch (Exception e) {
             System.debug('Error in postToChatter =>' + e.getMessage());
@@ -246,7 +246,7 @@ public with sharing class GenerateDocumentController {
         try{
             if(activity != null){
                 if(Schema.sObjectType.Generate_Document_Activity__c.isCreateable() && Schema.sObjectType.Generate_Document_Activity__c.isUpdateable()){
-                    upsert activity;
+                    upsert as User activity;
                     return activity.Id;
                 }
                 return null;
@@ -463,7 +463,7 @@ public static void sendResultsEmail(Map<String, List<String>> combinedLists, Map
                 MVDG__Email_Template__c = defaultData.get('emailTemplate')
             );
             if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
-                update template;
+                update as User template;
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'setDefaultOptions');
