@@ -518,7 +518,12 @@ svg .slds-icon .slds-icon-text-default{
     z-index: 1000;
     box-sizing: border-box;
 }
-
+.feedback_main[data-display=true]{
+    display: block;
+}
+.feedback_main[data-display=false]{
+    display: none;
+}
 .feedback-container{
     border-radius: 8px;
     padding-block: 20px;

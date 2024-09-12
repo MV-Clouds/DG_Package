@@ -28,18 +28,15 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
     global void execute(Database.BatchableContext bC, List<ContentVersion> scope) {
         try {
             MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
-            String bucketName = settings.MVDG__BucketName__c;
-            String awsKey = settings.MVDG__ClientId__c;
-            String awsSecret = settings.MVDG__ClientSecret__c;
-            String methodName = 'PUT';
-            String namedCredentialApiName = settings.MVDG__NamedCredential__c;
-            if(namedCredentialApiName != null){
-                namedCredential = namedCredentialApiName;
+            if(string.isNotBlank(settings.MVDG__BucketName__c) && string.isNotBlank(settings.MVDG__ClientId__c) && string.isNotBlank(settings.MVDG__ClientSecret__c)){
+                String bucket = settings.MVDG__BucketName__c;
+                String key = settings.MVDG__ClientId__c;
+                String secret = settings.MVDG__ClientSecret__c;
+                String methodName = 'PUT';
             }
-            else if( awsKey != null && awsSecret != null && bucketName != null){
-                bucket = bucketName;
-                key = awsKey;
-                secret = awsSecret;
+            else if(string.isNotBlank(settings.MVDG__NamedCredential__c)){
+                String methodName = 'PUT';
+                namedCredential = settings.MVDG__NamedCredential__c;
             }
 
             for (ContentVersion attach : scope) {
@@ -68,8 +65,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                     String authHeader;
                     String endpoint;
 
-                    
-                    
                     HttpRequest req = new HttpRequest();
                     endpoint = 'callout:'+ namedCredential +'/'+ awsFileName+'?uploads';
                     req.setMethod('POST');

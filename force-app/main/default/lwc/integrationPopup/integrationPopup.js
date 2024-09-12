@@ -1,11 +1,13 @@
-import { LightningElement , api, track , wire} from 'lwc';
+import { LightningElement , api, track} from 'lwc';
 import Popupimg from "@salesforce/resourceUrl/popupImage";
 import { NavigationMixin } from 'lightning/navigation';
 import isOrgWide from '@salesforce/apex/GoogleDriveAuthorizationController.isOrgWide';
+import {errorDebugger} from 'c/globalProperties';
+
 export default class integrationPopup extends NavigationMixin(LightningElement) {
 
     @track popupimg = Popupimg;
-    @api showModel;
+    @track showModel;
     @track showSpinner;
     
     @api draggedkey;
@@ -15,7 +17,7 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     @track nickname = '';
     @track namedCredential = '';
     @track isOrg = false;
-    @api redirecturi; 
+    @track redirecturi; 
     @track isDropbox = false;
     @track isGoogleDrive = false;
     @track isOneDrive = false;
@@ -72,7 +74,6 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     }
 
     checkBtn(){
-        debugger
         if(this.isAws && this.bucket != '' && this.clientId != '' && this.clientSecret != '' && this.nickname != '' && !this.isNamedCredential){
             const authBtn = this.template.querySelector('.save-btn');
             authBtn.style.background = '#00AEFF';
@@ -128,7 +129,9 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
         this.isImageLoaded = true;
         // console.log('image is loaded');
         const onimgload = new CustomEvent('onimgload');
-        this.dispatchEvent(onimgload);
+        if(typeof window !== 'undefined'){
+            this.dispatchEvent(onimgload);
+        }
     }
 
     get doShowSpinner(){
@@ -179,7 +182,7 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
         this.checkBtn();
     }
 
-    toggleNamedCredential(event){
+    toggleNamedCredential(){
         this.clientId = '';
         this.clientSecret = '';
         this.bucket = '';
@@ -220,15 +223,15 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
 
     }
 
-    handleGenAuthCode(event){
+    handleGenAuthCode(){
         try{
-        const onauthcode = new CustomEvent('authcode');
-        // console.log('going for auth code');
-        this.dispatchEvent(onauthcode);
-        // console.log('success');
+            const onauthcode = new CustomEvent('authcode');
+            if(typeof window !== 'undefined'){
+                this.dispatchEvent(onauthcode);
+            }
         }
         catch (error){
-            // console.error(error);
+            errorDebugger('IntegrationPopup', 'handleGenAuthCode', error, 'warn');
         }
     }
 
@@ -303,18 +306,20 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             // console.log('child1');
             try{
                 // console.log('dispatching data');
-            this.dispatchEvent(new CustomEvent('authorize', {
-                detail: {
-                    clientId: this.clientId,
-                    clientSecret: this.clientSecret,
-                    bucket: this.bucket,
-                    nickname: this.nickname,
-                    draggedkey: this.draggedkey,
-                    named: this.namedCredential,
-                    isOrg: this.isOrg,
-                    authcode: this.authorizationCode
-                }
-            }));
+            if(typeof window !== 'undefined'){
+                this.dispatchEvent(new CustomEvent('authorize', {
+                    detail: {
+                        clientId: this.clientId,
+                        clientSecret: this.clientSecret,
+                        bucket: this.bucket,
+                        nickname: this.nickname,
+                        draggedkey: this.draggedkey,
+                        named: this.namedCredential,
+                        isOrg: this.isOrg,
+                        authcode: this.authorizationCode
+                    }
+                }));
+            }
             }
             catch(error){
                 // console.log('Eroor'+error);
@@ -330,14 +335,16 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     }
 
     closeModel(){
-        const closeModalEvent = new CustomEvent('closemodal');
-        this.bucket = null;
-        this.clientId = null;
-        this.clientSecret = null;
-        this.redirecturi = null;
-        this.nickname = null;
-        this.namedCredential = null
-        this.dispatchEvent(closeModalEvent);
+        if(typeof window !== 'undefined'){
+            const closeModalEvent = new CustomEvent('closemodal');
+            this.bucket = null;
+            this.clientId = null;
+            this.clientSecret = null;
+            this.redirecturi = null;
+            this.nickname = null;
+            this.namedCredential = null
+            this.dispatchEvent(closeModalEvent);
+        }
     }
 
 }

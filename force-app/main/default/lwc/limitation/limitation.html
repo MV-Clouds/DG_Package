@@ -1,37 +1,50 @@
 <template>
-
-    <!-- <lightning-accordion allow-multiple-sections-open
-                         onsectiontoggle={handleSectionToggle}
-                         active-section-name={activeSections}>
-        <lightning-accordion-section name="A" label="Uploading file">
-            <div class="content">
-            <p>GoogleDrive</p>
-            <p>Currently there is limit of 38Mb for storing file.</p>
-            <br>
-            <p>OneDrive</p>
-            <p>Currently there is limit of 38Mb for storing file.</p>
-            <br>
-            <p>Dropbox</p>
-            <p>Currently there is limit of 38Mb for storing file.</p>
-            <br>
-            <p>AWS</p>
-            <p>Currently there is limit of 10Mb of file upload.</p>
-            <p>If you want to Increase it to 60Mb use Named credentials.</p>
+    <div class="main">
+        <div class="options">
+            <a onclick={handleSetActive} data-name="text0" id="template" class="option1 button enable">Template Capabilities</a>
+            <a onclick={handleSetActive} data-name="text1" id="storage" class="option2 button">Storage Capacities</a>
+            <a onclick={handleSetActive} data-name="text2" id="document" class="option3 button">Document Generation Capabilities</a>
+        </div>
+        <div class="content">
+            <div if:true={isTemplate}>
+                <div class="simple">
+                    <h2>Simple Template Capabilities :</h2>
+                    <li>You can insert salesforce images up to 20 MB.</li>
+                    <li>You can insert up to 3MB of images from your local storage.</li>
+                    <li>You can add up to 10 tables for the Related list (child object) record of a maximum of 50 records in each table.</li>
+                    <li>You can generate up to 20 pages of PDF from a simple template.</li>
+                </div>
+                <div class="google">
+                    <h2>Google Doc Template Capabilities :</h2>
+                    <li>You can only select templates that have been created from the DocGenius application.</li>
+                    <li>It is recommended that you generate only about 30 pages of PDF from a Google Doc template for better results.</li>
+                    <li>You can add up to 10 tables for the Related list (child object) record of a maximum of 50 records in each table.</li>
+                </div>
+                <div class="csv">
+                    <h2>CSV Template Capabilities :</h2>
+                    <li>You can add 10,00,000 records in a CSV document.</li>
+                    <li>For big data columns in the CSV, it's recommended to set a limit lower than the maximum limit.</li>
+                    <li>You can only generate CSV if you have access to all the fields you have selected as columns.</li>
+                </div>
             </div>
-        </lightning-accordion-section>
-
-        <lightning-accordion-section name="B" label="Generating document">
-            <div class="content">
-            <p>CSV/XLS File</p>
-            <p>Currently CSV file larger than 38Mb cannot be uploaded to any external storage it can only be downloaded.</p>
-            <p>PDF/DOCX File</p>
-            <p>It has limit of 20 Page and file larger than 38Mb cannot be upload to any external storage it can only be downloaded.</p>
+            <div if:true={isStorage}>
+                <h2>Storage Capacities :</h2>
+                <li>Notes & Attachments: You can upload files upto 25MB.</li>
+                <li>Files:  You can upload files upto 35 MB.</li>
+                <li>Document:  You can upload files upto 5 MB.</li>
+                <li>Chatter:  You can upload files upto 35 MB.</li>
+                <li>Google Drive:  You can upload files upto 35 MB.</li>
+                <li>AWS:  You can upload files upto 35 MB (using name credential) Or 10 MB (normal integration).</li>
+                <li>One Drive:  You can upload files upto 35 MB.</li>
+                <li>Dropbox:  You can upload files upto 35 MB.</li>
             </div>
-        </lightning-accordion-section>
+            <div if:true={isDocument}>
+                <h2>Document Preview Capabilities :</h2>
+                <li>The PDF preview does not support some special characters such as Greek, Chinese, and Mathematical expressions. However, they are shown in the external PDF viewers.</li>
+            </div>
 
-        <!-- <lightning-accordion-section name="C" label="Accordion Title C">
-            <p>This is the content area for section C.</p>
-            <p>Nulla ornare ipsum felis, vel aliquet dui blandit vel. Integer accumsan velit quis mauris pharetra, nec sollicitudin dui eleifend. Cras condimentum odio mi, nec ullamcorper arcu ullamcorper sed. Proin massa arcu, rutrum a ullamcorper nec, hendrerit in sem. Etiam tempus eros ut lorem tincidunt, id condimentum nulla molestie. Morbi hendrerit elit pretium, ultrices neque non, ullamcorper justo. Quisque vel nisi eget eros efficitur semper. Nulla pulvinar venenatis quam vitae efficitur. Nam facilisis sollicitudin quam ac imperdiet.</p>
-        </lightning-accordion-section> -->
-    </lightning-accordion>  -->
+        </div>
+    </div>
+
+
 </template>

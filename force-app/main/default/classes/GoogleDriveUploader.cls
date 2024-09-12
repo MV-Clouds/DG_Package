@@ -1,79 +1,68 @@
-global with sharing class GoogleDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts{
-
-    global string contentVersionId;
-    global static string googleDriveAccessToken;
-    global static string googleFileName;
-
+global with sharing class GoogleDriveUploader {
+    global String contentVersionId;
+    global static String googleDriveAccessToken;
+    global static String googleFileName;
 
     global GoogleDriveUploader(Id cvid) {
         this.contentVersionId = cvid;
     }
 
-    
+    @AuraEnabled
+    @future(callout=true)
+    public static void uploadToGoogleDriveFuture(Id cvId) {
+        // Query the ContentVersion record
+        ContentVersion cv = [SELECT Id, VersionData, Title, ContentSize, FileExtension
+                             FROM ContentVersion
+                             WHERE Id =: cvId 
+                             WITH SECURITY_ENFORCED 
+                             LIMIT 1];
 
-    global Database.QueryLocator start(Database.BatchableContext bC) {
-        if(contentVersionId != null){
-            return Database.getQueryLocator([
-                SELECT Id, VersionData, Title, ContentSize, FileExtension
-                FROM ContentVersion
-                WHERE Id =: contentVersionId with SECURITY_ENFORCED
-            ]);
-        }
-        return null;
-    }
-
-
-    global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
-        for (ContentVersion cv: scope) {
-            try {
+        try {
+            if (cv != null) {
                 String fileName = cv.Title;
-                googleFileName = cv.Title+'.'+cv.fileExtension;
+                googleFileName = cv.Title + '.' + cv.FileExtension;
                 String acctoken = getToken();
                 Integer fileSize = cv.ContentSize;
                 String contentType = contentType(cv.FileExtension);
-                System.debug('--------' + contentType);
-                Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
-                if(acctoken != null){
+                
+                if (acctoken != null) {
                     googleDriveAccessToken = acctoken;
 
-                    Integer maxSize = 5 * 1024 * 1024;
+                    Integer maxSize = 5 * 1024 * 1024; // 5 MB threshold
                     if (Test.isRunningTest()) {
                         maxSize = 800;
-                    } 
-                    if (fileSize < maxSize) { // 5 MB threshold
-                        System.debug('Uploading small file directly to googledrive');
-                        uploadToGoogleDrive(cv, fileName, contentType);
+                    }
+
+                    if (fileSize < maxSize) {
+                        // Upload small file directly
+                        uploadToGoogleDrivemail(cv, fileName, contentType);
                     } else {
-                        System.debug('Uploading large file in chunks to googledrive');
-                        uploadLargeFileInChunks(cv, fileSizeEncoded, contentType);
+                        // Upload large file in chunks
+                        uploadLargeFileInChunks(cv, fileSize, contentType);
                     }
                 }
-            } catch (System.LimitException e) {
-                emailUser('File size too large. Try uploading file with smaller size.\n\n Or Download it and then upload file manually.');
-                System.debug('Error during Dropbox file upload: heap size issue' + e.getMessage());
             }
+        } catch (System.LimitException e) {
+            emailUser('File size too large. Try uploading a smaller file.');
+            System.debug('Error during file upload: ' + e.getMessage());
+        } catch (Exception ex) {
+            System.debug('Error: ' + ex.getMessage());
         }
     }
 
-
-
-    global void finish(Database.BatchableContext bC) {
-        System.debug('GoogleDrive file upload batch finished');
-    }
-
     global static String getToken(){
-        List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-            System.debug('This is client id'+mdata[0].MVDG__CID__c);
-            System.debug('This is client secret'+mdata[0].MVDG__CSEC__c);
-        AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
+        List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+            System.debug('This is client id'+mdata[0].CID__c);
+            System.debug('This is client secret'+mdata[0].CSEC__c);
+        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
         String endpoint = 'https://oauth2.googleapis.com/token';
         HttpRequest request = new HttpRequest();
         request.setEndpoint(endpoint);
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.refresh_token__c +
-                        '&client_id=' + mdata[0].MVDG__CID__c +
-                        '&client_secret=' + mdata[0].MVDG__CSEC__c +
+        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
+                        '&client_id=' + mdata[0].CID__c +
+                        '&client_secret=' + mdata[0].CSEC__c +
                         '&grant_type=refresh_token');
 
         Http http = new Http();
@@ -92,7 +81,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     }
 
     @AuraEnabled
-    public static Boolean uploadToGoogleDrive(ContentVersion content, String fileName, String contentType) {
+    public static Boolean uploadToGoogleDrivemail(ContentVersion content, String fileName, String contentType) {
 
         if (content != null) {
             MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
@@ -103,7 +92,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
             if (resp.getStatusCode() == 200) {
                 return true;
             } else {
-                Response_Handler.store_Callout_Response(resp, 'GoogleDriveUploader', 'uploadToGoogleDrive');
+                Response_Handler.store_Callout_Response(resp, 'GoogleDriveUploader', 'uploadToGoogleDrivemail');
                 mailMessage(resp.getStatusCode());
                 return false; // Retry after token refresh
             }

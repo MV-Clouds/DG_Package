@@ -83,14 +83,6 @@ export default class ChatBot extends LightningElement {
     }
 
     connectedCallback(){
-        getJsonFaqs()
-                .then(result =>{
-                    this.jsonFaqs = JSON.parse(result);
-                    // console.log(JSON.stringify(this.jsonFaqs));
-                })
-                .catch(error =>{
-                    console.error(error);
-                });  
         checkOldChats()
         .then((result) =>{
             if(result != null){
@@ -277,27 +269,19 @@ export default class ChatBot extends LightningElement {
     }
 
     updateParsedJson(data, keyword) {
-        // console.log('Inside update json');
-        for (const item of data) {
-            if (item.question.toLowerCase() === keyword.toLowerCase()) {
-                // console.log(JSON.stringify(item));
-                // console.log('outside updateParsed json1');
-            }
+        data.forEach((item) =>{
             if (item.subQuestions && item.subQuestions.length > 0) {
-                const subQuestions = this.findInSubQuestions(item.subQuestions, keyword);
-                // console.log('outside updateParsed json2');
+                this.findInSubQuestions(item.subQuestions, keyword);
             }
-        }
+        });
         return null;
     }
     
     findInSubQuestions(subQuestions, keyword) {
         let foundSubQuestions = [];
-        // console.log('inside findInSubQuesitons');
-        for (const subItem of subQuestions) {
+        subQuestions.forEach((subItem) => {
             if (subItem.question.toLowerCase().includes(keyword.toLowerCase())) {
                 this.selectedJSON = subItem;
-                // // console.log(JSON.stringify(subItem))
                 foundSubQuestions.push(subItem);
                 // console.log('outside findInSubQuesitons');
             }
@@ -307,7 +291,7 @@ export default class ChatBot extends LightningElement {
                 foundSubQuestions = foundSubQuestions.concat(result);
                 // console.log('outside findInSubQuesitons');
             }
-        }
+        });
         return foundSubQuestions;
     }
 
@@ -317,17 +301,7 @@ export default class ChatBot extends LightningElement {
         this.checkFeedbackActive();
         if (!this.isFeedbackPopup) {
             this.handleClearClose();
-        }
-        setTimeout(() =>{
-            const images = this.template.querySelectorAll('img[data-key]');
-    
-            images.forEach(img => {
-                img.style.filter = 'grayscale(1)';
-            });
-            this.toggleitem();
-        }, 100);
-        
-       
+        } 
     }
 
     toggleClear(){
@@ -362,54 +336,35 @@ export default class ChatBot extends LightningElement {
 
     
 
-    fetchingMainFAQS(){
-        // console.log('invoked mainfaqs');
-        this.checkSpinnerDuration((result) => {
-            if(result === 'success'){
-                this.isTimer = true;
-                // console.log('Time completed and finding issues');
-                if(this.isEmail){
-                    this.issues = null;
-                    this.isSpinner = false;
-                }
-                else if(this.jsonFaqs && !this.oldChats){
-                    this.issues = this.jsonFaqs.map(item => item.question);
-                }
-                else if(this.oldChats){
-                    this.issues = null;
-                }
-                else{
-                    let waitCount = 0;
-                    const maxRetries = 5;
-                    const waitLoop = setTimeout(() => {
-                        // console.log('counting');
-                        waitCount++;
-                        if (this.jsonFaqs || waitCount >= maxRetries){
-                            // console.log('clearing interval');
-                            clearInterval(waitLoop);
-                            if(this.isEmail){
-                                this.issues = null;
-                                this.isSpinner = false;
-                            }
-                            else if (this.jsonFaqs){
-                                this.issues = this.jsonFaqs.map(item => item.question);
-                            }
-                            else{
-                                this.isSpinner = false;
-                                console.error('Failed to fetch Faqs');
-                            }
+    fetchingMainFAQS() {
+        // No async operation, no polling, just direct checks
+        getJsonFaqs()
+                .then(result =>{
+                    this.jsonFaqs = JSON.parse(result);
+                    if (this.isEmail) {
+                        this.issues = null;
+                        this.isSpinner = false;
+                    } else if (this.jsonFaqs && !this.oldChats) {
+                        this.issues = this.jsonFaqs.map(item => item.question);
+                    } else if (this.oldChats) {
+                        this.issues = null;
+                    } else {
+                        if (this.jsonFaqs) {
+                            this.issues = this.jsonFaqs.map(item => item.question);
+                        } else {
+                            this.isSpinner = false;
+                            console.error('Failed to fetch Faqs');
                         }
-                    }, 1000);
-                }
-                // console.log('Fetched MainFAQs:', this.issues);
-
-                if(this.isTimer == true && this.issues != null){
-                    this.isSpinner = false;
-                    this.isIssue = true;
-                }
-            }
-        });
-        
+                    }
+                
+                    if (this.issues != null) {
+                        this.isSpinner = false;
+                        this.isIssue = true;
+                    }
+                })
+                .catch(error =>{
+                    console.error(error);
+                });  
     }
 
     fetchingSubFAQS(selectedQuestion){
@@ -577,7 +532,7 @@ export default class ChatBot extends LightningElement {
         setTimeout(() =>{
             this.checkEmailActive();
             this.checkFeedbackActive();
-        },100);
+        },300);
         // console.log('checked');
     }
 
