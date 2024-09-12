@@ -41,7 +41,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             // Make apex callout to copy the document and get the JSON of the Google Document
             copyGoogleDoc({ templateId: this.templateid })
                 .then((result) => {
-                    
+
                     // Setting the signature size according to the page width
                     this.signatureSize = result.width !== null ? result.width : 50;
                     if (this.signatureSize > 100) {
@@ -67,15 +67,16 @@ export default class GenerateGoogleDocFile extends LightningElement {
                         
                         // If the callout fails, show toast
                         let errorList = result.error.split(":");
-                        this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: errorList[0], message: errorList[2] } }));
+                        this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: 'Error', message: errorList[3], desc: errorList[2] } }));
                     }
                 })
                 .catch((error) => {
                     console.log("error in copyGoogleDoc - LWC", error);
-                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Something went wrong. Please refresh the page and try again." } }));
+                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error , desc: "Something went wrong. Please refresh the page and try again." } }));
                 });
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "generateDocument", error, 'error', "Error in generating template. Please try again.");
+            errorDebugger("generateGoogleDocFile", "generateDocument", error, 'Error', "Error in generating template. Please try again.");
+            this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error , desc: "Something went wrong. Please refresh the page and try again." } }));
         }
     }
 
@@ -168,10 +169,10 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
             console.log("objectDetails \n", objectDetails);
             this.mapFieldValues(content, objectDetails);
-            
+
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "generateDocument", error, 'error', "Error in formatting template. Please try again.");
-            this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Something went wrong. Please refresh the page and try again" } }));
+            errorDebugger("generateGoogleDocFile", "generateDocument", error, 'Error', "Error in formatting template. Please try again.");
+            this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error , desc: "Something went wrong. Please refresh the page and try again" } }));
         }
     }
 
@@ -339,10 +340,11 @@ export default class GenerateGoogleDocFile extends LightningElement {
                 })
                 .catch((error) => {
                     console.log("error in mapFieldValues==>", error);
-                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Something went wrong. Please refresh the page and try again" } }));
+                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error, desc: "Something went wrong. Please refresh the page and try again" } }));
                 });
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "mapFieldValues", error, 'error', "Error in mapFieldValues. Please try again.");
+            errorDebugger("generateGoogleDocFile", "mapFieldValues", error, 'Error', "Error in mapFieldValues. Please try again.");
+            this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error, desc: "Something went wrong. Please refresh the page and try again" } }));
         }
     }
 
@@ -363,7 +365,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                 this.tableOffset -= this.signatureKey.length - 1;
             }
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "processSignatureImage", error, 'error', "Error in processSignatureImage. Please try again later");
+            errorDebugger("generateGoogleDocFile", "processSignatureImage", error, 'Error', "Error in processSignatureImage. Please try again later");
         }
     }
     // Creates find and replace requests
@@ -387,7 +389,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                 }
             }
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "createReplaceRequest", error, 'error', "Error in createReplaceRequest. Please try again.");
+            errorDebugger("generateGoogleDocFile", "createReplaceRequest", error, 'Error', "Error in createReplaceRequest. Please try again.");
         }
     }
     // Creates new table rows - empty
@@ -408,7 +410,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             };
             this.changeRequests.push(tabInsertRequest);
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "createRowInsertRequest", error, 'error', "Error in createRowInsertRequest. Please try again.");
+            errorDebugger("generateGoogleDocFile", "createRowInsertRequest", error, 'Error', "Error in createRowInsertRequest. Please try again.");
         }
     }
 
@@ -429,7 +431,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             };
             this.changeRequests.push(tabDeleteRequest);
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "createRowDeleteRequest", error, 'error', "Error in createRowDeleteRequest. Please try again.");
+            errorDebugger("generateGoogleDocFile", "createRowDeleteRequest", error, 'Error', "Error in createRowDeleteRequest. Please try again.");
         }
     }
 
@@ -447,7 +449,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             };
             this.changeRequests.push(tabValueRequest);
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "createRowUpdateRequest", error, 'error', "Error in createRowUpdateRequest. Please try again.");
+            errorDebugger("generateGoogleDocFile", "createRowUpdateRequest", error, 'Error', "Error in createRowUpdateRequest. Please try again.");
         }
     }
 
@@ -465,7 +467,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             };
             this.changeRequests.push(contentDeleteRequest);
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "deleteContentRequest", error, 'error', "Error in deleteContentRequest. Please try again.");
+            errorDebugger("generateGoogleDocFile", "deleteContentRequest", error, 'Error', "Error in deleteContentRequest. Please try again.");
         }
     }
 
@@ -489,22 +491,26 @@ export default class GenerateGoogleDocFile extends LightningElement {
             };
             this.changeRequests.push(insertImageRequest);
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "insertImageRequest", error, 'error', "Error in insertImageRequest. Please try again.");
+            errorDebugger("generateGoogleDocFile", "insertImageRequest", error, 'Error', "Error in insertImageRequest. Please try again.");
         }
     }
 
     // Removes signatureKey tags if there is no signature for the object
     SignatureKeyReplaceRequest() {
-        let removeSignatureKeyRequest = {
-            replaceAllText: {
-                containsText: {
-                    text: this.signatureKey,
-                    matchCase: true
-                },
-                replaceText: " "
-            }
-        };
-        this.changeRequests.push(removeSignatureKeyRequest);
+        try {
+            let removeSignatureKeyRequest = {
+                replaceAllText: {
+                    containsText: {
+                        text: this.signatureKey,
+                        matchCase: true
+                    },
+                    replaceText: " "
+                }
+            };
+            this.changeRequests.push(removeSignatureKeyRequest);
+        } catch (error) {
+            errorDebugger("generateGoogleDocFile", "SignatureKeyReplaceRequest", error, 'Error', "Error in SignatureKeyReplaceRequest. Please try again.");
+        }
     }
 
     // Preview the result - make apex call to get body blob
@@ -518,16 +524,16 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     } else {
                         // An error occured in recieving / make change requests
                         let splitList = res.split(":");
-                        this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: splitList[2] } }));
+                        this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: splitList[3], desc: splitList[2] } }));
                         console.log("Cannot Preview the result is null");
                     }
                 })
                 .catch((error) => {
                     console.log("error in doPreview - LWC", error);
-                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: "Something went wrong. Please refresh the page and try again" } }));
+                    this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error, desc: "Something went wrong. Please refresh the page and try again" } }));
                 });
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "doPreview", error, 'error', "Error in doPreview. Please try again.");
+            errorDebugger("generateGoogleDocFile", "doPreview", error, 'Error', "Error in doPreview. Please try again.");
         }
     }
 
@@ -542,7 +548,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
             return input.substring(startIndex + startDelim.length, endIndex);
         } catch (error) {
-            errorDebugger("generateGoogleDocFile", "substringBetween", error, 'error', "Error in substringBetween. Please try again.");
+            errorDebugger("generateGoogleDocFile", "substringBetween", error, 'Error', "Error in substringBetween. Please try again.");
         }
         return -1;
     }

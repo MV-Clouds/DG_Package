@@ -39,7 +39,7 @@ public with sharing class GoogleDocPreview {
             //get pdf blob of google doc
             pdfBlob = getPDF(googleDocId, format);
             if (pdfBlob == null) {
-                return 'error:Get PDF error:Unable to fetch the PDF from Google Drive:-';
+                return 'error:Get PDF error:Unable to fetch the PDF from Google Drive:Unable to fetch the PDF from Google Drive';
             }
 
         } catch (Exception e) {
@@ -70,13 +70,14 @@ public with sharing class GoogleDocPreview {
         try {
             String endpoint = 'https://oauth2.googleapis.com/token';
             List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            // List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             request.setTimeout(120000);
-            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + authProvider.MVDG__ClientId__c + '&client_secret=' + authProvider.MVDG__ClientSecret__c + '&grant_type=refresh_token');
             request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
+            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             System.debug('Response of refreshAccessToken: ' + response.getBody());
@@ -89,7 +90,7 @@ public with sharing class GoogleDocPreview {
                 return newToken;
             }
             responseList.put('refreshAccessToken', response);
-            return 'error:Access Token Error:Error in getting access token:' + String.valueOf(response.getStatusCode());
+            return 'error:Access Token Error:Error in getting access token:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
         } catch (Exception e) {
             System.debug('Error In refreshAccessToken ==> ' + e.getMessage() + e.getLineNumber());
             Log_Handler.store_Exception(e, 'GoogleDocPreview', 'refreshAccessToken');
@@ -147,7 +148,7 @@ public with sharing class GoogleDocPreview {
                 }
             }
             responseList.put('getDocument', response);
-            return 'error:Get Document Error:Error in getting document:' + String.valueOf(response.getStatusCode());
+            return 'error:Get Document Error:Error in getting document:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
             
         } catch (Exception e) {
             System.debug('Error In getDocument ==> ' + e.getMessage() + e.getLineNumber());
@@ -222,7 +223,7 @@ public with sharing class GoogleDocPreview {
                 }
             }
             responseList.put('copyGoogleDoc', response);
-            responseWrapper.error = 'error:Copy Google Doc:Error in processing the document:' + String.valueOf(response.getStatusCode());
+            responseWrapper.error = 'error:Copy Google Doc:Error in processing the document:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
             return responseWrapper;
         } catch (Exception e) {
             responseWrapper.error = 'error:Copy Google Doc:Error in processing the document:' + e.getMessage();
@@ -479,6 +480,7 @@ public with sharing class GoogleDocPreview {
         } catch (Exception e) {
             System.debug('Error In mapFieldValues ==> ' + e.getMessage() + e.getLineNumber());
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'mapFieldValues');
+            returnList.add(new Map<String,String>{'Error' => e.getMessage()});
         }
         return returnList;
     }

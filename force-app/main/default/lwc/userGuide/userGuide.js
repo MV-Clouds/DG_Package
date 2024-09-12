@@ -350,6 +350,20 @@ export default class UserGuide extends LightningElement {
         this.showModal = true;
     }
 
+    handleKeyPress = (event) => {
+        if (event.key == 'Escape') {
+            this.closeModal();
+        }
+    }
+
+    renderedCallback() {
+        if (this.showModal) {
+            window.addEventListener('keydown', this.handleKeyPress);
+        } else {
+            window.removeEventListener('keydown', this.handleKeyPress);
+        }
+    }
+
     // Switch Tabs
     handleTabSelection(event) {
         try {

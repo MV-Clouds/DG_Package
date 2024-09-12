@@ -1,7 +1,7 @@
 <!-- sldsValidatorIgnore -->
 <template>
     <!-- Image Popup -->
-    <div class="custom-modal-overlay" if:true={showModal}>
+    <div class="custom-modal-overlay" if:true={showModal} onkeydown={handleKeyPress}>
         <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="custom-modal-heading" class="custom-modal-container">
             <div class="custom-modal-content">
                 <div class="custom-modal-body">
