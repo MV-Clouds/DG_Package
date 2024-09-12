@@ -24,6 +24,7 @@ global with sharing class GoogleDriveUploader {
                 String acctoken = getToken();
                 Integer fileSize = cv.ContentSize;
                 String contentType = contentType(cv.FileExtension);
+                Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
                 
                 if (acctoken != null) {
                     googleDriveAccessToken = acctoken;
@@ -35,10 +36,11 @@ global with sharing class GoogleDriveUploader {
 
                     if (fileSize < maxSize) {
                         // Upload small file directly
-                        uploadToGoogleDrivemail(cv, fileName, contentType);
+                        uploadToGoogleDriveSmall(cv, fileName, contentType);
                     } else {
                         // Upload large file in chunks
-                        uploadLargeFileInChunks(cv, fileSize, contentType);
+                        System.debug('filesize'+fileSize);
+                        uploadLargeFileInChunks(cv, fileSizeEncoded, contentType);
                     }
                 }
             }
@@ -81,7 +83,7 @@ global with sharing class GoogleDriveUploader {
     }
 
     @AuraEnabled
-    public static Boolean uploadToGoogleDrivemail(ContentVersion content, String fileName, String contentType) {
+    public static Boolean uploadToGoogleDriveSmall(ContentVersion content, String fileName, String contentType) {
 
         if (content != null) {
             MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
@@ -92,7 +94,7 @@ global with sharing class GoogleDriveUploader {
             if (resp.getStatusCode() == 200) {
                 return true;
             } else {
-                Response_Handler.store_Callout_Response(resp, 'GoogleDriveUploader', 'uploadToGoogleDrivemail');
+                Response_Handler.store_Callout_Response(resp, 'GoogleDriveUploader', 'uploadToGoogleDriveSmall');
                 mailMessage(resp.getStatusCode());
                 return false; // Retry after token refresh
             }
@@ -139,12 +141,14 @@ global with sharing class GoogleDriveUploader {
         if (result != 'failure') {
             System.debug('Initiated successfully');
             Decimal filesizedec = Decimal.valueOf(fileSize);
+            System.debug(fileSize);
             Integer offset;
 
 
-            Integer chunkSize = 2097152; // 9 MB chunks
+            Integer chunkSize = 2097152; // Kb
             Integer totalChunks = Integer.valueOf(Math.ceil(filesizedec.divide(chunkSize, 3)));
-
+            System.debug(totalChunks);
+            System.debug(offset);
 
             for (Integer i = 0; i < totalChunks; i++) {
                 // System.debug(Limits.getHeapSize());
