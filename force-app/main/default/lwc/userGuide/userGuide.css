@@ -13,7 +13,7 @@
 
 .left-section {
     white-space: pre;
-    width: 0;
+    width: 30%;
     overflow: scroll;
     scrollbar-color: #00AEFF white;
     transition: all 0.5s;
@@ -40,6 +40,7 @@
     width: 8rem;
     min-width: 80%;
     /* min-width: 10rem; */
+    transition: all linear 0.25s;
     border: solid 1px #00AEFF;
     border-radius: 12px;
     display: flex;
@@ -62,6 +63,7 @@
 }
 
 .selected-tab {
+    scale: 1.1;
     color: black;
     background: linear-gradient(90deg, rgb(205,239,255), rgb(205,255,241));
     box-shadow: 2px 2px 4px rgba(0, 174, 255, 0.33);
@@ -116,6 +118,10 @@
 
 .arrow:active{
     background-color: #00528c;
+}
+
+.svg-arrow{
+    transform: rotate3d(0, 1, 0, 180deg);
 }
 
 .bottom-line {

@@ -327,8 +327,8 @@ export default class UserGuide extends LightningElement {
     @track selectedImage;
 
     @track dochomeTab = false;
-    @track btngenTab = false;
-    @track awsTab = true;
+    @track btngenTab = true;
+    @track awsTab = false;
     @track gdriveTab = false;
     @track odriveTab = false;
     @track dropboxTab = false;
@@ -339,7 +339,7 @@ export default class UserGuide extends LightningElement {
     @track docgenTab = false;
     @track tabList = ['dochomeTab', 'btngenTab', 'awsTab', 'gdriveTab', 'odriveTab', 'dropboxTab', 'stempTab', 'csvtempTab', 'gdtempTab', 'keysecTab', 'docgenTab'];
 
-    @track isOpen = false;
+    @track isOpen = true;
     @track showModal = false;
 
     closeModal() {
