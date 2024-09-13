@@ -8711,7 +8711,7 @@ Worker.prototype.toCanvas = function toCanvas() {
     onRendered(canvas);
 
     this.prop.canvas = canvas;
-    // document.body.removeChild(this.prop.overlay);
+    document.body.removeChild(this.prop.overlay);
   });
 };
 

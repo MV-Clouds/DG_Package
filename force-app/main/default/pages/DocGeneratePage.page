@@ -343,7 +343,7 @@
                         // We faced issue in apex.. so stop process here and send message to parent compoent....
                         loadingInfo && (loadingInfo.innerText = 'Facing Issue While Generating Preview, Please Try Again...');
                         docIcon?.classList.add('error');
-                        sendInfoToLWC('unknown', false, apexError);
+                        sendInfoToLWC('unknown', false, {message : apexError});
                     }
                     else{
     
@@ -958,10 +958,16 @@
                                 if(fileSizeInByte < 5*1020*1020 && selectedChannels.includes('Documents')){
                                     createDocument(fileData);
                                 }
+                                else if(selectedChannels.includes('Documents')){
+                                    sendInfoToLWC('Documents', false, {message : 'File Size Limit Exceeded!'});
+                                }
     
                                 // ... if file size in less then 24MB, Salesforce Notes & Attachments Object ....
                                 if(fileSizeInByte < 25*1020*1020 && selectedChannels.includes('Notes & Attachments')){
                                     createAttachments(fileData);
+                                }
+                                else if(selectedChannels.includes('Notes & Attachments')){
+                                    sendInfoToLWC('Notes & Attachments', false, {message : 'File Size Limit Exceeded!'});
                                 }
     
                                 // ...if file size in less then 37.5, store file in Salesforce Document Object ....
@@ -971,6 +977,12 @@
                                     selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox'))
                                 {
                                     createContentVersion(fileData);
+                                }
+                                else if(selectedChannels.includes('Files') ||
+                                        selectedChannels.includes('Chatter') || selectedChannels.includes('Email') ||
+                                        selectedChannels.includes('Google Drive') || selectedChannels.includes('AWS') ||
+                                        selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox')){
+                                    sendInfoToLWC('External Storage', false, {message : 'File Size Limit Exceeded!'});
                                 }
                             } catch (error) {
                                 console.log('error in handleGeneratedFiles : ', error.stack);

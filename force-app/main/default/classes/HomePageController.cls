@@ -36,8 +36,9 @@ public with sharing class HomePageController {
                 for(String objectApi : objectListSet){
                     TempObject tempObj = new TempObject();
                     tempObj.value = objectApi;
-                    tempObj.label = (String)Schema.getGlobalDescribe()?.get(objectApi)?.getDescribe()?.getLabel();
-                    tempObj.label = tempObj.label != null && tempObj.label != '' ? tempObj.label : objectApi;
+                    tempObj.label = objectApi;
+                    String objLabel = (String)Schema.getGlobalDescribe()?.get(objectApi)?.getDescribe()?.getLabel();
+                    tempObj.description = objLabel != null && objLabel != '' ? objLabel : objectApi;
                     objectList.add(tempObj);
                 }
 
@@ -186,6 +187,7 @@ public with sharing class HomePageController {
     public class TempObject{
         @AuraEnabled public String label;
         @AuraEnabled public String value;
+        @AuraEnabled public String description;
     }
 
     /**
