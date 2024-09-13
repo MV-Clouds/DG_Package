@@ -1,4 +1,4 @@
-global with sharing class AwsUploader implements Database.Batchable<SObject>, Database.AllowsCallouts {
+global with sharing class AwsUploader{
     global static String key = '';
     global static String secret = '';
     global static String bucket = '';
@@ -12,101 +12,82 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         this.contentVersionId = cvid;
     }
 
-    global Database.QueryLocator start(Database.BatchableContext bC) {
-        // Query for ContentVersion records
-        if(contentVersionId != null){
-            return Database.getQueryLocator([
+    @AuraEnabled
+    @future(callout=true)
+    public static void uploadAwsAsync(Id cvId) {
+        try {
+            // Query for the ContentVersion by ID
+            ContentVersion contentVersion = [
                 SELECT Id, VersionData, Title, ContentDocumentId, FileExtension, ContentSize 
                 FROM ContentVersion 
-                WHERE Id = :contentVersionId 
+                WHERE Id = :cvId 
                 WITH SECURITY_ENFORCED
-            ]);
-        }
-        return null;
-    }
+                LIMIT 1
+            ];
 
-    global void execute(Database.BatchableContext bC, List<ContentVersion> scope) {
-        try {
             MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
-            if(string.isNotBlank(settings.MVDG__BucketName__c) && string.isNotBlank(settings.MVDG__ClientId__c) && string.isNotBlank(settings.MVDG__ClientSecret__c)){
-                String bucket = settings.MVDG__BucketName__c;
-                String key = settings.MVDG__ClientId__c;
-                String secret = settings.MVDG__ClientSecret__c;
-                String methodName = 'PUT';
+            if(String.isNotBlank(settings.MVDG__BucketName__c) && String.isNotBlank(settings.MVDG__ClientId__c) && String.isNotBlank(settings.MVDG__ClientSecret__c)){
+                bucket = settings.MVDG__BucketName__c;
+                key = settings.MVDG__ClientId__c;
+                secret = settings.MVDG__ClientSecret__c;
             }
-            else if(string.isNotBlank(settings.MVDG__NamedCredential__c)){
-                String methodName = 'PUT';
+            String methodName = 'PUT';
+            if(String.isNotBlank(settings.MVDG__NamedCredential__c)){
                 namedCredential = settings.MVDG__NamedCredential__c;
             }
 
-            for (ContentVersion attach : scope) {
-                String fileName = attach.Title;
-                Integer fileSize = attach.ContentSize;
-                awsFullFileName = attach.Title+'.'+attach.FileExtension;
-                String contentType = contentType(attach.FileExtension);
-                Decimal lengthOfFile = getLengthOfFile(attach.VersionData);
+            String fileName = contentVersion.Title;
+            Integer fileSize = contentVersion.ContentSize;
+            String awsFullFileName = contentVersion.Title + '.' + contentVersion.FileExtension;
+            String contentType = contentType(contentVersion.FileExtension);
+            Decimal lengthOfFile = getLengthOfFile(contentVersion.VersionData);
 
-                Integer maxSize = (10*1024*1024);
+            Integer maxSize = (10 * 1024 * 1024);
 
-                if (Test.isRunningTest()) {
-                    maxSize = 800;
-                }
+            if (Test.isRunningTest()) {
+                maxSize = 800;
+            }
 
-                if (fileSize < maxSize) {
-                    System.debug('Uploading small file');
-                    uploadObject(fileName.toLowerCase(), attach.FileExtension, attach.VersionData);
-                } else {
-                    if(namedCredential != ''){
+            if (fileSize < maxSize) {
+                System.debug('Uploading small file');
+                uploadObject(fileName.toLowerCase(), contentVersion.FileExtension, contentVersion.VersionData);
+            } else {
+                if (String.isNotBlank(namedCredential)) {
                     System.debug('Uploading large file');
                     String formattedDate = DateTime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss z');
-                    // String payloadHash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
                     String timestamp = DateTime.now().format('yyyyMMddHHmmss');
-                    awsFileName = filename.replace(' ', '%20') + '_' + timestamp + '.' + attach.fileExtension;
-                    String authHeader;
-                    String endpoint;
-
+                    String awsFileName = fileName.replace(' ', '%20') + '_' + timestamp + '.' + contentVersion.FileExtension;
+                    
                     HttpRequest req = new HttpRequest();
-                    endpoint = 'callout:'+ namedCredential +'/'+ awsFileName+'?uploads';
+                    String endpoint = 'callout:' + namedCredential + '/' + awsFileName + '?uploads';
                     req.setMethod('POST');
                     req.setEndpoint(endpoint);
 
                     Http http = new Http();
                     HTTPResponse res = http.send(req);
 
-                    System.debug('phase 2');
-
                     if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
-                        String uploadId = '';
-                        String responseBody = res.getBody();
-                        if (responseBody != null && responseBody.contains('UploadId')) {
-                            uploadId = responseBody.substringBetween('<UploadId>', '</UploadId>');
-                        }
+                        String uploadId = res.getBody().substringBetween('<UploadId>', '</UploadId>');
+                        
                         UploadMultipartDetails multipartDetail = new UploadMultipartDetails();
                         multipartDetail.uploadId = uploadId;
                         multipartDetail.lengthOfFile = lengthOfFile;
                         multipartDetail.filename = fileName;
-                        multipartDetail.fileExtension = attach.FileExtension;
-                        multipartDetail.attach = attach;
+                        multipartDetail.fileExtension = contentVersion.FileExtension;
+                        multipartDetail.attach = contentVersion;
 
                         uploadMultipart(multipartDetail);
                     } else {
-                        Response_Handler.store_Callout_Response(res, 'AwsUploader', 'execute');
+                        Response_Handler.store_Callout_Response(res, 'AwsUploaderFuture', 'uploadContentVersion');
                         mailMessage(res.getStatusCode());
                         System.debug('Error during large file upload initiation: ' + res.getStatusCode());
                         System.debug('Error during large file upload initiation: ' + res.getBody());
-
                     }
-                }
                 }
             }
         } catch (Exception e) {
             System.debug('Something went wrong: ' + e);
         }
-    }
-
-    global void finish(Database.BatchableContext bC) {
-        // Optionally perform any final actions after batch execution
-        System.debug('It is final');
     }
 
 

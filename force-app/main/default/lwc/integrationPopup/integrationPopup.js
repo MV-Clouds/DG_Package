@@ -17,7 +17,7 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     @track nickname = '';
     @track namedCredential = '';
     @track isOrg = false;
-    @track redirecturi; 
+    @api redirecturi; 
     @track isDropbox = false;
     @track isGoogleDrive = false;
     @track isOneDrive = false;
@@ -52,7 +52,6 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
         else if(this.draggedkey == 'google'){
             this.isGoogleDrive = true;
             this.checkOrgWide();
-            
         }
     }
 

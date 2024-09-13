@@ -1,6 +1,6 @@
-global with sharing class DropboxUploader implements Database.Batchable < SObject > , Database.AllowsCallouts {
+global with sharing class DropboxUploader {
     global static String dropboxAccessToken;
-    global Id contentVersionId;
+    global String contentVersionId;
     global String uploadSessionId;
     global static string dropFileName;
 
@@ -56,54 +56,38 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
         return jsonMap;
     }
 
-    global DropboxUploader(Id cvid) {
+    global DropboxUploader(Id cvId) {
         this.contentVersionId = cvid;
     }
 
-    global Database.QueryLocator start(Database.BatchableContext bC) {
-        if(contentVersionId != null){
-            return Database.getQueryLocator([
-                SELECT Id, VersionData, Title, ContentSize, FileExtension
-                FROM ContentVersion
-                WHERE Id =: contentVersionId with SECURITY_ENFORCED
-            ]);
-        }
-        return null;
-    }
+    @AuraEnabled
+    @future(callout=true)
+    public static void uploadFile(Id cvId) {
+        ContentVersion cv = [SELECT Id, VersionData, Title, ContentSize, FileExtension FROM ContentVersion WHERE Id = :cvId LIMIT 1];
 
-    global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
-        for (ContentVersion cv: scope) {
-            try {
-                String fileName = cv.Title;
-                Integer fileSize = cv.ContentSize;
-                dropFileName = cv.Title+'.'+cv.fileExtension;
-                String contentType = getContentType(cv.FileExtension);
-                String acctoken = tokenPermanent();
-                // Blob fileData = cv.VersionData;
-                Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
-                if(acctoken != null){
-                    dropboxAccessToken = acctoken;
-                    Integer maxSize = 8* 1024 * 1024;
+        try {
+            String fileName = cv.Title;
+            Integer fileSize = cv.ContentSize;
+            dropFileName = cv.Title + '.' + cv.FileExtension;
+            String contentType = getContentType(cv.FileExtension);
+            String acctoken = tokenPermanent();
 
-                    if (Test.isRunningTest()) {
-                        maxSize = 800;
-                    }
-                    if (fileSize < maxSize) { // 8 MB threshold
-                        System.debug('Uploading small file directly to Dropbox');
-                        uploadSmallFile(cv.VersionData, contentType);
-                    } else {
-                        System.debug('Uploading large file in chunks to Dropbox');
-                        uploadLargeFileInChunks(cv, fileSizeEncoded);
-                    }
+            Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
+            if (acctoken != null) {
+                dropboxAccessToken = acctoken;
+                Integer maxSize = 8 * 1024 * 1024; // 8 MB threshold
+
+                if (fileSize < maxSize) {
+                    System.debug('Uploading small file directly to Dropbox');
+                    uploadSmallFile(cv.VersionData, contentType);
+                } else {
+                    System.debug('Uploading large file in chunks to Dropbox');
+                    uploadLargeFileInChunks(cv, fileSizeEncoded);
                 }
-            } catch (Exception e) {
-                System.debug('Error during Dropbox file upload: ' + e.getMessage());
             }
+        } catch (Exception e) {
+            System.debug('Error during Dropbox file upload: ' + e.getMessage());
         }
-    }
-
-    global void finish(Database.BatchableContext bC) {
-        System.debug('Dropbox file upload batch finished');
     }
 
     public static void mailMessage(Integer code){

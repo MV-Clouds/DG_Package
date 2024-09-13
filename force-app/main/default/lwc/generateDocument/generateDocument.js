@@ -15,9 +15,9 @@ import { CurrentPageReference } from "lightning/navigation";
 import getTemplateData from '@salesforce/apex/GenerateDocumentController.getTemplateData';
 
 //External Storage Methods
-import uploadToDropBox from '@salesforce/apex/UploadController.uploadToDropBox';
-import uploadToOneDrive from '@salesforce/apex/UploadController.uploadToOneDrive';
-import uploadToAWS from '@salesforce/apex/UploadController.uploadToAWS';
+import uploadFile from '@salesforce/apex/DropboxUploader.uploadFile';
+import uploadToOneDriveAsync from '@salesforce/apex/OneDriveUploader.uploadToOneDriveAsync';
+import uploadAwsAsync from '@salesforce/apex/AwsUploader.uploadAwsAsync';
 import uploadToGoogleDriveFuture from '@salesforce/apex/GoogleDriveUploader.uploadToGoogleDriveFuture';
 
 //Defaults Generation methods
@@ -1979,18 +1979,22 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
             if(this.selectedChannels.includes('AWS')){
                 this.succeeded.push('AWS');
-                uploadToAWS({cvid : contentVersionId});
+                console.log('uploading to aws');
+                uploadAwsAsync({cvId : contentVersionId});
             }
             if(this.selectedChannels.includes('One Drive')){
                 this.succeeded.push('One Drive');
-                uploadToOneDrive({cvid : contentVersionId});
+                console.log('one driving');
+                
+                uploadToOneDriveAsync({cvId : contentVersionId});
             }
             if(this.selectedChannels.includes('Dropbox')){
+                console.log('Dropping box');
                 this.succeeded.push('Dropbox');
-                uploadToDropBox({ cvid : contentVersionId});
+                uploadFile({cvId : contentVersionId});
             }
             if(!(this.selectedChannels.includes('Files') || this.selectedChannels.includes('Chatter') || this.selectedChannels.includes('Email')) && (this.selectedChannels.includes('Dropbox') || this.selectedChannels.includes('One Drive') || this.selectedChannels.includes('Google Drive') || this.selectedChannels.includes('AWS'))){
-                deleteContentVersion({cvId: contentVersionId});
+                deleteContentVersion({ cvId : contentVersionId});
             }
         } catch (e) {
             errorDebugger('generateDocument', 'uploadToExternalStorage', e, 'warn');

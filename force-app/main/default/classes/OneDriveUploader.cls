@@ -1,4 +1,4 @@
-global with sharing class OneDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts {
+global with sharing class OneDriveUploader {
     global string contentVersionId;
     global static string oneDriveAccessToken;
     global static string fullFileName;
@@ -33,58 +33,46 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
         }
     }
 
-    global OneDriveUploader(Id cvid) {
-        this.contentVersionId = cvid;
+    global OneDriveUploader(Id cvId) {
+        this.contentVersionId = cvId;
     }
 
 
-    global Database.QueryLocator start(Database.BatchableContext bC) {
-        if(contentVersionId != null){
-            return Database.getQueryLocator([
-                SELECT Id, VersionData, Title, ContentSize, FileExtension
-                FROM ContentVersion
-                WHERE Id =: contentVersionId WITH SECURITY_ENFORCED
-            ]);
-        }
-        return null;
-    }
+    @AuraEnabled
+    @future(callout=true)
+    public static void uploadToOneDriveAsync(Id cvId) {
+        ContentVersion cv = [SELECT Id, VersionData, Title, ContentSize, FileExtension 
+                             FROM ContentVersion 
+                             WHERE Id = :cvId LIMIT 1];
 
-
-    global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
-        for (ContentVersion cv: scope) {
-            try {
-                String fileName = cv.Title;
-                Integer fileSize = cv.ContentSize;
-                fullFileName = cv.Title +'.'+ cv.fileExtension;
-                System.debug('file name in global variable-->'+fullFileName);
-                String contentType = contentTypeForOneDrive(cv.FileExtension);
-                
-                String acctoken = getToken();
-                // System.debug('--------' + contentType);
+        try {
+            String fileName = cv.Title;
+            Integer fileSize = cv.ContentSize;
+            fullFileName = cv.Title + '.' + cv.FileExtension;
+            String contentType = contentTypeForOneDrive(cv.FileExtension);
+            String acctoken = getToken();
+            
+            if(acctoken != null){
+                oneDriveAccessToken = acctoken;
                 Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
-                Integer maxSize = (8 * 1024 * 1024);
-                if (Test.isRunningTest()) {
-                    maxSize = 800;
-                }
-                if(acctoken != null){
-                    oneDriveAccessToken = acctoken;
-                    if (fileSize < maxSize) { // 8 MB threshold
-                        // System.debug('Uploading small file directly to onedrive');
-                        uploadToOneDrive(cv, fileName, contentType);
-                    } else {
-                        // System.debug('Uploading large file in chunks to onedrive');
-                        uploadLargeFileInChunks(cv, fileName, fileSizeEncoded, contentType);
+                Integer maxSize = (8 * 1024 * 1024); // 8 MB threshold
+
+                if (fileSize < maxSize) {
+                    // Upload small file directly
+                    Boolean result = uploadToOneDrive(cv, fileName, contentType);
+                    if (!result) {
+                        System.debug('Failed to upload small file to OneDrive.');
                     }
+                } else {
+                    // Upload large file in chunks
+                    uploadLargeFileInChunks(cv, fileName, fileSizeEncoded, contentType);
                 }
-            } catch (Exception e) {
-                System.debug('Error during Dropbox file upload: ' + e.getMessage());
+            } else {
+                System.debug('Access token not obtained.');
             }
+        } catch (Exception e) {
+            System.debug('Error during OneDrive file upload: ' + e.getMessage());
         }
-    }
-
-
-    global void finish(Database.BatchableContext bC) {
-        System.debug('Dropbox file upload batch finished');
     }
 
 
