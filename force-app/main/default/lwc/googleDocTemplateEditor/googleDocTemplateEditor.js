@@ -61,7 +61,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
             // Added for keyMappingContainer...
             // window.addEventListener("resize", this.resizeFunction());
-            window.addEventListener("resize", this.resizeFunction);
+            window?.globalThis?.addEventListener("resize", this.resizeFunction);
             this.getAllRelatedData();
         } catch (error) {
             errorDebugger("googleDocTemplateEditor", 'connectedCallback', error, 'error', 'Error in connectedCallback. Please try again later');
@@ -90,19 +90,20 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             }
 
             let templateDetails = this.template.querySelector(".templateDetails");
-            let styleEle = document.createElement('style');
-            styleEle.innerText = `
-                .slds-input {
-                    box-shadow: none;
-                }
-                .slds-input:focus {
-                    --slds-c-input-shadow: none;
-                }
-                .slds-has-error {
-                    border-color: red;
-                }`;
 
             if (templateDetails) {
+                let styleEle = window?.globalThis?.document?.createElement('style');
+                styleEle.innerText = `
+                    .slds-input {
+                        box-shadow: none;
+                    }
+                    .slds-input:focus {
+                        --slds-c-input-shadow: none;
+                    }
+                    .slds-has-error {
+                        border-color: red;
+                    }`;
+
                 templateDetails.appendChild(styleEle);
             }
 
@@ -572,6 +573,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                         message: "Error saving template data to backend. Please try again later.",
                         status: "error"
                     });
+                    errorDebugger('googleDocTemplateEditor','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
                 });
         } catch (error) {
             errorDebugger('googleDocTemplateEditor','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');

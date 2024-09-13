@@ -68,6 +68,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                         // If the callout fails, show toast
                         let errorList = result.error.split(":");
                         this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: 'Error', message: errorList[3], desc: errorList[2] } }));
+                        errorDebugger("generateGoogleDocFile", "generateDocument", errorList, 'Error', errorList[2]);
                     }
                 })
                 .catch((error) => {
@@ -525,7 +526,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                         // An error occured in recieving / make change requests
                         let splitList = res.split(":");
                         this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: splitList[3], desc: splitList[2] } }));
-                        console.log("Cannot Preview the result is null");
+                        errorDebugger("generateGoogleDocFile", "doPreview", splitList, 'Error', splitList[2])
                     }
                 })
                 .catch((error) => {

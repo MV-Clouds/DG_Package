@@ -178,13 +178,13 @@ public with sharing class GoogleDocPreview {
                 authProvider = getAuthProviderSettings();
             }
             if (String.isBlank(authProvider.MVDG__access_token__c)) {
-                responseWrapper.error = 'error:CopyGoogleDoc:No Google Integration Found.:-';
+                responseWrapper.error = 'error:CopyGoogleDoc:No Google Integration Found.:No Google Integration Found.';
                 return responseWrapper;
             }
             templateData = [SELECT MVDG__Google_Doc_Template_Id__c, MVDG__Template__r.MVDG__Signature_Size__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c = :templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c ASC];
 
             if (templateData.size() == 0) {
-                responseWrapper.error = 'warning:Template Error:No Google Document linked with this template.:-';
+                responseWrapper.error = 'warning:Template Error:No Google Document linked with this template.:No Google Document linked with this template.';
                 return responseWrapper;
                 
             }
@@ -412,7 +412,6 @@ public with sharing class GoogleDocPreview {
         try {
             List<OriginalObjectWrapper> jsObject = new List<OriginalObjectWrapper>();
             jsObject = (List<OriginalObjectWrapper>) JSON.deserialize(queryObject, List<OriginalObjectWrapper>.class);
-            String query;
             Integer tableCount = 1;
             
             for (OriginalObjectWrapper obj : jsObject) {
@@ -455,8 +454,7 @@ public with sharing class GoogleDocPreview {
                         subQuery = '(SELECT ' + String.escapeSingleQuotes(String.join(mappingFields, ',')) + ' FROM ' + String.escapeSingleQuotes(obj.childRelation);
 
                         if (obj.filter != null) {
-                            subQuery += ' ';
-                            subQuery += String.escapeSingleQuotes(obj.filter);
+                            subQuery += ' ' + String.escapeSingleQuotes(obj.filter);
                         }
                         if (obj.queryLimit != null && obj.queryLimit < 50) {
                             subQuery += ' LIMIT ' + String.valueOf(obj.queryLimit);
@@ -465,6 +463,7 @@ public with sharing class GoogleDocPreview {
                         }
                         subQuery += ')';
                         
+                        String query;
                         query = 'SELECT ' + String.escapeSingleQuotes(subQuery) + ' FROM ' + String.escapeSingleQuotes(objectApiName) + ' WHERE Id =: recordId';
                         List<SObject> childRecords = queryChildObject(query, recordId);
 
