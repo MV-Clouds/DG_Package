@@ -90,12 +90,14 @@ public with sharing class GoogleDocPreview {
                 return newToken;
             }
             responseList.put('refreshAccessToken', response);
-            return 'error:Access Token Error:Error in getting access token:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
+            // return 'error:Access Token Error:Error in getting access token:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
+
         } catch (Exception e) {
             System.debug('Error In refreshAccessToken ==> ' + e.getMessage() + e.getLineNumber());
             Log_Handler.store_Exception(e, 'GoogleDocPreview', 'refreshAccessToken');
-            return 'error:Access Token Error:Error in getting access token:' + e.getMessage();
+            // return 'error:Access Token Error:Error in getting access token:' + e.getMessage();
         }
+        return null;
     }
 
     /**
@@ -354,16 +356,8 @@ public with sharing class GoogleDocPreview {
     public static Boolean deleteGoogleDoc(String googleDocId) {
         try {
             String endpoint = 'https://www.googleapis.com/drive/v3/files/' + googleDocId;
-            Map<String, String> params = new Map<String, String>();
-            String paramString = '';
-            for (String key : params.keySet()) {
-                if (!String.isEmpty(paramString)) {
-                    paramString += '&';
-                }
-                paramString += EncodingUtil.urlEncode(key, 'UTF-8') + '=' + EncodingUtil.urlEncode(params.get(key), 'UTF-8');
-            }
             HttpRequest request = new HttpRequest();
-            request.setEndpoint(endpoint + '?' + paramString);
+            request.setEndpoint(endpoint);
             request.setMethod('DELETE');
             request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             request.setTimeout(120000);
@@ -549,80 +543,6 @@ public with sharing class GoogleDocPreview {
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'queryChildObject');
         }
         return null;
-    }
-
-    /**
-    * Method Name : mailMessage
-    * @description : Sends a email notification in case any process fails
-    * @param code Status code for the HTTP callout - Integer
-    * @param fileName file name for the HTTP callout - String
-    */ 
-    /***********************************************************************
-    MODIFICATION LOG* 
-    * Last Update Date : 03/06/2024
-    * Updated By : Developer name
-    * Name of methods changed (Comma separated if more then one) : method1 
-    * Change Description : 
-    ***********************************************************************/
-    public static void mailMessage(Integer code, String fileName){
-        String emailBody;
-        if (code == 400) {
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have noticed an issue while attempting to generate a preview for  ' + fileName + '.\n\n' +
-                'To resolve this issue, please ensure that your credentials are correct. If the problem persists, try the following steps:\n\n' +
-                '1. Remove the existing Google Drive connection.\n' +
-                '2. Reconnect to Google Drive.\n\n' +
-                'These steps should help resolve the issue. If you continue to experience difficulties, please feel free to contact our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        else if (code == 401) {
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have noticed an issue while attempting to generate a preview for ' + fileName + ' to Google Drive.\n\n' +
-                'To resolve this issue, please follow these steps to reconnect:\n\n' +
-                '1. Remove the existing Google Drive connection.\n' +
-                '2. Reconnect to Google Drive.\n\n' +
-                'These steps should help re-establish the connection. If you continue to experience difficulties, please don\'t hesitate to reach out to our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        else if (code == 404){
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have encountered a connection error (404 - File Not Found) while attempting to access your Google Drive.\n\n' +
-                'This error indicates that the file or resource you are trying to access may not exist or could not be found. To resolve this issue, please try the following steps:\n\n' +
-                '1. Verify that the file or resource exists in your Google Drive.\n' +
-                '2. Ensure that the file\'s name and path are correct.\n' +
-                '3. Check that you have the necessary permissions to access the file.\n\n' +
-                'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        else if (code == 500){
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have encountered a server error (500 - Internal Server Error) while attempting to upload your file to Google Drive. This error typically indicates a problem with our server or the service.\n\n' +
-                'To resolve this issue, please try the following:\n\n' +
-                '1. Wait for a few minutes and try previewing the file again.\n' +
-                '2. If the issue persists, it may be due to temporary server problems on google\'s end.\n\n' +
-                'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        else if (code != 200 && code != 204) {
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have encountered error with code: '+ code + 'while attempting to preview your file' + fileName + ' from Google Drive. \n\n' +
-                'To resolve this issue, please try the following:\n\n' +
-                '1. Wait for a few minutes and try previewing the file again.\n' +
-                '2. If the issue persists, it may be due to temporary server problems on google\'s end.\n\n' +
-                'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        System.debug('emailBody==>' + emailBody);
     }
 
     /**

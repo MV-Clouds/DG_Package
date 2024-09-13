@@ -114,7 +114,7 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
-    private static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
+    public static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
         try {
             
             System.debug('Refresh Access token');
