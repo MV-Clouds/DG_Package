@@ -1,4 +1,4 @@
-import { LightningElement , api, track} from 'lwc';
+import { LightningElement , track} from 'lwc';
 import getAllObjects from '@salesforce/apex/ButtonGeneratorController.getAllObjects';
 import getCombinedData from '@salesforce/apex/NewTemplateCreationController.getCombinedData';
 import saveTemplate from '@salesforce/apex/NewTemplateCreationController.saveTemplate';
@@ -7,7 +7,6 @@ import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
 
 export default class NewTemplateCreation extends NavigationMixin(LightningElement) {
 
-    @api showModel;
     @track isShowSpinner = false;
     @track objectNames = [];
     @track templateTypes = [];
@@ -22,7 +21,6 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     
     connectedCallback() {
         try {
-            this.showModel = true;
             this.showSpinner = true;
             this.isImageLoaded = false;
             this.fetchData();
@@ -129,8 +127,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     }
     
     closeModel() {
-        const closeModalEvent = new CustomEvent('closemodal');
-        this.dispatchEvent(closeModalEvent);
+        this.dispatchEvent(new CustomEvent('closemodal'));
     }
     handleNavigate() {
         try {

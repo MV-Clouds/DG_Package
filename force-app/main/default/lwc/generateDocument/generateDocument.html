@@ -419,7 +419,7 @@
             </div>
         </div>
         <iframe lwc:if={simpleTemplate} class="generate_iframe" src={vfGeneratePageSRC} width="0%" height="0%"></iframe>
-        <c-preview-c-s-v template-id={selectedTemplate} object-name={objectApiName} show-additional-info={isAdditionalInfo} if:true={showCSVPreview}  ongenerate={openCSVGenerator}></c-preview-c-s-v>
+        <c-preview-c-s-v template-id={selectedTemplate} object-name={objectApiName} show-additional-info={isAdditionalInfo} if:true={showCSVPreview}></c-preview-c-s-v>
         <!-- <c-preview-google-document is-child="true" templateid={selectedTemplate} objectname={objectApiName} record-id={recordId} if:true={showGDocPreview}></c-preview-google-document> -->
         <c-template-preview-modal is-called-from-generate-doc="true" objectlabel="tr" templateid={selectedTemplate} objectname={objectApiName} record-id={recordId} template-type={templateType} if:true={showSimplePreview}></c-template-preview-modal>
         <div class="control-btns" if:true={showBottomButtons}>

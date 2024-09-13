@@ -1318,7 +1318,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.showToast('error', 'Something went wrong!', 'No Columns Selected, Please Update the Template...', 5000);
                         return;
                     }
-                    const generationCount = parseInt(query.split('LIMIT ')[1]);
+                    const generationCount = data?.count || 1000000;
     
                     if (this.selectedExtension === ".csv") {
                         let csvContent = '';
@@ -2165,7 +2165,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     
                     this.generateActivity();
                     
-                    // this.handleClose();
+                    this.handleClose();
                     this.showSpinner = false;
                 })
                 .catch(e => {

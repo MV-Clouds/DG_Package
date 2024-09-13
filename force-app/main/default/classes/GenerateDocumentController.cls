@@ -374,7 +374,7 @@ public static void sendResultsEmail(Map<String, List<String>> combinedLists, Map
 */
     @AuraEnabled
     public static Map<String,String> getTemplateData(String templateId){
-        Map<String,String> mapOfData = new Map<String,String>{'fields' => null, 'query' => null, 'sessionId' => null};
+        Map<String,String> mapOfData = new Map<String,String>{'fields' => null, 'query' => null, 'sessionId' => null, 'count' => '1000000'};
         try{
             List<MVDG__Template_Data__c> tfList = new List<MVDG__Template_Data__c>();
             if(templateId != null){
@@ -385,10 +385,13 @@ public static void sendResultsEmail(Map<String, List<String>> combinedLists, Map
                 String fields = tfList[0].MVDG__CSV_Fields__c;
                 String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
                 String sessionId = '';
+                String countableQuery = 'SELECT count() FROM' + (query.contains('ORDER BY') ? (query.substringBeforeLast('ORDER BY').substringAfterLast('FROM') + ' LIMIT ' + query.substringAfterLast('LIMIT')) : query.substringAfterLast('FROM'));
+                Integer count = database.countQuery(String.valueOf(countableQuery));
                 sessionId = getSessionId();
                 mapOfData.put('fields', fields);
                 mapOfData.put('query', query);
                 mapOfData.put('sessionId', sessionId);
+                mapOfData.put('count', String.valueOf(count)!=null ? String.valueOf(count) : query.substringAfterLast('LIMIT'));
                 System.debug('All the Data to be Sent is :: ' + mapOfData);
             }
         } catch (Exception e) {

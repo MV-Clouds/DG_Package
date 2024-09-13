@@ -464,13 +464,15 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                         if(!obj.label.includes('>')){
                             this.selectedRelatedObject = obj.name;
                         }
-                        obj.fieldMappings = obj.fieldMappings.map(({ isFormatReq, label, name, type, key, ...rest }) => {
+                        obj.fieldMappings = obj.fieldMappings.map(({ label, name, type,...rest }) => {
                             const thisField ={
                                 ...rest,
                                 fieldType: type,
                                 apiName: name,
                                 fieldName: obj.label.includes('>') ? obj.label.split(' > ')[1] + ' > ' + label : label
                             }
+                            delete thisField.isFormatReq;
+                            delete thisField.key;
                             allFieldsForThisObject.push(thisField);
                             return thisField;
                         });
@@ -1354,6 +1356,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.showErrorMessage('Try these patterns : "1 OR 2"');
                     return;
                 }else if(logicString.length == 1 && logicString == 'N'){
+                    null;
                 }else if(logicString.length == 3){
                     if(!((logicString[0]== '(' && logicString[1]=='N' && logicString[2]==')') || (logicString[0]== 'N' && (logicString[1]=='&' || logicString[1]=='|')  && logicString[2]=='N'))){
                         this.isCustomLogicValid = false;
@@ -1370,6 +1373,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                         for(let i=0; i<logicString.length-1; i++){
                             if(logicString[i] == '('){
                                 if(logicString[i+1] == '('){
+                                    null;
                                 }else if(logicString[i+1] == 'N'){
                                     if(!(logicString[i+2] == '&' || logicString[i+2] == '|')){
                                         this.isCustomLogicValid = false;
@@ -1391,6 +1395,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 
                             }else if(logicString[i] == '&'){
                                 if(logicString[i+1] == '('){
+                                    null;
                                 }else if(logicString[i+1] == 'N' ){
                                     if(!(logicString.length == i+2 || (logicString[i+2] == '&' || logicString[i+2] == ')'))){
                                         this.isCustomLogicValid = false;
@@ -1405,6 +1410,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 
                             }else if(logicString[i] == '|'){
                                 if(logicString[i+1] == '('){
+                                    null;
                                 }else if(logicString[i+1] == 'N'){
                                     if(!(logicString.length == i+2 || logicString[i+2] == '|' || logicString[i+2] == ')')){
                                         this.isCustomLogicValid = false;
