@@ -247,6 +247,7 @@ public with sharing class GenerateDocumentController {
         try{
             if(activity != null){
                 if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.isCreateable() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.isUpdateable()){
+                    activity.MVDG__Initiated_By__c = UserInfo.getUserId();
                     upsert as User activity;
                     return activity.Id;
                 }
