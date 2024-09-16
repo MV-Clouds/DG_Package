@@ -61,7 +61,7 @@ public with sharing class GenerateDocumentController {
             listOfStatus.isAWSIntegrated = MVDG__AwsAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
             listOfStatus.isDropBoxIntegrated = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
             listOfStatus.isOneDriveIntegrated = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
                 listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;
             }
@@ -109,14 +109,17 @@ public with sharing class GenerateDocumentController {
 /*
 *********************************************************
 @description     : Method is used to save the document in the files
-@param           : contentVersionId {String} - Id of the content version
-@param           : recordId {String} - Id of the record, with which file need to be linked
+@param           : combinedData {Map<String, String>} - map of all needeed data like, content version id, recod id, document generation activity id
 @return          :String - status of complition
 ********************************************************
 */
     @AuraEnabled
-    public static String storeInFiles(String contentVersionId, String recordId){
+    public static String storeInFiles(Map<String, String> combinedData){
         try {
+            String contentVersionId = combinedData.get('contentVersionId');
+            String recordId = combinedData.get('recordId');
+            String activityId = combinedData.get('activityId');
+
             ContentDocumentLink cdl = new ContentDocumentLink();
             if(contentVersionId != null){
                 cdl.ContentDocumentId = [Select Id, ContentDocumentId from ContentVersion WHERE Id=:contentVersionId WITH SECURITY_ENFORCED LIMIT 1].ContentDocumentId;
@@ -126,28 +129,29 @@ public with sharing class GenerateDocumentController {
             if(Schema.sObjectType.ContentDocumentLink.isCreateable()){
                 insert as User cdl;
             }
+            return 'success';
         }catch (Exception e) {
             System.debug('Error in storeInFiles =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'storeInFiles');
-            if(Test.isRunningTest() == false){
-                throw new AuraHandledException(e.getMessage());
-            }
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'storeInFiles', combinedData.get('activityId'));
+            return e.getMessage();
         }
-        return 'completed';
     }
 
 /*
 *********************************************************
 @description     : Method is used to post document to chatter
-@param           : contentVersionId {String} - Id of the content version
-@param           : recordId {String} - Id of the record, with which file need to be linked
-@param           : body {String} - body string to post with the chatter
+@param           : combinedData {Map<String, String>} - map of all needeed data like, content version id, recod id, document generation activity id and body of chatter
 @return          :String - status of complition
 ********************************************************
 */
     @AuraEnabled
-    public static String postToChatter(String contentVersionId, String recordId, String body){
+    public static String postToChatter(Map<String, String> combinedData){
         try {
+            String contentVersionId = combinedData.get('contentVersionId');
+            String recordId = combinedData.get('recordId');
+            String body = combinedData.get('body');
+            String activityId = combinedData.get('activityId');
+            System.debug('Combined Data ::' + combinedData);
             FeedItem feed = new FeedItem();
             if(recordId == null || recordId == ''){
                 feed.ParentId = UserInfo.getUserId();
@@ -159,14 +163,12 @@ public with sharing class GenerateDocumentController {
             if(Schema.sObjectType.FeedItem.isCreateable()){
                 insert as User feed;
             }
+            return 'success';
         }catch (Exception e) {
             System.debug('Error in postToChatter =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'postToChatter');
-            if(Test.isRunningTest() == false){
-                throw new AuraHandledException(e.getMessage());
-            }
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'postToChatter', combinedData.get('activityId'));
+            return e.getMessage();
         }
-        return 'completed';
     }
 
 /*
@@ -174,11 +176,12 @@ public with sharing class GenerateDocumentController {
 @description     : Method is used to send the email with newly generated document
 @param           : allEmails {Map<String, List<String>>} - Map containing to, cc and bcc email addresses
 @param           : emaildata {Map<String,String>} - Map containing other data like CV Id, subject and body
+@param           : activityId {String} - Id of the document generation activity record for this generation
 @return          : String - status of complition
 ********************************************************
 */
     @AuraEnabled
-    public static String sendEmail(Map<String, List<String>> allEmails, Map<String,String> emailData){
+    public static String sendEmail(Map<String, List<String>> allEmails, Map<String,String> emailData, String activityId){
         try {
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             String[] attachments =  new String[] {};
@@ -201,14 +204,12 @@ public with sharing class GenerateDocumentController {
                     throw new AuraHandledException('Email send was unsuccessfull');     
                 }
             }
+            return 'success';
         }catch (Exception e) {
             System.debug('Error in storeFilesAndSendEmail =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'sendEmail');
-            if(Test.isRunningTest() == false){
-                throw new AuraHandledException(e.getMessage());
-            }
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'sendEmail', activityId);
+            return e.getMessage();
         }
-        return 'completed';
     }
 
 /*
@@ -253,80 +254,11 @@ public with sharing class GenerateDocumentController {
             }
             return null;
         }catch(Exception e){
-            System.debug('Error in getSessionId =>' + e.getMessage());
+            System.debug('Error in upsertActivity =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'upsertActivity');
             return null;
         }
     }
-
-/*
-*********************************************************
-@description     : Method is used to send the email after the generation is complete
-@param           : combinedLists {Map<String, List<String>>} - Map containing succeeded and in progress options 
-@param           : combinedMaps {Map<String,Map<String,String>>} - Map containing failed and template data
-@return          : none
-********************************************************
-*/
-@AuraEnabled
-public static void sendResultsEmail(Map<String, List<String>> combinedLists, Map<String,Map<String,String>> combinedMaps){
-    try {
-        List<String> succeeded = combinedLists.get('succeeded');
-        Map<String, String> failed = combinedMaps.get('failed');
-        List<String> inProgress = combinedLists.get('inProgress');
-        Map<String, String> templateData = combinedMaps.get('templateData');
-
-        // Template information section
-        String emailBody = '<h3>Document Information:</h3><ul>';
-        emailBody += '<li><strong>Template Name:</strong> ' + templateData.get('name') + '</li>';
-        emailBody += '<li><strong>Template Source Object:</strong> ' + templateData.get('object') + '</li>';
-        emailBody += '<li><strong>Template Type:</strong> ' + templateData.get('type') + '</li>';
-        emailBody += '<li><strong>File Name:</strong> ' + templateData.get('fileName') + '</li>';
-        emailBody += '</ul>';
-        // Success section
-        if(succeeded.size() > 0){
-            emailBody += '<h3>Success:</h3><ul>';
-            for (String obj : succeeded) {
-                emailBody += '<li>' + obj + '</li>';
-            }
-            emailBody += '</ul>';
-        }
-    
-        // Failure section
-        if(failed.keySet().size() > 0){
-            emailBody += '<h3>Failures:</h3><ul>';
-            for (String obj : failed.keySet()) {
-                emailBody += '<li><strong>' + obj + '</strong>: ' + failed.get(obj) + '</li>';
-            }
-            emailBody += '</ul>';
-        }
-        
-        if(inProgress.size() > 0){
-            emailBody += '<h3>In Progress:</h3><ul>';
-            for (String obj : inProgress) {
-                emailBody += '<li>' + obj + '</li>';
-            }
-            emailBody += '</ul>';
-            emailBody += '<h5>The results of the in progress external storages upload will be sent to you once process completes.</h5>';
-        }
-
-        System.debug('The Email HTMl Body ::'+ emailBody);
-
-        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(new String[] {UserInfo.getUserEmail()});
-        mail.setSubject('DocGenius Generation Results - '+ templateData.get('name'));
-        mail.setHtmlBody(emailBody);
-
-        Messaging.SendEmailResult[] result = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-        if(!result[0].isSuccess()) {
-            if(Test.isRunningTest() == false){
-                throw new AuraHandledException('Email send was unsuccessfull');     
-            }
-        }
-    }catch (Exception e){
-        System.debug('Exception::' + e.getLineNumber() + ': ' + e.getMessage());
-        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'sendResultsEmail');
-    }
-}
 
 
 /*
@@ -396,7 +328,7 @@ public static void sendResultsEmail(Map<String, List<String>> combinedLists, Map
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateData');
-            throw new AuraHandledException(e.getMessage());
+            return null;
         }
         return mapOfData;
     }

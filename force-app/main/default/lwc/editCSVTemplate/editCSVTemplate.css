@@ -64,6 +64,10 @@
     margin-bottom: 2px;
 }
 
+.checkBox{
+    display: none;
+}
+
 .checkBox:checked + label .toggleBtnBg::before{
     transform: translateX(-100%);
     left: 100% !important;
@@ -152,6 +156,10 @@
     cursor: pointer;
     background: transparent;
     transition: all linear 0.2s;
+}
+
+.template-default-tab-svg{
+    scale: 1.3;
 }
 
 .tab:hover{
@@ -1021,6 +1029,10 @@ c-generate-document{
     --border-color-of-main-container : #00aeff; */
     display: flex;
     height: 100%;
+}
+
+c-document-loader{
+    --docTop:0;
 }
 
 @media only screen and (min-width: 48rem) and (max-width: 64rem) {

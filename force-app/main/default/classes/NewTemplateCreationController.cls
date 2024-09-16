@@ -72,15 +72,12 @@ public with sharing class NewTemplateCreationController {
                 // page.MVDG__Show_Watermark__c = true;       
                 insert as User page;
             }
-
+            return templateId;
         } catch (Exception e) {
             System.debug('Error in saving Template =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'NewTemplateCreationController', 'saveTemplate');
-            if(!Test.isRunningTest()){
-                throw new AuraHandledException(e.getMessage());
-            }
-        }
-        return templateId;
+            return 'Error Creating Template : ' + e.getMessage();
+        } 
     }
 
     public class CombinedData{

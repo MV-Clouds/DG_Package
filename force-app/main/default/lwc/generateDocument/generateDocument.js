@@ -4,7 +4,6 @@ import getSessionId from '@salesforce/apex/GenerateDocumentController.getSession
 import storeInFiles from '@salesforce/apex/GenerateDocumentController.storeInFiles';
 import postToChatter from '@salesforce/apex/GenerateDocumentController.postToChatter';
 import sendEmail from '@salesforce/apex/GenerateDocumentController.sendEmail';
-import sendResultsEmail from '@salesforce/apex/GenerateDocumentController.sendResultsEmail';
 import upsertActivity from '@salesforce/apex/GenerateDocumentController.upsertActivity';
 import getButtonNames from '@salesforce/apex/GenerateDocumentController.getButtonNames';
 import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.createListViewButtons';
@@ -27,7 +26,6 @@ import getTemplateDefaultValues from '@salesforce/apex/GenerateDocumentControlle
 
 //Delete content version if needed
 import deleteContentVersion from '@salesforce/apex/GenerateDocumentController.deleteContentVersion';
-import Description from '@salesforce/schema/Account.Description';
 export default class GenerateDocument extends NavigationMixin(LightningElement) {
 
     @track showSpinner = true;
@@ -38,7 +36,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @api recordId;
     @api objectApiName;
 
-    // for using this component to set default values
+    @track _internalObjectApiName;
+    get internalObjectApiName() {
+        return this._internalObjectApiName || this.objectApiName;
+    }
+    set internalObjectApiName(value) {
+        this._internalObjectApiName = value;
+    }
     @api calledFromWhere;
     @api templateTypeFromParent;
     @api templateIdFromParent;
@@ -373,7 +377,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     get filterForActiveTemplates(){
         let filters = [
-            {field : 'MVDG__Object_API_Name__c', operator : 'eq', value : this.objectApiName},
+            {field : 'MVDG__Object_API_Name__c', operator : 'eq', value : this.internalObjectApiName},
             {field : 'MVDG__Template_Status__c', operator : 'eq', value : true}
         ];
         if(this.isCSVOnly){
@@ -438,17 +442,17 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     connectedCallback() {
         this.showSpinner = true;
         try{
-            window.addEventListener('message', this.simpleTempFileGenResponse);
+            window?.addEventListener('message', this.simpleTempFileGenResponse);
             this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
-                this.objectApiName = this.currentPageReference?.state?.c__objectApiName;
+                this.internalObjectApiName = this.currentPageReference?.state?.c__objectApiName;
                 this.isCSVOnly = this.currentPageReference?.state?.c__isCSVOnly === 'true' ? true : false;
                 this.isDefaultGenerate = this.currentPageReference?.state?.c__isDefaultGenerate === 'true' ? true : false;
                 this.template.host.classList.add('pou-up-view');
                 this.selectedTemplate = this.currentPageReference?.state?.c__templateIdToGenerate;
             }
-            Promise.resolve(this.objectApiName)
+            Promise.resolve(this.internalObjectApiName)
             .then(() => {
                 return Promise.all([
                     this.fetchCombinedData(),
@@ -491,7 +495,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     disconnectedCallback(){
-        window.removeEventListener('message', this.simpleTempFileGenResponse);
+        window?.removeEventListener('message', this.simpleTempFileGenResponse);
     }
 
     renderedCallback() {
@@ -665,6 +669,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.documentTypes.find(item => item.name === data?.docType).isSelected = true;
                     }
                     this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
+                    this.template.querySelector('.email-create-div').style.display = this.showEmailSection ? 'unset' : 'none';
                     data?.iStorage?.split(', ')?.forEach((option) => {this.internalStorageOptions.find(item => item.name === option).isSelected = true});
                     data?.eStorage?.split(', ')?.forEach((option) => {
                         const storageOption = this.externalStorageOptions.find(item => item.name === option);
@@ -715,9 +720,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     fetchCombinedData(){
-        try {
-            return new Promise((resolve, reject) => {
-                getCombinedData({objName: this.objectApiName})
+        return new Promise((resolve, reject) => {
+            try {
+                getCombinedData({objName: this.internalObjectApiName})
                 .then((data) => {
                     if (data.isSuccess){
                         this.setUpAllTemplates(data.templates);
@@ -735,11 +740,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     errorDebugger('generateDocument', 'getCombinedData', e, 'error');
                     this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
                 })
-            })
-        } catch (e) {
-            reject(e);
-            errorDebugger('generateDocument', 'fetchCombinedData', e, 'error');
-        }
+            } catch (e) {
+                reject(e);
+                errorDebugger('generateDocument', 'fetchCombinedData', e, 'error');
+            }
+        })
     }
 
     setUpAllTemplates(templates){
@@ -821,7 +826,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     fetchAllButtonNames(){
         return new Promise((resolve, reject) =>{
             try{
-                getButtonNames({objName : this.objectApiName})
+                getButtonNames({objName : this.internalObjectApiName})
                 .then((data) => {
                     this.allButtons = data;
                     resolve();
@@ -888,7 +893,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             let paramToPass = {
                 templateId : this.selectedTemplate,
-                objectName : this.objectApiName,
+                objectName : this.internalObjectApiName,
             }
             if(this.templateType === 'Simple Template'){
                 this.navigateToComp(navigationComps.simpleTemplateBuilder, paramToPass);
@@ -1116,17 +1121,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.outputChannels[index].isSelected = !this.outputChannels[index].isSelected;
                 if(option==="Email"){
                     this.showEmailSection = this.outputChannels[index].isSelected;
+                    this.template.querySelector('.email-create-div').style.display = this.showEmailSection ? 'unset' : 'none';
                     if(this.showEmailSection){
-                        setTimeout(()=>{
-                            this.ccEmails.length>0 ? this.showCC=true : this.showCC= false;
-                            this.bccEmails.length>0 ? this.showBCC=true : this.showBCC = false;
-                            let mainDiv = this.template.querySelector('.main-container');
-                            mainDiv.scrollTo({
-                                top: mainDiv.scrollHeight,
-                                left: 0,
-                                behavior: "smooth",
-                              });
-                        }, 100)
+                        this.ccEmails.length>0 ? this.showCC=true : this.showCC= false;
+                        this.bccEmails.length>0 ? this.showBCC=true : this.showBCC = false;
+                        let mainDiv = this.template.querySelector('.main-container');
+                        mainDiv.scrollTo({
+                            top: mainDiv.scrollHeight,
+                            left: 0,
+                            behavior: "smooth",
+                            });
                     }
                 }
             }
@@ -1164,31 +1168,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     //Bottom Button Controls
 
     handleClose(){
-        window.removeEventListener('message', this.simpleTempFileGenResponse);
+        window?.removeEventListener('message', this.simpleTempFileGenResponse);
         if(this.currentPageReference.type === "standard__quickAction"){
             this.dispatchEvent(new CloseActionScreenEvent())
         }else if(this.showCloseButton){ 
             if(this.isCalledFromPreview){
                 this.dispatchEvent(new CustomEvent('close'));
             }else{
-                this.selectedTemplate = null;
-                this.internalStorageOptions.forEach(o=>{
-                    o.isSelected = false;
-                })
-                this.externalStorageOptions.forEach(o=>{
-                    o.isSelected = false;
-                })
-                this.outputChannels.forEach(o=>{
-                    o.isSelected = false;
-                })
-                this.toEmails = [];
-                this.ccEmails = [];
-                this.bccEmails = [];
-                this.emailSubject = '';
-                this.emailBody = '';
-                this.selectedEmailTemplate = null;
-                this.showEmailSection = false;
-                window.open(window.location.origin + '/lightning/o/' + this.objectApiName + '/list' ,"_self");
+                location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
             }
         }
     }
@@ -1439,7 +1426,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 redirect: "follow"
             };
 
-            let domainURL = window.location.origin;
+            let domainURL = location.origin;
             domainURL = domainURL.replace('lightning.force.com', 'my.salesforce.com');
 
             return fetch(encodeURI(domainURL + queryURL), requestOptions)
@@ -1600,7 +1587,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             this.resultPromises = [];
             this.labelOfLoader = 'Generating document...';
-            this.template.querySelector('c-generate-google-doc-file')?.generateDocument(this.selectedTemplate, this.objectApiName, this.recordId, this.selectedExtension);
+            this.template.querySelector('c-generate-google-doc-file')?.generateDocument(this.selectedTemplate, this.internalObjectApiName, this.recordId, this.selectedExtension);
 
         }catch(e){
             errorDebugger('generateDocument', 'generateGoogleDoc', e, 'error');
@@ -1824,7 +1811,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         throw new Error('Session ID not obtained');
                     }
 
-                    const domainURL = window.location.origin.replace('lightning.force.com', 'my.salesforce.com');
+                    const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                     const myHeaders = new Headers();
                     myHeaders.append("Authorization", "Bearer " + sessionId);
                     myHeaders.append("Content-Type", "application/json");
@@ -1882,7 +1869,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         throw new Error('Session ID not obtained'); 
                     }
     
-                    const domainURL = window.location.origin.replace('lightning.force.com', 'my.salesforce.com');
+                    const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                     const myHeaders = new Headers();
                     myHeaders.append("Authorization", "Bearer " + sessionId);
                     myHeaders.append("Content-Type", "application/json");
@@ -1927,22 +1914,26 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     addToFiles(cvId) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             try {
                 this.showSpinner = true;
                 this.labelOfLoader = 'Saving in Internal Storage...';
         
                 if (!this.isCSVTemplate) {
-                    storeInFiles({ contentVersionId: cvId, recordId: this.recordId ? this.recordId : this.selectedTemplate })
-                    .then(() => {
-                        this.succeeded.push('Files');
-                        resolve();
+                    storeInFiles({ combinedData: {contentVersionId: cvId, recordId: this.recordId ? this.recordId : this.selectedTemplate, activityId : this.activity.Id} })
+                    .then((result) => {
+                        if(result === 'success'){
+                            this.succeeded.push('Files');
+                            resolve();
+                        }else{
+                            this.failed['Files'] = result;
+                            errorDebugger('generateDocument', 'addToFiles > storeInFiles > failure', result, 'error');
+                            this.showSpinner = false;
+                            resolve();
+                        }
                     })
                     .catch(e => {
-                        this.failed['Files'] = e?.body?.message;
-                        errorDebugger('generateDocument', 'addToFiles > storeInFiles', e, 'error');
-                        this.showSpinner = false;
-                        resolve();
+                        errorDebugger('generateDocument', 'addToFiles > storeInFiles > failure', e, 'error');
                     });
                 }else{
                     this.succeeded.push('Files');
@@ -1957,39 +1948,52 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     addToChatter(cvId) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             try {
                 this.showSpinner = true;
                 this.labelOfLoader = 'Saving in Internal Storage...';
                 let bodyString = 'Generated "' + this.fileName + this.selectedExtension + '".';
-                postToChatter({ contentVersionId: cvId, recordId: this.recordId, body: bodyString })
-                .then(() => {
-                    this.succeeded.push('Chatter');
-                    if (this.selectedChannels.includes('Files')) {
-                        this.succeeded.push('Files');
+                postToChatter({ combinedData: { contentVersionId: cvId, recordId: this.recordId, body: bodyString, activityId : this.activity.Id }})
+                .then((result) => {
+                    if(result === 'success'){
+                        this.succeeded.push('Chatter');
+                        if (this.selectedChannels.includes('Files')) {
+                            this.succeeded.push('Files');
+                        }
+                        resolve();
+                    }else{
+                        this.failed['Chatter'] = result;
+                        errorDebugger('generateDocument', 'addToChatter > postToChatter > failure', result, 'error');
+                        if (this.selectedChannels.includes('Files')) {
+                            this.resultPromises.push(
+                                this.addToFiles(cvId)
+                                .then(() => {
+                                    resolve();
+                                })
+                                .catch(() => {
+                                    resolve();
+                                })
+                            );
+                        }else{
+                            resolve();
+                        }
                     }
-                    resolve();
                 })
                 .catch((e)=>{
-                    this.failed['Chatter'] = e?.body?.message;
-                    this.failed['Files'] = e?.body?.message;
+                    this.failed['Chatter'] = e;
+                    this.failed['Files'] = e;
                     errorDebugger('generateDocument', 'addToChatter > postToChatter', e, 'error');
-                    resolve();
                 })
             } catch (e) {
                 errorDebugger('generateDocument', 'addToChatter', e, 'error');
                 this.showSpinner = false;
-                if (this.selectedChannels.includes('Files')) {
-                    this.resultPromises.push(this.addToFiles(cvId));
-                    resolve();
-                }
                 resolve();
             }
         })
     }
 
     sendWithEmail(cvId) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             try {
                 this.showSpinner = true;
                 this.labelOfLoader = 'Sending email...';
@@ -2005,7 +2009,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     bccEmails: this.bccEmails
                 }
         
-                sendEmail({ allEmails:allEmails, emailData:emailData })
+                sendEmail({ allEmails:allEmails, emailData:emailData, activityId : this.activity.Id })
                 .then(() => {
                     this.succeeded.push('Email');
                     resolve();
@@ -2036,7 +2040,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     throw new Error('Session ID not obtained');
                 }
     
-                const domainURL = window.location.origin.replace('lightning.force.com', 'my.salesforce.com');
+                const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                 const myHeaders = new Headers();
                 myHeaders.append("Authorization", "Bearer " + sessionId);
                 myHeaders.append("Content-Type", "application/json");
@@ -2132,7 +2136,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         templateData : {
                             'name' : this.templateName,
                             'type' : this.templateType,
-                            'object' : this.objectApiName,
+                            'object' : this.internalObjectApiName,
                             'fileName' : this.fileName + this.selectedExtension
                         }
                     }
@@ -2149,8 +2153,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
                     this.failed = {...combinedMaps.failed};
                     combinedLists.succeeded = this.succeeded;
-                    if(this.failed.length > 0) sendResultsEmail({ combinedLists : combinedLists, combinedMaps : combinedMaps});
-
                     
                     Object.keys(this.failed).forEach(key => {
                         this.activity[key.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c'] = this.failed[key];
@@ -2158,11 +2160,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.succeeded.forEach(item => {
                         this.activity[item.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c'] = 'Success';
                     });
-                    combinedLists.inProgress.forEach(item => {
-                        this.activity[item.replaceAll(' ', '_') + '__c'] = 'In Progress';
-                    });
-
-                    
                     this.generateActivity();
                     
                     this.handleClose();
@@ -2235,7 +2232,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 if(!this.isOldButton){
                     if(this.isCSVTemplate){
                         let objList = [];
-                        objList.push(this.objectApiName);
+                        objList.push(this.internalObjectApiName);
                         let buttonData = {
                             buttonLabel: this.buttonLabel,
                             buttonName: this.buttonName ? this.buttonName : this.buttonLabel.replace(/[^a-zA-Z_]+/g, '_'),
@@ -2258,7 +2255,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }else{
                         getSessionId()
                         .then((data) => {
-                            let domainURL = window.location.origin.replace('lightning.force.com', 'my.salesforce.com');
+                            let domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                             let endpoint = domainURL + '/services/data/v61.0/tooling/sobjects/QuickActionDefinition';
     
                             let sessionId = data;
@@ -2273,7 +2270,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                     type: "LightningWebComponent",
                                     lightningWebComponent: "MVDG__generateDocument"
                                 },
-                                FullName: this.objectApiName+'.'+defaults.buttonName
+                                FullName: this.internalObjectApiName+'.'+defaults.buttonName
                             };
                             let requestOptions = {
                                 method: 'POST',

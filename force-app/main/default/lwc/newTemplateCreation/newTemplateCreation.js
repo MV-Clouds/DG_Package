@@ -177,20 +177,25 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                     templateType: this.selectedTemplateType
                 }
                 saveTemplate({ templateData : templateData })
-                .then((data) => {
-                    this.templateId = data;
-                    this.handleNavigate();
-                    this.dispatchEvent(new CustomEvent('aftersave'));
-                    this.closeModel();
+                .then((result) => {
+                    if(!result.includes('Error')){
+                        this.templateId = result;
+                        this.handleNavigate();
+                        this.dispatchEvent(new CustomEvent('aftersave'));
+                        this.closeModel();
+                    }else{
+                        this.isShowSpinner = false;
+                        errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate > failure', result, 'warn');
+                        if( result.includes('STORAGE_LIMIT_EXCEEDED')){
+                            this.showToast('error', 'Storage Limit Exceeded!', 'You are running out of your data storage, please clean up data and try again...', 5000);
+                        }else{
+                            this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
+                        }
+                    }
                 })
                 .catch(e => {
-                    this.isShowSpinner = false;
-                    errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate', e, 'warn', e?.body?.message);
-                    if( e?.body?.message.includes('STORAGE_LIMIT_EXCEEDED')){
-                        this.showToast('error', 'Storage Limit Exceeded!', 'You are running out of your data storage, please clean up data and try again...', 5000);
-                    }else{
-                        this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
-                    }
+                    this.showToast('error', 'Something went wrong!', 'There was error saving the template...', 5000);
+                    errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate > failure', e, 'warn');
                 });
             }else{
                 this.isShowSpinner = false;

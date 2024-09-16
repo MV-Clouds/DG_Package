@@ -128,7 +128,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getAllObjects');
             system.debug('exception in getAllObjects : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
-            // throw new AuraHandledException(e.getMessage());
             return null;
         }
     }
@@ -142,7 +141,7 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
 ********************************************************
 */
     @AuraEnabled
-    public static void createListViewButtons(List<String> objects,Map<String, String> buttonData){
+    public static String createListViewButtons(List<String> objects,Map<String, String> buttonData){
         try {
             System.debug('buttonData :' + buttonData+ 'Objects ::' + objects);
             String buttonName = buttonData.get('buttonName');
@@ -194,10 +193,11 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
                     webLinks.clear();
                 }
             }
+            return 'success';
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'createListViewButtons');
             system.debug('exception in createListViewButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
-            throw new AuraHandledException('Error Creating Button.');
+            Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'createListViewButtons');
+            return e.getMessage();
         }
     }
     

@@ -117,7 +117,7 @@ public with sharing class EditCSVTemplateController {
     ********************************************************
     */
     @AuraEnabled
-    public static void saveTemplateFields(Map<String,String> configData){
+    public static String saveTemplateFields(Map<String,String> configData){
         try {
             List<MVDG__Template_Data__c> existingData = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:configData.get('templateId') WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
 
@@ -147,11 +147,10 @@ public with sharing class EditCSVTemplateController {
             if(Schema.sObjectType.MVDG__Template_Data__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable()){
                 upsert as User td;
             }
+            return 'success';
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'saveTemplateFields');
-            if(!Test.isRunningTest()){
-                throw new AuraHandledException(e.getMessage());
-            }
+            return e.getMessage();
         }
     }
 
@@ -163,7 +162,7 @@ public with sharing class EditCSVTemplateController {
     ********************************************************
     */
     @AuraEnabled
-    public static void updateTemplate(Map<String, String> templateInfo){
+    public static String updateTemplate(Map<String, String> templateInfo){
         try{
             MVDG__Template__c updatedTemplate = new MVDG__Template__c(
                 Id = templateInfo.get('templateId'),
@@ -176,11 +175,10 @@ public with sharing class EditCSVTemplateController {
                 throw new AuraHandledException('you can not update the template object.');
             }
             update as User updatedTemplate;
+            return 'success';
         }catch(Exception e){
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'updateTemplate');
-            if(!Test.isRunningTest()){
-                throw new AuraHandledException(e.getMessage());
-            }
+            return e.getMessage();
         }
     }
 
