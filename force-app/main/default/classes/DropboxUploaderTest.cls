@@ -27,6 +27,10 @@ public class DropboxUploaderTest {
         cv2.FirstPublishLocationId = acc.Id;
         insert cv2;
 
+        Generate_Document_Activity__c gda = new Generate_Document_Activity__c();
+        gda.AWS__c = 'Success';
+        insert gda;
+
     }
 
 
@@ -38,12 +42,14 @@ public class DropboxUploaderTest {
 
         List<ContentVersion> cvs = new List<ContentVersion>();
         cvs = [SELECT Id FROM ContentVersion];
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+
         if (cvs.size() > 1) {
-            DropboxUploader dropboxUploader = new DropboxUploader(cvs[0].Id);
+            DropboxUploader dropboxUploader = new DropboxUploader(cvs[0].Id, act[0].Id);
             String executeResult = Database.executeBatch(dropboxUploader);
             System.assertNotEquals(null, executeResult, 'The result cannot be null');   
 
-            DropboxUploader dropboxUploader2 = new DropboxUploader(cvs[1].Id);
+            DropboxUploader dropboxUploader2 = new DropboxUploader(cvs[1].Id, act[0].Id);
             String executeResult2 = Database.executeBatch(dropboxUploader2);
             System.assertNotEquals(null, executeResult2, 'The result cannot be null');   
         }

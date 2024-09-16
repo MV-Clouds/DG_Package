@@ -14,6 +14,10 @@ public class UploadControllerTest {
         cv1.VersionData = Blob.valueOf('TestImage.png');
         cv1.FirstPublishLocationId = acc.Id;
         insert cv1;
+
+        Generate_Document_Activity__c gda = new Generate_Document_Activity__c();
+        gda.AWS__c = 'Success';
+        insert gda;
     }
 
     @IsTest
@@ -21,8 +25,10 @@ public class UploadControllerTest {
         Test.startTest();
         ContentVersion cv1 = new ContentVersion();
         cv1 = [SELECT Id FROM ContentVersion];
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+
         Test.setMock(HttpCalloutMock.class, new MockResponseClass());
-        UploadController.uploadToGoogleDrive(cv1.Id);
+        UploadController.uploadToGoogleDrive(cv1.Id, act[0].Id);
         Test.stopTest();
     }
     
@@ -30,9 +36,11 @@ public class UploadControllerTest {
     public static void testUploadToAWS() {
         Test.startTest();
         ContentVersion cv1 = new ContentVersion();
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+
         cv1 = [SELECT Id FROM ContentVersion];
         Test.setMock(HttpCalloutMock.class, new MockResponseClass());
-        UploadController.uploadToAWS(cv1.Id);
+        UploadController.uploadToAWS(cv1.Id, act[0].Id);
         Test.stopTest();
     }
     
@@ -41,8 +49,10 @@ public class UploadControllerTest {
         Test.startTest();
         ContentVersion cv1 = new ContentVersion();
         cv1 = [SELECT Id FROM ContentVersion];
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+
         Test.setMock(HttpCalloutMock.class, new MockResponseClass());
-        UploadController.uploadToDropBox(cv1.Id);
+        UploadController.uploadToDropBox(cv1.Id, act[0].Id);
         Test.stopTest();
     }
     
@@ -51,8 +61,10 @@ public class UploadControllerTest {
         Test.startTest();
         ContentVersion cv1 = new ContentVersion();
         cv1 = [SELECT Id FROM ContentVersion];
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+
         Test.setMock(HttpCalloutMock.class, new MockResponseClass());
-        UploadController.uploadToOneDrive(cv1.Id);
+        UploadController.uploadToOneDrive(cv1.Id, act[0].Id);
         Test.stopTest();
     }
 

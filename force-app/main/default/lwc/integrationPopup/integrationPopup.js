@@ -18,6 +18,7 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     @track namedCredential = '';
     @track isOrg = false;
     @api redirecturi; 
+    @track redirectUrl;
     @track isDropbox = false;
     @track isGoogleDrive = false;
     @track isOneDrive = false;
@@ -31,11 +32,10 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     isDataInvalid = false;
 
     connectedCallback(){
+        this.redirectUrl = this.redirecturi;
         this.showModel = true;
         this.showSpinner = true;
         this.isImageLoaded = false;
-        // console.log(this.redirecturi);
-        // console.log(this.draggedkey);
         if(this.draggedkey == 'dropbox'){
             this.isDropbox = true;
             this.isRedirectUri = true;
@@ -327,7 +327,7 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             this.bucket = null;
             this.clientId = null;
             this.clientSecret = null;
-            this.redirecturi = null;
+            this.redirectUrl = null;
             this.nickname = null;
             this.authorizationCode = null;
         }
@@ -339,7 +339,7 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             this.bucket = null;
             this.clientId = null;
             this.clientSecret = null;
-            this.redirecturi = null;
+            this.redirectUrl = null;
             this.nickname = null;
             this.namedCredential = null
             this.dispatchEvent(closeModalEvent);
