@@ -30,7 +30,7 @@ public with sharing class DropboxSuccessController {
                 }
                 String accessToken;
                 if(tokens?.get('access_token') != null){
-                    refreshToken = tokens.get('access_token');
+                    accessToken = tokens.get('access_token');
                 }
                 if(refreshToken != null){
                     settings.MVDG__refresh_token__c = refreshToken;
