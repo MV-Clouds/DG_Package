@@ -3,23 +3,32 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     global string contentVersionId;
     global static string googleDriveAccessToken;
     global static string googleFileName;
+    global string activity;
 
 
-    global GoogleDriveUploader(Id cvid) {
+    global GoogleDriveUploader(Id cvid, Id activityId) {
         this.contentVersionId = cvid;
+        this.activity = activityId;
     }
 
-    
-
     global Database.QueryLocator start(Database.BatchableContext bC) {
-        if(contentVersionId != null){
-            return Database.getQueryLocator([
-                SELECT Id, VersionData, Title, ContentSize, FileExtension
-                FROM ContentVersion
-                WHERE Id =: contentVersionId with SECURITY_ENFORCED
-            ]);
+        try {
+            if(contentVersionId != null){
+                return Database.getQueryLocator([
+                    SELECT Id, VersionData, Title, ContentSize, FileExtension
+                    FROM ContentVersion
+                    WHERE Id =: contentVersionId with SECURITY_ENFORCED
+                ]);
+            }
+            return null;    
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'batch start', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+            obj.Google_Drive__c = 'Failure '+ e.getMessage();
+            obj.Id = activity; 
+            update obj;
+            return null;
         }
-        return null;
     }
 
 
@@ -28,7 +37,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
             try {
                 String fileName = cv.Title;
                 googleFileName = cv.Title+'.'+cv.fileExtension;
-                String acctoken = getToken();
+                String acctoken = getToken(activity);
                 Integer fileSize = cv.ContentSize;
                 String contentType = contentType(cv.FileExtension);
                 System.debug('--------' + contentType);
@@ -42,15 +51,20 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                     } 
                     if (fileSize < maxSize) { // 5 MB threshold
                         System.debug('Uploading small file directly to googledrive');
-                        uploadToGoogleDrive(cv, fileName, contentType);
+                        uploadToGoogleDrive(cv, fileName, contentType, activity);
                     } else {
                         System.debug('Uploading large file in chunks to googledrive');
-                        uploadLargeFileInChunks(cv, fileSizeEncoded, contentType);
+                        uploadLargeFileInChunks(cv, fileSizeEncoded, contentType, activity);
                     }
                 }
             } catch (System.LimitException e) {
+                Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'execute batch', activity);
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
                 emailUser('File size too large. Try uploading file with smaller size.\n\n Or Download it and then upload file manually.');
-                System.debug('Error during Dropbox file upload: heap size issue' + e.getMessage());
+                System.debug('Error during Google file upload: heap size issue' + e.getMessage());
             }
         }
     }
@@ -61,52 +75,77 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         System.debug('GoogleDrive file upload batch finished');
     }
 
-    global static String getToken(){
-        List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-            System.debug('This is client id'+mdata[0].MVDG__CID__c);
-            System.debug('This is client secret'+mdata[0].MVDG__CSEC__c);
-        AuthProviderSettings__c settings = AuthProviderSettings__c.getOrgDefaults();
-        String endpoint = 'https://oauth2.googleapis.com/token';
-        HttpRequest request = new HttpRequest();
-        request.setEndpoint(endpoint);
-        request.setMethod('POST');
-        request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.refresh_token__c +
-                        '&client_id=' + mdata[0].MVDG__CID__c +
-                        '&client_secret=' + mdata[0].MVDG__CSEC__c +
-                        '&grant_type=refresh_token');
-
-        Http http = new Http();
-        HttpResponse response = http.send(request);
-
-        if (response.getStatusCode() == 200) {
-            Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
-            String newToken = (String) jsonResponse.get('access_token');
-            return newToken;
-        }
-        else{
-            Response_Handler.store_Callout_Response(response, 'GoogleDriveUploader', 'getToken');
-            mailMessage(response.getStatusCode());
+    global static String getToken(String activity){
+        try {
+            List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+            String endpoint = 'https://oauth2.googleapis.com/token';
+            HttpRequest request = new HttpRequest();
+            request.setEndpoint(endpoint);
+            request.setMethod('POST');
+            request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+            request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
+                            '&client_id=' + mdata[0].CID__c +
+                            '&client_secret=' + mdata[0].CSEC__c +
+                            '&grant_type=refresh_token');
+    
+            Http http = new Http();
+            HttpResponse response = http.send(request);
+    
+            if (response.getStatusCode() == 200) {
+                Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
+                String newToken = (String) jsonResponse.get('access_token');
+                return newToken;
+            }
+            else{
+                Response_Handler.store_Callout_Response(response, 'GoogleDriveUploader', 'getToken');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                    obj.Google_Drive__c = 'Failure '+ response.getStatusCode() + response.getBody();
+                    obj.Id = activity; 
+                    update obj;
+                mailMessage(response.getStatusCode());
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'getToken', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
         return null;
     }
 
     @AuraEnabled
-    public static Boolean uploadToGoogleDrive(ContentVersion content, String fileName, String contentType) {
-
-        if (content != null) {
-            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
-            HttpRequest req = createGoogleDriveRequest(content, settings);
-
-            HttpResponse resp = sendHttpRequest(req);
-            
-            if (resp.getStatusCode() == 200) {
-                return true;
-            } else {
-                Response_Handler.store_Callout_Response(resp, 'GoogleDriveUploader', 'uploadToGoogleDrive');
-                mailMessage(resp.getStatusCode());
-                return false; // Retry after token refresh
+    public static Boolean uploadToGoogleDrive(ContentVersion content, String fileName, String contentType, String activity) {
+        try {
+            if (content != null) {
+                MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+                HttpRequest req = createGoogleDriveRequest(content, settings);
+    
+                HttpResponse resp = sendHttpRequest(req);
+                
+                if (resp.getStatusCode() == 200) {
+                    Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                        obj.Google_Drive__c = 'Success';
+                        obj.Id = activity; 
+                        update obj;
+                    return true;
+                } else {
+                    Response_Handler.store_Callout_Response(resp, 'GoogleDriveUploader', 'uploadToGoogleDrive');
+                    Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                        obj.Google_Drive__c = 'Failure '+ resp.getStatusCode() + resp.getBody();
+                        obj.Id = activity; 
+                        update obj;
+                    mailMessage(resp.getStatusCode());
+                    return false; // Retry after token refresh
+                }
             }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadToGoogleDrive', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
         
         
@@ -145,45 +184,55 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         return h.send(req);
     }
 
-    private static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, String fileExtension) {
-        String result = initiateUploadSession(fileExtension, contentVersion);
-        if (result != 'failure') {
-            System.debug('Initiated successfully');
-            Decimal filesizedec = Decimal.valueOf(fileSize);
-            Integer offset;
-
-
-            Integer chunkSize = 2097152; // 9 MB chunks
-            Integer totalChunks = Integer.valueOf(Math.ceil(filesizedec.divide(chunkSize, 3)));
-
-
-            for (Integer i = 0; i < totalChunks; i++) {
-                // System.debug(Limits.getHeapSize());
-                Integer start = i * chunkSize;
-                Integer ending = Math.min((i + 1) * 1572864 - 1, Integer.valueOf(contentVersion.VersionData.size()) - 1);
-                System.debug('Chunk Start Byte: ' + start);
-                // System.debug('Chunk End Byte: ' + ending);
-                // System.debug('file size-->' + fileSize);
-                Blob chunkBlob = getFileData(contentVersion.VersionData, start, chunkSize);
-                offset = Integer.valueOf(Math.floor(start / 1.3333333333));
-                if (start != 0) {
-                    start = start - (i * 524288);
+    private static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, String fileExtension, String activity) {
+        try {
+            String result = initiateUploadSession(fileExtension, contentVersion, activity);
+            if (result != 'failure') {
+                System.debug('Initiated successfully');
+                Decimal filesizedec = Decimal.valueOf(fileSize);
+                Integer offset;
+    
+    
+                Integer chunkSize = 2097152; // 2 MB chunks
+                Integer totalChunks = Integer.valueOf(Math.ceil(filesizedec.divide(chunkSize, 3)));
+    
+    
+                for (Integer i = 0; i < totalChunks; i++) {
+                    // System.debug(Limits.getHeapSize());
+                    Integer start = i * chunkSize;
+                    Integer ending = Math.min((i + 1) * 1572864 - 1, Integer.valueOf(contentVersion.VersionData.size()) - 1);
+                    System.debug('Chunk Start Byte: ' + start);
+                    // System.debug('Chunk End Byte: ' + ending);
+                    // System.debug('file size-->' + fileSize);
+                    Blob chunkBlob = getFileData(contentVersion.VersionData, start, chunkSize);
+                    offset = Integer.valueOf(Math.floor(start / 1.3333333333));
+                    if (start != 0) {
+                        start = start - (i * 524288);
+                    }
+                    System.debug('Chunk Offset: ' + offset);
+                    ChunkDetails chunkDetail = new ChunkDetails();
+                    chunkDetail.chunk = chunkBlob;
+                    chunkDetail.start = start;
+                    chunkDetail.ending = ending;
+                    chunkDetail.offset = offset;
+                    chunkDetail.fileExtension = fileExtension;
+                    chunkDetail.fileSize = contentVersion.VersionData.size();
+                    chunkDetail.result = result;
+                    chunkDetail.activity = activity;
+                    uploadChunk(chunkDetail);
+                    // System.debug('Uploaded chunk ' + (i + 1) + '/' + totalChunks + ': Start Byte: ' + start + ', End Byte: ' + ending + ', Offset: ' + offset);
+                    // System.debug(Limits.getHeapSize());
+                    chunkBlob = null;
+                    System.debug(Limits.getHeapSize());
                 }
-                System.debug('Chunk Offset: ' + offset);
-                ChunkDetails chunkDetail = new ChunkDetails();
-                chunkDetail.chunk = chunkBlob;
-                chunkDetail.start = start;
-                chunkDetail.ending = ending;
-                chunkDetail.offset = offset;
-                chunkDetail.fileExtension = fileExtension;
-                chunkDetail.fileSize = contentVersion.VersionData.size();
-                chunkDetail.result = result;
-                uploadChunk(chunkDetail);
-                // System.debug('Uploaded chunk ' + (i + 1) + '/' + totalChunks + ': Start Byte: ' + start + ', End Byte: ' + ending + ', Offset: ' + offset);
-                // System.debug(Limits.getHeapSize());
-                chunkBlob = null;
-                System.debug(Limits.getHeapSize());
             }
+            
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadLargeFileInChunks', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
 
     }
@@ -271,35 +320,50 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         }
     }
 
-    public static string initiateUploadSession(String contentType, ContentVersion cv) {
-        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint('https://www.googleapis.com/upload/drive/v2/files?uploadType=resumable');
-        req.setMethod('POST');
-        req.setHeader('Authorization', 'Bearer ' + googleDriveAccessToken);
-        req.setHeader('accept', '*/*');
-        req.setHeader('Content-Type', 'application/json; charset=UTF-8');
-        String body = '{"title":"' + cv.Title + '", "mimeType":"' + contentType + '"}';
-        req.setBody(body);
-
-
-        Http http = new Http();
-        HttpResponse res = http.send(req);
-
-
-        if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
-            System.debug(res.getHeader('Location'));
-            return (String) res.getHeader('Location');
-        } else {
-            Response_Handler.store_Callout_Response(res, 'GoogleDriveUploader', 'initiateUploadSession');
-            mailMessage(res.getStatusCode());
-            System.debug('Error initiating upload session: ' + res.getStatusCode() + res.getHeader('Location'));
-            return 'failure';
+    public static string initiateUploadSession(String contentType, ContentVersion cv, String activity) {
+        try {
+            MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('https://www.googleapis.com/upload/drive/v2/files?uploadType=resumable');
+            req.setMethod('POST');
+            req.setHeader('Authorization', 'Bearer ' + googleDriveAccessToken);
+            req.setHeader('accept', '*/*');
+            req.setHeader('Content-Type', 'application/json; charset=UTF-8');
+            String body = '{"title":"' + cv.Title + '", "mimeType":"' + contentType + '"}';
+            req.setBody(body);
+    
+    
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+    
+    
+            if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
+                System.debug(res.getHeader('Location'));
+                return (String) res.getHeader('Location');
+            } else {
+                Response_Handler.store_Callout_Response(res, 'GoogleDriveUploader', 'initiateUploadSession');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Google_Drive__c = 'Failure '+ res.getBody();
+                obj.Id = activity; 
+                update obj;
+                mailMessage(res.getStatusCode());
+                System.debug('Error initiating upload session: ' + res.getStatusCode() + res.getHeader('Location'));
+                return 'failure';
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'initiateUploadSession', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
+                return 'failure';
         }
     }
 
 
     private static void uploadChunk(ChunkDetails parameters) {
+        try {
+            
             if( parameters.result != null){
                 
             String contentRange = 'bytes ' + parameters.start + '-' + parameters.ending + '/' + parameters.fileSize;
@@ -323,12 +387,30 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
             // System.debug('getting status code while uploading chunk-->' + res.getStatusCode());
 
 
-            if (res.getStatusCode() == 200 || res.getStatusCode() == 201 || res.getStatusCode() == 202 || res.getStatusCode() == 308) {
-                System.debug('Everything was success' + res.getStatusCode() + res.getBody() + res.getHeader('Range'));
+            if (res.getStatusCode() == 201 || res.getStatusCode() == 202 || res.getStatusCode() == 308) {
+                System.debug('Half was success' + res.getStatusCode() + res.getBody() + res.getHeader('Range'));
+            }
+            else if(res.getStatusCode() == 200){
+                System.debug('Everything was succes'+ res.getStatusCode() + res.getBody());
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Google_Drive__c = 'Success';
+                obj.Id = parameters.activity; 
+                update obj;
             } else {
                 Response_Handler.store_Callout_Response(res, 'GoogleDriveUploader', 'uploadChunk');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Google_Drive__c = 'Failure '+ res.getBody();
+                obj.Id = parameters.activity; 
+                update obj;
                 mailMessage(res.getStatusCode());
             }
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadChunk', parameters.activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = parameters.activity; 
+                update obj;
         }
     }
 
@@ -402,6 +484,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         @AuraEnabled public String fileExtension { get; set; }
         @AuraEnabled public Integer fileSize { get; set; }
         @AuraEnabled public String result { get; set; }
+        @AuraEnabled public String activity { get; set; }
     }
 
 }

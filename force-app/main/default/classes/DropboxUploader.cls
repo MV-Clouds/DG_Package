@@ -3,40 +3,50 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     global Id contentVersionId;
     global String uploadSessionId;
     global static string dropFileName;
+    global string activity;
 
 
-    public static String tokenPermanent() {
-        MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
-        String refresh = settings.MVDG__refresh_token__c;
-        String clientid = settings.MVDG__ClientId__c;
-        String clientsecret = settings.MVDG__ClientSecret__c;
-        String body =
-            'grant_type=refresh_token' +
-            '&refresh_token=' +
-            EncodingUtil.urlEncode(refresh, 'UTF-8') +
-            '&client_id=' +
-            EncodingUtil.urlEncode(clientid, 'UTF-8') +
-            '&client_secret=' +
-            EncodingUtil.urlEncode(clientsecret, 'UTF-8');
-
-        Http h = new Http();
-        HttpRequest req = new HttpRequest();
-
-        req.setEndpoint('https://api.dropbox.com/oauth2/token');
-
-        req.setHeader('Content-length', String.valueOf(body.length()));
-        req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-        req.setMethod('POST');
-
-        req.setBody(body);
-        HttpResponse res = h.send(req);
-        // System.debug(res.getBody());
-
-        Map < String, String > jsonvalues = new Map < String, String > ();
-        jsonvalues = parseJSONToMap(res.getBody());
-
-        return jsonvalues.get('access_token');
+    public static String tokenPermanent(String activity) {
+        try {
+            MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+            String refresh = settings.MVDG__refresh_token__c;
+            String clientid = settings.MVDG__ClientId__c;
+            String clientsecret = settings.MVDG__ClientSecret__c;
+            String body =
+                'grant_type=refresh_token' +
+                '&refresh_token=' +
+                EncodingUtil.urlEncode(refresh, 'UTF-8') +
+                '&client_id=' +
+                EncodingUtil.urlEncode(clientid, 'UTF-8') +
+                '&client_secret=' +
+                EncodingUtil.urlEncode(clientsecret, 'UTF-8');
+    
+            Http h = new Http();
+            HttpRequest req = new HttpRequest();
+    
+            req.setEndpoint('https://api.dropbox.com/oauth2/token');
+    
+            req.setHeader('Content-length', String.valueOf(body.length()));
+            req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+    
+            req.setMethod('POST');
+    
+            req.setBody(body);
+            HttpResponse res = h.send(req);
+            // System.debug(res.getBody());
+    
+            Map < String, String > jsonvalues = new Map < String, String > ();
+            jsonvalues = parseJSONToMap(res.getBody());
+    
+            return jsonvalues.get('access_token');
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'DropboxUploader', 'TokenPermanent', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
+                return null;
+        }
     }
 
     //  parser to json
@@ -56,19 +66,30 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
         return jsonMap;
     }
 
-    global DropboxUploader(Id cvid) {
+    global DropboxUploader(Id cvid, Id activityId) {
         this.contentVersionId = cvid;
+        System.debug('Activity ID '+activityId);
+        this.activity = activityId;  //activity will be used to send mail
     }
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
-        if(contentVersionId != null){
-            return Database.getQueryLocator([
-                SELECT Id, VersionData, Title, ContentSize, FileExtension
-                FROM ContentVersion
-                WHERE Id =: contentVersionId with SECURITY_ENFORCED
-            ]);
+        try {
+            if(contentVersionId != null){
+                return Database.getQueryLocator([
+                    SELECT Id, VersionData, Title, ContentSize, FileExtension
+                    FROM ContentVersion
+                    WHERE Id =: contentVersionId with SECURITY_ENFORCED
+                ]);
+            }
+            return null;
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'DropboxUploader', 'batch start', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+            obj.Dropbox__c = 'Failure '+ e.getMessage();
+            obj.Id = activity; 
+            update obj;
+            return null;
         }
-        return null;
     }
 
     global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
@@ -78,7 +99,7 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 Integer fileSize = cv.ContentSize;
                 dropFileName = cv.Title+'.'+cv.fileExtension;
                 String contentType = getContentType(cv.FileExtension);
-                String acctoken = tokenPermanent();
+                String acctoken = tokenPermanent(activity);
                 // Blob fileData = cv.VersionData;
                 Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
                 if(acctoken != null){
@@ -90,13 +111,18 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                     }
                     if (fileSize < maxSize) { // 8 MB threshold
                         System.debug('Uploading small file directly to Dropbox');
-                        uploadSmallFile(cv.VersionData, contentType);
+                        uploadSmallFile(cv.VersionData, contentType, activity);
                     } else {
                         System.debug('Uploading large file in chunks to Dropbox');
-                        uploadLargeFileInChunks(cv, fileSizeEncoded);
+                        uploadLargeFileInChunks(cv, fileSizeEncoded, activity);
                     }
                 }
             } catch (Exception e) {
+                Log_Handler.store_Exception(e, 'DropboxUploader', 'batch execute', activity);
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
                 System.debug('Error during Dropbox file upload: ' + e.getMessage());
             }
         }
@@ -189,124 +215,189 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
         }
     }
 
-    private static void uploadSmallFile(Blob fileData, String contentType) {
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint('https://content.dropboxapi.com/2/files/upload');
-        req.setMethod('POST');
-        req.setHeader('Authorization', 'Bearer ' + dropboxAccessToken);
-        req.setHeader('Dropbox-API-Arg', '{"path": "/' + dropFileName + '", "mode": "add", "autorename": true, "mute": false}');
-        req.setHeader('Content-Type', 'application/octet-stream');
-        req.setBodyAsBlob(fileData);
-
-        Http http = new Http();
-        HttpResponse res = http.send(req);
-
-        if (res.getStatusCode() == 200) {
-            System.debug('Small file uploaded successfully to Dropbox');
-        } else {
-            Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'uploadSmallFile');
-            mailMessage(res.getStatusCode());
-            System.debug('Error during small file upload to Dropbox: ' + res.getStatus());
-            System.debug('Response body: ' + res.getBody());
+    private static void uploadSmallFile(Blob fileData, String contentType, String activity) {
+        try {
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('https://content.dropboxapi.com/2/files/upload');
+            req.setMethod('POST');
+            req.setHeader('Authorization', 'Bearer ' + dropboxAccessToken);
+            req.setHeader('Dropbox-API-Arg', '{"path": "/' + dropFileName + '", "mode": "add", "autorename": true, "mute": false}');
+            req.setHeader('Content-Type', 'application/octet-stream');
+            req.setBodyAsBlob(fileData);
+    
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+    
+            if (res.getStatusCode() == 200) {
+                System.debug('Small file uploaded successfully to Dropbox');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Success';
+                obj.Id = activity; 
+                update obj;
+            } else {
+                Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'uploadSmallFile');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ res.getStatusCode() + res.getBody();
+                obj.Id = activity;
+                update obj;
+                mailMessage(res.getStatusCode());
+                System.debug('Error during small file upload to Dropbox: ' + res.getStatus());
+                System.debug('Response body: ' + res.getBody());
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'DropboxUploader', 'uploadSmallFile', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
     }
 
-    private static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize) {
-        String sessionId = initiateUploadSession();
-        Decimal filesizedec = Decimal.valueOf(fileSize);
-        Integer offset;
-
-        Integer chunkSize = 4000000; // 9 MB chunks
-        Integer totalChunks = Integer.valueOf(Math.ceil(filesizedec.divide(chunkSize, 3)));
-
-        for (Integer i = 0; i < totalChunks; i++) {
-            System.debug(Limits.getHeapSize());
-            Integer start = i * chunkSize;
-            Integer ending = Math.min((i + 1) * chunkSize - 1, Integer.valueOf(fileSize) - 1);
-            System.debug('Chunk Start Byte: ' + start);
-            System.debug('Chunk End Byte: ' + ending);
-            System.debug('file size-->' + fileSize);
-            Blob chunkBlob = getFileData(contentVersion.VersionData, start, chunkSize);
-
-            // Compute the offset as the start byte of the chunk
-            offset = Integer.valueOf(Math.floor(start / 1.3333333333));
-            System.debug('Chunk Offset: ' + offset);
-
-            uploadChunk(chunkBlob, sessionId, offset);
-            System.debug('Uploaded chunk ' + (i + 1) + '/' + totalChunks + ': Start Byte: ' + start + ', End Byte: ' + ending + ', Offset: ' + offset);
-            System.debug(Limits.getHeapSize());
-            chunkBlob = null;
-            System.debug(Limits.getHeapSize());
-
-        }
-        // After uploading all chunks, complete the upload session‸
-        Blob lastChunk = getFileData(contentVersion.VersionData, (totalChunks - 1) * chunkSize, chunkSize);
-        completeUploadSession(sessionId, lastChunk, offset);
-    }
-
-
-    private static String initiateUploadSession() {
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint('https://content.dropboxapi.com/2/files/upload_session/start');
-        req.setMethod('POST');
-        req.setHeader('Authorization', 'Bearer ' + dropboxAccessToken);
-        req.setHeader('Dropbox-API-Arg', '{"close": false}');
-        req.setHeader('Content-Type', 'application/octet-stream');
-        req.setBodyAsBlob(Blob.valueOf(''));
-
-        Http http = new Http();
-        HttpResponse res = http.send(req);
-
-        if (res.getStatusCode() == 200) {
-            Map < String, Object > jsonResponse = (Map < String, Object > ) JSON.deserializeUntyped(res.getBody());
-            return (String) jsonResponse.get('session_id');
-        } else {
-            Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'initiateUploadSession');
-            mailMessage(res.getStatusCode());
-            throw new CalloutException('Error initiating Dropbox upload session: ' + res.getBody());
+    private static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, String activity) {
+        try {
+            String sessionId = initiateUploadSession(activity);
+            Decimal filesizedec = Decimal.valueOf(fileSize);
+            Integer offset;
+    
+            Integer chunkSize = 1000000; // 1 MB chunks
+            Integer totalChunks = Integer.valueOf(Math.ceil(filesizedec.divide(chunkSize, 3)));
+    
+            for (Integer i = 0; i < totalChunks; i++) {
+                System.debug(Limits.getHeapSize());
+                Integer start = i * chunkSize;
+                Integer ending = Math.min((i + 1) * chunkSize - 1, Integer.valueOf(fileSize) - 1);
+                System.debug('Chunk Start Byte: ' + start);
+                System.debug('Chunk End Byte: ' + ending);
+                System.debug('file size-->' + fileSize);
+                Blob chunkBlob = getFileData(contentVersion.VersionData, start, chunkSize);
+    
+                // Compute the offset as the start byte of the chunk
+                offset = Integer.valueOf(Math.floor(start / 1.3333333333));
+                System.debug('Chunk Offset: ' + offset);
+    
+                uploadChunk(chunkBlob, sessionId, offset, activity);
+                System.debug('Uploaded chunk ' + (i + 1) + '/' + totalChunks + ': Start Byte: ' + start + ', End Byte: ' + ending + ', Offset: ' + offset);
+                System.debug(Limits.getHeapSize());
+                chunkBlob = null;
+                System.debug(Limits.getHeapSize());
+    
+            }
+            // After uploading all chunks, complete the upload session‸
+            Blob lastChunk = getFileData(contentVersion.VersionData, (totalChunks - 1) * chunkSize, chunkSize);
+            completeUploadSession(sessionId, lastChunk, offset, activity);
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'DropboxUploader', 'uploadLargeFileInChunks', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
     }
 
-    private static void uploadChunk(Blob chunk, String sessionId, Integer offset) {
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint('https://content.dropboxapi.com/2/files/upload_session/append_v2');
-        req.setMethod('POST');
-        req.setHeader('Authorization', 'Bearer ' + dropboxAccessToken);
-        req.setHeader('Dropbox-API-Arg', '{"cursor": {"session_id": "' + sessionId + '", "offset": ' + offset + '}, "close": false}');
-        req.setHeader('Content-Type', 'application/octet-stream');
-        req.setBodyAsBlob(chunk);
 
-        Http http = new Http();
-        HttpResponse res = http.send(req);
+    private static String initiateUploadSession(String activity) {
+        try {
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('https://content.dropboxapi.com/2/files/upload_session/start');
+            req.setMethod('POST');
+            req.setHeader('Authorization', 'Bearer ' + dropboxAccessToken);
+            req.setHeader('Dropbox-API-Arg', '{"close": false}');
+            req.setHeader('Content-Type', 'application/octet-stream');
+            req.setBodyAsBlob(Blob.valueOf(''));
+    
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+    
+            if (res.getStatusCode() == 200) {
+                Map < String, Object > jsonResponse = (Map < String, Object > ) JSON.deserializeUntyped(res.getBody());
+                return (String) jsonResponse.get('session_id');
+            } else {
+                Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'initiateUploadSession');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ res.getBody();
+                obj.Id = activity; 
+                update obj;
+                mailMessage(res.getStatusCode());
+                throw new CalloutException('Error initiating Dropbox upload session: ' + res.getBody());
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'DropboxUploader', 'initiateUploadSession', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
+        }
+        return null;
+    }
 
-        if (res.getStatusCode() != 200) {
-            Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'uploadChunk');
-            mailMessage(res.getStatusCode());
-            throw new CalloutException('Error uploading Dropbox chunk: ' + res.getBody());
+    private static void uploadChunk(Blob chunk, String sessionId, Integer offset, String activity) {
+        try {
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('https://content.dropboxapi.com/2/files/upload_session/append_v2');
+            req.setMethod('POST');
+            req.setHeader('Authorization', 'Bearer ' + dropboxAccessToken);
+            req.setHeader('Dropbox-API-Arg', '{"cursor": {"session_id": "' + sessionId + '", "offset": ' + offset + '}, "close": false}');
+            req.setHeader('Content-Type', 'application/octet-stream');
+            req.setBodyAsBlob(chunk);
+    
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+    
+            if (res.getStatusCode() != 200) {
+                Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'uploadChunk');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ res.getBody();
+                obj.Id = activity; 
+                update obj;
+                mailMessage(res.getStatusCode());
+                throw new CalloutException('Error uploading Dropbox chunk: ' + res.getBody());
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'DropboxUploader', 'uploadChunk', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
     }
 
-    private static void completeUploadSession(String sessionId, Blob lastChunk, Integer offset) {
-        System.debug(lastChunk.size() + offset);
-        Integer off = lastChunk.size() + offset;
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint('https://content.dropboxapi.com/2/files/upload_session/finish');
-        req.setMethod('POST');
-        req.setHeader('Authorization', 'Bearer ' + dropboxAccessToken);
-        req.setHeader('Dropbox-API-Arg', '{"cursor": {"session_id": "' + sessionId + '", "offset": ' + off + '}, "commit": {"path": "/' + dropFileName + '", "mode": "add", "autorename": true, "mute": false}}');
-        req.setHeader('Content-Type', 'application/octet-stream');
-        req.setBodyAsBlob(lastChunk);
-
-        Http http = new Http();
-        HttpResponse res = http.send(req);
-
-        if (res.getStatusCode() == 200) {
-            System.debug('Large file uploaded successfully to Dropbox');
-        } else {
-            Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'completeUploadSession');
-            mailMessage(res.getStatusCode());
-            System.debug('Error during large file upload to Dropbox: ' + res.getStatus());
-            System.debug('Response body: ' + res.getBody());
+    private static void completeUploadSession(String sessionId, Blob lastChunk, Integer offset, String activity) {
+        try {
+            System.debug(lastChunk.size() + offset);
+            Integer off = lastChunk.size() + offset;
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('https://content.dropboxapi.com/2/files/upload_session/finish');
+            req.setMethod('POST');
+            req.setHeader('Authorization', 'Bearer ' + dropboxAccessToken);
+            req.setHeader('Dropbox-API-Arg', '{"cursor": {"session_id": "' + sessionId + '", "offset": ' + off + '}, "commit": {"path": "/' + dropFileName + '", "mode": "add", "autorename": true, "mute": false}}');
+            req.setHeader('Content-Type', 'application/octet-stream');
+            req.setBodyAsBlob(lastChunk);
+    
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+    
+            if (res.getStatusCode() == 200) {
+                System.debug('Large file uploaded successfully to Dropbox');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Success';
+                obj.Id = activity; 
+                update obj;
+            } else {
+                Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'completeUploadSession');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ res.getBody();
+                obj.Id = activity; 
+                update obj;
+                mailMessage(res.getStatusCode());
+                System.debug('Error during large file upload to Dropbox: ' + res.getStatus());
+                System.debug('Response body: ' + res.getBody());
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'DropboxUploader', 'completeUploadSession', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.Dropbox__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
     }
 

@@ -1,4 +1,4 @@
-import { LightningElement, track, wire } from 'lwc';
+import { LightningElement, track } from 'lwc';
 
 import homePageImgs from '@salesforce/resourceUrl/homePageImgs';
 import DocGeniusLogo from "@salesforce/resourceUrl/docGeniusLogoSvg";
@@ -57,6 +57,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    isIntegration = true;
    isLimitations = false;
    isUserguide = false;
+   isFaq = false;
    isSetup = false;
    //used for displaying orggoogledate
    @track orggooglename;
@@ -126,7 +127,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        this.logo = DocGeniusLogo;
        this.dropable = Dropablearea;
        this.popupimg = Popupimg;
-       // this.blinktimer();
        this.checkauth();
    }
 
@@ -138,33 +138,10 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        this.checkingdropboxauth();
    }
 
-
-   blinktimer(){
-       setInterval(() => {
-           let workingMethods = 0;
-           let nonWorkingMethods = 0;
-
-           if (this.isWorkingGoogleAuth && this.isActiveGoogleAuth) workingMethods++;
-           if (this.isWorkingAwsAuth && this.isActiveAwsAuth) workingMethods++;
-           if (this.isWorkingOnedriveAuth && this.isActiveOnedriveAuth) workingMethods++;
-           if (this.isWorkingDropboxAuth && this.isActiveDropboxAuth) workingMethods++;
-           if (!this.isWorkingGoogleAuth && this.isActiveGoogleAuth) nonWorkingMethods++;
-           if (!this.isWorkingAwsAuth && this.isActiveAwsAuth) nonWorkingMethods++;
-           if (!this.isWorkingOnedriveAuth && this.isActiveOnedriveAuth) nonWorkingMethods++;
-           if (!this.isWorkingDropboxAuth && this.isActiveDropboxAuth) nonWorkingMethods++;
-           if (workingMethods > 0) {
-               this.toggleGreenColor();
-           }
-           if(nonWorkingMethods > 0){
-               this.toggleRedColor();
-           }
-          
-       }, 1000);
-   }
-
    toggleGreenColor(){
        this.isGreen = !this.isGreen;
    }
+
    toggleRedColor(){
        this.isRed = !this.isRed;
    }
@@ -439,6 +416,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            this.isSetup = false;
            this.isUserguide = false;
            this.isLimitations = false;
+           this.isFaq = false;
            const cursor = this.template.querySelectorAll('.cursor');
            cursor?.forEach(ele => {
                if(ele.dataset.name == tabName){
@@ -459,14 +437,20 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                        this.isUserguide = true;
                        this.isSpinner = false;
                    }
+                   else if(tabName == "text4"){
+                       this.isFaq = true;
+                   }
                }
                else{
                    ele.classList.remove('enable');
                }
            })
        }
-       // this.isSpinner = false;
    }
+
+    handleIframeLoad(){
+        this.isSpinner = false;
+    }
 
    copyToClipboard() {
        this.isSpinner = true;
@@ -508,7 +492,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                        this.isSpinner = false;
                    }
                    else{
-                       // console.log('error');
                        this.ispopup = false;
                        this.isSpinner = false;
                        const messageContainer = this.template.querySelector('c-message-popup')
@@ -529,7 +512,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    }
 
 
-   handleAuthCode(event) {
+   handleAuthCode() {
        // console.log('inside parent');
        if(!this.clientId || !this.clientSecret){
            console.log('both client id and secret are compulsary');
@@ -537,7 +520,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        else{
            getAuthCode({ clientId: this.clientId, clientSecret: this.clientSecret})
            .then(durl =>{
-               window.open(durl, '_blank');
+                if(typeof window !== 'undefined'){
+                    window.open(durl, '_blank');
+                }
            })
            .catch(error =>{
                console.error('Error:', error);
@@ -662,7 +647,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                    this.isSpinner = false;
                }
            })
-           .catch(error =>{
+           .catch(() =>{
                this.isSpinner = false;
            })
        }
@@ -687,7 +672,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                    this.isSpinner = false;
                }
            })
-           .catch(error =>{
+           .catch(() =>{
                this.isSpinner = false;
            })
        }
@@ -714,7 +699,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                else{
                    this.isSpinner = false;
                }
-           }).catch(error =>{
+           }).catch(() =>{
                this.isSpinner = false;
            })
       
@@ -741,7 +726,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                else{
                    this.isSpinner = false;
                }
-           }).catch(error =>{
+           }).catch(() =>{
                this.isSpinner =  false;
            })
       
@@ -767,7 +752,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                    this.isSpinner = false;
                }
            })
-           .catch(error =>{
+           .catch(() =>{
                this.isSpinner = false;
            })
        }
@@ -794,7 +779,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        this.isOneDrive = false;
        oneDriveAuthorization({clientId: this.clientId, clientSecret: this.clientSecret})
        .then(durl => {
-           window.location.href = durl;
+            if(typeof window !== 'undefined'){
+                window.location.href = durl;
+            }
        })
        .catch(error => {
         this.isSpinner = false;
@@ -825,7 +812,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        this.isDropBox = false;
        dropboxAuthorization({clientId: this.clientId, clientSecret: this.clientSecret})
        .then(durl => {
-           window.location.href = durl;
+            if(typeof window !== 'undefined'){
+                window.location.href = durl;
+            }
        })
        .catch(error => {
             this.isSpinner = false;
@@ -836,16 +825,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        }
    }
 
-   authorizeremaining() {
-       const messageContainer = this.template.querySelector('c-message-popup')
-           messageContainer.showMessagePopup({
-                       status: 'info',
-                       title: 'Under Construction',
-                       message : 'Page Under Construction',
-                   });
-   }
-
-   closeCreateTemplate(event){
+   closeCreateTemplate(){
        this.ispopup = false
        this.isAws = false;
        this.isOneDrive = false;

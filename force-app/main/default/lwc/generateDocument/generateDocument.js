@@ -1649,14 +1649,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 'selectedFolder' : this.selectedFolder,
             }
             let paraDataStringify2 = JSON.stringify(paraData2);
-            let newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
+            let newSRC = '/apex/DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
 
             if(newSRC !== previousSRC){
                 this.vfGeneratePageSRC = newSRC;
                 this.simpleTemplate = true;
             }
             else{
-                this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
+                this.vfGeneratePageSRC = '/apex/DocGeneratePage';
                 setTimeout(() => {
                     this.vfGeneratePageSRC = newSRC;
                     this.simpleTemplate = true;
@@ -1975,19 +1975,19 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             if(this.selectedChannels.includes('Google Drive')){
                 this.succeeded.push('Google Drive');
-                uploadToGoogleDrive({cvid : contentVersionId});
+                uploadToGoogleDrive({cvid : contentVersionId, activityId : 'a0DF300000EXfphMAD'});
             }
             if(this.selectedChannels.includes('AWS')){
                 this.succeeded.push('AWS');
-                uploadToAWS({cvid : contentVersionId});
+                uploadToAWS({cvid : contentVersionId, activityId : 'a0DF300000EXfphMAD'});
             }
             if(this.selectedChannels.includes('One Drive')){
                 this.succeeded.push('One Drive');
-                uploadToOneDrive({cvid : contentVersionId});
+                uploadToOneDrive({cvid : contentVersionId, activityId : 'a0DF300000EXfphMAD'});
             }
             if(this.selectedChannels.includes('Dropbox')){
                 this.succeeded.push('Dropbox');
-                uploadToDropBox({ cvid : contentVersionId});
+                uploadToDropBox({ cvid : contentVersionId, activityId : 'a0DF300000EXfphMAD'});
             }
             if(!(this.selectedChannels.includes('Files') || this.selectedChannels.includes('Chatter') || this.selectedChannels.includes('Email')) && (this.selectedChannels.includes('Dropbox') || this.selectedChannels.includes('One Drive') || this.selectedChannels.includes('Google Drive') || this.selectedChannels.includes('AWS'))){
                 deleteContentVersion({cvId: contentVersionId});
