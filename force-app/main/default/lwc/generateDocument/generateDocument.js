@@ -15,10 +15,10 @@ import { CloseActionScreenEvent } from "lightning/actions";
 import getTemplateData from '@salesforce/apex/GenerateDocumentController.getTemplateData';
 
 //External Storage Methods
-import uploadToDropBox from '@salesforce/apex/UploadController.uploadToDropBox';
-import uploadToOneDrive from '@salesforce/apex/UploadController.uploadToOneDrive';
-import uploadToAWS from '@salesforce/apex/UploadController.uploadToAWS';
-import uploadToGoogleDrive from '@salesforce/apex/UploadController.uploadToGoogleDrive';
+import uploadFile from '@salesforce/apex/DropboxUploader.uploadFile';
+import uploadToOneDriveAsync from '@salesforce/apex/OneDriveUploader.uploadToOneDriveAsync';
+import uploadAwsAsync from '@salesforce/apex/AwsUploader.uploadAwsAsync';
+import uploadToGoogleDriveFuture from '@salesforce/apex/GoogleDriveUploader.uploadToGoogleDriveFuture';
 
 //Defaults Generation methods
 import setDefaultOptions from '@salesforce/apex/GenerateDocumentController.setDefaultOptions';
@@ -322,19 +322,19 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @track isNotGoogleNotGenerable = false;
     @track activity = {
         Id : null,
-        DocGenius_Template__c : null,
-        Selected_Channels__c : null,
-        File_Name__c : null,
-        Download__c : null,
-        Email__c : null,
-        Google_Drive__c : null,
-        AWS__c : null,
-        One_Drive__c : null,
-        Dropbox__c : null,
-        Notes_Attachments__c : null,
-        Files__c : null,
-        Chatter__c : null,
-        Documents__c : null,
+        MVDG__DocGenius_Template__c : null,
+        MVDG__Selected_Channels__c : null,
+        MVDG__File_Name__c : null,
+        MVDG__Download__c : null,
+        MVDG__Email__c : null,
+        MVDG__Google_Drive__c : null,
+        MVDG__AWS__c : null,
+        MVDG__One_Drive__c : null,
+        MVDG__Dropbox__c : null,
+        MVDG__Notes_Attachments__c : null,
+        MVDG__Files__c : null,
+        MVDG__Chatter__c : null,
+        MVDG__Documents__c : null,
     }
 
     get showCloseButton(){
@@ -1235,9 +1235,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showToast('error', 'Something Went Wrong!', 'Please select folder to save document.', 5000);
             return;
         }
-        this.activity.DocGenius_Template__c = this.selectedTemplate;
-        this.activity.Selected_Channels__c = this.selectedChannels.join(',');
-        this.activity.File_Name__c = this.fileName + this.selectedExtension;
+        this.activity.MVDG__DocGenius_Template__c = this.selectedTemplate;
+        this.activity.MVDG__Selected_Channels__c = this.selectedChannels.join(',');
+        this.activity.MVDG__File_Name__c = this.fileName + this.selectedExtension;
         this.generateActivity()
         .then((result) => {
             if(result){
@@ -2101,22 +2101,22 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             if(this.selectedChannels.includes('Google Drive')){
                 this.succeeded.push('Google Drive');
-                uploadToGoogleDrive({cvid : contentVersionId});
+                uploadToGoogleDriveFuture({cvId : contentVersionId, activityId : this.activity.Id});
             }
             if(this.selectedChannels.includes('AWS')){
                 this.succeeded.push('AWS');
-                uploadToAWS({cvid : contentVersionId});
+                uploadAwsAsync({cvId : contentVersionId, activityId : this.activity.Id});
             }
             if(this.selectedChannels.includes('One Drive')){
                 this.succeeded.push('One Drive');
-                uploadToOneDrive({cvid : contentVersionId});
+                uploadToOneDriveAsync({cvId : contentVersionId, activityId : this.activity.Id});
             }
             if(this.selectedChannels.includes('Dropbox')){
                 this.succeeded.push('Dropbox');
-                uploadToDropBox({ cvid : contentVersionId});
+                uploadFile({cvId : contentVersionId, activityId : this.activity.Id});
             }
             if(!(this.selectedChannels.includes('Files') || this.selectedChannels.includes('Chatter') || this.selectedChannels.includes('Email')) && (this.selectedChannels.includes('Dropbox') || this.selectedChannels.includes('One Drive') || this.selectedChannels.includes('Google Drive') || this.selectedChannels.includes('AWS'))){
-                deleteContentVersion({cvId: contentVersionId});
+                deleteContentVersion({ cvId : contentVersionId});
             }
         } catch (e) {
             errorDebugger('generateDocument', 'uploadToExternalStorage', e, 'error');

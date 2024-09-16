@@ -1,12 +1,12 @@
 public with sharing class DocGenActivityTriggerHandler {
-    public void onAfterUpdate( List<Generate_Document_Activity__c> updatedActivities){
+    public void onAfterUpdate( List<MVDG__Generate_Document_Activity__c> updatedActivities){
         try{
-            for (Generate_Document_Activity__c act : updatedActivities) {
+            for (MVDG__Generate_Document_Activity__c act : updatedActivities) {
                 List<String> succeeded = new List<String>();
                 Map<String, String> failed = new Map<String, String>();
-                Integer noOfSelectedChannels = act.Selected_Channels__c.split(',').size();
+                Integer noOfSelectedChannels = act.MVDG__Selected_Channels__c.split(',').size();
                 Integer noOfCompletedhnnels = 0;
-                for (String channel : act.Selected_Channels__c.split(',')) {
+                for (String channel : act.MVDG__Selected_Channels__c.split(',')) {
                     String fieldName = channel.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c';
                     if (act.get(fieldName) == null || String.valueOf(act.get(fieldName)).trim() == ''){
                         break;
@@ -19,7 +19,7 @@ public with sharing class DocGenActivityTriggerHandler {
                     }
                 }
                 if(noOfCompletedhnnels == noOfSelectedChannels){
-                    sendResultsEmail(succeeded, failed, new Map<String,String>{'templateId' => act.DocGenius_Template__c , 'fileName'=> act.File_Name__c});
+                    sendResultsEmail(succeeded, failed, new Map<String,String>{'templateId' => act.MVDG__DocGenius_Template__c , 'fileName'=> act.MVDG__File_Name__c});
                 }
             }
         }catch (Exception e){

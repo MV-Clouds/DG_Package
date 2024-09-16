@@ -243,10 +243,10 @@ public with sharing class GenerateDocumentController {
 ********************************************************
 */
     @AuraEnabled
-    public static String upsertActivity(Generate_Document_Activity__c activity){
+    public static String upsertActivity(MVDG__Generate_Document_Activity__c activity){
         try{
             if(activity != null){
-                if(Schema.sObjectType.Generate_Document_Activity__c.isCreateable() && Schema.sObjectType.Generate_Document_Activity__c.isUpdateable()){
+                if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.isCreateable() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.isUpdateable()){
                     upsert as User activity;
                     return activity.Id;
                 }

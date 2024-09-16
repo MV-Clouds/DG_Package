@@ -19,9 +19,9 @@ public with sharing class GenerateDocumentControllerTest {
         );
         insert templateInactive;
 
-        Generate_Document_Activity__c gda = new Generate_Document_Activity__c();
-        gda.DocGenius_Template__c = templateActive.Id;
-        gda.Selected_Channels__c = 'chatter,Files';
+        MVDG__Generate_Document_Activity__c gda = new MVDG__Generate_Document_Activity__c();
+        gda.MVDG__DocGenius_Template__c = templateActive.Id;
+        gda.MVDG__Selected_Channels__c = 'chatter,Files';
         insert gda;
     }
 
@@ -54,7 +54,7 @@ public with sharing class GenerateDocumentControllerTest {
             );
             insert a;
 
-            Generate_Document_Activity__c gda = [SELECT Id FROM Generate_Document_Activity__c LIMIT 1];
+            MVDG__Generate_Document_Activity__c gda = [SELECT Id FROM MVDG__Generate_Document_Activity__c LIMIT 1];
 
             Map<String, String> fileData = new Map<String, String>{'contentVersionId' => cv.Id, 'recordId' => a.Id, 'activityId' => gda.Id};
             Map<String, String> chatterData = new Map<String, String>{'contentVersionId' => cv.Id, 'recordId' => a.Id, 'activityId' => gda.Id, 'body'=>'test body'};
@@ -80,7 +80,7 @@ public with sharing class GenerateDocumentControllerTest {
             VersionData = Blob.valueOf('Test ContentVersion Body')
         );
         insert cv;
-        Generate_Document_Activity__c gda = [SELECT Id FROM Generate_Document_Activity__c LIMIT 1];
+        MVDG__Generate_Document_Activity__c gda = [SELECT Id FROM MVDG__Generate_Document_Activity__c LIMIT 1];
         Test.startTest();
             Map<String, List<String>> allEmails = new Map<String, List<String>>{'toEmails' => new List<String>{'test.t1@gmail.com'}, 'ccEmails' => new List<String>{}, 'bccEmails' => new List<String>{}};
             Map<String, String> emailData = new Map<String, String>{'contentVersionId' => cv.Id,'emailSubject' => 'Test Sub','emailBody' => 'test body'};
@@ -169,13 +169,13 @@ public with sharing class GenerateDocumentControllerTest {
 
     @isTest
     static void testUpsertActivity(){
-        Generate_Document_Activity__c gda = [SELECT Id FROM Generate_Document_Activity__c LIMIT 1];
-        gda.Chatter__c = 'success';
-        gda.Files__c = 'some random error';
+        MVDG__Generate_Document_Activity__c gda = [SELECT Id FROM MVDG__Generate_Document_Activity__c LIMIT 1];
+        gda.MVDG__Chatter__c = 'success';
+        gda.MVDG__Files__c = 'some random error';
         Test.startTest();
         GenerateDocumentController.upsertActivity(gda);
         Test.stopTest();
-        Generate_Document_Activity__c gdaNew = [SELECT Id, Chatter__c FROM Generate_Document_Activity__c WHERE Id=:gda.Id LIMIT 1];
-        System.assertEquals('success', gdaNew.Chatter__c, 'the chatter status should be success');
+        MVDG__Generate_Document_Activity__c gdaNew = [SELECT Id, MVDG__Chatter__c FROM MVDG__Generate_Document_Activity__c WHERE Id=:gda.Id LIMIT 1];
+        System.assertEquals('success', gdaNew.MVDG__Chatter__c, 'the chatter status should be success');
     }
 }

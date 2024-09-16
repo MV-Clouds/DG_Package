@@ -50,7 +50,7 @@ public class Log_Handler {
             ex.MVDG__Class_Name__c = classname;
             ex.MVDG__Method_Name__c = methodname;
             System.debug('activityId=>' + activityId);
-            ex.Generate_Document_Activity__c	= activityId;
+            ex.MVDG__Generate_Document_Activity__c	= activityId;
 
             System.debug('The new Exception log is :::' + ex);
         
