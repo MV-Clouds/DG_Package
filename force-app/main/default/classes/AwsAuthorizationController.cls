@@ -82,7 +82,7 @@ public with sharing class AwsAuthorizationController {
     public static Boolean verifyAuth(){
         try {
             MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults(); 
-            if(settings.MVDG__NamedCredential__c == '' || settings.MVDG__NamedCredential__c == null){
+            if(String.isBlank(settings.MVDG__NamedCredential__c) && String.isNotBlank(settings.MVDG__BucketName__c) && String.isNotBlank(settings.MVDG__ClientId__c) && String.isNotBlank(settings.MVDG__ClientSecret__c)){
                 AuthHeaderParams params = new AuthHeaderParams();
                 params.methodName = 'GET';
                 params.bucketName = settings.MVDG__BucketName__c;
@@ -114,7 +114,7 @@ public with sharing class AwsAuthorizationController {
                     update settings;
                     return true;
                 }
-            }else{
+            }else if(string.isNotBlank(settings.MVDG__NamedCredential__c)){
                 HttpRequest req = new HttpRequest();
                 req.setEndpoint('callout:'+settings.MVDG__NamedCredential__c);
                 req.setMethod('GET');
@@ -135,8 +135,8 @@ public with sharing class AwsAuthorizationController {
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsAuthorizationController', 'verifyAuth');
             System.debug('Catch invoked');
-            return false;
         }
+        return false;
     }
 
     @AuraEnabled

@@ -13,20 +13,31 @@ public with sharing class OneDriveSuccessController {
    @RemoteAction
    public static String gettoken(String currentUrl){
        try{
-           String initialurl = currentUrl;
-           String authcode = extractCodeParameter(initialurl);
-               MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1
-               ];
+           String initialurl = 'www.google.com?code=Error';
+           if(currentUrl != null && currentUrl != ''){
+                initialurl = currentUrl;
+           }
+            String authcode = extractCodeParameter(initialurl);
+            if (authcode == null || authcode == '') {
+                return 'error: invalid auth code';
+            }
+            MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
           
            if (settings != null) {
                String clientid = settings.MVDG__ClientId__c;
                String clientsecret = settings.MVDG__ClientSecret__c;
+                if (clientid == null || clientid == '' || clientsecret == null || clientsecret == '') {
+                    return 'error: invalid client ID or secret';
+                }
                String url = ''+System.Url.getOrgDomainUrl();
                String redirectUri = redirect(url);
-              
+            
                System.debug('redirectUri-->'+redirectUri);
                System.debug('Lets generate refresh token');
                Map<String, String> tokens = generaterefreshtoken(clientid, clientsecret, redirectUri, authcode);
+                if (tokens == null || tokens.isEmpty()) {
+                    return 'error: failed to generate tokens';
+                }
                String refreshToken;
                if(tokens?.get('refresh_token') != null){
                 refreshToken = tokens.get('refresh_token');
@@ -41,7 +52,10 @@ public with sharing class OneDriveSuccessController {
                }
                String refreshToken1 = parts2[0];
                String refreshToken2 = parts2[1];
-               String accessToken = tokens.get('access_token');
+               String accessToken;
+               if(tokens?.get('access_token') != null){
+                accessToken = tokens.get('access_token');
+               }
                String userdetails = fetchUserDetails(accessToken);
                Map<String, Object> parsedResponse = (Map<String, Object>) JSON.deserializeUntyped(userdetails);
                String emailAddress = (String) parsedResponse.get('mail');

@@ -6,23 +6,33 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
     global static string awsFileName = '';
     global static string awsFullFileName;
     global Id contentVersionId;
+    global string activity;
 
 
-    global AwsUploader(Id cvid) {
+    global AwsUploader(Id cvid, Id activityId) {
         this.contentVersionId = cvid;
+        this.activity = activityId;
     }
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
-        // Query for ContentVersion records
-        if(contentVersionId != null){
-            return Database.getQueryLocator([
-                SELECT Id, VersionData, Title, ContentDocumentId, FileExtension, ContentSize 
-                FROM ContentVersion 
-                WHERE Id = :contentVersionId 
-                WITH SECURITY_ENFORCED
-            ]);
+        try {
+            if(contentVersionId != null){
+                return Database.getQueryLocator([
+                    SELECT Id, VersionData, Title, ContentDocumentId, FileExtension, ContentSize 
+                    FROM ContentVersion 
+                    WHERE Id = :contentVersionId 
+                    WITH SECURITY_ENFORCED
+                ]);
+            }
+            return null;
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'AwsUploader', 'batch start', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+            obj.AWS__c = 'Failure '+ e.getMessage();
+            obj.Id = activity; 
+            update obj;
+            return null;
         }
-        return null;
     }
 
     global void execute(Database.BatchableContext bC, List<ContentVersion> scope) {
@@ -57,12 +67,11 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
 
                 if (fileSize < maxSize) {
                     System.debug('Uploading small file');
-                    uploadObject(fileName.toLowerCase(), attach.FileExtension, attach.VersionData);
+                    uploadObject(fileName.toLowerCase(), attach.FileExtension, attach.VersionData, activity);
                 } else {
                     if(namedCredential != ''){
                     System.debug('Uploading large file');
                     String formattedDate = DateTime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss z');
-                    // String payloadHash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
                     String timestamp = DateTime.now().format('yyyyMMddHHmmss');
                     awsFileName = filename.replace(' ', '%20') + '_' + timestamp + '.' + attach.fileExtension;
                     String authHeader;
@@ -92,10 +101,15 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                         multipartDetail.filename = fileName;
                         multipartDetail.fileExtension = attach.FileExtension;
                         multipartDetail.attach = attach;
+                        multipartDetail.activity = activity;
 
                         uploadMultipart(multipartDetail);
                     } else {
                         Response_Handler.store_Callout_Response(res, 'AwsUploader', 'execute');
+                        Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                            obj.AWS__c = 'Failure '+ res.getBody();
+                            obj.Id = activity; 
+                            update obj;
                         mailMessage(res.getStatusCode());
                         System.debug('Error during large file upload initiation: ' + res.getStatusCode());
                         System.debug('Error during large file upload initiation: ' + res.getBody());
@@ -105,7 +119,11 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                 }
             }
         } catch (Exception e) {
-            System.debug('Something went wrong: ' + e);
+            Log_Handler.store_Exception(e, 'AwsUploader', 'execute batch', activity);
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
     }
 
@@ -250,7 +268,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         Blob mac = Crypto.generateMac('HMACSHA1', Blob.valueOf(stringToSign), Blob.valueOf(parameters.awsSecret));
         string sig = EncodingUtil.base64Encode(mac);
         auth = 'AWS' + ' ' + parameters.awsKey + ':' + sig;
-        // System.debug('This is signature -->'+auth);
         return auth;
     }
 
@@ -269,7 +286,7 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         return EncodingUtil.base64Encode(versionDataBlob).length();
     }
 
-    public static void uploadObject( String filename, String fileExtension, Blob body) {
+    public static void uploadObject( String filename, String fileExtension, Blob body, String activity) {
         try {
             String formatedDateString = DateTime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss z');
             String endpoint;
@@ -313,15 +330,26 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
 
             if (resObj.getStatusCode() == 200 || resObj.getStatusCode() == 201) {
                 System.debug('Successfully uploaded to AWS');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Success';
+                obj.Id = activity; 
+                update obj;
+
             } else {
                 Response_Handler.store_Callout_Response(resObj, 'AwsUploader', 'uploadObject');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Failure '+ resObj.getBody();
+                obj.Id = activity; 
+                update obj;
                 mailMessage(resObj.getStatusCode());
                 System.debug('Error during small file upload initiation: ' + resObj.getBody());
             }
         } catch (Exception e) {
-            System.debug('In the catch block of uploadObject: ' + e.getMessage());
-            System.debug('Line number: ' + e.getLineNumber());
-            System.debug(e);
+            Log_Handler.store_Exception(e, 'AwsUploader', 'uploadObject', activity);
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
     }
 
@@ -352,6 +380,7 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                     chunkDetail.fileName = parameters.filename;
                     chunkDetail.fileExtension = parameters.fileExtension;
                     chunkDetail.uploadId = parameters.uploadId;
+                    chunkDetail.activity = parameters.activity;
 
                 if (i == (totalChunks - 1)) {
                     chunkDetail.isLastPart = true;
@@ -363,34 +392,50 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                 partNumber++;
             }
         } catch (Exception e) {
-            System.debug(e);
-            System.debug(e.getLineNumber());
+            Log_Handler.store_Exception(e, 'AwsUploader', 'uploadMultipart', parameters.activity);
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Failure '+ e.getMessage();
+                obj.Id = parameters.activity; 
+                update obj;
         }
     }
 
     public static void subMethod(ChunkDetails parameters) {
-        HttpRequest request = new HttpRequest();
-        request.setMethod('PUT');
-        request.setEndpoint(parameters.url);
-        request.setBodyAsBlob(parameters.body);
-        request.setHeader('Content-Type', 'application/octet-stream');
-        // request.setHeader('Date', formattedDate);
-        Http http = new Http();
-        HTTPResponse response = http.send(request);
-
-        if (response.getStatusCode() == 200 ||response.getStatusCode() == 201) {
-            if (parameters.isLastPart) {
-                ChunkDetails completeDetail = new ChunkDetails();
-                completeDetail.fileName = parameters.fileName;
-                completeDetail.fileExtension = parameters.fileExtension;
-                completeDetail.uploadId = parameters.uploadId;
-                completeDetail.maxPart = String.valueOf(parameters.partNumber);
-                completeFile(completeDetail);
+        try {
+            
+            HttpRequest request = new HttpRequest();
+            request.setMethod('PUT');
+            request.setEndpoint(parameters.url);
+            request.setBodyAsBlob(parameters.body);
+            request.setHeader('Content-Type', 'application/octet-stream');
+            // request.setHeader('Date', formattedDate);
+            Http http = new Http();
+            HTTPResponse response = http.send(request);
+    
+            if (response.getStatusCode() == 200 ||response.getStatusCode() == 201) {
+                if (parameters.isLastPart) {
+                    ChunkDetails completeDetail = new ChunkDetails();
+                    completeDetail.fileName = parameters.fileName;
+                    completeDetail.fileExtension = parameters.fileExtension;
+                    completeDetail.uploadId = parameters.uploadId;
+                    completeDetail.maxPart = String.valueOf(parameters.partNumber);
+                    completeFile(completeDetail);
+                }
+            } else {
+                Response_Handler.store_Callout_Response(response, 'AwsUploader', 'subMethod');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Failure '+ response.getBody();
+                obj.Id = parameters.activity; 
+                update obj;
+                mailMessage(response.getStatusCode());
+                System.debug('Error during multipart upload: ' + response.getStatus());
             }
-        } else {
-            Response_Handler.store_Callout_Response(response, 'AwsUploader', 'subMethod');
-            mailMessage(response.getStatusCode());
-            System.debug('Error during multipart upload: ' + response.getStatus());
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'AwsUploader', 'subMethod', parameters.activity);
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Failure '+ e.getMessage();
+                obj.Id = parameters.activity; 
+                update obj;
         }
     }
 
@@ -403,57 +448,74 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
     }
 
     public static void completeFile(ChunkDetails parameters) {
-        String timestamp = DateTime.now().format('yyyyMMddHHmmss');
-        String uniqueFilename = parameters.filename.replace(' ', '%20') + '_' + timestamp + '.' + parameters.fileExtension;
-        HttpRequest reqLs = new HttpRequest();
-        reqLs.setMethod('GET');
-        reqLs.setEndpoint('callout:' + namedCredential + '/' + awsFileName + '?uploadId=' + parameters.uploadId + '&max-parts=' + parameters.maxPart + '&part-number-marker=0');
-        
-
-        Http httpLs = new Http();
-        HTTPResponse resLs = httpLs.send(reqLs);
-        String responseBody = resLs.getBody();
-
-        String etagListStr = '';
-        if (responseBody != null && responseBody.contains('UploadId')) {
-            etagListStr = responseBody.substringBetween('</IsTruncated>', '</ListPartsResult>');
-        }
-
-        Boolean tracker = true;
-        Map<String, String> eTagMap = new Map<String, String>();
-        while (tracker) {
-            String refPartString = etagListStr.substringBetween('<Part>', '</Part>');
-            if (refPartString != null && refPartString != '') {
-                eTagMap.put(refPartString.substringBetween('<PartNumber>', '</PartNumber>'), refPartString.substringBetween('<ETag>&quot;', '&quot;</ETag>'));
-                etagListStr = etagListStr.replace('<Part>' + refPartString + '</Part>', '');
-            } else {
-                tracker = false;
+        try {
+            
+            String timestamp = DateTime.now().format('yyyyMMddHHmmss');
+            String uniqueFilename = parameters.filename.replace(' ', '%20') + '_' + timestamp + '.' + parameters.fileExtension;
+            HttpRequest reqLs = new HttpRequest();
+            reqLs.setMethod('GET');
+            reqLs.setEndpoint('callout:' + namedCredential + '/' + awsFileName + '?uploadId=' + parameters.uploadId + '&max-parts=' + parameters.maxPart + '&part-number-marker=0');
+            
+    
+            Http httpLs = new Http();
+            HTTPResponse resLs = httpLs.send(reqLs);
+            String responseBody = resLs.getBody();
+    
+            String etagListStr = '';
+            if (responseBody != null && responseBody.contains('UploadId')) {
+                etagListStr = responseBody.substringBetween('</IsTruncated>', '</ListPartsResult>');
             }
-        }
-
-        HttpRequest reqCmp = new HttpRequest();
-        reqCmp.setMethod('POST');
-        reqCmp.setEndpoint('callout:' + namedCredential + '/' + awsFileName + '?uploadId=' + parameters.uploadId);
-        
-
-        String body = '<CompleteMultipartUpload>';
-        for (String i : eTagMap.keySet()) {
-            body += '<Part><PartNumber>' + i + '</PartNumber><ETag>' + eTagMap.get(i) + '</ETag></Part>';
-        }
-        body += '</CompleteMultipartUpload>';
-        reqCmp.setBody(body);
-
-        Http httpCmp = new Http();
-        HTTPResponse resCmp = httpCmp.send(reqCmp);
-
-        if (resCmp.getStatusCode() == 200 || resCmp.getStatusCode() == 201) {
-            System.debug('Multipart upload completed successfully');
-        } else {
-            Response_Handler.store_Callout_Response(resCmp, 'AwsUploader', 'completeFile');
-            mailMessage(resCmp.getStatusCode());
-            System.debug('Error completing multipart upload: ' + resCmp.getStatus());
-            System.debug('Error completing multipart upload: ' + resCmp.getBody());
-
+    
+            Boolean tracker = true;
+            Map<String, String> eTagMap = new Map<String, String>();
+            while (tracker) {
+                String refPartString = etagListStr.substringBetween('<Part>', '</Part>');
+                if (refPartString != null && refPartString != '') {
+                    eTagMap.put(refPartString.substringBetween('<PartNumber>', '</PartNumber>'), refPartString.substringBetween('<ETag>&quot;', '&quot;</ETag>'));
+                    etagListStr = etagListStr.replace('<Part>' + refPartString + '</Part>', '');
+                } else {
+                    tracker = false;
+                }
+            }
+    
+            HttpRequest reqCmp = new HttpRequest();
+            reqCmp.setMethod('POST');
+            reqCmp.setEndpoint('callout:' + namedCredential + '/' + awsFileName + '?uploadId=' + parameters.uploadId);
+            
+    
+            String body = '<CompleteMultipartUpload>';
+            for (String i : eTagMap.keySet()) {
+                body += '<Part><PartNumber>' + i + '</PartNumber><ETag>' + eTagMap.get(i) + '</ETag></Part>';
+            }
+            body += '</CompleteMultipartUpload>';
+            reqCmp.setBody(body);
+    
+            Http httpCmp = new Http();
+            HTTPResponse resCmp = httpCmp.send(reqCmp);
+    
+            if (resCmp.getStatusCode() == 200 || resCmp.getStatusCode() == 201) {
+                System.debug('Multipart upload completed successfully');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Success';
+                obj.Id = parameters.activity; 
+                update obj;
+            } else {
+                Response_Handler.store_Callout_Response(resCmp, 'AwsUploader', 'completeFile');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Failure '+ resCmp.getBody();
+                obj.Id = parameters.activity; 
+                update obj;
+                mailMessage(resCmp.getStatusCode());
+                System.debug('Error completing multipart upload: ' + resCmp.getStatus());
+                System.debug('Error completing multipart upload: ' + resCmp.getBody());
+    
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'AwsUploader', 'completeFile', parameters.activity);
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.AWS__c = 'Failure '+ e.getMessage();
+                obj.Id = parameters.activity; 
+                update obj;
         }
     }
 
@@ -474,6 +536,7 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         @AuraEnabled public String filename { get; set; }
         @AuraEnabled public String fileExtension { get; set; }
         @AuraEnabled public ContentVersion attach { get; set; }
+        @AuraEnabled public String activity { get; set; }
     }
 
     public class ChunkDetails {
@@ -487,6 +550,7 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         @AuraEnabled public Boolean isLastPart { get; set; }
         @AuraEnabled public String uploadId { get; set; }
         @AuraEnabled public String maxPart { get; set; }
+        @AuraEnabled public String activity { get; set; }
 
     }
 }

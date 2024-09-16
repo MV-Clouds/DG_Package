@@ -32,7 +32,7 @@ public with sharing class GoogleDocTemplateEditorController {
             String endpoint = 'https://www.googleapis.com/drive/v3/files';
             List<MVDG__AuthProviderSettings__c> authProvider = new List<MVDG__AuthProviderSettings__c>();
             authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
-            if (authProvider.size() == 0) {
+            if (authProvider == null || authProvider.size() == 0) {
                 return 'error';   
             }
             
@@ -114,18 +114,19 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
-    private static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
+    public static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
         try {
             
             System.debug('Refresh Access token');
             List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            // List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            // request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + settings.MVDG__ClientId__c + '&client_secret=' + settings.MVDG__ClientSecret__c + '&grant_type=refresh_token');
             request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
+            // request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             
@@ -218,7 +219,7 @@ public with sharing class GoogleDocTemplateEditorController {
         try {
             MVDG__Template__c template = (MVDG__Template__c) JSON.deserialize(templateRecord, MVDG__Template__c.class);
             if (Schema.sObjectType.MVDG__Template__c.isAccessible() && Schema.sObjectType.MVDG__Template__c.isUpdateable()) {
-                update template;
+                update as user template;
             }
         } catch (Exception e) {
             System.debug('Error In editTemplate ==> ' + e.getMessage());
@@ -236,7 +237,7 @@ public with sharing class GoogleDocTemplateEditorController {
             templateData.MVDG__Order_No_Simple__c = 1;
 
             if (Schema.sObjectType.MVDG__Template_Data__c.isAccessible() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable()) {
-                insert templateData;
+                insert as user templateData;
             }
         } catch (Exception e) {
             System.debug('Error In saveTemplateData ==> ' + e.getMessage());

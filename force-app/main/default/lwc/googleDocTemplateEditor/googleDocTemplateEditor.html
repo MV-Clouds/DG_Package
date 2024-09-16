@@ -5,11 +5,7 @@
                 <div class="tabSection_sub">
                     <div class="homeBtn" onclick={cancel}>
                         <svg viewBox="0 0 24 24">
-                            <g stroke-width="0"></g>
-                            <g stroke-linecap="round" stroke-linejoin="round"></g>
-                            <g>
-                                <path d="M21.71,11.29l-9-9a1,1,0,0,0-1.42,0l-9,9a1,1,0,0,0,1.42,1.42l.29-.3V20.3A1.77,1.77,0,0,0,5.83,22H8.5a1,1,0,0,0,1-1V16.1a1,1,0,0,1,1-1h3a1,1,0,0,1,1,1V21a1,1,0,0,0,1,1h2.67A1.77,1.77,0,0,0,20,20.3V12.41l.29.3a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,11.29Z"></path>
-                            </g>
+                            <path d="M21.71,11.29l-9-9a1,1,0,0,0-1.42,0l-9,9a1,1,0,0,0,1.42,1.42l.29-.3V20.3A1.77,1.77,0,0,0,5.83,22H8.5a1,1,0,0,0,1-1V16.1a1,1,0,0,1,1-1h3a1,1,0,0,1,1,1V21a1,1,0,0,0,1,1h2.67A1.77,1.77,0,0,0,20,20.3V12.41l.29.3a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,11.29Z"></path>
                         </svg>
                     </div>
                     <div class="tab activeT" data-name="contentTab" onclick={activeTab}>
@@ -59,7 +55,7 @@
                         preview-button-label="Preview" 
                         cancel-button-label="Close" 
                         onpreview={handlePreview} 
-                        onclose={handleClose} 
+                        onclose={cancel} 
                         template-type="Google Doc Template" 
                         onopengenchildtable={openGenChildTablePopup}>
                     </c-key-mapping-container>
@@ -72,7 +68,7 @@
                                 <div class="templateDetails">
                                     <div class="detailHeader">Template Basic Details</div>
                                     <div class="detailEditSection">
-                                        <div class="previewTwise" lwc:if={showTempDetail}>
+                                        <div class="previewTwise">
                                             <div class="previewField">
                                                 <div class="previewLabel"><abbr>*</abbr>Template Name</div>
                                                 <lightning-input type="text" value={templateRecord.MVDG__Template_Name__c} variant="label-hidden" data-name="MVDG__Template_Name__c" onkeyup={handleEditDetail} max-length="255" pattern=".*\S.*" required></lightning-input>
@@ -88,8 +84,8 @@
                                         <div class="editStatus">
                                             <span class="statusLabel">Status: </span>
                                             <div class="tempToggle">
-                                                    <input if:true={templateRecord.MVDG__Template_Status__c} class="checkBox checked" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" />
-                                                    <input if:false={templateRecord.MVDG__Template_Status__c} class="checkBox" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" checked />
+                                                <input if:true={templateRecord.MVDG__Template_Status__c} class="checkBox checked" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" />
+                                                <input if:false={templateRecord.MVDG__Template_Status__c} class="checkBox" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none" checked />
                                                 <label for={templateRecord.Id}>
                                                     <div class="toggleDiv">
                                                         <div class="toggleBtnBg">
@@ -347,9 +343,10 @@
             objectname={objectName} 
             objectlabel={objectlabel} 
             onclosepreview={closeTemplatePreview} 
-            is-active={templateRecord.MVDG__Template_Status__c}
+            is-active={previousTemplateData.MVDG__Template_Status__c}
             template-type="Google Doc Template">
         </c-template-preview-modal>
         <c-child-object-table-builder></c-child-object-table-builder>
+        <c-chat-bot></c-chat-bot>
     </div>
 </template>

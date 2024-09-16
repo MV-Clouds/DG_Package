@@ -72,45 +72,45 @@
                 }
 
                 function init() {
-                    console.log('currentUrl:', '{!$CurrentPage.URL}');
                     var currentUrl = '{!$CurrentPage.URL}';
                     console.log('currentUrl');
+                    if(currentUrl && currentUrl !== ''){
+                        Visualforce.remoting.Manager.invokeAction(
+                            '{!$RemoteAction.OneDriveSuccessController.gettoken}',
+                            currentUrl,
+                            function(result, event) {
+                                if(result == 'Success'){
+                                    if (event.status) {
+                                        console.log('this is eventstatus');
+                                        var successPanels = document.getElementsByClassName('successPanels')[0];
+                                        console.log(successPanels);
+                                        if (successPanels) {
+                                            successPanels.style.display = 'block';
+                                            console.log('successPanels');
+                                            redirectToSalesforce();
 
-                    Visualforce.remoting.Manager.invokeAction(
-                        '{!$RemoteAction.OneDriveSuccessController.gettoken}',
-                        '{!$CurrentPage.URL}',
-                        function(result, event) {
-                            if(result == 'Success'){
-                                if (event.status) {
-                                    console.log('this is eventstatus');
-                                    var successPanels = document.getElementsByClassName('successPanels')[0];
-                                    console.log(successPanels);
-                                    if (successPanels) {
-                                        successPanels.style.display = 'block';
-                                        console.log('successPanels');
-                                        redirectToSalesforce();
-
+                                        }
+                                        console.log(event.status);
+                                    } else {
+                                        var errorPanels = document.getElementsByClassName('errorPanels')[0];
+                                        if (errorPanels) {
+                                            errorPanels.style.display = 'block';
+                                            console.log('errorpanels');
+                                        }
+                                        console.error(event.message);
                                     }
-                                    console.log(event.status);
-                                } else {
+                                }
+                                else{
                                     var errorPanels = document.getElementsByClassName('errorPanels')[0];
-                                    if (errorPanels) {
-                                        errorPanels.style.display = 'block';
-                                        console.log('errorpanels');
-                                    }
-                                    console.error(event.message);
+                                        if (errorPanels) {
+                                            errorPanels.style.display = 'block';
+                                            console.log('errorpanels');
+                                        }
+                                        console.error(event.message);
                                 }
                             }
-                            else{
-                                var errorPanels = document.getElementsByClassName('errorPanels')[0];
-                                    if (errorPanels) {
-                                        errorPanels.style.display = 'block';
-                                        console.log('errorpanels');
-                                    }
-                                    console.error(event.message);
-                            }
-                        }
-                    );
+                        );
+                    }
                 }
 
                 function redirectToSalesforce() {
