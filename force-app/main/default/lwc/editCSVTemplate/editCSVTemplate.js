@@ -13,7 +13,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     // -=-=- the values we got from the Home page/new template popup -=-=-
     @api objectName;
     @api templateId;
-    @api isNew;
 
     //-=-=- to Show/hide the Spinner -=-=-
     @track showSpinner;
@@ -203,7 +202,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     get adjustedFilters() {
         return this.filters?.map((filter, index) => {
-
             this.template.querySelectorAll('.operator-select')[index]?.classList.add('dont-display-div');
             this.template.querySelectorAll('.value-select-div')[index]?.classList.add('dont-display-div');
             if(this.filters.length==1 && !filter.fieldName){
@@ -224,7 +222,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 filter.value = '';
                 this.template.querySelectorAll('.value-select-div')[index]?.classList.add('dont-display-div');
             }            
-            return {...filter,step : '0.001', maxLImit:filter.inputType === 'number' ? '19' : ['id','reference'].includes(filter.type?.toLowerCase()) ? '18' : filter.type?.toLowerCase() === 'phone' ? '40' : '255', displayIndex: index + 1, isPicklist: ['PICKLIST' , 'MULTIPICKLIST' , 'BOOLEAN'].includes(filter.type) , isMultiple: filter.operator == 'IN' || filter.operator == 'notIN' || filter.type =='MULTIPICKLIST'};
+            return {...filter,step : '0.0001', maxLImit:filter.inputType === 'number' ? '19' : ['id','reference'].includes(filter.type?.toLowerCase()) ? '18' : filter.type?.toLowerCase() === 'phone' ? '40' : '255', displayIndex: index + 1, isPicklist: ['PICKLIST' , 'MULTIPICKLIST' , 'BOOLEAN'].includes(filter.type) , isMultiple: filter.operator == 'IN' || filter.operator == 'notIN' || filter.type =='MULTIPICKLIST'};
         });
     }
 
@@ -270,6 +268,14 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 border-radius: 0.43rem;
                                 border: 1px solid var(--slds-c-input-color-border);
                                 box-shadow: none;
+                            }
+
+                            .basic-detail-div .slds-input:not(c-custom-combobox .slds-input):focus, .limit-div .slds-input:not(c-custom-combobox .slds-input):focus{
+                                border: 1px solid #00aeff;
+                            }
+
+                            .override-css-from-js .slds-input[disabled]{
+                                border: none !important;
                             }
 
                             .override-css-from-js .slds-textarea{
@@ -392,6 +398,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     combinedData.template ? this.setupTemplateDetails(combinedData.template) : undefined;
                     combinedData.templateData ? this.setupTemplateDataDetails(combinedData.templateData) : undefined;
                     combinedData.listViews ? this.setUpListViews(combinedData.listViews) : undefined;
+                    this.showListViewPopup = !this.selectedFields?.length>0 && this.allListViews?.length>0 ?  true : false;
                 }else{
                     this.showWarningPopup('error','Something went wrong!', 'Couldn\'t fetch the required data for this template, please try again...');
                     this.isClose = true;
@@ -435,8 +442,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     
     setUpListViews(data) {
         try {
-            this.allListViews = data.map(listView => ({ label: listView.Name, value: listView.Id }));
-            this.showListViewPopup = this.isNew && this.allListViews.length>0 ?  true : false;
+            this.allListViews = data.map(listView => ({ label: listView.Name, value: listView.Id }));  
         }catch(e) {
             this.showSpinner = false;
             this.showToast('error', 'Something went wrong!', 'Error setting up list views.', 5000);
@@ -458,12 +464,15 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                         if(!obj.label.includes('>')){
                             this.selectedRelatedObject = obj.name;
                         }
-                        obj.fieldMappings = obj.fieldMappings.map(({ isFormatReq, label, name, type, key, ...rest }) => {
+                        obj.fieldMappings = obj.fieldMappings.map(({ label, name, type, isSearchable, picklistValues}) => {
                             const thisField ={
-                                ...rest,
                                 fieldType: type,
                                 apiName: name,
-                                fieldName: obj.label.includes('>') ? obj.label.split(' > ')[1] + ' > ' + label : label
+                                fieldName: obj.label.includes('>') ? obj.label.split(' > ')[1] + ' > ' + label : label,
+                                isSearchable : isSearchable,
+                            }
+                            if(picklistValues){
+                                thisField.picklistValues = picklistValues;
                             }
                             allFieldsForThisObject.push(thisField);
                             return thisField;
@@ -861,7 +870,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 // -=-=- To remove clicked filter from the filters list -=-=-
     removeFilter(event){
         try {
-            const index = event.target.dataset.index;
+            const index = event?.target?.dataset?.index;
             if(this.filters.length >1){
                 this.filters.splice(index, 1);
             }else if(this.filters.length ==1){
@@ -917,9 +926,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             let selectedSortFields = [];
             const ascBtn = this.template.querySelectorAll('.asc-btn')[index];
             const descBtn = this.template.querySelectorAll('.desc-btn')[index];
-            for(let sort of this.sorts){
-                selectedSortFields.push(sort.field);
-            }
+            this.sorts.forEach(item => {
+                selectedSortFields.push(item.field);
+            })
             if(!event.detail[0]){
                 this.sorts[index].field = '';
                 this.sorts[index].order = '';
@@ -1008,6 +1017,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }else{
                 this.template.querySelectorAll('.filter-field-select')[index].classList.add('error-in-custom-combobox');
                 this.filters[index].fieldName = null;
+                this.filters[index].type = '';
                 this.filters[index].value = '';
                 this.filters[index].operators = '';
             }
@@ -1170,9 +1180,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 if(fieldType == 'picklist' || fieldType == 'multipicklist'){
     
                     filter.inputType = [];
-                    for(let option of this.allRetrievedFields.filter((item) => item.apiName==filter.fieldName)[0].picklistValues){
+                    this.allRetrievedFields.filter((item) => item.apiName==filter.fieldName)[0].picklistValues.forEach(option => {
                         filter.inputType.push({label:option, value:option});
-                    }
+                    })
                 }else if(fieldType == 'boolean'){
                     filter.inputType = [
                         {label: 'TRUE', value: 'true'},
@@ -1257,7 +1267,8 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 }
                 const numbers = this.customLogicString.match(regex);
                 if(numbers){
-                    for (const num of numbers) {
+                    for (let i = 0; i < numbers.length; i++) {
+                        const num = numbers[i];
                         if (num > this.filters.length || num < 1) {
                             logicStringInput.classList.add('error-in-input');
                             errorString.innerText ='Um, Filter-'+ num + ' does not exist!';
@@ -1278,6 +1289,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     validateCustomLogic(){
         try{
+            this.isCustomLogicValid = this.validateOnEachCharacter();
             const logicStringInput = this.template.querySelector('.logic-string-input');
             const errorString =  this.template.querySelector('.error-text');
             logicStringInput.classList.remove('error-in-input');
@@ -1291,7 +1303,8 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             const regex = /\d+/g;
             const numbers = this.customLogicString.match(regex);
             if(numbers){
-                for (const num of numbers) {
+                for (let i=0; i<numbers.length ; i++) {
+                    let num = numbers[i];
                     if (num > this.filters.length  || num <1) {
                         this.isCustomLogicValid = false;
                         this.showErrorMessage('Um, Filter-'+ num + ' does not exist!');
@@ -1346,6 +1359,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.showErrorMessage('Try these patterns : "1 OR 2"');
                     return;
                 }else if(logicString.length == 1 && logicString == 'N'){
+                    null;
                 }else if(logicString.length == 3){
                     if(!((logicString[0]== '(' && logicString[1]=='N' && logicString[2]==')') || (logicString[0]== 'N' && (logicString[1]=='&' || logicString[1]=='|')  && logicString[2]=='N'))){
                         this.isCustomLogicValid = false;
@@ -1362,6 +1376,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                         for(let i=0; i<logicString.length-1; i++){
                             if(logicString[i] == '('){
                                 if(logicString[i+1] == '('){
+                                    null;
                                 }else if(logicString[i+1] == 'N'){
                                     if(!(logicString[i+2] == '&' || logicString[i+2] == '|')){
                                         this.isCustomLogicValid = false;
@@ -1383,6 +1398,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 
                             }else if(logicString[i] == '&'){
                                 if(logicString[i+1] == '('){
+                                    null;
                                 }else if(logicString[i+1] == 'N' ){
                                     if(!(logicString.length == i+2 || (logicString[i+2] == '&' || logicString[i+2] == ')'))){
                                         this.isCustomLogicValid = false;
@@ -1397,6 +1413,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 
                             }else if(logicString[i] == '|'){
                                 if(logicString[i+1] == '('){
+                                    null;
                                 }else if(logicString[i+1] == 'N'){
                                     if(!(logicString.length == i+2 || logicString[i+2] == '|' || logicString[i+2] == ')')){
                                         this.isCustomLogicValid = false;
@@ -1464,6 +1481,18 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         }
     }
 
+    handleLimitInputBlur(){
+        try {
+            this.limit = Math.ceil(this.limit);
+            const limitInput = this.template.querySelector('.input-limit');
+            let maxLimit = this.isChild ? this.childMaxLimit : 1000000;
+            limitInput.classList.remove('slds-has-error');
+            limitInput.classList.toggle('error-in-input', this.limit < 1 || this.limit > maxLimit);
+        } catch (e) {
+            errorDebugger('editCSVTemplate', 'handleLimitInputBlur', e, 'warn');
+        }
+    }
+
     handleLimitToggleChange(event){
         try{
             this.showLimitInput = event.target.checked;
@@ -1490,22 +1519,18 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             this.separatedData.fields = selectedApiNames.join(',');
 
             if (this.sorts.length > 0) {
-                this.separatedData.orders =  this.sorts.map((sort) => {
-                    if (sort.field && sort.order) {
-                        const sortParts = [sort.field, sort.order];
-                        return sortParts.join('<|IDG|>'); // Join sort values with separator
-                    }
+                this.separatedData.orders =  this.sorts.filter(sort => sort.field && sort.order).map((sort) => {
+                    const sortParts = [sort.field, sort.order];
+                    return sortParts.join('<|IDG|>'); // Join sort values with separator
                 }).join('<|SDG|>'); // Join individual Sorts with separator
             }
 
             if (this.filters.length > 0) {
-                this.separatedData.filters =  this.filters.map((filter) => {
-                    if (filter.fieldName && filter.operator && filter.value && filter.type) {
-                        typeof filter.value === 'object' ? filter.value = filter.value.join('<|CS|>') : undefined;
-                        const filterParts = [filter.fieldName, filter.operator, filter.value, filter.type];
-                        filter.value.includes('<|CS|>') ? filter.value= filter.value.split('<|CS|>') : undefined;
-                        return filterParts.join('<|IDG|>'); // Join filter values with separator
-                    }
+                this.separatedData.filters =  this.filters.filter((filter) => filter.fieldName && filter.operator && filter.value && filter.type).map((filter) => {
+                    typeof filter.value === 'object' ? filter.value = filter.value.join('<|CS|>') : undefined;
+                    const filterParts = [filter.fieldName, filter.operator, filter.value, filter.type];
+                    filter.value.includes('<|CS|>') ? filter.value= filter.value.split('<|CS|>') : undefined;
+                    return filterParts.join('<|IDG|>'); // Join filter values with separator
                 }).join('<|FDG|>'); // Join individual filters with separator
             }
 
@@ -1535,7 +1560,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                         seenApiNames[preSelectedApiNames[i].trim()] = i;
                     }
                     this.selectedFields = this.allRetrievedFields.filter(field =>
-                        seenApiNames.hasOwnProperty(field.apiName)
+                        Object.prototype.hasOwnProperty.call(seenApiNames, field.apiName)
                     ).sort((field1, field2) => seenApiNames[field1.apiName] - seenApiNames[field2.apiName]);
                     this.existingFields = [...this.selectedFields];
                 }
@@ -1675,11 +1700,11 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     }else if(filter.value.toUpperCase() === 'CURRENT_USER'){
                         condition = filter.fieldName + ' ' + filter.operator + ' \'' + filter.value.toUpperCase() + '\'  ';
                     }else if(filter.operator == 'IN'){
-                        let newValue = filter.value.split(',').map(item => item.trim());
+                        let newValue = filter.type.toUpperCase() == 'PICKLIST' ? filter.value.split('<|CS|>').map(item => item.trim()) : filter.value.split(',').map(item => item.trim());
                         newValue = "'" + newValue?.join("','") + "'";
                         condition =  filter.fieldName +' IN (' + newValue + ') ';
                     }else if(filter.operator == 'notIN'){
-                        let newValue = filter.value.split(',').map(item => item.trim());
+                        let newValue = filter.type.toUpperCase() == 'PICKLIST' ? filter.value.split('<|CS|>').map(item => item.trim()) : filter.value.split(',').map(item => item.trim());
                         newValue = "'" + newValue?.join("','") + "'";
                         condition =  filter.fieldName +' NOT IN (' + newValue + ') ';
                     }else{
@@ -1701,11 +1726,11 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }
     
             let orderBy = [];
-            for(let sort of this.sorts){
+            this.sorts.forEach(sort =>{
                 if(sort.field && sort.order){
                     orderBy.push(sort.field +' '+ sort.order);
                 }
-            }
+            })
             if(orderBy.length >0){
                 this.generatedQuery += ' ORDER BY '+  orderBy?.join(', ');
             }
@@ -1856,20 +1881,26 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 }
                 else{
                     saveTemplateFields({configData : {templateId: this.templateId , query: this.generatedQuery ,...this.separatedData}})
-                    .then(()=>{
-                        this.existingFields = JSON.parse(JSON.stringify(this.selectedFields));
-                        this.existingFilters = JSON.parse(JSON.stringify(this.filters));
-                        this.existingSorts = JSON.parse(JSON.stringify(this.sorts));
-                        this.existingLogic = this.selectedLogic;
-                        this.existingShowLimitInput = this.showLimitInput;
-                        this.existingLimit = this.limit;
-                        this.existingCustomLogicString = this.customLogicString;
-                        this.isEditTabChanged = false;
-                        if(isPreview){
-                            this.showSpinner = false;
-                            this.showPreview = true;
+                    .then((result)=>{
+                        if(result === 'success'){
+                            this.existingFields = JSON.parse(JSON.stringify(this.selectedFields));
+                            this.existingFilters = JSON.parse(JSON.stringify(this.filters));
+                            this.existingSorts = JSON.parse(JSON.stringify(this.sorts));
+                            this.existingLogic = this.selectedLogic;
+                            this.existingShowLimitInput = this.showLimitInput;
+                            this.existingLimit = this.limit;
+                            this.existingCustomLogicString = this.customLogicString;
+                            this.isEditTabChanged = false;
+                            if(isPreview){
+                                this.showSpinner = false;
+                                this.showPreview = true;
+                            }else{
+                                this.showToast('success', 'Action Performed!', 'The template fields were saved successfully', 5000);
+                            }
                         }else{
-                            this.showToast('success', 'Yay! Everything worked!', 'The template fields were saved successfully', 5000);
+                            errorDebugger('editCSVTemplate', 'validateData > saveTemplateFields > failure', result, 'warn');
+                            const eMessage = this.selectedFields ? 'Something went wrong, Please try again!!' : 'Please Select at least one field!';
+                            this.showToast('error', 'Oops! Something went wrong', eMessage, 5000);
                         }
                     })
                     .catch(e=> {
@@ -2027,16 +2058,17 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.filters = JSON.parse(JSON.stringify(this.existingFilters));
                 for(let i = 0; i < this.filters.length ; i++){
                     this.updateOperatorOptions(i);
-                    this.template.querySelectorAll('.filter-field-select')[i].classList.toggle('error-in-custom-combobox', !this.filters[i].fieldName);
-                    this.template.querySelectorAll('.operator-select')[i].classList.toggle('error-in-custom-combobox', this.filters[i].fieldName && !this.filters[i].operator);
-                    this.template.querySelectorAll('.value-select-div')[i].classList.toggle('error-in-value-input', this.filters[i].fieldName && this.filters[i].operator && !this.filters[i].value);
+                    this.template.querySelectorAll('.filter-field-select')[i]?.classList.toggle('error-in-custom-combobox', !this.filters[i].fieldName);
+                    this.template.querySelectorAll('.operator-select')[i]?.classList.toggle('error-in-custom-combobox', this.filters[i].fieldName && !this.filters[i].operator);
+                    this.template.querySelectorAll('.value-select-div')[i]?.classList.toggle('error-in-value-input', this.filters[i].fieldName && this.filters[i].operator && !this.filters[i].value);
                 }
                 this.filtersCount = this.filters.length;
                 this.initialFilters = true;
                 this.selectedLogic = this.existingLogic;
-                this.template.querySelector('.logic-select').classList.remove('error-in-custom-combobox');
                 this.isCustomLogic = this.selectedLogic=='Custom' ? true : false;
                 this.customLogicString = this.existingCustomLogicString;
+                this.isCustomLogicValid = this.validateOnEachCharacter();
+                this.template.querySelector('.logic-select')?.classList.remove('error-in-custom-combobox');
             }else if(this.resetSection === "orders"){
                 this.sorts = JSON.parse(JSON.stringify(this.existingSorts));
                 this.sortsCount = this.sorts.length;
@@ -2045,7 +2077,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.limit = this.existingLimit;
                 this.showLimitInput = this.existingShowLimitInput;
             }
-    
             this.resetSection = '';
             this.isEditTabChanged = true;
         }catch(e){
@@ -2065,7 +2096,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     }
     handleTemplateNameChange(event){
         try{
-            this.newTemplateData.MVDG__Template_Name__c = event.target.value;
+            this.newTemplateData.MVDG__Template_Name__c = event.target.value.trim();
             this.isBasicTabChanged = true;
         }catch(e){
             errorDebugger('editCSVTemplate', 'handleTemplateNameChange', e, 'warn');
@@ -2079,7 +2110,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleListViewChange(event){
         try{
-            if(this.isNew && !this.showBasicDetailTab){
+            if(!this.showBasicDetailTab && !this.isBasicTabChanged){
                 this.selectedListView = event.currentTarget.dataset.value;
                 this.newTemplateData.MVDG__List_View__c = this.selectedListView;
                 this.existingTemplateData.MVDG__List_View__c = this.selectedListView;
@@ -2159,12 +2190,17 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     listView : this.selectedListView
                 }
                 updateTemplate({templateInfo : templateData})
-                .then(() => {
-                    this.existingTemplateData.MVDG__Template_Name__c = this.newTemplateData.MVDG__Template_Name__c;
-                    this.existingTemplateData.MVDG__Template_Status__c = this.newTemplateData.MVDG__Template_Status__c;
-                    this.existingTemplateData.MVDG__Description__c = this.newTemplateData.MVDG__Description__c;
-                    this.existingTemplateData.MVDG__List_View__c = this.selectedListView;
-                    this.isBasicTabChanged = false;
+                .then((result) => {
+                    if(result === 'success'){
+                        this.existingTemplateData.MVDG__Template_Name__c = this.newTemplateData.MVDG__Template_Name__c;
+                        this.existingTemplateData.MVDG__Template_Status__c = this.newTemplateData.MVDG__Template_Status__c;
+                        this.existingTemplateData.MVDG__Description__c = this.newTemplateData.MVDG__Description__c;
+                        this.existingTemplateData.MVDG__List_View__c = this.selectedListView;
+                        this.isBasicTabChanged = false;
+                    }else{
+                        errorDebugger('editCSVTemplate', 'handleUpdateTemplate > updateTemplate > failure', result, 'warn');
+                        this.showToast('error', 'Oops! Couldn\'t save changes!' , 'Please try updating the data again...', 5000);
+                    }
                 })
                 .catch((e)=>{
                     errorDebugger('editCSVTemplate', 'handleUpdateTemplate > updateTemplate', e, 'warn');
@@ -2173,7 +2209,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 .finally(()=>{
                     if(!this.selectedListView || !this.isListViewUpdated){
                         this.showSpinner = false;
-                        this.showToast('success', 'Everything worked!', 'The Template Details are updated successfully!', 5000);
+                        this.showToast('success', 'Action Performed!', 'The Template Details are updated successfully!', 5000);
                         this.isBasicTabChanged = false;
                     }
                 })
@@ -2191,7 +2227,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         let allConditions = [];
         try{
             this.selectedLogic = 'AND';
-            for (const condition of conditions) {
+            conditions.forEach(condition =>{
                 const currentCondition = {
                     fieldName: condition.field || "",
                     operator: "",
@@ -2200,7 +2236,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     inputType: "",
                     operators: [],
                 };
-                if (condition.hasOwnProperty('conditions')) {
+                if (Object.prototype.hasOwnProperty.call(condition, "conditions")) {
                     allConditions = allConditions.concat(this.getAllConditions(condition.conditions));
                 } else {
                     let value = condition.values[0];
@@ -2224,7 +2260,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     currentCondition.type = this.fieldOptions.filter(option => option.apiName == condition.field)[0]?.fieldType
                     allConditions.push(currentCondition);
                 }
-            }
+            })
         }catch(e){
             errorDebugger('editCSVTemplate', 'getAllConditions', e, 'warn');
         }
@@ -2258,7 +2294,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     headers: myHeaders,
                     redirect: "follow"
                     };
-                    let domainURL = window.location.origin;
+                    let domainURL = location?.origin;
+                    if(!domainURL){
+                        this.showToast('error', 'Something went wrong!', 'Some error occurred!, please try again.', 5000);
+                    }
                     domainURL = domainURL.replace('lightning.force.com', 'my.salesforce.com');
             
                     fetch(encodeURI(domainURL + queryURL), requestOptions)
@@ -2357,6 +2396,11 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
                         this.existingFilters = JSON.parse(JSON.stringify(this.filters));
                         this.existingSorts = JSON.parse(JSON.stringify(this.sorts));
+
+                        this.showLimitInput = false;
+                        this.limit = 1000000;
+                        this.existingShowLimitInput = false;
+                        this.existingLimit = 1000000;
         
                         this.setSelectionFields();
                         //To Save Template just after proceeding with list view
@@ -2375,10 +2419,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         }catch(e){
             errorDebugger('editCSVTemplate', 'handleListView', e, 'warn');
         }
-    }
-
-    handleObjectChange(event){
-        this.objectName = event.detail[0];
     }
 
     showToast(status, title, message, duration){

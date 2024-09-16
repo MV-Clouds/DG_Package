@@ -82,11 +82,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
         List<String> objects = new List<String>();
         if(allObjects.size() > 0){
             for (Map<String,String> ow : allObjects) {
-                // List<String> actionButtonsList = new List<String>();
-                // actionButtonsList.add(ow.get('value')+ '.DG_Generate_Document');
-                // if(QuickAction.DescribeQuickActions(actionButtonsList).size() > 0) {
-                //     objects.add(ow.get('value'));
-                // }
                 List<QuickAction.DescribeAvailableQuickActionResult> result1 = QuickAction.DescribeAvailableQuickActions(ow.get('value'));  
                 for(QuickAction.DescribeAvailableQuickActionResult action : result1){
                     if(action.getType() == 'LightningWebComponent' && action.getName().contains('.DG_Generate_Document')){
@@ -133,7 +128,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getAllObjects');
             system.debug('exception in getAllObjects : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
-            // throw new AuraHandledException(e.getMessage());
             return null;
         }
     }
@@ -141,17 +135,20 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
 /*
 *********************************************************
 @description     : Method is used to create a list view button 
-@param           : buttonData - {Map<String, Object>} - button data
+@param           : objects - {List<String>} - name of objects
+@param           : buttonData - {Map<String, String>} - button data
 @return          : none
 ********************************************************
 */
     @AuraEnabled
-    public static void createListViewButtons(List<String> objects,Map<String, String> buttonData){
+    public static String createListViewButtons(List<String> objects,Map<String, String> buttonData){
         try {
             System.debug('buttonData :' + buttonData+ 'Objects ::' + objects);
             String buttonName = buttonData.get('buttonName');
             String buttonEndURL = buttonData.get('buttonEndURL');
             String buttonLabel = buttonData.get('buttonLabel');
+            Integer batchSize = 10;
+            Integer totalSize = objects.size();
 
             MetadataService.MetadataPort service = new MetadataService.MetadataPort();
             if (!Test.isRunningTest()) {   
@@ -159,7 +156,8 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
                 service.SessionHeader.sessionId = Page.UserSessionIdPage.getContent().toString();
             }
             List<MetadataService.Metadata> webLinks = new List<MetadataService.Metadata>();
-            for (String obj: objects) {
+            for (Integer i = 0; i < totalSize; i++) {
+                String obj = objects[i];
                 String buttonURL = '/lightning/cmp/MVDG__generateDocument?c__objectApiName='+ obj +  buttonEndURL;
                 String displayType = 'massActionButton';
                 if(buttonName == 'DG_Basic_Print'){
@@ -184,28 +182,22 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
                     webLink.RequireRowSelection = true;
                 }
                 webLinks.add(weblink);
-            }
-            Integer batchSize = 10;
-            Integer totalSize = webLinks.size();
-            List<MetadataService.Metadata> chunk = new List<MetadataService.Metadata>();
-            
-            for (Integer i = 0; i < totalSize; i++) {
-                chunk.add(webLinks[i]);
                 
-                if (chunk.size() == batchSize || i == totalSize - 1) {
-                    // Process the chunk
-                    Boolean isSuccess = addButtons(chunk);
+                if (webLinks.size() == batchSize || i == totalSize - 1) {
+                    // Process the 10 webLinks
+                    Boolean isSuccess = addButtons(webLinks);
                     if(!isSuccess && !Test.isRunningTest()){
                         throw new AuraHandledException('Error Creating Button.');
                     }
-                    // Clear the chunk list for the next batch
-                    chunk.clear();
+                    // Clear the webLinks list for the next batch
+                    webLinks.clear();
                 }
             }
+            return 'success';
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'createListViewButtons');
             system.debug('exception in createListViewButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
-            throw new AuraHandledException('Error Creating Button.');
+            Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'createListViewButtons');
+            return e.getMessage();
         }
     }
     

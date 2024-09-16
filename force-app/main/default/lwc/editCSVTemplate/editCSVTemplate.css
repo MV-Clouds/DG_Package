@@ -64,6 +64,10 @@
     margin-bottom: 2px;
 }
 
+.checkBox{
+    display: none;
+}
+
 .checkBox:checked + label .toggleBtnBg::before{
     transform: translateX(-100%);
     left: 100% !important;
@@ -154,6 +158,10 @@
     transition: all linear 0.2s;
 }
 
+.template-default-tab-svg{
+    scale: 1.3;
+}
+
 .tab:hover{
     color: black;
     background: linear-gradient(0deg, #00aeff27 0%, transparent 117%);
@@ -235,9 +243,6 @@
 .main-config-div{
     width: 60%;
     height: 100%;
-    overflow-y: scroll;
-    scrollbar-color: #00aeff transparent;
-    scrollbar-width: thin;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -975,6 +980,10 @@ button:hover{
     flex-grow: 1;
 }
 
+.object-select{
+    --dropDownWidth : fit-content;
+}
+
 .field-select{
     --dropDownWidth : 15rem !important;
 }
@@ -1020,6 +1029,10 @@ c-generate-document{
     --border-color-of-main-container : #00aeff; */
     display: flex;
     height: 100%;
+}
+
+c-document-loader{
+    --docTop:0;
 }
 
 @media only screen and (min-width: 48rem) and (max-width: 64rem) {

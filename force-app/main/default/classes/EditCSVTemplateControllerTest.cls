@@ -60,6 +60,8 @@ public class EditCSVTemplateControllerTest {
 
         Test.startTest();
         EditCSVTemplateController.saveTemplateFields(testTemplateData);
+        testTemplateData.put('templateId', 'arg1');
+        EditCSVTemplateController.saveTemplateFields(testTemplateData);
         Test.stopTest();
 
         System.assertEquals(1, [SELECT COUNT() FROM MVDG__Template_Data__c], 'template data may not be more than one for csv template.');
@@ -72,6 +74,8 @@ public class EditCSVTemplateControllerTest {
 
         Map<String, String> tempInfo = new Map<String, String>{'templateDescription' => 'test','templateName' => 'Test Name Updated','templateId' => testT.Id,'templateStatus' => 'true'};
         Test.startTest();
+        EditCSVTemplateController.updateTemplate(tempInfo);
+        tempInfo.put('templateId', 'arg1');
         EditCSVTemplateController.updateTemplate(tempInfo);
         Test.stopTest();
 

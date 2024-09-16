@@ -19,7 +19,7 @@ public with sharing class PreviewCSVController {
             if(queryData.size() > 0){
                 String query = queryData[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
                 if(Integer.valueOf(query.substringAfterLast('LIMIT ')) > 25){
-                    query = queryData[0].MVDG__CSV_Query__c.substringBeforeLast('LIMIT') + ' LIMIT 25';
+                    query = query.substringBeforeLast('LIMIT') + ' LIMIT 25';
                 }
                 previewRecords = Database.query(query);
                 listOfPDW.records = previewRecords;

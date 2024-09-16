@@ -471,6 +471,7 @@ svg:not(.bottom-btn svg){
 
 .email-create-div {
     /* background-color: white; */
+    display: none;
     padding: 1rem;
     margin: 0.5rem 0;
     border-radius: 0.5rem;
@@ -1071,6 +1072,10 @@ c-template-preview-modal {
     height: calc(100% - 10rem);
     margin: 0.5rem 1rem;
     overflow: auto;
+}
+
+c-document-loader{
+    --docTop:0;
 }
 
 

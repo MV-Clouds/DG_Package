@@ -117,7 +117,7 @@ public with sharing class EditCSVTemplateController {
     ********************************************************
     */
     @AuraEnabled
-    public static void saveTemplateFields(Map<String,String> configData){
+    public static String saveTemplateFields(Map<String,String> configData){
         try {
             List<MVDG__Template_Data__c> existingData = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:configData.get('templateId') WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
 
@@ -128,7 +128,7 @@ public with sharing class EditCSVTemplateController {
             if(!Schema.sObjectType.MVDG__Template__c.isUpdateable()){
                 throw new AuraHandledException('You can not update the object Template.');
             }
-            update template;
+            update as User template;
 
             MVDG__Template_Data__c td = new MVDG__Template_Data__c();
             td.MVDG__Template__c = configData.get('templateId');
@@ -145,11 +145,12 @@ public with sharing class EditCSVTemplateController {
             }
 
             if(Schema.sObjectType.MVDG__Template_Data__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable()){
-                upsert td;
+                upsert as User td;
             }
+            return 'success';
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'saveTemplateFields');
-            throw new AuraHandledException(e.getMessage());
+            return e.getMessage();
         }
     }
 
@@ -161,7 +162,7 @@ public with sharing class EditCSVTemplateController {
     ********************************************************
     */
     @AuraEnabled
-    public static void updateTemplate(Map<String, String> templateInfo){
+    public static String updateTemplate(Map<String, String> templateInfo){
         try{
             MVDG__Template__c updatedTemplate = new MVDG__Template__c(
                 Id = templateInfo.get('templateId'),
@@ -173,10 +174,11 @@ public with sharing class EditCSVTemplateController {
             if(!Schema.sObjectType.MVDG__Template__c.isUpdateable()){
                 throw new AuraHandledException('you can not update the template object.');
             }
-            update updatedTemplate;
+            update as User updatedTemplate;
+            return 'success';
         }catch(Exception e){
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'updateTemplate');
-            throw new AuraHandledException(e.getMessage());
+            return e.getMessage();
         }
     }
 
