@@ -1,19 +1,25 @@
 global class PostInstallationScript implements InstallHandler{
     global void onInstall(InstallContext context) {
-        List<String> objects = new List<String>();
-        List<String> notAllowedObjects = new List<String>{'history', 'tag', 'share', 'feed', 'group', 'public', 'group','CollaborationGroup', 'LocationGroup', 'WorkType', 'WorkTypeGroup', 'WorkTypeGroupMember', 'public', ' badge', 'WorkBadge', 'WorkBadgeDefinition', 'GeolocationBasedAction', 'Idea', 'SchedulingWorkspace', 'SchedulingWorkspaceTerritory', 'Solution', 'WorkCapacityLimit', 'WorkCapacityUsage', 'WorkCapacityAvailability', 'ProductWarrantyTerm', 'ListEmail'};
-
-        for ( Schema.SObjectType o : Schema.getGlobalDescribe().values() )
-        {
-            Schema.DescribeSObjectResult objResult = o.getDescribe();
-            if(!notAllowedObjects.contains(objResult.getName()) && !objResult.isCustomSetting() && objResult.isCreateable() && objResult.getRecordTypeInfos().size() > 0 && objResult.isSearchable() && objResult.isQueryable() && objResult.isMruEnabled()){
-                objects.add(objResult.getName());
+        try {
+            
+            List<String> objects = new List<String>();
+            List<String> notAllowedObjects = new List<String>{'history', 'tag', 'share', 'feed', 'group', 'public', 'group','CollaborationGroup', 'LocationGroup', 'WorkType', 'WorkTypeGroup', 'WorkTypeGroupMember', 'public', ' badge', 'WorkBadge', 'WorkBadgeDefinition', 'GeolocationBasedAction', 'Idea', 'SchedulingWorkspace', 'SchedulingWorkspaceTerritory', 'Solution', 'WorkCapacityLimit', 'WorkCapacityUsage', 'WorkCapacityAvailability', 'ProductWarrantyTerm', 'ListEmail'};
+            
+            for ( Schema.SObjectType o : Schema.getGlobalDescribe().values() )
+            {
+                Schema.DescribeSObjectResult objResult = o.getDescribe();
+                if(!notAllowedObjects.contains(objResult.getName()) && !objResult.isCustomSetting() && objResult.isCreateable() && objResult.getRecordTypeInfos().size() > 0 && objResult.isSearchable() && objResult.isQueryable() && objResult.isMruEnabled()){
+                    objects.add(objResult.getName());
+                }
             }
+            Map<String,String> buttonData = new Map<String,String>();
+            buttonData.put('buttonName', 'DG_Basic_Print');
+            buttonData.put('buttonLabel', 'DG Basic Print');
+            createListViewButtons(objects, buttonData);
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'PostInstallationScript', 'onInstall');
+            System.debug('Exception in onInstall==>' + e.getMessage());
         }
-        Map<String,String> buttonData = new Map<String,String>();
-        buttonData.put('buttonName', 'DG_Basic_Print');
-        buttonData.put('buttonLabel', 'DG Basic Print');
-        createListViewButtons(objects, buttonData);
     }
 
     public static void createListViewButtons(List<String> objects,Map<String, String> buttonData){
@@ -66,16 +72,15 @@ global class PostInstallationScript implements InstallHandler{
                     // Process the chunk
                     Boolean isSuccess = addButtons(chunk);
                     if(!isSuccess && !Test.isRunningTest()){
-                        throw new AuraHandledException('Error Creating Button.');
+                        return;
                     }
                     // Clear the chunk list for the next batch
                     chunk.clear();
                 }
             }
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'createListViewButtons');
+            Log_Handler.store_Exception(e, 'PostInstallationScript', 'createListViewButtons');
             system.debug('exception in createListViewButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
-            throw new AuraHandledException('Error Creating Button.');
         }
     }
 
@@ -96,7 +101,7 @@ global class PostInstallationScript implements InstallHandler{
             }
             return true;
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'addButtons');
+            Log_Handler.store_Exception(e, 'PostInstallationScript', 'addButtons');
             system.debug('exception in addButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return false;
         }
