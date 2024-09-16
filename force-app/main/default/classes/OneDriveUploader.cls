@@ -1,113 +1,164 @@
-global with sharing class OneDriveUploader {
+global with sharing class OneDriveUploader implements Database.Batchable < SObject > , Database.AllowsCallouts {
     global string contentVersionId;
     global static string oneDriveAccessToken;
     global static string fullFileName;
+    global string activity;
 
-    public static String getToken(){
-        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
-        // System.debug('generating new token');
-        HttpRequest request = new HttpRequest();
-        request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
-        request.setMethod('POST');
-        request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + settings.MVDG__refresh_token1__c +
-            '&client_id=' + settings.MVDG__ClientId__c +
-            '&client_secret=' + settings.MVDG__ClientSecret__c +
-            '&grant_type=refresh_token');
-        Http http1 = new Http();
-        HttpResponse response1 = http1.send(request);
-        Map < String, String > result1 = new Map < String, String > ();
-        // System.debug('api call for generating token-->' + response1.getStatusCode());
-        // System.debug(response1.getBody());
-        if (response1.getStatusCode() == 200) {
-            Map < String, Object > jsonResponse = (Map < String, Object > ) JSON.deserializeUntyped(response1.getBody());
-            String newtoken = (String) jsonResponse.get('access_token');
-            // System.debug(newtoken);
-            return newtoken;
+    //Generating New Access Token for each upload
+    public static String getToken(String activity){
+        try {
+            MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
+            HttpRequest request = new HttpRequest();
+            request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
+            request.setMethod('POST');
+            request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+            request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + settings.MVDG__refresh_token1__c +
+                '&client_id=' + settings.MVDG__ClientId__c +
+                '&client_secret=' + settings.MVDG__ClientSecret__c +
+                '&grant_type=refresh_token');
+            Http http1 = new Http();
+            HttpResponse response1 = http1.send(request);
+            Map < String, String > result1 = new Map < String, String > ();
+            if (response1.getStatusCode() == 200) {
+                Map < String, Object > jsonResponse = (Map < String, Object > ) JSON.deserializeUntyped(response1.getBody());
+                String newtoken = (String) jsonResponse.get('access_token');
+                return newtoken;
+            }
+            else {
+                Response_Handler.store_Callout_Response(response1, 'OneDriveUploader', 'getToken');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure '+ response1.getStatusCode() + response1.getBody();
+                obj.Id = activity; 
+                update obj;
+                mailMessage(response1.getStatusCode());
+                return null;
+            }
+        }catch(Exception e){
+            Log_Handler.store_Exception(e, 'OneDriveUploader', 'getToken', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
+                return null;
         }
-        else {
-            Response_Handler.store_Callout_Response(response1, 'OneDriveUploader', 'getToken');
-            mailMessage(response1.getStatusCode());
-            System.debug('No token generated');
+    }
+
+    global OneDriveUploader(Id cvid, Id activityId) {
+        System.debug(activity);
+        this.contentVersionId = cvid;
+        this.activity = activityId;  //activity will be used to send mail
+    }
+
+
+    global Database.QueryLocator start(Database.BatchableContext bC) {
+        try {
+            if(contentVersionId != null){
+                return Database.getQueryLocator([
+                    SELECT Id, VersionData, Title, ContentSize, FileExtension
+                    FROM ContentVersion
+                    WHERE Id =: contentVersionId WITH SECURITY_ENFORCED
+                ]);
+            }
+            return null;
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'OneDriveUploader', 'batch start', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+            obj.One_Drive__c = 'Failure '+ e.getMessage();
+            obj.Id = activity; 
+            update obj;
             return null;
         }
     }
 
-    global OneDriveUploader(Id cvId) {
-        this.contentVersionId = cvId;
-    }
 
-
-    @AuraEnabled
-    @future(callout=true)
-    public static void uploadToOneDriveAsync(Id cvId) {
-        ContentVersion cv = [SELECT Id, VersionData, Title, ContentSize, FileExtension 
-                             FROM ContentVersion 
-                             WHERE Id = :cvId LIMIT 1];
-
-        try {
-            String fileName = cv.Title;
-            Integer fileSize = cv.ContentSize;
-            fullFileName = cv.Title + '.' + cv.FileExtension;
-            String contentType = contentTypeForOneDrive(cv.FileExtension);
-            String acctoken = getToken();
-            
-            if(acctoken != null){
-                oneDriveAccessToken = acctoken;
+    global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
+        for (ContentVersion cv: scope) {
+            try {
+                String fileName = cv.Title;
+                Integer fileSize = cv.ContentSize;
+                fullFileName = cv.Title +'.'+ cv.fileExtension;
+                String contentType = contentTypeForOneDrive(cv.FileExtension);
+                System.debug(activity);
+                
+                String acctoken = getToken(activity);
                 Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
-                Integer maxSize = (8 * 1024 * 1024); // 8 MB threshold
-
-                if (fileSize < maxSize) {
-                    // Upload small file directly
-                    Boolean result = uploadToOneDrive(cv, fileName, contentType);
-                    if (!result) {
-                        System.debug('Failed to upload small file to OneDrive.');
-                    }
-                } else {
-                    // Upload large file in chunks
-                    uploadLargeFileInChunks(cv, fileName, fileSizeEncoded, contentType);
+                Integer maxSize = (8 * 1024 * 1024);  // 8 MB chunk factor
+                if (Test.isRunningTest()) {
+                    maxSize = 800;
                 }
-            } else {
-                System.debug('Access token not obtained.');
+                if(acctoken != null){
+                    oneDriveAccessToken = acctoken;
+                    if (fileSize < maxSize) { // 8 MB threshold
+                        uploadToOneDrive(cv, fileName, contentType, activity);
+                    } else {
+                        uploadLargeFileInChunks(cv, fileName, fileSizeEncoded, contentType, activity);
+                    }
+                }
+            } catch (Exception e) {
+                Log_Handler.store_Exception(e, 'OneDriveUploader', 'batch execute', activity);
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
+                System.debug('Error during Dropbox file upload: ' + e.getMessage());
             }
-        } catch (Exception e) {
-            System.debug('Error during OneDrive file upload: ' + e.getMessage());
         }
     }
 
 
+    global void finish(Database.BatchableContext bC) {
+        System.debug('Dropbox file upload batch finished');
+    }
+
+
 
 
     @AuraEnabled
-    public static Boolean uploadToOneDrive(ContentVersion content, String fileName, String contentType) {
-
-        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
-        String emailid = settings.MVDG__email__c;
-        // req.setHeader('Content-Disposition', content.Title+'.'+content.FileExtension);
-        string endpointUrl = 'https://graph.microsoft.com/v1.0/users/me/drive/items/root:/{file}:/content';
-        string file = EncodingUtil.URLENCODE(fileName, 'UTF-8').replace('+', '%20');
-        endpointUrl = endpointUrl.replace('{file}', file + '.' + content.FileExtension);
-        HttpRequest req = new HttpRequest();
-        req.setHeader('Authorization', 'Bearer ' + oneDriveAccessToken);
-        req.setEndpoint(endpointUrl);
-        req.setMethod('PUT');
-        req.setHeader('Content-type', contentType);
-        req.setHeader('Content-Encoding', 'UTF-8');
-        req.setHeader('accept', 'application/json');
-        req.setBodyAsBlob(content.VersionData);
-        req.setTimeout(120000);
-        Http h = new Http();
-        HttpResponse resp = h.send(req);
-        System.debug(resp.getStatusCode());
-        System.debug(resp.getBody());
-        if (resp.getStatusCode() == 200 || resp.getStatusCode() == 201) {
+    public static Boolean uploadToOneDrive(ContentVersion content, String fileName, String contentType, String activity) {
+        try {
+            MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
+            String emailid = settings.MVDG__email__c;
+            string endpointUrl = 'https://graph.microsoft.com/v1.0/users/me/drive/items/root:/{file}:/content';
+            string file = EncodingUtil.URLENCODE(fileName, 'UTF-8').replace('+', '%20');
+            endpointUrl = endpointUrl.replace('{file}', file + '.' + content.FileExtension);
+            HttpRequest req = new HttpRequest();
+            req.setHeader('Authorization', 'Bearer ' + oneDriveAccessToken);
+            req.setEndpoint(endpointUrl);
+            req.setMethod('PUT');
+            req.setHeader('Content-type', contentType);
+            req.setHeader('Content-Encoding', 'UTF-8');
+            req.setHeader('accept', 'application/json');
+            req.setBodyAsBlob(content.VersionData);
+            req.setTimeout(120000);
+            Http h = new Http();
+            HttpResponse resp = h.send(req);
+            System.debug(resp.getStatusCode());
             System.debug(resp.getBody());
-            return true;
-        } else {
-            Response_Handler.store_Callout_Response(resp, 'OneDriveUploader', 'uploadToOneDrive');
-            mailMessage(resp.getStatusCode());
-            System.debug('Something went wrong');
-            return false;
+            if (resp.getStatusCode() == 200 || resp.getStatusCode() == 201) {
+                System.debug(resp.getBody());
+                System.debug('activity'+activity);
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Success';
+                obj.Id = activity; 
+                update obj;
+                return true;
+            } else {
+                Response_Handler.store_Callout_Response(resp, 'OneDriveUploader', 'uploadToOneDrive');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure '+ resp.getStatusCode() + resp.getBody();
+                obj.Id = activity; 
+                update obj;
+                mailMessage(resp.getStatusCode());
+                System.debug('Something went wrong');
+                return false;
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'OneDriveUploader', 'uploadToOneDrive', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
+                return false;
         }
     }
 
@@ -195,45 +246,45 @@ global with sharing class OneDriveUploader {
     }
 
 
-    public static void uploadLargeFileInChunks(ContentVersion contentVersion, String fileName, Integer fileSize, String fileExtension) {
-        String result = initiateUploadSession(fileExtension, contentVersion);
-        if (result != 'failure') {
-            System.debug('Initiated successfully');
-            Decimal filesizedec = Decimal.valueOf(fileSize);
-            Integer offset;
-
-
-            Integer chunkSize = 1500000; // 9 MB chunks
-            Integer totalChunks = Integer.valueOf(Math.ceil(filesizedec.divide(chunkSize, 3)));
-
-
-            for (Integer i = 0; i < totalChunks; i++) {
-                // System.debug(Limits.getHeapSize());
-                Integer start = i * chunkSize;
-                Integer ending = Math.min((i + 1) * 1125000 - 1, Integer.valueOf(contentVersion.VersionData.size()) - 1);
-                System.debug('Chunk Start Byte: ' + start);
-                System.debug('Chunk End Byte: ' + ending);
-                System.debug('file size-->' + fileSize);
-                transient Blob chunkBlob = getFileData(contentVersion.VersionData, start, chunkSize);
-                offset = Integer.valueOf(Math.floor(start / 1.3333333333));
-                if (start != 0) {
-                    start = start - (i * 375000);
+    public static void uploadLargeFileInChunks(ContentVersion contentVersion, String fileName, Integer fileSize, String fileExtension,String activity) {
+        try {
+            String result = initiateUploadSession(fileExtension, contentVersion, activity);
+            if (result != 'failure') {
+                System.debug('Initiated successfully');
+                Decimal filesizedec = Decimal.valueOf(fileSize);
+                Integer offset;
+        
+        
+                Integer chunkSize = 1500000; // approx 1.5 MB chunk size
+                Integer totalChunks = Integer.valueOf(Math.ceil(filesizedec.divide(chunkSize, 3)));
+        
+        
+                for (Integer i = 0; i < totalChunks; i++) {
+                    Integer start = i * chunkSize;
+                    Integer ending = Math.min((i + 1) * 1125000 - 1, Integer.valueOf(contentVersion.VersionData.size()) - 1);
+                    transient Blob chunkBlob = getFileData(contentVersion.VersionData, start, chunkSize);
+                    offset = Integer.valueOf(Math.floor(start / 1.3333333333));
+                    if (start != 0) {
+                        start = start - (i * 375000);
+                    }
+                    ChunkDetails chunkdetail = new ChunkDetails();
+                    chunkdetail.chunk = chunkBlob;
+                    chunkdetail.start = start;
+                    chunkdetail.ending = ending;
+                    chunkdetail.offset = offset; 
+                    chunkdetail.fileExtension = fileExtension;
+                    chunkdetail.fileSize = contentVersion.VersionData.size();
+                    chunkdetail.result = result;
+                    chunkdetail.activity = activity;
+                    uploadChunk(chunkdetail);
                 }
-                System.debug('Chunk Offset: ' + offset);
-                ChunkDetails chunkdetail = new ChunkDetails();
-                chunkdetail.chunk = chunkBlob;
-                chunkdetail.start = start;
-                chunkdetail.ending = ending;
-                chunkdetail.offset = offset; 
-                chunkdetail.fileExtension = fileExtension;
-                chunkdetail.fileSize = contentVersion.VersionData.size();
-                chunkdetail.result = result;
-                uploadChunk(chunkdetail);
-                // System.debug('Uploaded chunk ' + (i + 1) + '/' + totalChunks + ': Start Byte: ' + start + ', End Byte: ' + ending + ', Offset: ' + offset);
-                // System.debug(Limits.getHeapSize());
-                // chunkBlob = null;
-                System.debug(Limits.getHeapSize());
             }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'OneDriveUploader', 'uploadLargeFileInChunks', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
         }
 
     }
@@ -241,7 +292,6 @@ global with sharing class OneDriveUploader {
 
     @AuraEnabled
     public static void emailUser(String message) {
-            // User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
             String subject = 'Issue in uploading file to One drive';
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             String userEmail = UserInfo.getUserEmail();
@@ -257,46 +307,50 @@ global with sharing class OneDriveUploader {
     }
 
 
-    public static string initiateUploadSession(String contentType, ContentVersion cv) {
-        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint('https://graph.microsoft.com/v1.0/me/drive/root:/' + cv.Title + '.' + cv.FileExtension + ':/createUploadSession');
-        req.setMethod('POST');
-        req.setHeader('Authorization', 'Bearer ' + oneDriveAccessToken);
-        req.setHeader('accept', 'application/json');
-        req.setHeader('Content-Type', contentType);
-        req.setBody('');
-
-
-        Http http = new Http();
-        HttpResponse res = http.send(req);
-
-
-        if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
-            Map < String, Object > responseMap = (Map < String, Object > ) JSON.deserializeUntyped(res.getBody());
-            // System.debug(responseMap);
-            // onedriveapex.uploadUrl = (String) responseMap.get('uploadUrl');
-            return (String) responseMap.get('uploadUrl');
-        } else {
-            Response_Handler.store_Callout_Response(res, 'OneDriveUploader', 'initiateUploadSession');
-            mailMessage(res.getStatusCode());
-            System.debug('Error initiating upload session: ' + res.getStatusCode() + res.getBody());
-            // onedriveapex.uploadUrl = null;
-            return 'failure';
+    public static string initiateUploadSession(String contentType, ContentVersion cv, String activity) {
+        try {       
+            MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('https://graph.microsoft.com/v1.0/me/drive/root:/' + EncodingUtil.URLENCODE(fullFileName, 'UTF-8').replace('+', '%20') + ':/createUploadSession');
+            req.setMethod('POST');
+            req.setHeader('Authorization', 'Bearer ' + oneDriveAccessToken);
+            req.setHeader('accept', 'application/json');
+            req.setHeader('Content-Type', contentType);
+            req.setBody('');
+    
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+    
+            if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
+                Map < String, Object > responseMap = (Map < String, Object > ) JSON.deserializeUntyped(res.getBody());
+                return (String) responseMap.get('uploadUrl');
+            } else {
+                Response_Handler.store_Callout_Response(res, 'OneDriveUploader', 'initiateUploadSession');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure'+ res.getStatusCode() + res.getBody();
+                obj.Id = activity; 
+                update obj;
+                mailMessage(res.getStatusCode());
+                System.debug('Error initiating upload session: ' + res.getStatusCode() + res.getBody());
+                return 'failure';
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'OneDriveUploader', 'initiateUploadSession', activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = activity; 
+                update obj;
+                return 'failure';
         }
     }
 
 
     private static void uploadChunk(chunkDetails parameters) {
-        // if (onedriveapex.uploadUrl != null) {
+        System.debug('Upload chunk Invoked');
+        try {
             if( parameters.result != null){
                 
             String contentRange = 'bytes ' + parameters.start + '-' + parameters.ending + '/' + parameters.fileSize;
-
-            // System.debug('upload url' + result);
-            MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
-            // System.debug('Content-Length' + String.valueof(chunk.size()));
-            // System.debug('Content-Range' + contentRange);
             HttpRequest req2 = new HttpRequest();
             req2.setEndpoint(parameters.result);
             req2.setMethod('PUT');
@@ -309,16 +363,33 @@ global with sharing class OneDriveUploader {
 
             Http http = new Http();
             HttpResponse res = http.send(req2);
-            // System.debug('getting status code while uploading chunk-->' + res.getStatusCode());
+            System.debug(res.getStatusCode());
 
-
-            if (res.getStatusCode() == 200 || res.getStatusCode() == 201 || res.getStatusCode() == 200) {
-                System.debug('Everything was success' + res.getStatusCode() + res.getBody());
-            } else {
-                Response_Handler.store_Callout_Response(res, 'OneDriveUploader', 'uploadChunk');
-                mailMessage(res.getStatusCode());
-                System.debug('getting status code while uploading chunk--> ' + res.getStatusCode() + res.getBody());
+            if (res.getStatusCode() == 200 || res.getStatusCode() == 202) {
+                System.debug('Half was success' + res.getStatusCode() + res.getBody());
             }
+            else if(res.getStatusCode() == 201){
+                System.debug('Everything was success' + res.getStatusCode() + res.getBody());
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Success';
+                obj.Id = parameters.activity; 
+                update obj;
+            }else {
+                System.debug('Everything was in else' + res.getStatusCode() + res.getBody());
+                Response_Handler.store_Callout_Response(res, 'OneDriveUploader', 'uploadChunk');
+                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure'+ res.getStatusCode() + res.getBody();
+                obj.Id = parameters.activity; 
+                update obj;
+                mailMessage(res.getStatusCode());
+            }
+        }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'OneDriveUploader', 'uploadChunk', parameters.activity);
+            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
+                obj.One_Drive__c = 'Failure '+ e.getMessage();
+                obj.Id = parameters.activity; 
+                update obj;
         }
     }
 
@@ -354,7 +425,6 @@ global with sharing class OneDriveUploader {
 
 
     private static Blob getFileData(Blob versionDataBlob, Integer chunkStart, Integer chunkSize) {
-        // System.debug('Error -->' + EncodingUtil.base64Decode(EncodingUtilMethod(VersionDataBlob, chunkStart, chunkSize)));
         return EncodingUtil.base64Decode(EncodingUtilMethod(versionDataBlob, chunkStart, chunkSize));
     }
 
@@ -376,5 +446,6 @@ global with sharing class OneDriveUploader {
         @AuraEnabled public String fileExtension { get; set; }
         @AuraEnabled public Integer fileSize { get; set; }
         @AuraEnabled public String result { get; set; }
+        @AuraEnabled public String activity { get; set; }
     }
 }

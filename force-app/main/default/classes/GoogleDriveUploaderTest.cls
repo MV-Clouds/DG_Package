@@ -35,9 +35,15 @@ public class GoogleDriveUploaderTest {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockResponse());
         if (cv.size() > 1) {   
-            GoogleDriveUploader.uploadToGoogleDriveFuture(cv[0].Id);
+            GoogleDriveUploader googleDriveUploader = new GoogleDriveUploader(cv[0].Id);
+            String result = Database.executeBatch(googleDriveUploader);
 
-            GoogleDriveUploader.uploadToGoogleDriveFuture(cv[1].Id);
+            System.assertNotEquals(null, result, 'The result cannot be null');
+
+            GoogleDriveUploader googleDriveUploader2 = new GoogleDriveUploader(cv[1].Id);
+            String result2 = Database.executeBatch(googleDriveUploader2);
+
+            System.assertNotEquals(null, result2, 'The result cannot be null');
         }
 
         Test.stopTest();
