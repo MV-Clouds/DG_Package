@@ -195,9 +195,9 @@ export default class GenerateGoogleDocFile extends LightningElement {
                             let stringBody = JSON.stringify(element);
                             if (stringBody.includes(this.signatureKey)) {
                                 element.paragraph.elements.forEach(e => {
-                                    let stringE = JSON.stringify(e);
-                                    if (stringE.includes(this.signatureKey)) {
-                                        let content = this.substringBetween(stringE, '"content":"', '",');
+                                    let stringElement = JSON.stringify(e);
+                                    if (stringElement.includes(this.signatureKey)) {
+                                        let content = this.substringBetween(stringElement, '"content":"', '",');
                                         let startIndex = content.indexOf(this.signatureKey);
                                         this.processSignatureImage(Number(e.startIndex) + Number(startIndex), signatureImageValues);
                                         stringBody = stringBody.replace(this.signatureKey, ' ');
@@ -213,19 +213,21 @@ export default class GenerateGoogleDocFile extends LightningElement {
                             if (stringBody.match(/{{!(.*?)}}/g)) {
                                 let tableLocation = element.startIndex; //table's start index
                                 let tableEndIndex = element.table.tableRows[0].endIndex; // End of first row's index of the table
-
                                 tableLocation = tableLocation + this.tableOffset;
                                 tableEndIndex = tableEndIndex + this.tableOffset;
+
+                                // Deletes the whole table when the tables exceed 10
+                                if (tableNo > 10) {
+                                    this.deleteContentRequest(tableLocation, element.endIndex + this.tableOffset);
+                                    this.tableOffset -= element.endIndex - element.startIndex;
+                                    return;
+                                }
+
                                 let fieldName = this.substringBetween(stringBody, "$objApi:", "$");
                                 let objFields = objectDetails.find((el) => el.objApi === fieldName && el.tableNo === tableNo);
                                 let IndexedFieldName = "";
 
                                 if (fieldName && fieldName !== "") {
-                                    // If any of the table has empty column, skip the table
-                                    // if ((stringBody.includes("{{No.Index}}") && objFields && columns != (objFields.fieldName.length + 1)) || (!stringBody.includes("{{No.Index}}") && objFields && columns != objFields.fieldName.length)) {
-                                    //     tableNo++;
-                                    //     return;
-                                    // }
                                     
                                     // Insert empty rows
                                     IndexedFieldName = fieldName + tableNo;
