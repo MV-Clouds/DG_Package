@@ -15,10 +15,10 @@ import { CloseActionScreenEvent } from "lightning/actions";
 import getTemplateData from '@salesforce/apex/GenerateDocumentController.getTemplateData';
 
 //External Storage Methods
-import uploadFile from '@salesforce/apex/DropboxUploader.uploadFile';
-import uploadToOneDriveAsync from '@salesforce/apex/OneDriveUploader.uploadToOneDriveAsync';
-import uploadAwsAsync from '@salesforce/apex/AwsUploader.uploadAwsAsync';
-import uploadToGoogleDriveFuture from '@salesforce/apex/GoogleDriveUploader.uploadToGoogleDriveFuture';
+import uploadToDropBox from '@salesforce/apex/UploadController.uploadToDropBox';
+import uploadToOneDrive from '@salesforce/apex/UploadController.uploadToOneDrive';
+import uploadToAWS from '@salesforce/apex/UploadController.uploadToAWS';
+import uploadToGoogleDrive from '@salesforce/apex/UploadController.uploadToGoogleDrive';
 
 //Defaults Generation methods
 import setDefaultOptions from '@salesforce/apex/GenerateDocumentController.setDefaultOptions';
@@ -2101,22 +2101,22 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             if(this.selectedChannels.includes('Google Drive')){
                 this.succeeded.push('Google Drive');
-                uploadToGoogleDriveFuture({cvId : contentVersionId, activityId : this.activity.Id});
+                uploadToGoogleDrive({cvid : contentVersionId, activityId : this.activity.Id});
             }
             if(this.selectedChannels.includes('AWS')){
                 this.succeeded.push('AWS');
-                uploadAwsAsync({cvId : contentVersionId, activityId : this.activity.Id});
+                uploadToAWS({cvid : contentVersionId, activityId : this.activity.Id});
             }
             if(this.selectedChannels.includes('One Drive')){
                 this.succeeded.push('One Drive');
-                uploadToOneDriveAsync({cvId : contentVersionId, activityId : this.activity.Id});
+                uploadToOneDrive({cvid : contentVersionId, activityId : this.activity.Id});
             }
             if(this.selectedChannels.includes('Dropbox')){
                 this.succeeded.push('Dropbox');
-                uploadFile({cvId : contentVersionId, activityId : this.activity.Id});
+                uploadToDropBox({ cvid : contentVersionId, activityId : this.activity.Id});
             }
             if(!(this.selectedChannels.includes('Files') || this.selectedChannels.includes('Chatter') || this.selectedChannels.includes('Email')) && (this.selectedChannels.includes('Dropbox') || this.selectedChannels.includes('One Drive') || this.selectedChannels.includes('Google Drive') || this.selectedChannels.includes('AWS'))){
-                deleteContentVersion({ cvId : contentVersionId});
+                deleteContentVersion({cvId: contentVersionId});
             }
         } catch (e) {
             errorDebugger('generateDocument', 'uploadToExternalStorage', e, 'error');
