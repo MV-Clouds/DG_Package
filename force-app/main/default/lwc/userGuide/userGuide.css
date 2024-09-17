@@ -8,17 +8,19 @@
     display: flex;
     width: 100%;
     overflow: hidden;
+    user-select: text;
 }
 
 .left-section {
     white-space: pre;
-    width: 0;
+    width: 30%;
     overflow: scroll;
     scrollbar-color: #00AEFF white;
     transition: all 0.5s;
 }
 
 .left-section h1 {
+    padding-left: 12%;
     font-size: small;
     color: rgba(123, 126, 127, 1);
 }
@@ -28,7 +30,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: start;
-    gap: 20px;
+    gap: 12px;
     margin-bottom: 1rem;
 }
 
@@ -38,8 +40,9 @@
     width: 8rem;
     min-width: 80%;
     /* min-width: 10rem; */
+    transition: all linear 0.25s;
     border: solid 1px #00AEFF;
-    border-radius: 1rem;
+    border-radius: 12px;
     display: flex;
     gap: 0.5rem;
     align-items: center;
@@ -49,7 +52,18 @@
     color: rgba(123, 126, 127, 1);
 }
 
+.tabs:hover {
+    box-shadow: 2px 2px 4px rgba(0, 174, 255, 0.33);
+}
+
+.tabs p {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .selected-tab {
+    scale: 1.1;
     color: black;
     background: linear-gradient(90deg, rgb(205,239,255), rgb(205,255,241));
     box-shadow: 2px 2px 4px rgba(0, 174, 255, 0.33);
@@ -63,6 +77,7 @@
 
 .content img{
     border: solid 1px black;
+    border-radius: 4px;
     margin: 0.5rem;
     width: 600px;
     cursor: pointer;
@@ -104,6 +119,10 @@
 
 .arrow:active{
     background-color: #00528c;
+}
+
+.svg-arrow{
+    transform: rotate3d(0, 1, 0, 180deg);
 }
 
 .bottom-line {
@@ -200,34 +219,37 @@ lightning-accordion-section {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 98;
+    z-index: 101;
 }
 
 .custom-modal-container {
-    background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    /* width: 100%; */
     margin-top: 5.5rem;
     margin-inline: 5.5rem;
     animation: fadeIn 0.3s ease-in-out;
-    z-index: 100;
+    z-index: 103;
 }
 
-.custom-modal-close {
-    position: absolute;
-    right: 0;
-    top: 5.5rem;
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
+.custom-modal-content, .custom-modal-body, .img {
+    width: fit-content;
+}
+
+.custom-modal-body .img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.custom-modal-body img {
+    max-height: 70vh;
+    border-radius: 4px;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.1);
     }
     to {
         opacity: 1;
@@ -237,7 +259,7 @@ lightning-accordion-section {
 
 .backdrop {
     background: rgba(0, 0, 0, 0.6);
-    z-index: 99;
+    z-index: 102;
     position: fixed;
     top: 0;
     left: 0;

@@ -21,8 +21,17 @@ public with sharing class DropboxSuccessController {
                 String url = ''+System.Url.getOrgDomainUrl();
                 String redirectUri = redirect(url);        
                 Map<String, String> tokens = generaterefreshtoken(clientid, clientsecret, redirectUri, authcode);
-                String refreshToken = tokens.get('refresh_token');
-                String accessToken = tokens.get('access_token');
+                if (tokens == null || tokens.isEmpty()) {
+                    return 'error: failed to generate tokens';
+                }
+                String refreshToken;
+                if(tokens?.get('refresh_token') != null){
+                    refreshToken = tokens.get('refresh_token');
+                }
+                String accessToken;
+                if(tokens?.get('access_token') != null){
+                    accessToken = tokens.get('access_token');
+                }
                 if(refreshToken != null){
                     settings.MVDG__refresh_token__c = refreshToken;
                     System.debug('ref');

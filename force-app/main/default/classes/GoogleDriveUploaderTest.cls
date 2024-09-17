@@ -26,21 +26,27 @@ public class GoogleDriveUploaderTest {
         cv2.VersionData = Blob.valueOf('a'.repeat(1000));
         cv2.FirstPublishLocationId = acc.Id;
         insert cv2;
+
+        Generate_Document_Activity__c gda = new Generate_Document_Activity__c();
+        gda.AWS__c = 'Success';
+        insert gda;
     }
 
     @IsTest
     static void testBatchableMethods(){
         List<ContentVersion> cv = new List<ContentVersion>();
         cv = [SELECT Id FROM ContentVersion];
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockResponse());
         if (cv.size() > 1) {   
-            GoogleDriveUploader googleDriveUploader = new GoogleDriveUploader(cv[0].Id);
+            GoogleDriveUploader googleDriveUploader = new GoogleDriveUploader(cv[0].Id, act[0].Id);
             String result = Database.executeBatch(googleDriveUploader);
 
             System.assertNotEquals(null, result, 'The result cannot be null');
 
-            GoogleDriveUploader googleDriveUploader2 = new GoogleDriveUploader(cv[1].Id);
+            GoogleDriveUploader googleDriveUploader2 = new GoogleDriveUploader(cv[1].Id, act[0].Id);
             String result2 = Database.executeBatch(googleDriveUploader2);
 
             System.assertNotEquals(null, result2, 'The result cannot be null');
