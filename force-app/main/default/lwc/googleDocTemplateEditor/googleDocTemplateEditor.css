@@ -1020,6 +1020,7 @@ c-generate-document {
 }
 
 .previewLabel {
+    min-width: 5rem;
     font-size: 13px;
     padding-inline: 0.25rem;
     color: #009ae1;

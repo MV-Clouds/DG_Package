@@ -36,6 +36,10 @@ public class AwsUploaderTest {
         cv2.VersionData = Blob.valueOf('b'.repeat(200000));
         cv2.FirstPublishLocationId = acc.Id;
         insert cv2;
+
+        Generate_Document_Activity__c gda = new Generate_Document_Activity__c();
+        gda.AWS__c = 'Success';
+        insert gda;
     }
 
     @IsTest
@@ -46,12 +50,14 @@ public class AwsUploaderTest {
         
         List<ContentVersion> cv = new List<ContentVersion>();
         cv = [SELECT Id FROM ContentVersion];
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+
         if (cv.size() > 1) {
-            AwsUploader awsUploader = new AwsUploader(cv[0].Id);
+            AwsUploader awsUploader = new AwsUploader(cv[0].Id, act[0].Id);
             String executeResult = Database.executeBatch(awsUploader);
             System.assertNotEquals(null, executeResult, 'The batch result cannot be null');
 
-            AwsUploader awsUploader2 = new AwsUploader(cv[1].Id);
+            AwsUploader awsUploader2 = new AwsUploader(cv[1].Id, act[0].Id);
             String executeResult2 = Database.executeBatch(awsUploader2);
             System.assertNotEquals(null, executeResult2, 'The batch result cannot be null');
         }

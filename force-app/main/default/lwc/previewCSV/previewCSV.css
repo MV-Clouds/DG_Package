@@ -1,7 +1,3 @@
-:host{
-    --display-for-additional-info-div : none;
-}
-
 .main-preview-div{
     background-color: white;
     width: 100%;
@@ -63,20 +59,11 @@
     color: red;
 }
 
-.additional-info-div{
-    display: var(--display-for-additional-info-div, none);
-}
-
 .preview-container {
     flex-grow: 1;
     overflow: scroll;
     scrollbar-color: #00aeff transparent;
     scrollbar-width: thin;
-}
-
-.preview-container table {
-    background: #ffffffab;
-    text-wrap: nowrap;
 }
 
 .no-results{
@@ -128,4 +115,26 @@
 .control-btn:has(svg.true){
     background: lightgray;
     pointer-events: none;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffffab;
+    text-wrap: nowrap;
+}
+
+.table-row, .table-cell, .table-header{
+    border: 1px solid darkgray;
+    text-align: center;
+    padding: 0.1rem 0.5rem;
+    height: 1.3rem;
+}
+
+.table-header {
+    background-color: #d5ebff;
+    height: 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }

@@ -26,6 +26,10 @@ public class OneDriveUploaderTest {
         Blob data = Blob.valueOf('a'.repeat(8880));
         contentVersion2.VersionData = data;
         insert contentVersion2;
+
+        Generate_Document_Activity__c gda = new Generate_Document_Activity__c();
+        gda.AWS__c = 'Success';
+        insert gda;
     }
 
     @isTest
@@ -34,15 +38,16 @@ public class OneDriveUploaderTest {
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseToken());
 
         List<ContentVersion> contentVersion = [SELECT Id, ContentSize FROM ContentVersion];
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
 
         // First element
-        OneDriveUploader uploader = new OneDriveUploader(contentVersion[0].Id);
+        OneDriveUploader uploader = new OneDriveUploader(contentVersion[0].Id, act[0].Id);
         System.debug(contentVersion[0].ContentSize);
         String executeResult = Database.executeBatch(uploader);
         System.assertNotEquals(null, executeResult, 'The batch result cannot be null');
         
         // Second element
-        OneDriveUploader uploader2 = new OneDriveUploader(contentVersion[1].Id);
+        OneDriveUploader uploader2 = new OneDriveUploader(contentVersion[1].Id, act[0].Id);
         System.debug(contentVersion[1].ContentSize);
         String executeResult2 = Database.executeBatch(uploader2);
         System.assertNotEquals(null, executeResult2, 'The result cannot be null');

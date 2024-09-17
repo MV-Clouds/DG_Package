@@ -1,10 +1,12 @@
 public with sharing class CloneTemplateDataController {
     @AuraEnabled
-    public static newTempleatData cloneTempData(String templateId, String templateName, String templateDescription, String jsonData){
+    public static NewTemplateData cloneTempData(String templateId, String jsonData){
 
         Map<String, String> dataMap = (Map<String, String>) JSON.deserialize(jsonData, Map<String, String>.class);
 
         String templateType = dataMap.get('templateType');
+        String templateName = dataMap.get('templateName');
+        String templateDescription = dataMap.get('templateDescription');
         String templateBody;
         String header;
         String pageConfiguration;
@@ -16,19 +18,19 @@ public with sharing class CloneTemplateDataController {
         String fieldLimit;
         String testtest = 'this is test';
 
-        newTempleatData field = new newTempleatData();
+        NewTemplateData field = new NewTemplateData();
         try {
             List<MVDG__Template__c> newList = new List<MVDG__Template__c>();
-            newList = [SELECT Id, MVDG__Object_API_Name__c, MVDG__Template_Type__c, MVDG__Header_Text__c, MVDG__Template_Name__c,MVDG__Template_Status__c FROM MVDG__Template__c WHERE Id =: templateId];
+            newList = [SELECT Id, MVDG__Object_API_Name__c, MVDG__Template_Type__c, MVDG__Header_Text__c, MVDG__Template_Name__c,MVDG__Template_Status__c FROM MVDG__Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED];
             MVDG__Template__c cloneTemp = new MVDG__Template__c();
-                String test = newList[0].MVDG__Object_API_Name__c;
-                cloneTemp.MVDG__Object_API_Name__c = test;
-                cloneTemp.MVDG__Header_Text__c = newList[0].MVDG__Header_Text__c;
-                cloneTemp.MVDG__Template_Name__c = templateName;
-                cloneTemp.MVDG__Description__c = templateDescription;
-                cloneTemp.MVDG__Template_Status__c = newList[0].MVDG__Template_Status__c;
-                cloneTemp.MVDG__Template_Type__c = newList[0].MVDG__Template_Type__c;
-            insert cloneTemp;
+            String test = newList[0].MVDG__Object_API_Name__c;
+            cloneTemp.MVDG__Object_API_Name__c = test;
+            cloneTemp.MVDG__Header_Text__c = newList[0].MVDG__Header_Text__c;
+            cloneTemp.MVDG__Template_Name__c = templateName;
+            cloneTemp.MVDG__Description__c = templateDescription;
+            cloneTemp.MVDG__Template_Status__c = newList[0].MVDG__Template_Status__c;
+            cloneTemp.MVDG__Template_Type__c = newList[0].MVDG__Template_Type__c;
+            insert as user cloneTemp;
 
             if (templateType == 'Simple Template') {
                 templateBody = dataMap.get('templateBody');
@@ -48,7 +50,7 @@ public with sharing class CloneTemplateDataController {
                 MVDG__Template_Page__c cloneTemplatePageData = new MVDG__Template_Page__c();
                 if(pageConfiguration == 'true'){
                     List<MVDG__Template_Page__c> cloneTemplatePage = new List<MVDG__Template_Page__c>();
-                    cloneTemplatePage = [SELECT Id, Name, MVDG__Template__c, MVDG__Page_Margin__c, MVDG__Page_Orientation__c, MVDG__Page_Size__c, MVDG__Unit_of_Page_Configs__c, MVDG__Show_Header__c, MVDG__Show_Footer__c, MVDG__Show_Watermark__c, MVDG__Header_margin_top__c, MVDG__Footer_margin_bottom__c,MVDG__Page_Number__c FROM MVDG__Template_Page__c WHERE MVDG__Template__c =: templateId];
+                    cloneTemplatePage = [SELECT Id, Name, MVDG__Template__c, MVDG__Page_Margin__c, MVDG__Page_Orientation__c, MVDG__Page_Size__c, MVDG__Unit_of_Page_Configs__c, MVDG__Show_Header__c, MVDG__Show_Footer__c, MVDG__Show_Watermark__c, MVDG__Header_margin_top__c, MVDG__Footer_margin_bottom__c,MVDG__Page_Number__c FROM MVDG__Template_Page__c WHERE MVDG__Template__c =: templateId WITH SECURITY_ENFORCED];
                     if(cloneTemplatePage.size() > 0){
                         cloneTemplatePageData.MVDG__Template__c = cloneTemp.Id;
                         cloneTemplatePageData.MVDG__Page_Number__c = cloneTemplatePage[0].MVDG__Page_Number__c;
@@ -61,11 +63,11 @@ public with sharing class CloneTemplateDataController {
                         cloneTemplatePageData.MVDG__Show_Watermark__c = cloneTemplatePage[0].MVDG__Show_Watermark__c;
                         cloneTemplatePageData.MVDG__Header_margin_top__c = cloneTemplatePage[0].MVDG__Header_margin_top__c;
                         cloneTemplatePageData.MVDG__Footer_margin_bottom__c = cloneTemplatePage[0].MVDG__Footer_margin_bottom__c;
-                        insert cloneTemplatePageData;
+                        insert as user cloneTemplatePageData;
                     }
                 }
                 List<MVDG__Template_Data__c> cloneTemplateData = new List<MVDG__Template_Data__c>();
-                cloneTemplateData = [SELECT Id, Name, MVDG__Template__c, MVDG__Template_Page__c,  MVDG__Order_No_Simple__c, MVDG__Template_Value_Simple__c, MVDG__Value_Type__c  FROM MVDG__Template_Data__c WHERE MVDG__Template__c =: templateId AND MVDG__Value_Type__c IN : valueTypes];
+                cloneTemplateData = [SELECT Id, Name, MVDG__Template__c, MVDG__Template_Page__c,  MVDG__Order_No_Simple__c, MVDG__Template_Value_Simple__c, MVDG__Value_Type__c  FROM MVDG__Template_Data__c WHERE MVDG__Template__c =: templateId AND MVDG__Value_Type__c IN : valueTypes WITH SECURITY_ENFORCED];
 
                 List<MVDG__Template_Data__c> newTempDataSimpel = new List<MVDG__Template_Data__c>();
                 for (MVDG__Template_Data__c tempDataSimpel : cloneTemplateData) {
@@ -77,11 +79,11 @@ public with sharing class CloneTemplateDataController {
                     cloneTempData.MVDG__Value_Type__c = tempDataSimpel.MVDG__Value_Type__c;
                     newTempDataSimpel.add(cloneTempData);
                 }
-                insert newTempDataSimpel;
+                insert as user newTempDataSimpel;
             }
             else if(templateType == 'CSV Template'){
                 List<MVDG__Template_Data__c> cloneTemplateData = new List<MVDG__Template_Data__c>();
-                cloneTemplateData = [SELECT Id, Name, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c, MVDG__Template__c, MVDG__Template_Page__c, MVDG__Order_No_Simple__c, MVDG__Value_Type__c ,MVDG__CSV_Orders__c,MVDG__CSV_Limit__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =: templateId];
+                cloneTemplateData = [SELECT Id, Name, MVDG__CSV_Fields__c, MVDG__CSV_Filter__c, MVDG__CSV_Query__c, MVDG__Template__c, MVDG__Template_Page__c, MVDG__Order_No_Simple__c, MVDG__Value_Type__c ,MVDG__CSV_Orders__c,MVDG__CSV_Limit__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =: templateId WITH SECURITY_ENFORCED];
                 selectedFields = dataMap.get('newSelectedFields');
                 fieldsFilters = dataMap.get('newFieldsFilters');
                 fieldOrderBy = dataMap.get('newFieldOrderBy');
@@ -101,13 +103,13 @@ public with sharing class CloneTemplateDataController {
                     if(fieldLimit == 'true'){
                         cloneTempData.MVDG__CSV_Limit__c = tempData.MVDG__CSV_Limit__c; 
                     }
-                    cloneTempData.MVDG__CSV_Query__c = tempData.MVDG__CSV_Query__c;
+                    // cloneTempData.MVDG__CSV_Query__c = tempData.MVDG__CSV_Query__c;
                     cloneTempData.MVDG__Template__c = cloneTemp.Id;
                     cloneTempData.MVDG__Order_No_Simple__c = tempData.MVDG__Order_No_Simple__c;
                     cloneTempData.MVDG__Value_Type__c = tempData.MVDG__Value_Type__c;
                     newTempData.add(cloneTempData);
                 }
-                insert newTempData;
+                insert as user newTempData;
             }
             System.debug('cloneTemp.Id'+cloneTemp.Id);
              
@@ -122,7 +124,7 @@ public with sharing class CloneTemplateDataController {
         return field;
     }
 
-    public class newTempleatData{
+    public class NewTemplateData{
         @AuraEnabled public String tempId{get; set;}
         @AuraEnabled public String tempObj{get; set;}
     }

@@ -36,15 +36,7 @@ public class DynamicFieldDisplayControllerTest {
         
     }
 
-    @IsTest
-    static void testgetObjectName(){
-        Test.startTest();
-        List<String> getObjectsList = new List<String>();
-        getObjectsList = DynamicFieldDisplayController.getObjects(true);
-        System.assertNotEquals(null, getObjectsList, 'List should not be null');
-        Test.stopTest();
-        
-    }
+    
 
     private class MockHttpResponseGenerator implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {

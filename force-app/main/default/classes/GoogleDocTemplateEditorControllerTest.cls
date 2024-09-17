@@ -8,6 +8,7 @@ public class GoogleDocTemplateEditorControllerTest {
         authProvider.MVDG__ClientSecret__c = 'dummyClientSecret';
         authProvider.MVDG__access_token__c = 'dummyAccessToken';
         authProvider.MVDG__refresh_token__c = 'dummyRefreshToken';
+        authProvider.MVDG__WorkingStatus__c = true;
         insert authProvider;
 
         MVDG__Template__c template = new MVDG__Template__c();
@@ -24,13 +25,6 @@ public class GoogleDocTemplateEditorControllerTest {
         templateData.MVDG__Google_Doc_WebViewLink__c = 'https://docs.google.com/document/d/dummyDocumentId/edit?usp=drivesdk';
         templateData.MVDG__Order_No_Simple__c = 1;
         insert templateData;
-
-        // MVDG__Template_Data__c templateData2 = new MVDG__Template_Data__c();
-        // templateData2.MVDG__Template__c = template.Id;
-        // templateData2.MVDG__Google_Doc_Template_Id__c = 'dummyDocumentId2';
-        // templateData2.MVDG__Google_Doc_WebViewLink__c = 'https://docs.google.com/document/d/dummyDocumentId2/edit?usp=drivesdk';
-        // templateData2.MVDG__Order_No_Simple__c = 2;
-        // insert templateData2;
     }
     
     @isTest
@@ -44,26 +38,76 @@ public class GoogleDocTemplateEditorControllerTest {
         Test.setMock(HttpCalloutMock.class, new TemplateEditerMock());
         Test.startTest();
         
-        googleDocTemplateEditorController.createNewDocument();
-        GoogleDocTemplateEditorController.getAllData(temp.Id, 'Account');
-        googleDocTemplateEditorController.editTemplate(JSON.serialize(temp));
-        googleDocTemplateEditorController.editTemplate(JSON.serialize(tempData));
+        GoogleDocTemplateEditorController.createNewDocument();
+        GoogleDocTemplateEditorController.getAllDocs();
+
+        String endpoint = 'https://docs.googleapis.com/v1/documents';
+        HttpRequest request = new HttpRequest();
+        request.setEndpoint(endpoint);
+        request.setMethod('POST');
+        request.setHeader('Content-Type', 'application/json');
+        GoogleDocTemplateEditorController.refreshAccessToken(MVDG__AuthProviderSettings__c.getInstance(), request);
+
+        GoogleDocTemplateEditorController.ResponseWrapper response = new GoogleDocTemplateEditorController.ResponseWrapper();
+        response = GoogleDocTemplateEditorController.getAllData(temp.Id, 'Account');
+        System.assertEquals('Account', response.objectLabel);
+        
+        GoogleDocTemplateEditorController.editTemplate(JSON.serialize(temp));
+        GoogleDocTemplateEditorController.editTemplate(JSON.serialize(tempData));
         
         GoogleDocTemplateEditorController.saveTemplateData(temp.Id, 'googleDocId', 'webViewLink');
-        googleDocTemplateEditorController.updateAuthProviderSettings();
+        GoogleDocTemplateEditorController.updateAuthProviderSettings();
 
-        googleDocTemplateEditorController.responseList.put('first', new HttpResponse());
-        googleDocTemplateEditorController.insertRestResponses();
+        GoogleDocTemplateEditorController.responseList.put('first', new HttpResponse());
+        GoogleDocTemplateEditorController.insertRestResponses();
         Test.stopTest();
-
-        GoogleDocTemplateEditorController googleDocTemplateEditorController = new GoogleDocTemplateEditorController();
     } 
+
+    @IsTest
+    static void testAllResponses(){
+
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new NoResponseClass());
+        String res = GoogleDocTemplateEditorController.createNewDocument();
+        System.assertEquals(null, res);
+        GoogleDocTemplateEditorController.getAllDocs();
+
+        Test.stopTest();
+    }
+
+    @IsTest
+    static void testAllResponses2(){
+        
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new NotFoundResponseClass());
+        String res = GoogleDocTemplateEditorController.createNewDocument();
+        System.assertEquals(null, res);
+        GoogleDocTemplateEditorController.getAllDocs();
+        Test.stopTest();
+    }
 
     @isTest
     public static void testCatchBlocks() {
-        GoogleDocTemplateEditorController.getTemplate('wrongId');
-        GoogleDocTemplateEditorController.getTemplateData('wrongId');
-        GoogleDocTemplateEditorController.getLabel('NoObject');
+
+        Test.startTest();
+        List<MVDG__AuthProviderSettings__c> authprovider = new List<MVDG__AuthProviderSettings__c>();
+        authprovider.add(MVDG__AuthProviderSettings__c.getInstance());
+        GoogleDocTemplateEditorController.authProvider = authprovider;
+        GoogleDocTemplateEditorController.updateAuthProviderSettings();
+        String endpoint = 'https://docs.googleapis.com/v1/documents';
+        HttpRequest request = new HttpRequest();
+        request.setEndpoint(endpoint);
+        request.setMethod('POST');
+        request.setHeader('Content-Type', 'application/json');
+        GoogleDocTemplateEditorController.refreshAccessToken(MVDG__AuthProviderSettings__c.getInstance(), request);
+        String res = GoogleDocTemplateEditorController.createNewDocument();
+        System.assertEquals(null, res);
+        GoogleDocTemplateEditorController.getAllDocs();
+
+
+        delete authprovider;
+        GoogleDocTemplateEditorController.getAllData('temp.Id', 'Account');
+        test.stopTest();
     }
 
     public class TemplateEditerMock implements HttpCalloutMock {
@@ -83,8 +127,26 @@ public class GoogleDocTemplateEditorControllerTest {
                 res.setStatusCode(200);
             } else if (endpoint.contains('https://www.googleapis.com/drive/v3/files')) {
                 res.setBody('{"files": {"kind":"drive#file","id":"dummyDocumentId","name":"dummyDocumentName","mimeType":"application/vnd.google-apps.document"}}');
-                res.setStatusCode(401);
+                res.setStatusCode(200);
             }
+            return res;
+        }
+    }
+
+    public class NoResponseClass implements HttpCalloutMock{
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setHeader('Content-Type', 'application/json');
+            res.setStatusCode(401);
+            return res;
+        }
+    }
+    
+    public class NotFoundResponseClass implements HttpCalloutMock{
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setHeader('Content-Type', 'application/json');
+            res.setStatusCode(404);
             return res;
         }
     }

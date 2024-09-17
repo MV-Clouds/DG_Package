@@ -10,7 +10,7 @@ public with sharing class ChatBotController {
             '"subQuestions": [' +
                 '{' +
                     '"question": "Client-id & client-secret",' +
-                    '"answer": "You can find client-id[Key] and client-secret[Secret] from its dropbox developer console. You can find steps in userguide. "' +
+                    '"answer": "You can find client-id(Key) and client-secret(Secret) from its dropbox developer console. You can find steps in userguide. "' +
                 '},' +
                 '{' +
                     '"question": "Redirect uri",' +
@@ -18,11 +18,11 @@ public with sharing class ChatBotController {
                 '},' +
                 '{' +
                     '"question": "Unable to Integrate",' +
-                    '"answer": "Make sure all permissions were given while integrating and scopes are correct in dropbox developer console. Also the account you want to integrate should be logged in into your device in dropbox."' +
+                    '"answer": "Make sure all permissions were given while integrating and scopes are correct in dropbox developer console. Also the account you want to integrate should be logged in into your device in dropbox.(Ask System Admin If You Don\'t Have Permission)"' +
                 '},' +
                 '{' +
                     '"question": "Remove Integration",' +
-                    '"answer": "Just by clicking unauthorize symbol next to the active integration you can easily remove integration and integrate again. "' +
+                    '"answer": "Just by clicking unauthorize symbol next to the active integration you can easily remove integration and integrate again.(Ask System Admin If You Don\'t Have Permission) "' +
                 '}' +
             ']' +
         '},' +
@@ -32,7 +32,7 @@ public with sharing class ChatBotController {
             '"subQuestions": [' +
                 '{' +
                     '"question": "Client-id & client-secret",' +
-                    '"answer": "You can find client-id[Key] and client-secret[Secret] from its Azure app console. You can find steps in userguide."' +
+                    '"answer": "You can find client-id(Key) and client-secret(Secret) from its Azure app console. You can find steps in userguide."' +
                 '},' +
                 '{' +
                     '"question": "Redirect uri",' +
@@ -40,11 +40,11 @@ public with sharing class ChatBotController {
                 '},' +
                 '{' +
                     '"question": "Unable to Integrate",' +
-                    '"answer": "Make sure all permissions were given while integrating and scopes are correct in Azure app console."' +
+                    '"answer": "Make sure all permissions were given while integrating and scopes are correct in Azure app console.(Ask System Admin If You Don\'t Have Permission)"' +
                 '},' +
                 '{' +
                     '"question": "Remove Integration",' +
-                    '"answer": "Just by clicking unauthorize symbol next to the active integration you can easily remove integration and integrate again with different account."' +
+                    '"answer": "Just by clicking unauthorize symbol next to the active integration you can easily remove integration and integrate again with different account.(Ask System Admin If You Don\'t Have Permission)"' +
                 '}' +
             ']' +
         '},' +
@@ -53,20 +53,20 @@ public with sharing class ChatBotController {
             '"answer": "Solution Found",' +
             '"subQuestions": [' +
                 '{' +
-                    '"question": "Client-id & client-secret",' +
-                    '"answer": "You can find client-id[Key] and client-secret[Secret] from its google developer console. You can find steps in userguide."' +
+                    '"question": "Org Wide Integration",' +
+                    '"answer": "Org Wide Integration is used to store files in that particular account[Google Drive]. User Wide Integration will be used to generate template[Google Doc]."' +
                 '},' +
                 '{' +
                     '"question": "Redirect uri",' +
-                    '"answer": "Redirect uri mismatch error can occur due to not entering redirect url in google developer console. You can find all steps in userguide."' +
+                    '"answer": "Contact DocGenius If you face this issue."' +
                 '},' +
                 '{' +
                     '"question": "Unable to Integrate",' +
-                    '"answer": "Make sure all permissions were given while integrating and scopes are correct in google developer console."' +
+                    '"answer": "Make sure all permissions were given while integrating.(Ask System Admin If You Don\'t Have Permission)"' +
                 '},' +
                 '{' +
                     '"question": "Remove Integration",' +
-                    '"answer": "Just by clicking unauthorize symbol next to the active integration you can easily remove integration and integrate again with different account."' +
+                    '"answer": "Just by clicking unauthorize symbol next to the active integration you can easily remove integration and integrate again with different account.(Ask System Admin If You Don\'t Have Permission)"' +
                 '}' +
             ']' +
         '},' +
@@ -76,7 +76,7 @@ public with sharing class ChatBotController {
             '"subQuestions": [' +
                 '{' +
                     '"question": "Client-id & client-secret",' +
-                    '"answer": "You can find client-id[Key] and client-secret[Secret] from its AWS s3 console. You can find steps in userguide."' +
+                    '"answer": "You can find client-id(Key) and client-secret(Secret) from its AWS s3 console. You can find steps in userguide."' +
                 '},' +
                 '{' +
                     '"question": "BucketName",' +
@@ -84,11 +84,11 @@ public with sharing class ChatBotController {
                 '},' +
                 '{' +
                     '"question": "Unable to Integrate",' +
-                    '"answer": "Make sure your details are correct and bucket is in specific region mentioned in userguide."' +
+                    '"answer": "Make sure your details are correct and bucket is in specific region mentioned in userguide. Also make sure you added Remote site setting as per your bucket name.(Ask System Admin If You Don\'t Have Permission)"' +
                 '},' +
                 '{' +
                     '"question": "Remove Integration",' +
-                    '"answer": "Just by clicking unauthorize symbol next to the active integration you can easily remove integration and integrate again with different account."' +
+                    '"answer": "Just by clicking unauthorize symbol next to the active integration you can easily remove integration and integrate again with different account.(Ask System Admin If You Don\'t Have Permission)"' +
                 '}' +
             ']' +
         '}' +
@@ -99,19 +99,69 @@ public with sharing class ChatBotController {
     '"subQuestions": [' +
         '{' +
             '"question": "Simple Template",' +
-            '"answer": "Coming soon"' +
-        '},' +
-        '{' +
-            '"question": "Drag and Drop Template",' +
-            '"answer": "Coming soon"' +
+            '"answer": "Coming soon",' +
+            '"subQuestions": [' +
+                '{' +
+                    '"question": "Watermark",' +
+                    '"answer": "No, currently we don\'t have watermark feature in simple template, If you want you can use Google doc template."' +
+                '},' +
+                '{' +
+                    '"question": "Page Configurations",' +
+                    '"answer": "Yes, there are multiple options of page configuration like page size and orientation provided."' +
+                '},' +
+                '{' +
+                    '"question": "Adding Image",' +
+                    '"answer": "You can add images upto 30 MB for more details read limitations."' +
+                '},' +
+                '{' +
+                    '"question": "Header and Footer",' +
+                    '"answer": "Header and footer can take upto 40% size of the page."' +
+                '}' +
+            ']' +
         '},' +
         '{' +
             '"question": "CSV Template",' +
-            '"answer": "Coming soon"' +
+            '"answer": "You can create CSV in few seconds.",' +
+            '"subQuestions": [' +
+                '{' +
+                    '"question": "Parent Object Records",' +
+                    '"answer": "Yes, you can select the parent object from the drop-down on the left side to select field of parent object."' +
+                '},' +
+                '{' +
+                    '"question": "Additional Info",' +
+                    '"answer": "This info can be used to add template detials like object name and template name inside csv document. "' +
+                '},' +
+                '{' +
+                    '"question": "Maximum limit of Records",' +
+                    '"answer": "No, There is no max limit on records but it can take some time for too many records."' +
+                '},' +
+                '{' +
+                    '"question": "Priority Order",' +
+                    '"answer": "In order by first field will be given highest priority and last field will be given lowest priority."' +
+                '}' +
+            ']' +
         '},' +
         '{' +
-            '"question": "Advanced Template",' +
-            '"answer": "Coming soon"' +
+            '"question": "Google Doc Template",' +
+            '"answer": "With User Wide Integration you can use Google Doc template.",' +
+            '"subQuestions": [' +
+                '{' +
+                    '"question": "Watermark",' +
+                    '"answer": "Yes, you can add watermark in google doc."' +
+                '},' +
+                '{' +
+                    '"question": "Clone Template",' +
+                    '"answer": "No, Currently we don\'t provide clone template option for google doc."' +
+                '},' +
+                '{' +
+                    '"question": "Docs Selection",' +
+                    '"answer": "You can only select files created from our app.If you wish to use previously created template you can copy paste its content."' +
+                '},' +
+                '{' +
+                    '"question": "Request Access",' +
+                    '"answer": "Integrated account and active chrome account might not be same so you are seeing this message."' +
+                '}' +
+            ']' +
         '}' +
     ']' +
     '},{' +
@@ -120,19 +170,19 @@ public with sharing class ChatBotController {
     '"subQuestions": [' +
         '{' +
             '"question": "Template Status",' +
-            '"answer": "Coming soon"' +
+            '"answer": "Template\'s which you are not going to use you can keep them as inactive and that won\'t appear in generate template selection page."' +
         '},' +
         '{' +
             '"question": "Template Limit",' +
-            '"answer": "Coming soon"' +
+            '"answer": "Currently there is no limit on template you can create as many template\'s you want."' +
         '},' +
         '{' +
             '"question": "Template Preview",' +
-            '"answer": "Coming soon"' +
+            '"answer": "You can select record for which you want to preview the output."' +
         '},' +
         '{' +
-            '"question": "Template deletion",' +
-            '"answer": "Coming soon"' +
+            '"question": "Template default button",' +
+            '"answer": "Template default button creates a button which does the predefined operation after generating document."' +
         '}' +
     ']' +
     '},{' +
@@ -140,16 +190,16 @@ public with sharing class ChatBotController {
     '"answer": "Refer Userguide",' +
     '"subQuestions": [' +
         '{' +
-            '"question": "Permission Issue",' +
-            '"answer": "Coming soon"' +
+            '"question": "Unable to Perform Operations",' +
+            '"answer": "Ask system admins for permission if you want to change integration options or create buttons."' +
         '},' +
         '{' +
             '"question": "Doc Genius",' +
-            '"answer": "Coming soon"' +
+            '"answer": "We provide end to end solution to all your document generation problems."' +
         '},' +
         '{' +
             '"question": "Email Us",' +
-            '"answer": "Coming soon"' +
+            '"answer": "Email us : support-dg@mvclouds.com"' +
         '}' +
     ']' +
     

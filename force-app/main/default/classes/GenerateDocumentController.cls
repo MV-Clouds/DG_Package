@@ -61,7 +61,7 @@ public with sharing class GenerateDocumentController {
             listOfStatus.isAWSIntegrated = MVDG__AwsAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
             listOfStatus.isDropBoxIntegrated = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
             listOfStatus.isOneDriveIntegrated = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
                 listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;
             }
@@ -109,45 +109,49 @@ public with sharing class GenerateDocumentController {
 /*
 *********************************************************
 @description     : Method is used to save the document in the files
-@param           : contentVersionId {String} - Id of the content version
-@param           : recordId {String} - Id of the record, with which file need to be linked
+@param           : combinedData {Map<String, String>} - map of all needeed data like, content version id, recod id, document generation activity id
 @return          :String - status of complition
 ********************************************************
 */
     @AuraEnabled
-    public static String storeInFiles(String contentVersionId, String recordId){
+    public static String storeInFiles(Map<String, String> combinedData){
         try {
+            String contentVersionId = combinedData.get('contentVersionId');
+            String recordId = combinedData.get('recordId');
+            String activityId = combinedData.get('activityId');
+
             ContentDocumentLink cdl = new ContentDocumentLink();
             if(contentVersionId != null){
                 cdl.ContentDocumentId = [Select Id, ContentDocumentId from ContentVersion WHERE Id=:contentVersionId WITH SECURITY_ENFORCED LIMIT 1].ContentDocumentId;
             }
-            cdl.LinkedEntityId = recordId;   
+            cdl.LinkedEntityId = recordId;
             cdl.Sharetype = 'V';
             if(Schema.sObjectType.ContentDocumentLink.isCreateable()){
-                insert cdl;
+                insert as User cdl;
             }
+            return 'success';
         }catch (Exception e) {
             System.debug('Error in storeInFiles =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'storeInFiles');
-            if(Test.isRunningTest() == false){
-                throw new AuraHandledException(e.getMessage());
-            }
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'storeInFiles', combinedData.get('activityId'));
+            return e.getMessage();
         }
-        return 'completed';
     }
 
 /*
 *********************************************************
 @description     : Method is used to post document to chatter
-@param           : contentVersionId {String} - Id of the content version
-@param           : recordId {String} - Id of the record, with which file need to be linked
-@param           : body {String} - body string to post with the chatter
+@param           : combinedData {Map<String, String>} - map of all needeed data like, content version id, recod id, document generation activity id and body of chatter
 @return          :String - status of complition
 ********************************************************
 */
     @AuraEnabled
-    public static String postToChatter(String contentVersionId, String recordId, String body){
+    public static String postToChatter(Map<String, String> combinedData){
         try {
+            String contentVersionId = combinedData.get('contentVersionId');
+            String recordId = combinedData.get('recordId');
+            String body = combinedData.get('body');
+            String activityId = combinedData.get('activityId');
+            System.debug('Combined Data ::' + combinedData);
             FeedItem feed = new FeedItem();
             if(recordId == null || recordId == ''){
                 feed.ParentId = UserInfo.getUserId();
@@ -157,16 +161,14 @@ public with sharing class GenerateDocumentController {
             feed.RelatedRecordId = contentVersionId;
             feed.Body = body;
             if(Schema.sObjectType.FeedItem.isCreateable()){
-                insert feed;
+                insert as User feed;
             }
+            return 'success';
         }catch (Exception e) {
             System.debug('Error in postToChatter =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'postToChatter');
-            if(Test.isRunningTest() == false){
-                throw new AuraHandledException(e.getMessage());
-            }
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'postToChatter', combinedData.get('activityId'));
+            return e.getMessage();
         }
-        return 'completed';
     }
 
 /*
@@ -174,11 +176,12 @@ public with sharing class GenerateDocumentController {
 @description     : Method is used to send the email with newly generated document
 @param           : allEmails {Map<String, List<String>>} - Map containing to, cc and bcc email addresses
 @param           : emaildata {Map<String,String>} - Map containing other data like CV Id, subject and body
+@param           : activityId {String} - Id of the document generation activity record for this generation
 @return          : String - status of complition
 ********************************************************
 */
     @AuraEnabled
-    public static String sendEmail(Map<String, List<String>> allEmails, Map<String,String> emailData){
+    public static String sendEmail(Map<String, List<String>> allEmails, Map<String,String> emailData, String activityId){
         try {
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             String[] attachments =  new String[] {};
@@ -201,14 +204,12 @@ public with sharing class GenerateDocumentController {
                     throw new AuraHandledException('Email send was unsuccessfull');     
                 }
             }
+            return 'success';
         }catch (Exception e) {
             System.debug('Error in storeFilesAndSendEmail =>' + e.getMessage());
-            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'sendEmail');
-            if(Test.isRunningTest() == false){
-                throw new AuraHandledException(e.getMessage());
-            }
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'sendEmail', activityId);
+            return e.getMessage();
         }
-        return 'completed';
     }
 
 /*
@@ -232,6 +233,32 @@ public with sharing class GenerateDocumentController {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getSessionId');
         }
         return sessionId;
+    }
+
+/*
+*********************************************************
+@description      : Method is used to create a new activity record for a template
+@param {none}
+@return           : activityId {String} - new activity Id
+********************************************************
+*/
+    @AuraEnabled
+    public static String upsertActivity(MVDG__Generate_Document_Activity__c activity){
+        try{
+            if(activity != null){
+                if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.isCreateable() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.isUpdateable()){
+                    activity.MVDG__Initiated_By__c = UserInfo.getUserId();
+                    upsert as User activity;
+                    return activity.Id;
+                }
+                return null;
+            }
+            return null;
+        }catch(Exception e){
+            System.debug('Error in upsertActivity =>' + e.getMessage());
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'upsertActivity');
+            return null;
+        }
     }
 
 
@@ -279,10 +306,9 @@ public with sharing class GenerateDocumentController {
 ********************************************************
 */
     @AuraEnabled
-    public static String getTemplateData(String templateId){
-        String allData = '';
+    public static Map<String,String> getTemplateData(String templateId){
+        Map<String,String> mapOfData = new Map<String,String>{'fields' => null, 'query' => null, 'sessionId' => null, 'count' => '1000000'};
         try{
-
             List<MVDG__Template_Data__c> tfList = new List<MVDG__Template_Data__c>();
             if(templateId != null){
                 tfList = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last LIMIT 1];
@@ -292,15 +318,20 @@ public with sharing class GenerateDocumentController {
                 String fields = tfList[0].MVDG__CSV_Fields__c;
                 String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
                 String sessionId = '';
+                String countableQuery = 'SELECT count() FROM' + (query.contains('ORDER BY') ? (query.substringBeforeLast('ORDER BY').substringAfterLast('FROM') + ' LIMIT ' + query.substringAfterLast('LIMIT')) : query.substringAfterLast('FROM'));
+                Integer count = database.countQuery(String.valueOf(countableQuery));
                 sessionId = getSessionId();
-
-                allData = fields + ' <|QDG|> ' + query + ' <|QDG|> ' + sessionId;
-                System.debug('All the Data to be Sent is :: ' + allData);
+                mapOfData.put('fields', fields);
+                mapOfData.put('query', query);
+                mapOfData.put('sessionId', sessionId);
+                mapOfData.put('count', String.valueOf(count)!=null ? String.valueOf(count) : query.substringAfterLast('LIMIT'));
+                System.debug('All the Data to be Sent is :: ' + mapOfData);
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateData');
+            return null;
         }
-        return allData;
+        return mapOfData;
     }
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Used to set default generation options for the templates -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -317,7 +348,7 @@ public with sharing class GenerateDocumentController {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
             if(templateId != null){
-                templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c,	MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+                templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
             }
             if(templates.size() > 0){
                 ddw.templateId = templates[0].Id;
@@ -368,7 +399,7 @@ public with sharing class GenerateDocumentController {
                 MVDG__Email_Template__c = defaultData.get('emailTemplate')
             );
             if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
-                update template;
+                update as User template;
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'setDefaultOptions');
@@ -387,14 +418,14 @@ public with sharing class GenerateDocumentController {
     @AuraEnabled
     public static void deleteContentVersion(String cvId){
         try {
-            String hour = String.valueOf(Datetime.now().hour());
-            String min = String.valueOf(Datetime.now().minute() + 10); 
-            String ss = String.valueOf(Datetime.now().second());
-
+            Datetime timeToTrigger = System.now();
+            timeToTrigger = timeToTrigger.addMinutes(10);
+            String hour = String.valueOf(timeToTrigger.hour());
+            String min = String.valueOf(timeToTrigger.minute()); 
+            String ss = String.valueOf(timeToTrigger.second());
             String deleteTimeCron = ss + ' ' + min + ' ' + hour + ' * * ?';
-
             DeleteContentDocumentController deleteController = new DeleteContentDocumentController(cvId);
-            System.schedule('delete temp Content Version - ' + Datetime.now(), deleteTimeCron, deleteController);
+            System.schedule('delete temp Content Version - ' + timeToTrigger, deleteTimeCron, deleteController);
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'deleteContentVersion');
         }

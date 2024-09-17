@@ -219,7 +219,7 @@
                                 </div>
                             </template>
 
-                            <template if:true={isFeedbackPopup}>
+                            <div class="feedback_main" data-display={isFeedbackPopup}>
                                 <div class="feedback-container">
                                     <div class="feedback">
                                         <div><p>Please give your feedback?</p></div>
@@ -239,7 +239,7 @@
                                 <div class="submit-feedback">
                                     <button onclick={submitFeedback} class="slds-button slds-button_brand feedbackBtn" disabled>Submit</button>
                                 </div>
-                            </template>
+                            </div>
 
                             
 
