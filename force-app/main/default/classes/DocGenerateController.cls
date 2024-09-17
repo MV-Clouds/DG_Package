@@ -164,6 +164,9 @@ global with sharing class DocGenerateController {
                     signatureSize = temp[0].MVDG__Signature_Size__c != null ? temp[0].MVDG__Signature_Size__c : 50;
     
                 }
+                else{
+                    apexError = 'Template not available for deleted.';
+                }
     
                 // ---- ----- ----- Collect all mapping key with actual value ---- ----- -----
                 map<String, Map<String, String>> mappingKeys = DataMappingControllerV2.getMappingsKeyValues(new List<String>{temp[0].Id}, recordId, true);

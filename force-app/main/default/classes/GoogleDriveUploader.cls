@@ -75,6 +75,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         System.debug('GoogleDrive file upload batch finished');
     }
 
+
     global static String getToken(String activity){
         try {
             List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();

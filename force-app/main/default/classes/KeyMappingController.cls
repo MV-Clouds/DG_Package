@@ -640,7 +640,7 @@ public with sharing class KeyMappingController {
             'MM/dd/yyyy' => 'MM/DD/YYYY (12/31/2023)',
             'MM/dd/yy' => 'MM/DD/YY (12/31/23)',
             'yyyy/MM/dd' => 'YYYY/MM/DD (2023/12/31)',
-            'dd MMMM yyyy' => 'DD Month 2023 (31 December 2023)',
+            'dd MMMM yyyy' => 'DD Month YYYY (31 December 2023)',
             'dd MMM yyyy' => 'DD Mon YYYY (31 Dec 2023)',
             'dd MMMM, yyyy' => 'DD Month, YYYY (31 December, 2023)',
             'dd MMM, yyyy' => 'DD Mon, YYYY (31 Dec, 2023)',

@@ -1796,6 +1796,8 @@ a.note-dropdown-item:hover {
                 padding-inline-start: 52px !important;
                 unicode-bidi: isolate !important;
                 list-style: inside;
+                overflow: hidden;
+                max-height: 100%;
             }
             .note-editor.note-frame ol{
                 list-style-type: decimal !important;

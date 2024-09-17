@@ -519,27 +519,29 @@ export default class KeyMappingContainer extends LightningElement {
      */
     setMappingTab(event){
         try {
-            if(event && event.currentTarget){
+            if(event && event.currentTarget && this.activeMappingTabName !== event.currentTarget.dataset.name){
+                this.template.querySelector('[data-combox="relatedObj"]')?.clearSearch();
                 this.activeMappingTabName = event.currentTarget.dataset.name;
+                
+                var tabSelection = this.template.querySelectorAll('.tabSelection');
+                if(tabSelection){
+                    tabSelection.forEach(ele => {
+                        if(ele.dataset.name == this.activeMappingTabName){
+                            ele.classList.add('selected');
+                            this.searchFieldValue = null;
+                        }
+                        else if(ele.classList.contains('selected')){
+                            ele.classList.remove('selected');
+                        }
+                    });
+                };
+                
+                var index = this.mappingTypeTabs.indexOf(this.mappingTypeTabs.find(ele => ele.name == this.activeMappingTabName));
+                this.selectedMappingType = this.mappingTypeTabs[index];
+    
+                this.handleKeySearch();
             }
             
-            var tabSelection = this.template.querySelectorAll('.tabSelection');
-            if(tabSelection){
-                tabSelection.forEach(ele => {
-                    if(ele.dataset.name == this.activeMappingTabName){
-                        ele.classList.add('selected');
-                        this.searchFieldValue = null;
-                    }
-                    else if(ele.classList.contains('selected')){
-                        ele.classList.remove('selected');
-                    }
-                });
-            };
-            
-            var index = this.mappingTypeTabs.indexOf(this.mappingTypeTabs.find(ele => ele.name == this.activeMappingTabName));
-            this.selectedMappingType = this.mappingTypeTabs[index];
-
-            this.handleKeySearch();
 
         } catch (error) {
             errorDebugger('FieldMappingKey', 'setMappingTab', error ,'warn');
