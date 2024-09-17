@@ -7,7 +7,7 @@ public with sharing class DocGenActivityTriggerHandler {
                 Integer noOfSelectedChannels = act.MVDG__Selected_Channels__c.split(',').size();
                 Integer noOfCompletedhnnels = 0;
                 for (String channel : act.MVDG__Selected_Channels__c.split(',')) {
-                    String fieldName = channel.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c';
+                    String fieldName = 'MVDG__' + channel.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c';
                     if (act.get(fieldName) == null || String.valueOf(act.get(fieldName)).trim() == ''){
                         break;
                     }else if(act.get(fieldName) == 'Success'){
