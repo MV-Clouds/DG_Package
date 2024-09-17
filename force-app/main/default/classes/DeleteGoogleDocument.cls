@@ -61,7 +61,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
 
     public static String refreshAccessToken() {
         try {
-            List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+            List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
             System.debug('Refresh Access token');
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
@@ -69,7 +69,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + authProvider.MVDG__ClientId__c + '&client_secret=' + authProvider.MVDG__ClientSecret__c + '&grant_type=refresh_token');
-            request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
+            request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             System.debug('Response of refreshAccessToken: ' + response.getBody());
