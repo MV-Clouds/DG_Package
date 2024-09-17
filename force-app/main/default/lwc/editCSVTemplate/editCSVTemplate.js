@@ -278,7 +278,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
                             .override-css-from-js .slds-textarea{
                                 height: 3.5rem;
-                                border-radius: 0.5rem 0.5rem 0 0.5rem;
+                                border-radius: 0.5rem;
                                 border: 1px solid var(--slds-c-input-color-border);
                                 box-shadow: none !important;
                             }

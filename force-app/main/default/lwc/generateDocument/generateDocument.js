@@ -534,7 +534,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
 
                 .body-div .slds-rich-text-editor__textarea:last-child .slds-rich-text-area__content {
-                    resize: auto;
+                    resize: vertical;
                     max-height: fit-content;
                     border-radius : 0.5rem;
                 }

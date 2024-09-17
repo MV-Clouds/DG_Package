@@ -1007,7 +1007,7 @@ button:hover{
 .basic-detail-div{
     display: flex;
     flex-direction: column;
-    height: calc(100% - 1.5rem);
+    height: calc(100% - 2.5rem);
 }
 
 
