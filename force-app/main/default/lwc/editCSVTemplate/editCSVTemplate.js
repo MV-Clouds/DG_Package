@@ -82,20 +82,18 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     @track fieldsForFilters = [];
     @track allOperatorOptions = [
         //String
-        { label: 'Equals to', value: '=', type: 'default, , url, string, textarea, id, number, percent, double, integer, phone, date, datetime, time, email, currency, boolean, multipicklist' },
-        { label: 'Not Equals to', value: '!=', type: 'default, , url, string, textarea, id, number, percent, double, integer, phone, date, datetime, time, email, currency, boolean, multipicklist' },
+        { label: 'Equals to', value: '=', type: 'default, url, string, textarea, id, number, percent, double, integer, phone, date, datetime, time, email, currency, boolean, multipicklist' },
+        { label: 'Not Equals to', value: '!=', type: 'default, url, string, textarea, id, number, percent, double, integer, phone, date, datetime, time, email, currency, boolean, multipicklist' },
         { label: 'Contains', value: 'LIKE', type: ', url, string, textarea, email, picklist' },
         { label: 'Does not contain', value: 'notLIKE', type: ', url, string, textarea, email, picklist' },
         { label: 'Starts with', value: 'startLIKE', type: ', url, string, textarea, email, phone, picklist' },
         { label: 'Ends with', value: 'endLIKE', type: ', url, string, textarea, email, phone, picklist' },
         { label: 'Include', value: 'IN', type: 'multipicklist, picklist, string' },
         { label: 'Exclude', value: 'notIN', type: 'multipicklist, picklist, string' },
-        { label: 'Greater Than', value: '>', type: 'number, percent, double, integer, currency, picklist, , url, string, date, datetime, time' },
-        { label: 'Less Than', value: '<', type: 'number, percent, double, integer, currency, picklist, , url, string, date, datetime, time' },
-        { label: 'Greater or equal', value: '>=', type: 'number, percent, double, integer, currency, picklist, , url, string, date, datetime, time' },
-        { label: 'Less or equal	', value: '<=', type: 'number, percent, double, integer, currency, picklist, , url, string, date, datetime, time' },
-        // { label: 'Before', value: '<', type: 'date, datetime' },
-        // { label: 'After', value: '>', type: 'date, datetime' },
+        { label: 'Greater Than', value: '>', type: 'number, percent, double, integer, currency, picklist, url, string, date, datetime, time' },
+        { label: 'Less Than', value: '<', type: 'number, percent, double, integer, currency, picklist, url, string, date, datetime, time' },
+        { label: 'Greater or equal', value: '>=', type: 'number, percent, double, integer, currency, picklist, url, string, date, datetime, time' },
+        { label: 'Less or equal	', value: '<=', type: 'number, percent, double, integer, currency, picklist, url, string, date, datetime, time' },
     ];
 
     operatorMap = new Map([
@@ -221,7 +219,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }else{
                 filter.value = '';
                 this.template.querySelectorAll('.value-select-div')[index]?.classList.add('dont-display-div');
-            }            
+            }
             return {...filter,step : '0.0001', maxLImit:filter.inputType === 'number' ? '19' : ['id','reference'].includes(filter.type?.toLowerCase()) ? '18' : filter.type?.toLowerCase() === 'phone' ? '40' : '255', displayIndex: index + 1, isPicklist: ['PICKLIST' , 'MULTIPICKLIST' , 'BOOLEAN'].includes(filter.type) , isMultiple: filter.operator == 'IN' || filter.operator == 'notIN' || filter.type =='MULTIPICKLIST'};
         });
     }
@@ -883,6 +881,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.template.querySelectorAll('.filter-index-div')[0].classList.remove('error-in-row');
             }
             this.isEditTabChanged = true;
+
+            this.filtersCount = this.filters.length;
+            this.initialFilters = true;
             
             for(let i = 0; i < this.filters.length ; i++){
                 this.template.querySelectorAll('.filter-field-select')[i].classList.toggle('error-in-custom-combobox', !this.filters[i].fieldName);
@@ -1261,8 +1262,8 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 const logicStringInput = this.template.querySelector('.logic-string-input');
                 const errorString =  this.template.querySelector('.error-text');
                 if(!checkCharactersRegex.test(this.customLogicString)){
-                    logicStringInput.classList.add('error-in-input');
-                    errorString.innerText = 'Oops!, invalid characters found!';
+                    logicStringInput?.classList.add('error-in-input');
+                    if(errorString) errorString.innerText = 'Oops!, invalid characters found!';
                     return false;
                 }
                 const numbers = this.customLogicString.match(regex);
@@ -1270,14 +1271,14 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     for (let i = 0; i < numbers.length; i++) {
                         const num = numbers[i];
                         if (num > this.filters.length || num < 1) {
-                            logicStringInput.classList.add('error-in-input');
-                            errorString.innerText ='Um, Filter-'+ num + ' does not exist!';
+                            logicStringInput?.classList.add('error-in-input');
+                            if(errorString) errorString.innerText ='Um, Filter-'+ num + ' does not exist!';
                             return false;
                         }
                     }
                 }
-                logicStringInput.classList.remove('error-in-input');
-                errorString.innerText = '';
+                logicStringInput?.classList.remove('error-in-input');
+                if(errorString) errorString.innerText = '';
                 return true;
             }
         }catch(e){
@@ -1292,10 +1293,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             this.isCustomLogicValid = this.validateOnEachCharacter();
             const logicStringInput = this.template.querySelector('.logic-string-input');
             const errorString =  this.template.querySelector('.error-text');
-            logicStringInput.classList.remove('error-in-input');
+            logicStringInput?.classList.remove('error-in-input');
             if(!this.customLogicString){
-                errorString.innerText = 'Seems so empty!!';
-                logicStringInput.classList.add('error-in-input');
+                if(errorString) errorString.innerText = 'Seems so empty!!';
+                logicStringInput?.classList.add('error-in-input');
                 this.showErrorMessage('Please Enter a Custom Logic Formula.');
                 this.isCustomLogicValid = false;
                 return;
@@ -1352,7 +1353,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 if(!isValidBrackets){
                     this.showErrorMessage('There are unmatched brackets in the logic..');
                     this.isCustomLogicValid = false;
-                    logicStringInput.classList.add('error-in-input');
+                    logicStringInput?.classList.add('error-in-input');
                     return;
                 }else if(logicString.length == 2){
                     this.isCustomLogicValid = false;
@@ -1368,7 +1369,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     }
                 }else if(!((logicString[0] == '(' || logicString[0] == 'N') && (logicString[logicString.length-1] == ')' || logicString[logicString.length-1] == 'N'))){
                     this.isCustomLogicValid = false;
-                    logicStringInput.classList.add('error-in-input');
+                    logicStringInput?.classList.add('error-in-input');
                     this.showErrorMessage('You can Start and end logic only with number or brackets.');
                     return;
                 }else{
@@ -1437,17 +1438,16 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     }
                 }
             }else{
-                errorString.innerText = 'Oops! Please check spelling of \'AND\' and \'OR\'';
+                if(errorString) errorString.innerText = 'Oops! Please check spelling of \'AND\' and \'OR\'';
                 this.showErrorMessage('It seems to be spelling mistake of "AND" and "OR".');
                 this.isCustomLogicValid = false;
                 return;
             }
-            
-            logicStringInput.classList.remove('error-in-input');
+            logicStringInput?.classList.remove('error-in-input');
             if(this.isCustomLogicValid){
-                errorString.innerText = '';
+                if(errorString) errorString.innerText = '';
             }else{
-                logicStringInput.classList.add('error-in-input');
+                logicStringInput?.classList.add('error-in-input');
                 this.showToast('error', 'Please enter valid Logic!', 'there was an error in the custom logic!', 5000);
             }
         }catch(e){
@@ -2331,7 +2331,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                             fetchedFilters = [fetchedFilters];
                         }
                         this.filters = this.getAllConditions(fetchedFilters);
-        
                         let filterStrings = [];
                         let repeatedIndices = [];
                         for(let i=0;i<this.filters.length;i++){
@@ -2347,7 +2346,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                             !filterStrings.includes(filterString) ? filterStrings.push(filterString) : repeatedIndices.push(i);
                             this.customLogicString  = this.customLogicString.replace(filterString, +filterStrings.indexOf(filterString)+1);
                         }
-
                         if(result.scope == 'mine'){
                             this.filters.push({
                                 fieldName : 'OwnerId',
@@ -2356,7 +2354,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 type : 'REFERENCE',
                                 inputType : 'text'
                             });
-                            this.customLogicString = this.filters.length + ' AND ( ' + this.customLogicString + ' )';
+                            this.customLogicString = (this.filters.length - (repeatedIndices?.length||0)) + ' AND ( ' + this.customLogicString + ' )';
                         }
                         
                         if(this.customLogicString){
@@ -2372,7 +2370,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                                 this.isCustomLogic = true;
                             }
                         }
-
                         this.existingLogic = this.selectedLogic;
                         this.existingCustomLogicString = this.customLogicString;
         

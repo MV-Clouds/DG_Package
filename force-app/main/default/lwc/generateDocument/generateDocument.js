@@ -2155,7 +2155,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     combinedLists.succeeded = this.succeeded;
                     
                     Object.keys(this.failed).forEach(key => {
-                        this.activity['MVDG__' + key.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c'] = this.failed[key];
+                        this.activity['MVDG__' + key.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c'] = this.failed[key] || 'No Error Returned!!';
                     });
                     this.succeeded.forEach(item => {
                         this.activity['MVDG__' + item.replaceAll(' & ', '_').replaceAll(' ', '_') + '__c'] = 'Success';
