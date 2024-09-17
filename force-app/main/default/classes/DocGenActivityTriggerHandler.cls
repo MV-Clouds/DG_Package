@@ -1,4 +1,19 @@
+/*
+*********************************************************
+Apex Class Name    : DocGenActivityTriggerHandler
+@description       : This class is used to send email after all the generation process completes 
+@author            : Kevin Suvagiya
+@last Modified     : Kevin Suvagiya - 17 Sep, 2024
+*********************************************************
+*/
 public with sharing class DocGenActivityTriggerHandler {
+/*
+*********************************************************
+@description     : Method is used to identify the generation process is complete and send the results to the user
+@param           : updatedActivities {List<MVDG__Generate_Document_Activity__c>} - List of activities that were updated
+@return          : none
+********************************************************
+*/
     public void onAfterUpdate( List<MVDG__Generate_Document_Activity__c> updatedActivities){
         try{
             for (MVDG__Generate_Document_Activity__c act : updatedActivities) {
@@ -31,7 +46,8 @@ public with sharing class DocGenActivityTriggerHandler {
 *********************************************************
 @description     : Method is used to send the email after the generation is complete
 @param           : succeeded List<String> - List containing succeeded chanels
-@param           : combinedMaps {Map<String,Map<String,String>>} - Map containing failed and template data
+@param           : failed Map<String,String> - Map of failed channels with the errors
+@param           : infoData Map<String, String> - Map of the templateId and the fileName to be used in the email
 @return          : none
 ********************************************************
 */
