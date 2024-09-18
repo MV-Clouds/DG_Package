@@ -267,7 +267,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             if(this.initialRender){
                 // To OverRider standard slds css properties...
                 let mainFilterDiv = this.template.querySelector('.main-div');
-                let styleEle = document.createElement('style');
+                let styleEle;
+                if (!import.meta.env.SSR) {
+                    styleEle = document.createElement('style');
+                }
                 styleEle.innerText = `
                     .override-css-from-js .slds-input:not(c-custom-combobox .slds-input){
                         height: calc( 2.5rem - 2px );
@@ -2225,7 +2228,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     headers: myHeaders,
                     redirect: "follow"
                     };
-                    let domainURL = location?.origin;
+                    let domainURL;
+                    if (!import.meta.env.SSR) {
+                        domainURL = location?.origin;
+                    }
                     if(!domainURL){
                         this.showToast('error', 'Something went wrong!', 'Some error occurred!, please try again.', 5000);
                     }

@@ -442,7 +442,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     connectedCallback() {
         this.showSpinner = true;
         try{
-            window?.addEventListener('message', this.simpleTempFileGenResponse);
+            if (!import.meta.env.SSR) window.addEventListener('message', this.simpleTempFileGenResponse);
             this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
@@ -495,14 +495,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     disconnectedCallback(){
-        window?.removeEventListener('message', this.simpleTempFileGenResponse);
+        if (!import.meta.env.SSR) window.removeEventListener('message', this.simpleTempFileGenResponse);
     }
 
     renderedCallback() {
         try{
             if(this.isInitialStyleLoaded) return;
-            const STYLE = document.createElement('style');
-            STYLE.innerText = `
+            let updatedStyle;
+            if (!import.meta.env.SSR) updatedStyle = document.createElement('style');
+            updatedStyle.innerText = `
 
                 :host{
                     --border-color-of-email-body: darkgray;
@@ -613,7 +614,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             `;
     
-            this.template.querySelector('.main-generate-document-div').appendChild(STYLE);
+            this.template.querySelector('.main-generate-document-div').appendChild(updatedStyle);
             this.isInitialStyleLoaded = true;
         }catch (e) {
             errorDebugger('generateDocument', 'renderedCallback', e, 'error');
@@ -1119,14 +1120,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     //Bottom Button Controls
 
     handleClose(){
-        window?.removeEventListener('message', this.simpleTempFileGenResponse);
+        if (!import.meta.env.SSR) window.removeEventListener('message', this.simpleTempFileGenResponse);
         if(this.currentPageReference.type === "standard__quickAction"){
             if (!import.meta.env.SSR) this.dispatchEvent(new CloseActionScreenEvent())
         }else if(this.showCloseButton){ 
             if(this.isCalledFromPreview){
                 if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('close'));
             }else{
-                location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
+                if (!import.meta.env.SSR) location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
             }
         }
     }
@@ -1373,7 +1374,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 redirect: "follow"
             };
 
-            let domainURL = location.origin;
+            let domainURL;
+            if (!import.meta.env.SSR) domainURL= location.origin;
             domainURL = domainURL.replace('lightning.force.com', 'my.salesforce.com');
 
             return fetch(encodeURI(domainURL + queryURL), requestOptions)
@@ -1510,7 +1512,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }else if(this.selectedExtension === '.xls'){
                 element = 'data:application/vnd.ms-excel,' + encodeURIComponent(csvContent);
             }
-            let link = document.createElement('a');
+            let link;
+            if (!import.meta.env.SSR) link = document.createElement('a');
             link.href = element;
             link.target = '_self';
             link.download = this.fileName+ this.selectedExtension;
@@ -1544,7 +1547,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try{
             this.showSpinner = true;
             this.labelOfLoader = 'Downloading...';
-            const link = document.createElement('a');
+            let link;
+            if (!import.meta.env.SSR) link = document.createElement('a');
             link.href = "data:application/pdf;base64,"+this.googleDocData;
             link.download = this.fileName+this.selectedExtension;
             document.body.appendChild(link);
