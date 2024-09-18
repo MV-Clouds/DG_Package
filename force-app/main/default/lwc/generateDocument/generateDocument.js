@@ -534,7 +534,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
 
                 .body-div .slds-rich-text-editor__textarea:last-child .slds-rich-text-area__content {
-                    resize: auto;
+                    resize: vertical;
                     max-height: fit-content;
                     border-radius : 0.5rem;
                 }
@@ -848,11 +848,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try{
             this.showSpinner = true;
             let result = event.detail[0]?.Id;
-            if(!result){
-                this.selectedTemplate = null;
-            }else{
-                this.selectedTemplate = result;
-            }
+            this.selectedTemplate = result || null;
             this.fileName = this.templateName;
             this.csvDocumentTypes.forEach(dt => {dt.isSelected = false});
             this.generalDocumentTypes.forEach(dt => {dt.isSelected = false});
@@ -885,7 +881,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleAdditionalInfo(event){
         this.isAdditionalInfo = event.target.checked;
     }
-
 
     //Navigate to respective template builder
     handleEditClick() {
@@ -941,46 +936,18 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     if(email){
                         if(emailValidator.test(email)){
                             email = email.trim();
-                            let errorClass = '';
                             event.target.value = null;
-                            if(typeOfEmail === "to"){
-                                this.isToError=false;
-                                !this.toEmails.includes(email) ? this.toEmails.push(email) : undefined;
-                                errorClass = ".to-error-div";
-                            }
-                            if(typeOfEmail === "cc"){
-                                this.isCcError=false;
-                                !this.ccEmails.includes(email) ? this.ccEmails.push(email) : undefined;
-                                errorClass = ".cc-error-div";
-                            }
-                            if(typeOfEmail === "bcc"){
-                                this.isBccError=false;
-                                !this.bccEmails.includes(email) ? this.bccEmails.push(email) : undefined;
-                                errorClass = ".bcc-error-div";
-                            }
-                            
-                            errorClass ? this.template.querySelector(errorClass)?.classList.add("not-display-div") : undefined;
-                            errorClass ? this.template.querySelector(errorClass).innerText = '' : undefined;
+                            if(!this[typeOfEmail+'Emails'].includes(email)) this[typeOfEmail+'Emails'].push(email);
+                            this['is' + typeOfEmail.charAt(0).toUpperCase() + typeOfEmail.slice(1) + 'Error'] = false;
+                            this.template.querySelector('.'+typeOfEmail + '-error-div')?.classList.add("not-display-div");
+                            this.template.querySelector('.'+typeOfEmail + '-error-div').innerText = '';
                             event.target?.classList.remove("input-error-border");
                             event.preventDefault();
                         }else{
                             event.target.value = emailString;
-                            let errorClass = '';
-                            if(typeOfEmail === "to"){
-                                this.isToError=true;
-                                errorClass = ".to-error-div";
-                            }
-                            if(typeOfEmail === "cc"){
-                                this.isCcError=true;
-                                errorClass = ".cc-error-div";
-                            }
-                            if(typeOfEmail === "bcc"){
-                                this.isBccError=true;
-                                errorClass = ".bcc-error-div";
-                            }
-
-                            errorClass ? this.template.querySelector(errorClass).innerText = 'Please Enter valid Email..' : undefined;
-                            errorClass ? this.template.querySelector(errorClass)?.classList.remove("not-display-div") : undefined;
+                            this['is' + typeOfEmail.charAt(0).toUpperCase() + typeOfEmail.slice(1) + 'Error'] = true;
+                            this.template.querySelector('.'+typeOfEmail + '-error-div').innerText = 'Please Enter valid Email..';
+                            this.template.querySelector('.'+typeOfEmail + '-error-div')?.classList.remove("not-display-div");
                             event.target?.classList.add("input-error-border");
                         }
                     }
@@ -996,12 +963,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             let index = event.currentTarget.dataset.index;
             let typeOfEmail = event.currentTarget.dataset.type;
-            if(typeOfEmail === "to"){
-                this.toEmails.splice(index, 1);
-                this.validateToEmails();
-            }
-            typeOfEmail === "cc" ? this.ccEmails.splice(index, 1) : undefined;
-            typeOfEmail === "bcc" ? this.bccEmails.splice(index, 1) : undefined;        
+            this[typeOfEmail+'Emails'].splice(index, 1);
+            if(typeOfEmail === "to") this.validateToEmails();
         }catch (e) {
             errorDebugger('generateDocument', 'handleRemoveAddedEmail', e, 'error');
         }finally{
@@ -1011,15 +974,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     validateToEmails(){
         try{
-            if(this.toEmails.length <1){
-                this.template.querySelector(".to-input").classList.add("input-error-border");
-                this.template.querySelector(".to-error-div").innerText = 'There must be at least one recipient..';
-                this.template.querySelector(".to-error-div").classList.remove("not-display-div");
-            }else{
-                this.template.querySelector(".to-input").classList.remove("input-error-border");
-                this.template.querySelector(".to-error-div").innerText = '';
-                this.template.querySelector(".to-error-div").classList.add("not-display-div");
-            }
+            let hasRecipients = this.toEmails.length > 0;
+            this.template.querySelector(".to-input").classList.toggle("input-error-border", !hasRecipients)
+            this.template.querySelector(".to-error-div").innerText = hasRecipients ? '' : 'There must be at least one recipient..';
+            this.template.querySelector(".to-error-div").classList.toggle("not-display-div", hasRecipients);
         }catch(e){
             errorDebugger('generateDocument', 'validateToEmails', e, 'error');
         }
@@ -1058,15 +1016,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleEmailTemplateSelect(event) {
         try {
             this.selectedEmailTemplate = event.detail[0];
+            this.template.host.style.setProperty('--display-for-email-body-div', this.selectedEmailTemplate ? "none" : "flex");
+            this.template.host.style.setProperty('--display-for-email-preview-div', this.selectedEmailTemplate ? "flex" : "none");
             if(this.selectedEmailTemplate){
-                this.template.host.style.setProperty('--display-for-email-body-div',"none");
-                this.template.host.style.setProperty('--display-for-email-preview-div',"flex");
                 this.previewEmailBody = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue;
                 this.emailSubject = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.Subject || this.emailSubject;
             }else{
                 this.emailSubject = '';
-                this.template.host.style.setProperty('--display-for-email-body-div',"flex");
-                this.template.host.style.setProperty('--display-for-email-preview-div',"none");
             }
         } catch (e) {
             errorDebugger('generateDocument', 'handleEmailTemplateSelect', e, 'error');
@@ -1077,13 +1033,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try {
             if(this.selectedViewAsType !== event.detail[0]){
                 this.selectedViewAsType = event.detail[0];
-                if(this.selectedViewAsType === "plain"){
-                    this.isPlainEmailBody = true;
-                    this.template.host.style.setProperty('--display-of-the-rich-text',"none");
-                }else{
-                    this.isPlainEmailBody = false;
-                    this.template.host.style.setProperty('--display-of-the-rich-text',"unset");
-                }
+                this.isPlainEmailBody = this.selectedViewAsType === "plain";
+                this.template.host.style.setProperty('--display-of-the-rich-text',this.isPlainEmailBody ? "none" : "unset");
             }
         } catch (e) {
             errorDebugger('generateDocument', 'handleViewAsTypeSelect', e, 'error');
@@ -1130,7 +1081,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             top: mainDiv.scrollHeight,
                             left: 0,
                             behavior: "smooth",
-                            });
+                        });
                     }
                 }
             }
@@ -1170,10 +1121,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleClose(){
         window?.removeEventListener('message', this.simpleTempFileGenResponse);
         if(this.currentPageReference.type === "standard__quickAction"){
-            this.dispatchEvent(new CloseActionScreenEvent())
+            if (!import.meta.env.SSR) this.dispatchEvent(new CloseActionScreenEvent())
         }else if(this.showCloseButton){ 
             if(this.isCalledFromPreview){
-                this.dispatchEvent(new CustomEvent('close'));
+                if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('close'));
             }else{
                 location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
             }
@@ -1195,18 +1146,18 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return new Promise((resolve, reject) => {
             try {
                 upsertActivity({ activity: this.activity })
-                    .then((result) => {
-                        if(result){
-                            this.activity.Id = result;
-                            resolve(true);
-                        }else{
-                            reject('There was an error creating an activity for generation, please go back and try again...');
-                        }
-                    })
-                    .catch((e) => {
-                        errorDebugger('generateDocument', 'generateActivity > upsertActivity', e, 'error');
-                        reject(e);
-                    });
+                .then((result) => {
+                    if(result){
+                        this.activity.Id = result;
+                        resolve(true);
+                    }else{
+                        reject('There was an error creating an activity for generation, please go back and try again...');
+                    }
+                })
+                .catch((e) => {
+                    errorDebugger('generateDocument', 'generateActivity > upsertActivity', e, 'error');
+                    reject(e);
+                });
             } catch (e) {
                 errorDebugger('generateDocument', 'generateActivity', e, 'error');
                 reject(e);
@@ -1272,10 +1223,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showWarningPopup('error', 'Something went wrong!', e);
                 this.isClosableError = true;
         })
-    }
-
-    stopSpinner(){
-        this.showSpinner = false;
     }
 
     //Back to generate

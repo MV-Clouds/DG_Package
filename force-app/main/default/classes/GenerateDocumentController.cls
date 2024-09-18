@@ -1,3 +1,11 @@
+/*
+*********************************************************
+Apex Class Name    : GenerateDocumentController
+@description       : This class is used for handling various processes of generating documents of different templates
+@author            : Kevin Suvagiya
+@last Modified     : Kevin Suvagiya - 17 Sep, 2024
+*********************************************************
+*/
 public with sharing class GenerateDocumentController {
     
 /*

@@ -114,7 +114,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     // Get Back to the Document Generator
     handleClose(){
         try{
-            this.dispatchEvent(new CustomEvent("close"));
+            if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent("close"));
         }catch(e){
             errorDebugger('previewCSV', 'handleClose', e, 'warn');
         }

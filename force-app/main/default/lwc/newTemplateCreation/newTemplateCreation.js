@@ -127,7 +127,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     }
     
     closeModel() {
-        this.dispatchEvent(new CustomEvent('closemodal'));
+        if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('closemodal'));
     }
     handleNavigate() {
         try {
@@ -181,7 +181,7 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                     if(!result.includes('Error')){
                         this.templateId = result;
                         this.handleNavigate();
-                        this.dispatchEvent(new CustomEvent('aftersave'));
+                        if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('aftersave'));
                         this.closeModel();
                     }else{
                         this.isShowSpinner = false;
