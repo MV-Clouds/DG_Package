@@ -15,6 +15,10 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
 @param           : activityId{Id} - ActivityId
 ********************************************************
 */
+    global AwsUploader(Id cvid) {
+        this.contentVersionId = cvid;
+    }
+
     global AwsUploader(Id cvid, Id activityId) {
         this.contentVersionId = cvid;
         this.activity = activityId;
@@ -73,8 +77,8 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
 
                 if (fileSize < maxSize) {
                     List<String> fileDetails = new List<String>();
-                    file[0] = fileName.toLowerCase();
-                    file[1] = attach.FileExtension;
+                    fileDetails[0] = fileName.toLowerCase();
+                    fileDetails[1] = attach.FileExtension;
                     uploadObject(fileDetails, attach.VersionData, activity);
                 } else {
                     if(namedCredential != ''){
