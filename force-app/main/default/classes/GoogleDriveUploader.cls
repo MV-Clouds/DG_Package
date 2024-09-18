@@ -5,7 +5,13 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     global static string googleFileName;
     global string activity;
 
-
+/*
+*********************************************************
+@description     : constructor to define values
+@param           : cvid{Id} - ContentVersionId
+@param           : activityId{Id} - ActivityId
+********************************************************
+*/
     global GoogleDriveUploader(Id cvid, Id activityId) {
         this.contentVersionId = cvid;
         this.activity = activityId;
@@ -40,8 +46,10 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                 String acctoken = getToken(activity);
                 Integer fileSize = cv.ContentSize;
                 String contentType = contentType(cv.FileExtension);
-                System.debug('--------' + contentType);
                 Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
+                List<String> fileDetails = new List<String>();
+                fileDetails[0] = contentType;
+                fileDetails[1] = activity;
                 if(acctoken != null){
                     googleDriveAccessToken = acctoken;
 
@@ -51,10 +59,10 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                     } 
                     if (fileSize < maxSize) { // 5 MB threshold
                         System.debug('Uploading small file directly to googledrive');
-                        uploadToGoogleDrive(cv, fileName, contentType, activity);
+                        uploadToGoogleDrive(cv, fileName, fileDetails);
                     } else {
                         System.debug('Uploading large file in chunks to googledrive');
-                        uploadLargeFileInChunks(cv, fileSizeEncoded, contentType, activity);
+                        uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
                     }
                 }
             } catch (System.LimitException e) {
@@ -76,6 +84,13 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     }
 
 
+/*
+*********************************************************
+@description     : Method is used to get access token
+@param           : isOrg {Boolean} - Let them know if the access token is for org wide or user wide
+@return          : {String} - return Token if successful
+********************************************************
+*/
     global static String getToken(String activity){
         try {
             List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
@@ -116,8 +131,18 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         return null;
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to upload small files
+@param           : fileDetails{List<String>} - File MimeType and activity which is needed
+@param           : Content{Contentversion} - File contentversion which needs to be upload
+@param           : filName{String} - Name of the file which needs to be upload
+@return          : Boolean - success or not
+********************************************************
+*/
     @AuraEnabled
-    public static Boolean uploadToGoogleDrive(ContentVersion content, String fileName, String contentType, String activity) {
+    public static Boolean uploadToGoogleDrive(ContentVersion content, String fileName, List<String> fileDetails) {
         try {
             if (content != null) {
                 MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
@@ -128,24 +153,24 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                 if (resp.getStatusCode() == 200) {
                     Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                         obj.Google_Drive__c = 'Success';
-                        obj.Id = activity; 
+                        obj.Id = fileDetails[1]; 
                         update obj;
                     return true;
                 } else {
                     Response_Handler.store_Callout_Response(resp, 'GoogleDriveUploader', 'uploadToGoogleDrive');
                     Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                         obj.Google_Drive__c = 'Failure '+ resp.getStatusCode() + resp.getBody();
-                        obj.Id = activity; 
+                        obj.Id = fileDetails[1]; 
                         update obj;
                     mailMessage(resp.getStatusCode());
                     return false; // Retry after token refresh
                 }
             }
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadToGoogleDrive', activity);
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadToGoogleDrive', fileDetails[1]);
             Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                 obj.Google_Drive__c = 'Failure '+ e.getMessage();
-                obj.Id = activity; 
+                obj.Id = fileDetails[1]; 
                 update obj;
         }
         
@@ -153,6 +178,15 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         return false;
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to create httpRequest for google drive upload
+@param           : Content{Contentversion} - File contentversion which needs to be upload
+@param           : settings{MVDG__AuthProviderSettings__c} - Custom setting containing accesstoken
+@return          : HttpRequest - create httpRequest for google drive upload
+********************************************************
+*/
     private static HttpRequest createGoogleDriveRequest(ContentVersion content, MVDG__AuthProviderSettings__c settings) {
         HttpRequest req = new HttpRequest();
         String fileN = content.Title;
@@ -171,6 +205,14 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         return req;
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to create multipart request for google drive upload
+@param           : Content{Contentversion} - File contentversion which needs to be upload
+@return          : String - returns body
+********************************************************
+*/
     private static String createMultipartRequestBody(ContentVersion content) {
         String fileN = content.Title;
         String fileExtension = content.FileExtension;
@@ -179,15 +221,33 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         return body;
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to create multipart request for google drive upload
+@param           : req{HttpRequest} - Sends request to google
+@return          : HttpResponse - returns response recieved from google
+********************************************************
+*/
     private static HttpResponse sendHttpRequest(HttpRequest req) {
         Http h = new Http();
         req.setTimeout(60000);
         return h.send(req);
     }
 
-    private static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, String fileExtension, String activity) {
+
+/*
+*********************************************************
+@description     : Method is used to upload large file in chunks
+@param           : contentVersion{ContentVersion} - Content version which needs to be uploaded
+@param           : fileSize{Integer} - File size in bytes
+@param           : fileDetails{List<String>} - List of file details containing file type and activity
+@return          : none
+********************************************************
+*/
+    private static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, List<String> fileDetails) {
         try {
-            String result = initiateUploadSession(fileExtension, contentVersion, activity);
+            String result = initiateUploadSession(fileDetails[0], contentVersion, fileDetails[1]);
             if (result != 'failure') {
                 System.debug('Initiated successfully');
                 Decimal filesizedec = Decimal.valueOf(fileSize);
@@ -199,12 +259,9 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     
     
                 for (Integer i = 0; i < totalChunks; i++) {
-                    // System.debug(Limits.getHeapSize());
                     Integer start = i * chunkSize;
                     Integer ending = Math.min((i + 1) * 1572864 - 1, Integer.valueOf(contentVersion.VersionData.size()) - 1);
                     System.debug('Chunk Start Byte: ' + start);
-                    // System.debug('Chunk End Byte: ' + ending);
-                    // System.debug('file size-->' + fileSize);
                     Blob chunkBlob = getFileData(contentVersion.VersionData, start, chunkSize);
                     offset = Integer.valueOf(Math.floor(start / 1.3333333333));
                     if (start != 0) {
@@ -216,28 +273,34 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                     chunkDetail.start = start;
                     chunkDetail.ending = ending;
                     chunkDetail.offset = offset;
-                    chunkDetail.fileExtension = fileExtension;
+                    chunkDetail.fileExtension = fileDetails[0];
                     chunkDetail.fileSize = contentVersion.VersionData.size();
                     chunkDetail.result = result;
-                    chunkDetail.activity = activity;
+                    chunkDetail.activity = fileDetails[1];
                     uploadChunk(chunkDetail);
-                    // System.debug('Uploaded chunk ' + (i + 1) + '/' + totalChunks + ': Start Byte: ' + start + ', End Byte: ' + ending + ', Offset: ' + offset);
-                    // System.debug(Limits.getHeapSize());
                     chunkBlob = null;
                     System.debug(Limits.getHeapSize());
                 }
             }
             
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadLargeFileInChunks', activity);
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadLargeFileInChunks', fileDetails[1]);
             Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                 obj.Google_Drive__c = 'Failure '+ e.getMessage();
-                obj.Id = activity; 
+                obj.Id = fileDetails[1]; 
                 update obj;
         }
 
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to send email to user
+@param           : code(Integer)
+@return          : none
+********************************************************
+*/
     public static void mailMessage(Integer code){
         if (code == 400) {
             String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
@@ -321,6 +384,16 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         }
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to initiate upload session to upload in chunks
+@param           : contentType (String) - MimeType of the file
+@param           : cv (ContentVersion) - ContentVersion of the file
+@param           : fileName (String) - Name of the file
+@return          : String - return url to upload file in chunks
+********************************************************
+*/
     public static string initiateUploadSession(String contentType, ContentVersion cv, String activity) {
         try {
             MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
@@ -333,11 +406,9 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
             String body = '{"title":"' + cv.Title + '", "mimeType":"' + contentType + '"}';
             req.setBody(body);
     
-    
             Http http = new Http();
             HttpResponse res = http.send(req);
-    
-    
+
             if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
                 System.debug(res.getHeader('Location'));
                 return (String) res.getHeader('Location');
@@ -362,6 +433,13 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     }
 
 
+/*
+*********************************************************
+@description     : Method is used to upload small chunks
+@param           : parameters (ChunkDetails) - wrapper class containing details of chunks to be uploaded
+@return          : none
+********************************************************
+*/
     private static void uploadChunk(ChunkDetails parameters) {
         try {
             
@@ -369,10 +447,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                 
             String contentRange = 'bytes ' + parameters.start + '-' + parameters.ending + '/' + parameters.fileSize;
 
-            // System.debug('upload url' + result);
             MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
-            // System.debug('Content-Length' + String.valueof(chunk.size()));
-            // System.debug('Content-Range' + contentRange);
             HttpRequest req2 = new HttpRequest();
             req2.setEndpoint(parameters.result);
             req2.setMethod('PUT');
@@ -385,7 +460,6 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 
             Http http = new Http();
             HttpResponse res = http.send(req2);
-            // System.debug('getting status code while uploading chunk-->' + res.getStatusCode());
 
 
             if (res.getStatusCode() == 201 || res.getStatusCode() == 202 || res.getStatusCode() == 308) {
@@ -416,11 +490,16 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     }
 
     private static Blob getFileData(Blob versionDataBlob, Integer chunkStart, Integer chunkSize) {
-        // System.debug('Error -->' + EncodingUtil.base64Decode(encodingUtilMethod(versionDataBlob, chunkStart, chunkSize)));
         return EncodingUtil.base64Decode(encodingUtilMethod(versionDataBlob, chunkStart, chunkSize));
     }
 
-
+/*
+*@description: Method is used to return blob in string form
+*@parameters: versionData{Blob} - file which needs to be upload
+*@parameters: chunkStart{Integer} - start of chunk
+*@parameters: chunkSize{Integer} - size of chunk
+*@return: String - base64 encoded chunk
+*/
     public static String encodingUtilMethod(Blob versionDataBlob, Integer chunkStart, Integer chunkSize) {
         return EncodingUtil.base64Encode(versionDataBlob).mid(chunkStart, chunkSize);
     }
@@ -430,6 +509,13 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         return EncodingUtil.base64Encode(versionDataBlob).length();
     }
 
+/*
+*********************************************************
+@description     : Method is used to send email to user if uploading fails
+@param           : message{String} - message of the error
+@return          : none
+********************************************************
+*/
     @AuraEnabled
     public static void emailUser(String message) {
         // User currentUser = [SELECT Id, Email FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
@@ -447,6 +533,14 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to return mime Type according to the external storage
+@param           : fileType{String} - file type of the attachment
+@return          : String return mimeType of the file
+********************************************************
+*/
     public static string contentType(string fileType) {
         switch on fileType.toLowerCase() {
             when 'docx' {
@@ -477,6 +571,17 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         }
     }
 
+    /*
+    *@description: WrapperClass to return chunk details
+    *@parameters: chunk{Blob} - file chunk
+    *@parameters: start{Integer} - start bytes
+    *@parameters: ending{Integer} - Ending bytes
+    *@parameters: offset{Integer} - offset
+    *@parameters: fileExtension{String} - file extension
+    *@parameters: fileSize{Integer} - file size
+    *@parameters: result{String} - result
+    *@parameters: activity{String} - activity
+    */
     public class ChunkDetails {
         @AuraEnabled public Blob chunk { get; set; }
         @AuraEnabled public Integer start { get; set; }

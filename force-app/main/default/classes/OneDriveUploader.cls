@@ -4,7 +4,13 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     global static string fullFileName;
     global string activity;
 
-    //Generating New Access Token for each upload
+    /*
+    *********************************************************
+    @description     : Method is used to get access token
+    @param           : activity {String} - Used when error occurs
+    @return          : {String} - return access token
+    ********************************************************
+    */
     public static String getToken(String activity){
         try {
             MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
@@ -42,7 +48,13 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 return null;
         }
     }
-
+    /*
+    *********************************************************
+    @description     : constructor to define values
+    @param           : cvid{Id} - ContentVersionId
+    @param           : activityId{Id} - ActivityId
+    *********************************************************
+    */
     global OneDriveUploader(Id cvid, Id activityId) {
         System.debug(activity);
         this.contentVersionId = cvid;
@@ -83,15 +95,19 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 String acctoken = getToken(activity);
                 Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
                 Integer maxSize = (8 * 1024 * 1024);  // 8 MB chunk factor
+                List<String> fileDetails = new List<String>();
+                fileDetails[0] = fileName;
+                fileDetails[1] = contentType;
+                fileDetails[2] = activity;
                 if (Test.isRunningTest()) {
                     maxSize = 800;
                 }
                 if(acctoken != null){
                     oneDriveAccessToken = acctoken;
                     if (fileSize < maxSize) { // 8 MB threshold
-                        uploadToOneDrive(cv, fileName, contentType, activity);
+                        uploadToOneDrive(cv, fileDetails);
                     } else {
-                        uploadLargeFileInChunks(cv, fileName, fileSizeEncoded, contentType, activity);
+                        uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
                     }
                 }
             } catch (Exception e) {
@@ -112,20 +128,26 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
 
 
 
-
+    /*
+    *********************************************************
+    @description     : upload small to Onedrive
+    @param           : cvid{Id} - ContentVersionId
+    @param           : activityId{Id} - ActivityId
+    ********************************************************
+    */
     @AuraEnabled
-    public static Boolean uploadToOneDrive(ContentVersion content, String fileName, String contentType, String activity) {
+    public static Boolean uploadToOneDrive(ContentVersion content, List<String> fileDetails) {
         try {
             MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
             String emailid = settings.MVDG__email__c;
             string endpointUrl = 'https://graph.microsoft.com/v1.0/users/me/drive/items/root:/{file}:/content';
-            string file = EncodingUtil.URLENCODE(fileName, 'UTF-8').replace('+', '%20');
+            string file = EncodingUtil.URLENCODE(fileDetails[0], 'UTF-8').replace('+', '%20');
             endpointUrl = endpointUrl.replace('{file}', file + '.' + content.FileExtension);
             HttpRequest req = new HttpRequest();
             req.setHeader('Authorization', 'Bearer ' + oneDriveAccessToken);
             req.setEndpoint(endpointUrl);
             req.setMethod('PUT');
-            req.setHeader('Content-type', contentType);
+            req.setHeader('Content-type', fileDetails[1]);
             req.setHeader('Content-Encoding', 'UTF-8');
             req.setHeader('accept', 'application/json');
             req.setBodyAsBlob(content.VersionData);
@@ -136,32 +158,39 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             System.debug(resp.getBody());
             if (resp.getStatusCode() == 200 || resp.getStatusCode() == 201) {
                 System.debug(resp.getBody());
-                System.debug('activity'+activity);
+                System.debug('activity'+fileDetails[2]);
                 Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                 obj.One_Drive__c = 'Success';
-                obj.Id = activity; 
+                obj.Id = fileDetails[2]; 
                 update obj;
                 return true;
             } else {
                 Response_Handler.store_Callout_Response(resp, 'OneDriveUploader', 'uploadToOneDrive');
                 Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                 obj.One_Drive__c = 'Failure '+ resp.getStatusCode() + resp.getBody();
-                obj.Id = activity; 
+                obj.Id = fileDetails[2]; 
                 update obj;
                 mailMessage(resp.getStatusCode());
                 System.debug('Something went wrong');
                 return false;
             }
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'OneDriveUploader', 'uploadToOneDrive', activity);
+            Log_Handler.store_Exception(e, 'OneDriveUploader', 'uploadToOneDrive', fileDetails[2]);
             Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                 obj.One_Drive__c = 'Failure '+ e.getMessage();
-                obj.Id = activity; 
+                obj.Id = fileDetails[2]; 
                 update obj;
                 return false;
         }
     }
 
+    /*
+    *********************************************************
+    @description     : send email to user according to specific code
+    @param           : code(Integer)
+    @return          : none
+    ********************************************************
+    */
     public static void mailMessage(Integer code){
         if (code == 400) {
             String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
@@ -245,10 +274,16 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
         }
     }
 
-
-    public static void uploadLargeFileInChunks(ContentVersion contentVersion, String fileName, Integer fileSize, String fileExtension,String activity) {
+    /*
+    *********************************************************
+    @description     : send email to user according to specific code
+    @param           : code(Integer)
+    @return          : none
+    ********************************************************
+    */
+    public static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, List<String> fileDetails) {
         try {
-            String result = initiateUploadSession(fileExtension, contentVersion, activity);
+            String result = initiateUploadSession(fileDetails[1], contentVersion, fileDetails[2]);
             if (result != 'failure') {
                 System.debug('Initiated successfully');
                 Decimal filesizedec = Decimal.valueOf(fileSize);
@@ -272,24 +307,30 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                     chunkdetail.start = start;
                     chunkdetail.ending = ending;
                     chunkdetail.offset = offset; 
-                    chunkdetail.fileExtension = fileExtension;
+                    chunkdetail.fileExtension = fileDetails[1];
                     chunkdetail.fileSize = contentVersion.VersionData.size();
                     chunkdetail.result = result;
-                    chunkdetail.activity = activity;
+                    chunkdetail.activity = fileDetails[2];
                     uploadChunk(chunkdetail);
                 }
             }
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'OneDriveUploader', 'uploadLargeFileInChunks', activity);
+            Log_Handler.store_Exception(e, 'OneDriveUploader', 'uploadLargeFileInChunks', fileDetails[2]);
             Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                 obj.One_Drive__c = 'Failure '+ e.getMessage();
-                obj.Id = activity; 
+                obj.Id = fileDetails[2]; 
                 update obj;
         }
 
     }
 
-
+    /*
+    *********************************************************
+    @description     : send email to user 
+    @param           : message{String} - message of the error
+    @return          : none
+    ********************************************************
+    */
     @AuraEnabled
     public static void emailUser(String message) {
             String subject = 'Issue in uploading file to One drive';
@@ -306,7 +347,15 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
     }
 
-
+    /*
+    *********************************************************
+    @description     : send email to user 
+    @param           : contentType{String} - MimeType of the file
+    @param           : cv (ContentVersion) - ContentVersion of the file
+    @param           : activity {String} - Id of the parent record
+    @return          : String - return url to upload file in chunks
+    ********************************************************
+    */
     public static string initiateUploadSession(String contentType, ContentVersion cv, String activity) {
         try {       
             MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
@@ -345,6 +394,13 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     }
 
 
+    /*
+    *********************************************************
+    @description     : upload chunk to OneDrive
+    @param           : parameters{chunkDetails} - MimeType of the file
+    @return          : none
+    ********************************************************
+    */
     private static void uploadChunk(chunkDetails parameters) {
         System.debug('Upload chunk Invoked');
         try {
@@ -393,7 +449,13 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
         }
     }
 
-
+    /*
+    *********************************************************
+    @description     : get mimetype according to the external storage
+    @param           : fileType{String} - MimeType of the file
+    @return          : String - return mimetype of the file
+    ********************************************************
+    */
     public static String contentTypeForOneDrive(String fileType) {
         switch on fileType.toLowerCase() {
             when 'docx' {
@@ -423,21 +485,55 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
         }
     }
 
-
+    /*
+    *********************************************************
+    @description     : Method is used to create chunk
+    @param           : versionDataBlob {Blob} - file which needs to be upload
+    @param           : chunkStart {Integer} - start of chunk
+    @param           : chunkSize {Integer} - size of chunk
+    @return          : Blob - returns chunk in form of blob
+    ********************************************************
+    */
     private static Blob getFileData(Blob versionDataBlob, Integer chunkStart, Integer chunkSize) {
         return EncodingUtil.base64Decode(EncodingUtilMethod(versionDataBlob, chunkStart, chunkSize));
     }
 
-
+    /*
+    *********************************************************
+    @description     : Method is used to create chunk
+    @param           : versionDataBlob {Blob} - file which needs to be upload
+    @param           : chunkStart {Integer} - start of chunk
+    @param           : chunkSize {Integer} - size of chunk
+    @return          : String - returns chunk in string form
+    ********************************************************
+    */
     public static String encodingUtilMethod(Blob versionDataBlob, Integer chunkStart, Integer chunkSize) {
         return EncodingUtil.base64Encode(versionDataBlob).mid(chunkStart, chunkSize);
     }
 
-
+    /*
+    *********************************************************
+    @description     : Method is used to get base64 size
+    @param           : versionDataBlob {Blob} - file which needs to be upload
+    @return          : Integer - returns size of file
+    ********************************************************
+    */
     public static Integer getLengthOfFile(Blob versionDataBlob) {
         return EncodingUtil.base64Encode(versionDataBlob).length();
     }
 
+    /*
+    *********************************************************
+    @description     : wrapper class used to store chunk details
+    @param           : versionDataBlob {Blob} - file which needs to be upload
+    @param           : chunkStart {Integer} - start of chunk
+    @param           : chunkSize {Integer} - size of chunk
+    @param           : fileExtension {String} - file extension
+    @param           : fileSize {Integer} - file size
+    @param           : result {String} - result
+    @param           : activity {String} - activity Id 
+    ********************************************************
+    */
     public class ChunkDetails {
         @AuraEnabled public Blob chunk { get; set; }
         @AuraEnabled public Integer start { get; set; }
