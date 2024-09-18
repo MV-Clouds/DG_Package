@@ -135,14 +135,6 @@ export default class TemplatePreviewModal extends LightningElement {
         }
     }
 
-    renderedCallback(){
-        try {
-            null;
-        } catch (error) {
-            console.warn('error in TemplatePreviewModal > renderedCallback : ', error.message);
-        }
-    }
-
     onRecordSelect(event){
         try {
             if(event.detail && event.detail.length){
@@ -178,7 +170,7 @@ export default class TemplatePreviewModal extends LightningElement {
                 var paraDataStringify = JSON.stringify(paraData);
 
                 // var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
-                var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
+                var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify;
     
                 if(newSRC !== previousSRC){
                     this.vfPageSRC = newSRC;
@@ -194,7 +186,7 @@ export default class TemplatePreviewModal extends LightningElement {
                 }
                 else{
                     // this.vfPageSRC = '/apex/DocGeneratePage';
-                    this.vfPageSRC = '/apex/DocGeneratePage';
+                    this.vfPageSRC = '/apex/MVDG__DocGeneratePage';
 
                     // setTimeout( () => {
                     //     this.vfPageSRC = newSRC;
