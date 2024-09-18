@@ -501,8 +501,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     renderedCallback() {
         try{
             if(this.isInitialStyleLoaded) return;
-            const STYLE = document.createElement('style');
-            STYLE.innerText = `
+            let updatedStyle = document.createElement('style');
+            updatedStyle.innerText = `
 
                 :host{
                     --border-color-of-email-body: darkgray;
@@ -613,7 +613,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
             `;
     
-            this.template.querySelector('.main-generate-document-div').appendChild(STYLE);
+            this.template.querySelector('.main-generate-document-div').appendChild(updatedStyle);
             this.isInitialStyleLoaded = true;
         }catch (e) {
             errorDebugger('generateDocument', 'renderedCallback', e, 'error');
@@ -1121,10 +1121,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleClose(){
         window?.removeEventListener('message', this.simpleTempFileGenResponse);
         if(this.currentPageReference.type === "standard__quickAction"){
-            if (!import.meta.env.SSR) this.dispatchEvent(new CloseActionScreenEvent())
+            this.dispatchEvent(new CloseActionScreenEvent())
         }else if(this.showCloseButton){ 
             if(this.isCalledFromPreview){
-                if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('close'));
+                this.dispatchEvent(new CustomEvent('close'));
             }else{
                 location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
             }

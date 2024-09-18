@@ -1801,7 +1801,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 let fields = this.selectedFields.map(field => {return field.apiName}).join(',');
                 if(this.isChild){
                     this.showSpinner = false;
-                    if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('save', {detail : {selectedFields: this.selectedFields , query: this.generatedQuery, generatedData : {fields : fields, filters :this.separatedData }}}));
+                    this.dispatchEvent(new CustomEvent('save', {detail : {selectedFields: this.selectedFields , query: this.generatedQuery, generatedData : {fields : fields, filters :this.separatedData }}}));
                 }
                 else{
                     this.saveTemplate(isPreview);
@@ -1871,7 +1871,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     handleClose(){
         try {
             if(this.isChild){
-                if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('close'));
+                this.dispatchEvent(new CustomEvent('close'));
             }else if(this.isEditTabChanged || this.isBasicTabChanged){
                 this.isClose = true;
                 this.showWarningPopup('warning', 'Are you sure, you want to close?', 'Your unsaved changes will be discarded once you leave the this page.');
