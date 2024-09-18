@@ -10,7 +10,6 @@ import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
 
 export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
-    @deprecated
     @api isNew;
     // -=-=- the values we got from the Home page/new template popup -=-=-
     @api objectName;
