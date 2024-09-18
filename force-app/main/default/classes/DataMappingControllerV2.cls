@@ -344,7 +344,7 @@ public with sharing class DataMappingControllerV2 {
 
             Object signatureImageKey = extractedKeyMap?.get('signatureImage');
 
-            List<ContentDocumentLink> linkedSignature = [SELECT Id, LinkedEntityId, ContentDocumentId, ContentDocument.LatestPublishedVersionId FROM ContentDocumentLink WHERE LinkedEntityId =: recordId AND ContentDocument.Title LIke '%Signature-%' ORDER BY ContentDocument.LastModifiedDate DESC LIMIT 1];
+            List<ContentDocumentLink> linkedSignature = [SELECT Id, LinkedEntityId, ContentDocumentId, ContentDocument.LatestPublishedVersionId FROM ContentDocumentLink WHERE LinkedEntityId =: recordId AND ContentDocument.Title LIke '%Signature-%' WITH SECURITY_ENFORCED ORDER BY ContentDocument.LastModifiedDate DESC LIMIT 1];
             
             if(signatureImageKey != null && linkedSignature.size() > 0){
                 signatureImage.put((String)string.valueOf(signatureImageKey), linkedSignature[0].ContentDocument.LatestPublishedVersionId);

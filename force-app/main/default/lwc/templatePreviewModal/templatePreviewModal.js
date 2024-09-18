@@ -1,4 +1,4 @@
-import { LightningElement, api, track, wire } from "lwc";
+import { LightningElement, api, track } from "lwc";
 import previewModalImg from "@salesforce/resourceUrl/previewModal_img";
 import getObjectNameField from '@salesforce/apex/TemplateBuilder_Controller.getObjectNameField';
 
@@ -132,13 +132,6 @@ export default class TemplatePreviewModal extends LightningElement {
 
         } catch (error) {
             console.warn('error in TemplatePreviewModal > connectedCallback', error.message);
-        }
-    }
-
-    renderedCallback(){
-        try {
-        } catch (error) {
-            console.warn('error in TemplatePreviewModal > renderedCallback : ', error.message);
         }
     }
 

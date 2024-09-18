@@ -24,7 +24,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     @track bodyData = '';                           // To store template main content data.
     @track headerData = '';                         // To store template header data.
-    @track headerData = '';                         // To store template footer data.
 
     @track templateRecord = {}                      // Store template record field data,
     @track tempRecordBackup = {}                    // for backup to revert template data on cancel click,
@@ -180,7 +179,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 else{
                     this.noTemplateFound = true;
                 }
-                globalThis?.window?.addEventListener('resize', this.resizeFunction);
+                if (typeof window !== 'undefined') {   
+                    window?.addEventListener('resize', this.resizeFunction);
+                }
 
         } catch (error) {
             errorDebugger('TemplateBuilder', 'connectedCallback', error, 'warn');
@@ -214,14 +215,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         this.initialize_Header_Editor();
                         this.initialize_Footer_Editor();
 
-                            var self = this;
+                        var self = this;
+                        if (typeof window !== 'undefined') {   
                             $(document).on("keydown", function(event){
                                 // if user press clt + s on keyboard
                                 if ((event.key == 's' || event.key == 'S') && (event.ctrlKey || event.metaKey)){
                                     self.saveTemplateData();
                                 }
-                            }
-                        );
+                            });
+                        }
                     })
                     .catch(err => {
                         errorDebugger('TemplateBuilder', 'renderedCallback', err, 'warn', 'Error To Load summerNote_Editor');
@@ -405,15 +407,19 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
              * This is doing in order to maintain formatting with extracted child table,
              * If we directly use .summernote('code') method to get editor content, it result in unmatched attribute position for child table during the document creation...
              */
-            const headerEle = document.createElement('div');
-            headerEle.innerHTML = $(this.headerEditor).summernote('code');
-
-            const footerEle = document.createElement('div');
-            footerEle.innerHTML = $(this.footerEditor).summernote('code');
-
-            const bodyEle = document.createElement('div');
-            bodyEle.innerHTML = $(this.contentEditor).summernote('code');
-
+            let headerEle, footerEle, bodyEle;
+            
+            if (typeof window !== 'undefined') {   
+                headerEle = document.createElement('div');
+                headerEle.innerHTML = $(this.headerEditor).summernote('code');
+                
+                footerEle = document.createElement('div');
+                footerEle.innerHTML = $(this.footerEditor).summernote('code');
+                
+                bodyEle = document.createElement('div');
+                bodyEle.innerHTML = $(this.contentEditor).summernote('code');
+            }
+                
             this.headerData = headerEle.innerHTML;
             this.bodyData = bodyEle.innerHTML;
             this.footerData = footerEle.innerHTML;
@@ -507,7 +513,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 else{
                     completedProcess++;
                     this.isSpinner = this.stopSpinner(completedProcess, totalProcesses);
-                    errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTemplateApex APEX Method');
+                    errorDebugger('TemplateBuilder', 'saveTemplateValue', result, 'warn', 'Error in saveTemplateApex APEX Method');
                 }
             })
             .catch(error => {
@@ -530,7 +536,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     else{
                         completedProcess++;
                         this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
-                        errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
+                        errorDebugger('TemplateBuilder', 'saveTemplateValue', result, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                     }
                 })
                 .catch((error) => {
@@ -620,8 +626,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     vfPageLoaded(){
         try {
             this.isSpinner = false;
-            const iframe = this.template.querySelector('iframe');
-            const pdfViewer = iframe.querySelector( 'pdf-viewer' );
+            // const iframe = this.template.querySelector('iframe');
+            // const pdfViewer = iframe.querySelector( 'pdf-viewer' );
         } catch (error) {
             errorDebugger('TemplateBuilder', 'vfPageLoaded', error, 'warn');
         }
@@ -872,11 +878,13 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     // Set Header(top) and footer(bottom) editor margin in editor page...
     setPageHeaderFooterMargin(){
-        const root = document.querySelector(':root');
-        let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
-
-        root.style.setProperty('--headerMarginsTop', `${this.pageConfigs.header.marginTop}${unit}`);
-        root.style.setProperty('--footerMarginsBottom', `${this.pageConfigs.footer.marginBottom}${unit}`);
+        if (typeof window !== 'undefined') {   
+            const root = document?.querySelector(':root');
+            let unit = this.pageConfigRecord.MVDG__Unit_of_Page_Configs__c;
+            
+            root.style.setProperty('--headerMarginsTop', `${this.pageConfigs.header.marginTop}${unit}`);
+            root.style.setProperty('--footerMarginsBottom', `${this.pageConfigs.footer.marginBottom}${unit}`);
+        }
     }
 
     convertConfigValue(previousUnit, currentUnit){
@@ -935,7 +943,10 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     // Set all Editor page size based on page config changes...
     setEditorPageSize(){
         try {
-            const root = document.querySelector(':root');
+            let root;
+            if (typeof window !== 'undefined') {   
+                root = document?.querySelector(':root');
+            }
 
             let pageMarginsTop = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[0];
             let pageMarginsBottom = this.pageConfigRecord.MVDG__Page_Margin__c.split(';')[1];
@@ -967,31 +978,36 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     // Set keyMapping container and editor area as per page size....
     setEditorArea(){
         try {
-            const root = document.querySelector(':root');
+            let root;
+            if (typeof window !== 'undefined') {
+                root = document?.querySelector(':root');
+            }
             let keyMappingContainer = this.template.querySelector('c-key-mapping-container');
 
-            if(window.innerWidth > 1350){
-                // Here, Windows.innerWidth represent the width of contentEditorFrame/(.note-frame) width;
-                const mapContainerWidth = (window.innerWidth >= 1440 ? (35 * 16) : (30 * 16)) + 32;
-                if(window.innerWidth - this.currentPageWidth < mapContainerWidth){
-                    //  If difference Screen width and editor page width is less than key Mapping container width... 
-                    // key Mapping container can not set in that place... So Toggle the container
-                    keyMappingContainer?.toggleMappingContainer(true);
-                    root.style.setProperty('--editingAreaWidth', 'calc(100% - 2rem)');
+            if (typeof window !== 'undefined') {   
+                if(window.innerWidth > 1350){
+                    // Here, Windows.innerWidth represent the width of contentEditorFrame/(.note-frame) width;
+                    const mapContainerWidth = (window?.innerWidth >= 1440 ? (35 * 16) : (30 * 16)) + 32;
+                    if(window?.innerWidth - this.currentPageWidth < mapContainerWidth){
+                        //  If difference Screen width and editor page width is less than key Mapping container width... 
+                        // key Mapping container can not set in that place... So Toggle the container
+                        keyMappingContainer?.toggleMappingContainer(true);
+                        root.style.setProperty('--editingAreaWidth', 'calc(100% - 2rem)');
+                    }
+                    else{
+                        // Show field Mapping Container
+                        keyMappingContainer?.toggleMappingContainer(false);
+                        
+                        root.style.setProperty('--editingAreaWidth', `calc(100% - var(--keyMappingWidth) - 1.25rem)`);
+                    }
                 }
                 else{
-                    // Show field Mapping Container
-                    keyMappingContainer?.toggleMappingContainer(false);
-
-                    root.style.setProperty('--editingAreaWidth', `calc(100% - var(--keyMappingWidth) - 1.25rem)`);
+                    // Hide field Mapping Container
+                    // Show Button ( << Insert Field Button) to Open Field Mapping...
+                    keyMappingContainer?.toggleMappingContainer(true);
+                    // Set Editor Page CSS....
+                    root.style.setProperty('--editingAreaWidth', 'calc(100% - 2rem)');
                 }
-            }
-            else{
-                // Hide field Mapping Container
-                // Show Button ( << Insert Field Button) to Open Field Mapping...
-                keyMappingContainer?.toggleMappingContainer(true);
-                // Set Editor Page CSS....
-                root.style.setProperty('--editingAreaWidth', 'calc(100% - 2rem)');
             }
 
         } catch (error) {
@@ -1073,12 +1089,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     setHeaderFooterMaxHeight(note, event){
         try {
             if(note.selector == 'headerEditor' || note.selector == 'footerEditor'){
-                const page = note.noteEditorFrame.querySelector('.note-editable');
+                const page = note.noteEditorFrame?.querySelector('.note-editable');
                 page.scrollTop = 0;
                 const pageRect = page.getBoundingClientRect();
 
                 if(event){
-                    const selection = window.getSelection();
+                    let selection
+                    if (typeof window !== 'undefined') {   
+                        selection = window?.getSelection();
+                    }
                     const cursorNode = selection?.anchorNode;
                     const cursorNodeRect = cursorNode && cursorNode.nodeName !== "#text" ? cursorNode.getBoundingClientRect() : null;
                     if(cursorNodeRect?.bottom > pageRect.bottom){
@@ -1231,36 +1250,36 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     extractChildRecordTables(){
         try {
             const childRecordTables = [];
-            
-            const bodyEle = document.createElement('div');
-            bodyEle.innerHTML = $(this.contentEditor).summernote('code');
-            bodyEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
-                const childTableInfo = this.extractChildTableInfo(ele);
-                if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
-                    childRecordTables.push(childTableInfo);
-                }
-            });
-
-            const headerEle = document.createElement('div');
-            headerEle.innerHTML = $(this.headerEditor).summernote('code');
-            headerEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
-                const childTableInfo = this.extractChildTableInfo(ele);
-                if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
-                    childRecordTables.push(childTableInfo);
-                }
-            });
-
-            const footerEle = document.createElement('div');
-            footerEle.innerHTML = $(this.footerEditor).summernote('code');
-            footerEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
-                const childTableInfo = this.extractChildTableInfo(ele);
-                if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
-                    childRecordTables.push(childTableInfo);
-                }
-            });
-
+            if (typeof window !== 'undefined') {
+                const bodyEle = document?.createElement('div');
+                bodyEle.innerHTML = $(this.contentEditor).summernote('code');
+                bodyEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
+                    const childTableInfo = this.extractChildTableInfo(ele);
+                    if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
+                        childRecordTables.push(childTableInfo);
+                    }
+                });
+                
+                const headerEle = document.createElement('div');
+                headerEle.innerHTML = $(this.headerEditor).summernote('code');
+                headerEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
+                    const childTableInfo = this.extractChildTableInfo(ele);
+                    if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
+                        childRecordTables.push(childTableInfo);
+                    }
+                });
+                
+                const footerEle = document.createElement('div');
+                footerEle.innerHTML = $(this.footerEditor).summernote('code');
+                footerEle.querySelectorAll(`[data-name="childRecords"]`)?.forEach(ele => {
+                    const childTableInfo = this.extractChildTableInfo(ele);
+                    if(childTableInfo?.tableHTML && childTableInfo?.keyRow && childTableInfo?.infoRow){
+                        childRecordTables.push(childTableInfo);
+                    }
+                });
+            }
             return childRecordTables;
-            
+
         } catch (error) {
             errorDebugger('TemplateBuilder', 'extractChildRecordTables', error, 'warn');
             return [];
@@ -1298,8 +1317,11 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             const extractedSfImages = new Set();
             const innerHTML = this.headerData + this.bodyData + this.footerData;
 
-            const div = document.createElement('div');
-            div.innerHTML = innerHTML;
+            let div;
+            if (typeof window !== 'undefined') {   
+                div = document.createElement('div');
+                div.innerHTML = innerHTML;
+            }
 
             const images = div.querySelectorAll('img');
             images?.forEach(ele => {

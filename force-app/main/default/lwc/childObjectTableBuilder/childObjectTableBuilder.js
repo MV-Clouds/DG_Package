@@ -1,4 +1,4 @@
-import { LightningElement, track, api, wire } from 'lwc';
+import { LightningElement, track, api } from 'lwc';
 
 export default class ChildObjectTableBuilder extends LightningElement {
 
@@ -55,8 +55,8 @@ export default class ChildObjectTableBuilder extends LightningElement {
             var filters;
             var limit;
             if(this.childTableQuery.includes('WHERE')){
+                const whereIndex  = this.childTableQuery.indexOf('WHERE');
                 if(this.childTableQuery.includes('LIMIT')){
-                    const whereIndex  = this.childTableQuery.indexOf('WHERE');
                     const limitIndex  = this.childTableQuery.indexOf('LIMIT') + 5;
                     limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
                     filters = this.childTableQuery.substring(whereIndex, limitIndex - 5);
@@ -65,8 +65,8 @@ export default class ChildObjectTableBuilder extends LightningElement {
                     filters = this.childTableQuery.substring(whereIndex, this.childTableQuery.length);
                 }
             } else if (this.childTableQuery.includes('ORDER BY')) {
+                const orderbyIndex  = this.childTableQuery.indexOf('ORDER BY');
                 if(this.childTableQuery.includes('LIMIT')){
-                    const orderbyIndex  = this.childTableQuery.indexOf('ORDER BY');
                     const limitIndex  = this.childTableQuery.indexOf('LIMIT') + 5;
                     limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
                     filters = this.childTableQuery.substring(orderbyIndex, limitIndex - 5);
@@ -84,7 +84,7 @@ export default class ChildObjectTableBuilder extends LightningElement {
             
             if(this.selectedFieldList && this.selectedFieldList.length){
                 const childTBody = this.template.querySelector('[data-name="childTBody"]');
-                childTBody.innerHTML = '';
+                childTBody.replaceChildren();
 
                 const tdCSS = `   border: 1px solid #808080;
                                     padding: 5px 3px;
@@ -164,9 +164,9 @@ export default class ChildObjectTableBuilder extends LightningElement {
             navigator.clipboard.write([
                 new ClipboardItem({
                     'text/html': new Blob([table.outerHTML], { type: 'text/html' }),
-                    // 'text/plain': new Blob([textarea.value], { type: 'text/plain' })
                 })
             ]);
+            // 'text/plain': new Blob([textarea.value], { type: 'text/plain' })
 
             // Show animation on copy...
             const copyBtn = event.currentTarget;
