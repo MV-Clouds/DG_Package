@@ -112,7 +112,7 @@ export default class PreviewGoogleDocument extends LightningElement {
             messagePopup?.showMessagePopup({
                 status: "error",
                 title: event.detail.title,
-                message: event.detail.message
+                message: event.detail.desc
             });
 
             console.log("messagePopup==>", messagePopup);

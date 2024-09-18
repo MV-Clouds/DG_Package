@@ -14,7 +14,41 @@
     margin-bottom: 1rem;
     border-bottom: 2px solid #00aeff;
     font-size: 1rem;
+    gap: 0.5rem;
 }
+
+.help-text-div:hover{
+    cursor: help;
+    position: relative;
+    flex-grow: 1;
+}
+
+.help-text-div:hover::before{
+    position: absolute;
+    width: 80%;
+    left: 1.5rem;
+    background-color: #d5ebff;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    z-index: 10;
+    font-size: 12px;
+    transition: 0.2s;
+    opacity: 1;
+}
+
+.list-view-help:hover::before{
+    content: "Create 'DG Generate CSV' button, that can be used to generate the documents using CSV Templates from the List View Page of the object.";
+}
+
+.quick-action-help:hover::before{
+    content:"Create 'DG Generate Document' button, that can be used to generate the documents using Simple and Google Doc Templates from the Record detail page.";
+}
+
+.basic-print-help:hover::before{
+    content: "Create 'DG Basic Print' button, that can be used to generate the basic PDF document according to current page layout from the Record detail page.";
+}
+
+
 
 .single-btn-generator {
     border-radius: 0.5rem;

@@ -1,3 +1,11 @@
+/*
+*********************************************************
+Apex Class Name    : PreviewCSVController
+@description       : This class is used for handling various processes of the preview CSV Component, to fetch preview records and the template data
+@author            : Kevin Suvagiya
+@last Modified     : Kevin Suvagiya - 17 Sep, 2024
+*********************************************************
+*/
 public with sharing class PreviewCSVController {
     
 /*
@@ -19,7 +27,7 @@ public with sharing class PreviewCSVController {
             if(queryData.size() > 0){
                 String query = queryData[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
                 if(Integer.valueOf(query.substringAfterLast('LIMIT ')) > 25){
-                    query = queryData[0].MVDG__CSV_Query__c.substringBeforeLast('LIMIT') + ' LIMIT 25';
+                    query = query.substringBeforeLast('LIMIT') + ' LIMIT 25';
                 }
                 previewRecords = Database.query(query);
                 listOfPDW.records = previewRecords;

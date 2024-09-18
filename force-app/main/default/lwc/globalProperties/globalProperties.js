@@ -1,4 +1,4 @@
-import { LightningElement, track, wire, api } from 'lwc';
+import { LightningElement } from 'lwc';
 
 /******************************************
 * 
@@ -237,21 +237,6 @@ export var pageFormats = {
     'statement' : [396, 594],       // DocGenius Changes....
 }; 
 
-/**
- * method that convert value from one unit to another...
- *
- * @param {string} fromUnit
- * @param {string} toUnit
- * @param {number} valueToConvert
- * @returns {number}
- */
-export function unitConverter(fromUnit, toUnit, valueToConvert){
-    var fromUnitMultiplier = unitMultiplier(fromUnit);
-    var toUnitMultiplier = unitMultiplier(toUnit);
-    var value = valueToConvert * fromUnitMultiplier / toUnitMultiplier;
-    return value;
-}
-
 /** 
  * method that return value that used to convert pt unit value in other units value,
  * i.e, pxValue = ptValue * unitMultiplier('px');
@@ -288,4 +273,19 @@ export  function unitMultiplier(unit){
         default:
             return null;
     }
+}
+
+/**
+ * method that convert value from one unit to another...
+ *
+ * @param {string} fromUnit
+ * @param {string} toUnit
+ * @param {number} valueToConvert
+ * @returns {number}
+ */
+export function unitConverter(fromUnit, toUnit, valueToConvert){
+    var fromUnitMultiplier = unitMultiplier(fromUnit);
+    var toUnitMultiplier = unitMultiplier(toUnit);
+    var value = valueToConvert * fromUnitMultiplier / toUnitMultiplier;
+    return value;
 }

@@ -1,7 +1,28 @@
+/**
+* Class Name: GoogleDocTemplateEditorController
+* Test Class: GoogleDocTemplateEditorControllerTest
+* @description: Controller for the GoogleDocTemplateEditor LWC component 
+* Date: 14/08/2024
+* Created By: Dhairya Koshti
+*/
 public with sharing class GoogleDocTemplateEditorController {
     public static Map<String, HttpResponse> responseList = new Map<String, HttpResponse>();    
     public static List<MVDG__AuthProviderSettings__c> authProvider = new List<MVDG__AuthProviderSettings__c>();
 
+     /**
+    * Method Name : getAllData
+    * @description : Used to get all the data related to template and template data
+    * @param templateId templateId for the template - String
+    * @param objectName API name of the source object - String
+    * @return All the related data in form of a - ResponseWrapper.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     @AuraEnabled
     public static ResponseWrapper getAllData(String templateId, String objectName){
         ResponseWrapper response = new ResponseWrapper();
@@ -27,12 +48,24 @@ public with sharing class GoogleDocTemplateEditorController {
         return response;
     }
 
+    /**
+    * Method Name : getAllDocs
+    * @description : Get all the documents in the Google Drive
+    * @return All the google doc template accessible by the User -String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static String getAllDocs() {
         try {
             String endpoint = 'https://www.googleapis.com/drive/v3/files';
             List<MVDG__AuthProviderSettings__c> authProvider = new List<MVDG__AuthProviderSettings__c>();
             authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
-            if (authProvider.size() == 0) {
+            if (authProvider == null || authProvider.size() == 0) {
                 return 'error';   
             }
             
@@ -76,6 +109,18 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
+    /**
+    * Method Name : createNewDocument
+    * @description : Used to create a new google document in the users google drive 
+    * @return Return the response for the API callout - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     @AuraEnabled
     public static String createNewDocument() {
         try {
@@ -114,18 +159,31 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
-    private static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
+    /**
+    * Method Name : refreshAccessToken
+    * @description : get new access token using refresh token.
+    * @return The new access Token - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
+    public static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
         try {
             
             System.debug('Refresh Access token');
             List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            // List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            // request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + settings.MVDG__ClientId__c + '&client_secret=' + settings.MVDG__ClientSecret__c + '&grant_type=refresh_token');
             request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
+            // request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             
@@ -155,6 +213,19 @@ public with sharing class GoogleDocTemplateEditorController {
         return null;
     }
 
+    /**
+    * Method Name : getTemplateData
+    * @description : Used to get all the template data related to the data
+    * @param templateId templateId for the template - String
+    * @return returns the first template data - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static String getTemplateData(String templateId) {
         try {
             List<MVDG__Template_Data__c> templateData = new List<MVDG__Template_Data__c>();
@@ -170,6 +241,19 @@ public with sharing class GoogleDocTemplateEditorController {
         return null;
     }
 
+    /**
+    * Method Name : getTemplate
+    * @description : Used to get all the data template record
+    * @param templateId templateId for the template - String
+    * @return return the template - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static String getTemplate(string templateId) {
         try {
             List<MVDG__Template__c> template = new List<MVDG__Template__c>();
@@ -184,6 +268,18 @@ public with sharing class GoogleDocTemplateEditorController {
         return null;
     }
 
+    /**
+    * Method Name : getGoogleProfile
+    * @description : Get the Username and photo stored in the custom settings
+    * @return returns a object for integrated user details - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static string getGoogleProfile() {
         try {
             MVDG__AuthProviderSettings__c authProvider = [SELECT Id, Name, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__username__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
@@ -201,6 +297,19 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
+    /**
+    * Method Name : getLabel
+    * @description : Used to get the label of the object
+    * @param objectName API name of the source object - String
+    * @return Returns the name of the object - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static string getLabel(String objectName) {
         try {
             Map<String, Schema.sObjectType> sObjectMap = Schema.getGlobalDescribe();
@@ -213,12 +322,24 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
+    /**
+    * Method Name : editTemplate
+    * @description : Used to update the template details
+    * @param templateRecord The object details in string - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     @AuraEnabled
     public static void editTemplate(String templateRecord) {
         try {
             MVDG__Template__c template = (MVDG__Template__c) JSON.deserialize(templateRecord, MVDG__Template__c.class);
             if (Schema.sObjectType.MVDG__Template__c.isAccessible() && Schema.sObjectType.MVDG__Template__c.isUpdateable()) {
-                update template;
+                update as user template;
             }
         } catch (Exception e) {
             System.debug('Error In editTemplate ==> ' + e.getMessage());
@@ -226,6 +347,20 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
     
+    /**
+    * Method Name : saveTemplateData
+    * @description : Used to create a new template data record for the template 
+    * @param templateId templateId for the template - String
+    * @param googleDocId the google doc id for the selected document - String
+    * @param webviewLink the iframe link for the selected google document - String
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     @AuraEnabled
     public static void saveTemplateData(String templateId, String googleDocId, String webViewLink) {
         try {
@@ -236,7 +371,7 @@ public with sharing class GoogleDocTemplateEditorController {
             templateData.MVDG__Order_No_Simple__c = 1;
 
             if (Schema.sObjectType.MVDG__Template_Data__c.isAccessible() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable()) {
-                insert templateData;
+                insert as user templateData;
             }
         } catch (Exception e) {
             System.debug('Error In saveTemplateData ==> ' + e.getMessage());
@@ -244,6 +379,17 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
+    /**
+    * Method Name : updateuthProviderSettings
+    * @description : Used to update the custom settings
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static void updateAuthProviderSettings() {
         try {
             if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isCreateable()) {
@@ -255,6 +401,17 @@ public with sharing class GoogleDocTemplateEditorController {
         }
     }
 
+    /**
+    * Method Name : insertRestResponses
+    * @description : used to insert any responses in case of API callout falures
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static void insertRestResponses() {
         try {
             for (String methodName: responseList.keySet()) {

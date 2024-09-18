@@ -179,7 +179,11 @@ export default class ButtonGenerator extends LightningElement {
                 buttonData.buttonName = 'DG_Basic_Print';
             }
             createListViewButtons({objects: objects ,buttonData : buttonData})
-            .then(()=>{
+            .then((result)=>{
+                if(result !== 'success'){
+                    this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
+                    errorDebugger('buttonGenerator', 'createListViewButtons > failure', result, 'warn');
+                }
                 this.showSpinner = false;
                 this.fetchAlreadyCreatedObjects();
             })

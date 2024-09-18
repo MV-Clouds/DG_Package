@@ -11,10 +11,15 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     _popup;
     @api get isPopup(){ return this._popup }
     set isPopup(value){ this._popup= value === "true" ?  true : false }
-    @api showAdditionalInfo = false;
-    @track noResultsFound = false;
-    @track noDataFoundText = 'No records match your applied filters, try changing filter...';
+    
+    @track _showAdditionalInfo = false;
 
+    @api
+    set showAdditionalInfo(value) { this._showAdditionalInfo = value;}
+    get showAdditionalInfo() { return this._showAdditionalInfo; }
+    
+    @track noResultsFound = false;
+    @track noDataFoundText = 'Could not found any data to preview, update template and try again...';
 
     //to show spinner
     @track showSpinner = false;
@@ -32,6 +37,22 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
 
     @track isGenerate = false;
     @track isTemplateInactive = false;
+
+    get tableData() {
+        return this.previewData?.map(record => {
+            return this.fields?.map(field => ({
+                field,
+                value: this.getValueByKey(record, field) || ' '
+            }));
+        });
+    }
+
+    get additionalInfo() {
+        return this.additionalFields.map(field => ({
+            field,
+            value: field === 'CSV Creation Time' ? new Date().toLocaleString().replace(',', ' ') :this.additionalData[field] || ''
+        }));
+    }
 
     get canNotGenerate(){
         return this.noResultsFound || this.isTemplateInactive;
@@ -54,10 +75,17 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
                 this.additionalData['Description'] = result.templateData.MVDG__Template__r.MVDG__Description__c || 'No Description Available for this template';
                 this.isTemplateInactive = !result.templateData.MVDG__Template__r.MVDG__Template_Status__c;
                 this.additionalData['CSV Creation Time'] = new Date().toLocaleString().replace(',', ' ');
-                if(this.fields.length > 0 && this.previewData.length > 0){
-                    this.setData();
-                    this.noResultsFound = false;
+                if(!this.fields || this.fields?.length < 1){
+                    this.noDataFoundText = 'No columns selected, select columns to see preview...';
+                    this.showSpinner = false;
+                    return;
                 }
+                if(!this.previewData || this.previewData.length < 1){
+                    this.noDataFoundText = "No matching records to preview, try updating the filters...";
+                    this.showSpinner = false;
+                    return;
+                }
+                this.noResultsFound = false;
                 this.showSpinner = false;
             })
             .catch(e=>{
@@ -71,140 +99,22 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
         }
     }
 
-    setData() {
-        this.showSpinner = true;
-        try{
-            // Ensure data is received before processing
-            if (!this.previewData || !this.fields) {
-                return;
-            }
-        
-            const tableBody = this.template.querySelector('tbody');
-            tableBody.innerText = '';
-            this.additionalFields.forEach(field => {
-                const tableRow = document.createElement('tr');
-                tableRow.style.cssText = `
-                    border : 1px solid darkgray;
-                    text-align : center;
-                    display: var(--display-for-additional-info-div, table-row);
-                `;
-                const fieldNameCell = document.createElement('th');
-                fieldNameCell.style.cssText = `
-                        border : 1px solid darkgray;
-                        text-align : center;
-                        padding: 0.1rem 0.5rem;
-                        background-color: #d5ebff;
-                `;
-                fieldNameCell.textContent = field+' :';
-                tableRow.appendChild(fieldNameCell);
-                const fieldDataCell = document.createElement('td');
-                fieldDataCell.style.cssText = `
-                        border : 1px solid darkgray;
-                        text-align : center;
-                        padding: 0.1rem 0.5rem;
-                `;
-                fieldDataCell.textContent = this.additionalData[field] || ''; // Display empty string for missing values
-                tableRow.appendChild(fieldDataCell);
-                if(field === 'CSV Creation Time') fieldDataCell.classList.add('current-time-cell');
-                tableRow.classList.add('additional-info-div');
-                tableBody.appendChild(tableRow);
-            });
-            const emptyTableRow = document.createElement('tr');
-            emptyTableRow.classList.add('additional-info-div');
-            emptyTableRow.style.cssText = `
-                border : 1px solid darkgray;
-                text-align : center;
-                height : 1.3rem;
-                display: var(--display-for-additional-info-div, table-row);
-            `;
-            tableBody.appendChild(emptyTableRow);
-            
-            if(this.showAdditionalInfo){
-                this.template.host.style.setProperty("--display-for-additional-info-div", "table-row");
-            }else{
-                this.template.host.style.setProperty("--display-for-additional-info-div", "none");
-            }
-            
-        
-            // Update header row (optional)
-            // const tableHead = this.template.querySelector('tbody tr');
-            const tableHead = document.createElement('tr');
-            tableHead.style.cssText = `
-                background-color: #d5ebff;
-                height: 1.5rem;
-                position : sticky;
-                top : -1px;
-                z-index : 1;
-            `;
-            if (tableHead) {
-                tableHead.innerText = '';
-                this.fields.forEach(field => {
-                const tableHeaderCell = document.createElement('th');
-                tableHeaderCell.style.cssText = `
-                        border : 1px solid darkgray;
-                        text-align : center;
-                        background-color: #d5ebff;
-                        padding: 0.3rem 0.5rem;
-                `;
-                tableHeaderCell.textContent = field; // Set header text based on field names
-                tableHead.appendChild(tableHeaderCell);
-                });
-                tableBody.appendChild(tableHead);
-            }
-            this.previewData.forEach(record => {
-                const tableRow = document.createElement('tr');
-                tableRow.style.cssText = `
-                    border : 1px solid darkgray;
-                    text-align : center;
-                `;
-        
-                // Display only fields specified in 'fields'
-                this.fields.forEach(field => {
-                const tableCell = document.createElement('td');
-                tableCell.style.cssText = `
-                        border : 1px solid darkgray;
-                        text-align : center;
-                        padding: 0.1rem 0.5rem;
-                        height : 1.3rem;
-                `;
-                tableCell.textContent = this.getValueByKey(record, field) || ' ';
-                tableRow.appendChild(tableCell);
-                });
-        
-                tableBody.appendChild(tableRow);
-            });
-        
-        }catch(e){
-            errorDebugger('previewCSV', 'setData', e, 'warn');
-        }finally{
-            this.showSpinner = false;
-        }
-    }
-
     getValueByKey(obj, key) {
         return key.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
     }
 
-    showAdditionalInfoDiv(event){
+    toggleAdditionalInfoDiv(){
         try {
-            this.showAdditionalInfo = !this.showAdditionalInfo;
-            if(this.showAdditionalInfo){
-                this.template.host.style.setProperty("--display-for-additional-info-div", "table-row");
-                this.template.querySelector('.current-time-cell').innerText = new Date().toLocaleString().replace(',', ' ');
-            }else{
-                this.template.host.style.setProperty("--display-for-additional-info-div", "none");
-            }
+            this._showAdditionalInfo = !this._showAdditionalInfo;
         } catch (e) {
-            errorDebugger('previewCSV', 'showAdditionalInfoDiv', e, 'warn');
+            errorDebugger('previewCSV', 'toggleAdditionalInfoDiv', e, 'warn');
         }
     }
 
     // Get Back to the Document Generator
     handleClose(){
         try{
-            this.dispatchEvent(new CustomEvent('close',{
-                detail : true
-            }));
+            if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent("close"));
         }catch(e){
             errorDebugger('previewCSV', 'handleClose', e, 'warn');
         }

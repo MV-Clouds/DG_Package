@@ -1,4 +1,4 @@
-import { LightningElement , api, track , wire} from 'lwc';
+import { LightningElement , api, track } from 'lwc';
 import cloneTemplateImage from '@salesforce/resourceUrl/clone_template_image';
 import newTemplateBg from '@salesforce/resourceUrl/new_template_bg';
 import cloneTempData from '@salesforce/apex/CloneTemplateDataController.cloneTempData'
@@ -43,8 +43,11 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
         this.template.host.style.setProperty('--background-image-url',`url(${this.templateBg})`);
     }
 
+    get showModal() {
+        return true;
+    }
+
     connectedCallback(){
-        this.showModel = true;
         const template = this.templatelist.find(temp => temp.Id === this.selectedtemplateid);
         console.log('template *** : ',JSON.stringify(template));
         this.templateId =  template.Id;
@@ -93,8 +96,10 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
     }
 
     closeModel(){
-        const closeModalEvent = new CustomEvent('closemodal');
-        this.dispatchEvent(closeModalEvent);
+        if (typeof window !== 'undefined') {
+            const closeModalEvent = new CustomEvent('closemodal');
+            this.dispatchEvent(closeModalEvent);
+        }
     }
 
     cloneTemplate(){
@@ -119,6 +124,8 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
                 let footer = this.template.querySelector(`[data-name="footer"]`).checked;
                 console.log('footer *** : ',footer);
                 const newTemplateOption = {
+                    templateName: this.templateName,
+                    templateDescription: this.templateDescription,
                     templateType:this.templateType,
                     templateBody: templateBody,
                     // watermark: watermark,
@@ -138,6 +145,8 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
                 let fieldLimit = this.template.querySelector(`[data-name="fieldLimit"]`).checked;
                 console.log('fieldLimit *** : ',fieldLimit);
                 const dataMap = {
+                    templateName: this.templateName,
+                    templateDescription: this.templateDescription,
                     templateType:this.templateType,
                     newSelectedFields: selectedFields,
                     newFieldsFilters: fieldsFilters,
@@ -149,17 +158,15 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
                 this.templateSelectOption = jsonData;
             }
             console.log('this is a test log ');
-            cloneTempData({templateId: this.templateId,
-                            templateName: this.templateName,
-                            templateDescription: this.templateDescription,
-                            jsonData: this.templateSelectOption 
-                            })
+            cloneTempData({templateId: this.templateId, jsonData: this.templateSelectOption })
             .then(response=>{
                 console.log('This is a Test Log *** : ',response);
                 this.templateId = response.tempId;
                 this.trmplateObject = response.tempObj;
                 this.handleNavigate();
-                this.dispatchEvent(new CustomEvent('aftersave'));
+                if (typeof window !== 'undefined') {
+                    this.dispatchEvent(new CustomEvent('aftersave'));
+                }
                 this.closeModel();
             }).catch(error=>{
                 this.isShowSpinner = false;

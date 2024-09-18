@@ -441,7 +441,9 @@ export default class CustomRecordPicker extends LightningElement {
 
     errorHandler(error){
         console.warn('custom combobox graphQL Error : ', error);
-        this.dispatchEvent(new CustomEvent('error', {detail : error}));
+        if (typeof window !== 'undefined') {
+            this.dispatchEvent(new CustomEvent('error', {detail : error}));
+        }
         this.disabled = true;
         this.isGqlError = true;
         this.setErrorBorder();
@@ -536,14 +538,14 @@ export default class CustomRecordPicker extends LightningElement {
             modifiedList.forEach(ele => {
                 for(var fieldName in ele){
                     var fieldValue = ele[fieldName];
-                    if(fieldValue.hasOwnProperty('value')){
+                    if(Object.prototype.hasOwnProperty.call(fieldValue, 'value')){
                         const value = fieldValue['value'];
                         ele[fieldName] = value;
                     }
                     else if(Object.keys(fieldValue).length){
                         for(var key in fieldValue){
                             var parentFieldValue = fieldValue[key];
-                            if(parentFieldValue.hasOwnProperty('value')){
+                            if(Object.prototype.hasOwnProperty.call(parentFieldValue, 'value')){
                                 const parentValue = parentFieldValue['value'];
                                 ele[fieldName][key] = parentValue;
                             }
@@ -605,8 +607,8 @@ export default class CustomRecordPicker extends LightningElement {
                         (!matchedOption.isSelected) && this.selectedOptions.push(matchedOption);
                     }
                     else{
-                        this.selectedOptions = this.selectedOptions.filter((ele) => {
-                            return ele != ele;
+                        this.selectedOptions = this.selectedOptions.filter((e) => {
+                            return e != ele;
                         });
                     }
                 });
@@ -633,7 +635,7 @@ export default class CustomRecordPicker extends LightningElement {
         }
     }
 
-    handleShowDropDown(event){
+    handleShowDropDown(){
         try {
             const comboBoxDiv = this.template.querySelector(`[data-id="slds-combobox"]`);
             if(comboBoxDiv){
@@ -721,7 +723,7 @@ export default class CustomRecordPicker extends LightningElement {
     }
 
     //this method only for Single select Combo-Box
-    clearSelection(event){ 
+    clearSelection(){ 
         try {
             this.selectedOptionLabel = null;
             this.selectedOptions = [];
@@ -750,7 +752,7 @@ export default class CustomRecordPicker extends LightningElement {
         }
     }
 
-    closeDropDown(event){
+    closeDropDown(){
         try {
             // remove slds-is-open class from combobox div to hide dropdown...
             const comboBoxDiv = this.template.querySelector(`[data-id="slds-combobox"]`);
@@ -824,7 +826,7 @@ export default class CustomRecordPicker extends LightningElement {
                     return -1;
                 }
                 if(a.isSelected < b.isSelected){
-                    return 1;
+                    return 1; 
                 }
                 if(a.isSelected == b.isSelected){
                      if(a.originalIndex < b.originalIndex){
@@ -834,6 +836,7 @@ export default class CustomRecordPicker extends LightningElement {
                         return 1;
                      }
                 }
+                return 0;
             });
 
             this.displayOptions = displayOptions;

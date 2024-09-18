@@ -12,7 +12,17 @@
   /* --ff_Bahnschrift : "Montserrat"; */
   --ff_Poppins : Poppins;
 }
-
+.csvPreview{
+  background: #00000066;
+  width: calc(100% + 1.5rem);
+  height: calc(100% + 1.5rem);
+  margin-left: -0.75rem;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  display: block;
+  z-index: 1000;
+}
 .mainDiv_Home {
   width: calc(100% + 1.5rem);
   height: calc(100% + 1.5rem);
@@ -1216,10 +1226,11 @@
     width: calc(100% + 1.5rem);
     height: calc(100% + 1.5rem);
     margin-left: -0.75rem;
-    position: absolute;
+    position: fixed;
     top: 0px;
     left: 0px;
     display: block;
+    z-index: 1000;
   }
 
   /* ==== ======= ========= =========  ===== ====== Media Query Section ====== ======== ========== =========== */

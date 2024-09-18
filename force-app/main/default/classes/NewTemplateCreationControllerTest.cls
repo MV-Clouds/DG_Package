@@ -8,6 +8,8 @@ public with sharing class NewTemplateCreationControllerTest {
         NewTemplateCreationController.CombinedData combinedData = NewTemplateCreationController.getCombinedData();
 
         NewTemplateCreationController.saveTemplate(testObj);
+        testObj.put('templateType', 'test');
+        NewTemplateCreationController.saveTemplate(testObj);
 
         Test.stopTest();
 

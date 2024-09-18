@@ -17,10 +17,10 @@ public class ButtonGeneratorControllerTest {
         Test.startTest();
         List<String> objects = new List<String>();
         objects.add('Account');
-        Map<String, String> buttonData = new Map<String, String>{'buttonEndURL' => 'xyz','buttonLabel' => 'Test button','buttonName' => 'TestButton'};
+        Map<String, String> buttonData = new Map<String, String>{'buttonEndURL' => 'xyz','buttonLabel' => 'Test button','buttonName' => 'DG_Basic_Print'};
         ButtonGeneratorController.createListViewButtons(objects, buttonData);
         Test.stopTest();
         
-        System.assertEquals('TestButton', buttonData.get('buttonName'), 'The button name does not match');
+        System.assertEquals('DG_Basic_Print', buttonData.get('buttonName'), 'The button name does not match');
     }
 }

@@ -1,4 +1,4 @@
-import { LightningElement, api, track, wire } from "lwc";
+import { LightningElement, api } from "lwc";
 import { errorDebugger } from "c/globalProperties";
 export default class DocumentLoader extends LightningElement {
 		

@@ -2,6 +2,7 @@
   <div class="mainDiv_Home" data-name="toastSelector" onload={intialRender} style={loadStyle}>
     <div class="outerDiv">
         <div class="contentSection">
+          <!-- === === === HEADER SECTION === === ==== -->
             <div class="upperSection">
               <div if:false={isEmptyState} class="createNOption">
                 <div class="createSection" title="Create" onclick={toggleCreateNEwTemplate}>
@@ -75,6 +76,7 @@
                                   onselect={onOptionSelect}
                                   multiselect="true"
                                   searchable="true"
+                                  show-description="true"
                                   dropdown-position="right"
                                   data-name="objectsToFilter"
                               ></c-custom-combobox>
@@ -186,6 +188,7 @@
                 </div>
               </div>
             </div>
+            <!-- === === === TEMPLATE LIST SECTION === === === -->
             <div class="templateListSection">
                 <div  lwc:if={isEmptyState} class="emptyStateDiv">
                   <div class="emptyStateText">

@@ -36,8 +36,9 @@ public with sharing class HomePageController {
                 for(String objectApi : objectListSet){
                     TempObject tempObj = new TempObject();
                     tempObj.value = objectApi;
-                    tempObj.label = (String)Schema.getGlobalDescribe()?.get(objectApi)?.getDescribe()?.getLabel();
-                    tempObj.label = tempObj.label != null && tempObj.label != '' ? tempObj.label : objectApi;
+                    tempObj.label = objectApi;
+                    String objLabel = (String)Schema.getGlobalDescribe()?.get(objectApi)?.getDescribe()?.getLabel();
+                    tempObj.description = objLabel != null && objLabel != '' ? objLabel : objectApi;
                     objectList.add(tempObj);
                 }
 
@@ -138,15 +139,17 @@ public with sharing class HomePageController {
     @AuraEnabled
     public static string updateTemplate(String templateId, Boolean isActive){
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
-        List<MVDG__Template__c> tempToUpdate = [SELECT ID, Name, MVDG__Template_Name__c  FROM MVDG__Template__c WHERE ID = : templateId WITH SECURITY_ENFORCED LIMIT 1];
-        if(tempToUpdate.size() > 0){
-            // if (Schema.sObjectType.MVDG__Template__c.fields.MVDG__Template_Name__c.isUpdateable()) {
-                tempToUpdate[0].MVDG__Template_Status__c = isActive;
-                update tempToUpdate[0];
-            // }
-            return 'updated';
-        }
+        if (String.isNotBlank(templateId)) {
 
+            List<MVDG__Template__c> tempToUpdate = [SELECT ID, Name, MVDG__Template_Name__c  FROM MVDG__Template__c WHERE ID = : templateId WITH SECURITY_ENFORCED LIMIT 1];
+            if(tempToUpdate.size() > 0){
+                // if (Schema.sObjectType.MVDG__Template__c.fields.MVDG__Template_Name__c.isUpdateable()) {
+                tempToUpdate[0].MVDG__Template_Status__c = isActive;
+                update as user tempToUpdate[0];
+                // }
+                return 'updated';
+            }
+        }       
         return 'no Template Found';
     }
 
@@ -158,12 +161,14 @@ public with sharing class HomePageController {
     @AuraEnabled
     public static boolean deleteTemplate(String templateId){
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
-        List<MVDG__Template__c> tempToDelete = [SELECT ID, Name  FROM MVDG__Template__c WHERE ID =:templateId WITH SECURITY_ENFORCED LIMIT 1];
-        if(tempToDelete.size() > 0){
-            delete tempToDelete[0];
-            return true;
+        if (String.isNotBlank(templateId)) {    
+            List<MVDG__Template__c> tempToDelete = [SELECT ID, Name  FROM MVDG__Template__c WHERE ID =:templateId WITH SECURITY_ENFORCED LIMIT 1];
+            if(tempToDelete.size() > 0){
+                delete as user tempToDelete[0];
+                return true;
+            }
         }
-            return false;
+        return false;
     }
 
     /**
@@ -186,6 +191,7 @@ public with sharing class HomePageController {
     public class TempObject{
         @AuraEnabled public String label;
         @AuraEnabled public String value;
+        @AuraEnabled public String description;
     }
 
     /**

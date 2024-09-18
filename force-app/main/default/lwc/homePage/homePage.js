@@ -1,4 +1,4 @@
-import { LightningElement, track, wire } from "lwc";
+import { LightningElement, track } from "lwc";
 import { NavigationMixin } from 'lightning/navigation';
 import deleteTemplate from '@salesforce/apex/HomePageController.deleteTemplate';
 import docGeniusImgs from "@salesforce/resourceUrl/homePageImgs";
@@ -106,7 +106,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
     get sortByField(){
-        return this.filterOpts.hasOwnProperty('fieldToSort') ? this.filterOpts.fieldToSort : this.defaultFieldToSort;
+        return Object.prototype.hasOwnProperty.call(this.filterOpts, 'fieldToSort') ? this.filterOpts.fieldToSort : this.defaultFieldToSort;
     }
 
     get clearRangeDates(){
@@ -134,7 +134,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 const optionContainer = this.template.querySelector('.optionContainer');
                 if(optionContainer){
                     // to replace setTimeout.. we used animation end event listener...
-                    optionContainer.addEventListener('animationend', (event) => {
+                    optionContainer.addEventListener('animationend', () => {
                         if(this.isDisplayOption){
                             optionContainer.style = `overflow: visible;`
                         }
@@ -471,7 +471,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    applyFilter(event, isClear){
+    applyFilter(){
         try {
 
             var isFilter = this.setErrorForRangeDate();

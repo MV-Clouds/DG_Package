@@ -29,7 +29,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     @track allTemplates;
     @track serachString = "";
     @track profile;
-    @track warning = false;
+    @track warning = '';
 
     templateBg = new_template_bg;
 
@@ -39,9 +39,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     @track isMappingOpen = false;
     @track isMappingContainerExpanded = false;
 
-    get showTempDetail() {
-        return Object.keys(this.templateRecord).length ? true : false;
-    }
     get generateDocument() {
         return this.activeTabName === "defaultValues";
     }
@@ -61,10 +58,10 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     connectedCallback() {
         try {
             console.log('Connected Callback');
-            
+
             // Added for keyMappingContainer...
             // window.addEventListener("resize", this.resizeFunction());
-            window.addEventListener("resize", this.resizeFunction);
+            window?.globalThis?.addEventListener("resize", this.resizeFunction);
             this.getAllRelatedData();
         } catch (error) {
             errorDebugger("googleDocTemplateEditor", 'connectedCallback', error, 'error', 'Error in connectedCallback. Please try again later');
@@ -75,6 +72,16 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         try {
             console.log("renderedCallback");
 
+            if (this.selectedTemplate && this.selectedTemplate.id) {
+                let template = this.template.querySelector(`[data-id='${this.selectedTemplate.id}']`);
+                console.log("template==>", template);
+
+                if (template) {
+                    template.classList.add("selected");
+                    template.classList.remove("hover-effect");
+                }
+            }
+
             this.template.host.style.setProperty("--background-image-url", `url(${new_template_bg})`);
             this.template.host.style.setProperty("--main-background-image-url", `url(${homePageImgs}/HomBg.png)`);
             if (this.initialRender && this.template.querySelector("c-key-mapping-container")) {
@@ -83,19 +90,20 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             }
 
             let templateDetails = this.template.querySelector(".templateDetails");
-            let styleEle = document.createElement('style');
-            styleEle.innerText = `
-                .slds-input {
-                    box-shadow: none;
-                }
-                .slds-input:focus {
-                    --slds-c-input-shadow: none;
-                }
-                .slds-has-error {
-                    border-color: red;
-                }`;
-            
+
             if (templateDetails) {
+                let styleEle = window?.globalThis?.document?.createElement('style');
+                styleEle.innerText = `
+                    .slds-input {
+                        box-shadow: none;
+                    }
+                    .slds-input:focus {
+                        --slds-c-input-shadow: none;
+                    }
+                    .slds-has-error {
+                        border-color: red;
+                    }`;
+
                 templateDetails.appendChild(styleEle);
             }
 
@@ -107,7 +115,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     getAllRelatedData() {
         try {
             console.log('this.getAllRelatedData');
-            
+
             this.isSpinner = true;
             getAllData({ templateId: this.templateId, objectName: this.objectName })
                 .then((result) => {
@@ -126,7 +134,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                         return;
                     }
 
-                    if (result.template) {
+                    if (result.template && Object.keys(result.template).length) {
                         this.templateRecord = JSON.parse(result.template); // Template
                         this.previousTemplateData = JSON.parse(result.template);
                     } else {
@@ -150,7 +158,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
                     // Get all templates
                     if (result.docList != null) {
-                        
+
                         this.allTemplates = JSON.parse(result.docList);
                         if (this.allTemplates && this.allTemplates.length > 0) {
                             this.setDateAndSize();
@@ -289,17 +297,24 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         try {
 
             console.log('this.cancel');
-            if (this.activeTabName == "basicTab" && this.warning && event && event.detail) {   
-                this.isSpinner = true;
-                this.templateRecord = JSON.parse(JSON.stringify(this.previousTemplateData));
-                this.template.querySelector(".next").removeAttribute("disabled");
-                // this.template.querySelector(`lightning-input[data-name="MVDG__Template_Name__c"]`).classList.remove("slds-has-error");
-                this.activeTabName = "contentTab";
-                this.setActiveTab();
-                this.warning = false;
-            } else if (this.activeTabName == "basicTab" && this.warning && event && !event.detail) {
-                
-                this.warning = false;
+            if (this.warning == 'cancel') {
+                this.warning = '';
+                if (event && event.detail) {
+                    this.isSpinner = true;
+                    this.templateRecord = JSON.parse(JSON.stringify(this.previousTemplateData));
+                    this.template.querySelector(".next").removeAttribute("disabled");
+                    this.activeTabName = "contentTab";
+                    this.setActiveTab();
+                }
+            } else if( this.warning == 'home') {
+                this.warning = '';
+                if (event && event.detail) {
+                    this.closePopup();
+                    this.navigateToComp("homePage", {});
+                } else if (event && event.detail === false) {
+                    this.activeTabName = "basicTab";
+                    this.setActiveTab();
+                }
             } else {
                 this.closePopup();
                 this.navigateToComp("homePage", {});
@@ -309,11 +324,22 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         }
     }
 
+    // When user navigates to home page
     cancel() {
         console.log('this.cancel');
-        
-        this.closePopup();
-        this.navigateToComp("homePage", {});
+        if (this.previousTemplateData.MVDG__Template_Name__c != this.templateRecord.MVDG__Template_Name__c || this.previousTemplateData.MVDG__Description__c != this.templateRecord.MVDG__Description__c || 
+            this.previousTemplateData.MVDG__Template_Status__c != this.templateRecord.MVDG__Template_Status__c) {
+                const popup = this.template.querySelector("c-message-popup");
+                popup.showMessagePopup({
+                    title: "Do You Want to Leave?",
+                    message: "Your unsaved changes will be discarded once you leave this page.",
+                    status: "warning"
+                });
+                this.warning = 'home';
+        } else {
+            this.closePopup();
+            this.navigateToComp("homePage", {});
+        }
     }
 
     setDateAndSize() {
@@ -408,11 +434,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         this.isPreview = true;
     }
 
-    handleClose() {
-        console.log('this.handleClose');
-        this.navigateToComp("homePage", {});
-    }
-
     // showHideMappingContainer() {
     //     try {
     //         this.isMappingOpen = !this.isMappingOpen;
@@ -449,7 +470,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     activeTabName = "contentTab";
     activeTab(event) {
         console.log('this.activeTab');
-        
+
         try {
             this.resizeFunction();
             if (event) {
@@ -506,7 +527,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     handleEditDetail(event) {
         try {
             console.log('this.handleEditDetail');
-            
+
             const targetInput = event.currentTarget.dataset.name;
             if (targetInput === "MVDG__Template_Name__c") {
                 const next = this.template.querySelector(".next");
@@ -555,6 +576,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                         message: "Error saving template data to backend. Please try again later.",
                         status: "error"
                     });
+                    errorDebugger('googleDocTemplateEditor','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
                 });
         } catch (error) {
             errorDebugger('googleDocTemplateEditor','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
@@ -563,10 +585,10 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     cancelEditTemplate() {
         try {
-            this.warning = true;
+            this.warning = 'cancel';
             console.log('cancelEditTemplate');
             console.log(this.previousTemplateData);
-            
+
             if (this.previousTemplateData.MVDG__Template_Name__c != this.templateRecord.MVDG__Template_Name__c || this.previousTemplateData.MVDG__Description__c != this.templateRecord.MVDG__Description__c || 
                 this.previousTemplateData.MVDG__Template_Status__c != this.templateRecord.MVDG__Template_Status__c) {
                     const popup = this.template.querySelector("c-message-popup");

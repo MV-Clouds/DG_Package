@@ -354,7 +354,10 @@ public with sharing class KeyMappingController {
     public static RetrunWrapper getMerginTemplateKeys(string sourceObjectAPI, String templateId){
         RetrunWrapper retrunWrapper = new RetrunWrapper();
         try {
-            List<MVDG__Template__c> activeTemps = [SELECT Id, Name, MVDG__Template_Name__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true AND Id != :templateId AND MVDG__Template_Type__c IN ('Simple Template') AND MVDG__Object_API_Name__c =: sourceObjectAPI WITH SECURITY_ENFORCED];
+            List<MVDG__Template__c> activeTemps = new List<MVDG__Template__c>();
+            if (String.isNotBlank(sourceObjectAPI) && String.isNotBlank(templateId)) {
+                activeTemps = [SELECT Id, Name, MVDG__Template_Name__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true AND Id != :templateId AND MVDG__Template_Type__c IN ('Simple Template') AND MVDG__Object_API_Name__c =: sourceObjectAPI WITH SECURITY_ENFORCED];
+            }
             if(activeTemps != null){
                 list<MappingObjects> fieldMappingsWithObj = new list<MappingObjects>();
                 MappingObjects mergeTemps = new MappingObjects();
@@ -401,7 +404,11 @@ public with sharing class KeyMappingController {
             // for Google Doc Template we have set max image size to 1000MB, meanse no size limit
             maxImageSize = templateType == 'Google Doc Template' ? 1000*1000*1000 : maxImageSize;
 
-            List<ContentVersion> allImgCV = [SELECT Id, Title, FileExtension, FileType, VersionDataUrl, ContentSize, IsLatest, ContentDocumentId FROM ContentVersion WHERE FileExtension IN: imgTyes AND IsLatest = true AND ContentSize < :maxImageSize WITH SECURITY_ENFORCED];
+
+            List<ContentVersion>  allImgCV = new List<ContentVersion>();
+            if (maxImageSize != null) {
+                allImgCV = [SELECT Id, Title, FileExtension, FileType, VersionDataUrl, ContentSize, IsLatest, ContentDocumentId FROM ContentVersion WHERE FileExtension IN: imgTyes AND IsLatest = true AND ContentSize < :maxImageSize WITH SECURITY_ENFORCED];
+            }
 
             /**
              * Note : We only allow image with public download url, So we get ContentDownloadUrl from ContentDistribution.
@@ -455,7 +462,7 @@ public with sharing class KeyMappingController {
                 Set<Id> cdWithoutPublicSharing = new Set<Id>();
 
                 // Insert ContentDistribution using Database.insert to avoid rollback and get insert result for each ContentDistribution
-                if(cdToCreate.size() > 0 && Schema.sObjectType.ContentDistribution.isCreateable()){
+                if(cdToCreate.size() > 0 && Schema.sObjectType.ContentDistribution.isCreateable() && Schema.sObjectType.ContentDistribution.fields.ContentVersionId.isCreateable() && Schema.sObjectType.ContentDistribution.fields.Name.isCreateable()){
                     Database.SaveResult[] results = Database.insert(cdToCreate, false);
                     // Iterate through the results to check which records were successful and which failed
                     for (Integer i = 0; i < results.size(); i++) {
@@ -477,7 +484,10 @@ public with sharing class KeyMappingController {
 
                 // Agian Quuery all ContentDistribution with ContentDownloadUrl...
                 // At this time we have ContentDistribution for all ContentVersion that have public sharing....
-                List<ContentDistribution> allICDs2 = [SELECT Id, ContentVersionId, ContentVersion.Title, ContentVersion.FileExtension, ContentVersion.FileType, ContentVersion.ContentSize, ContentDownloadUrl FROM ContentDistribution WHERE ContentDocumentId IN :cDocIds AND ContentVersion.IsLatest =true AND ContentVersion.ContentSize < :maxImageSize WITH SECURITY_ENFORCED];
+                List<ContentDistribution> allICDs2 = new List<ContentDistribution>(); 
+                if (maxImageSize != null) {
+                    allICDs2 = [SELECT Id, ContentVersionId, ContentVersion.Title, ContentVersion.FileExtension, ContentVersion.FileType, ContentVersion.ContentSize, ContentDownloadUrl FROM ContentDistribution WHERE ContentDocumentId IN :cDocIds AND ContentVersion.IsLatest =true AND ContentVersion.ContentSize < :maxImageSize WITH SECURITY_ENFORCED];
+                }
 
                 // Collect ContentVersion and ContentDownloadUrl into map...
                 for(ContentDistribution cd : allICDs2){
@@ -510,8 +520,11 @@ public with sharing class KeyMappingController {
     @AuraEnabled 
     public static Decimal getSignatureInfo(String templateId){
         Decimal signatureSize = 50;
-            
-        List<MVDG__Template__c> temp = [SELECT Id, MVDG__Signature_Size__c FROM MVDG__Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED];
+        
+        List<MVDG__Template__c> temp = new List<MVDG__Template__c>();
+        if (String.isNotBlank(templateId)) {
+            temp = [SELECT Id, MVDG__Signature_Size__c FROM MVDG__Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED];
+        }
 
         if(temp.size() > 0){
             signatureSize = temp[0].MVDG__Signature_Size__c != null ? temp[0].MVDG__Signature_Size__c : 50;
@@ -537,7 +550,7 @@ public with sharing class KeyMappingController {
 
 
             if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
-                update temp;
+                update as user temp;
             }
             else{
                 return false;
@@ -640,7 +653,7 @@ public with sharing class KeyMappingController {
             'MM/dd/yyyy' => 'MM/DD/YYYY (12/31/2023)',
             'MM/dd/yy' => 'MM/DD/YY (12/31/23)',
             'yyyy/MM/dd' => 'YYYY/MM/DD (2023/12/31)',
-            'dd MMMM yyyy' => 'DD Month 2023 (31 December 2023)',
+            'dd MMMM yyyy' => 'DD Month YYYY (31 December 2023)',
             'dd MMM yyyy' => 'DD Mon YYYY (31 Dec 2023)',
             'dd MMMM, yyyy' => 'DD Month, YYYY (31 December, 2023)',
             'dd MMM, yyyy' => 'DD Mon, YYYY (31 Dec, 2023)',

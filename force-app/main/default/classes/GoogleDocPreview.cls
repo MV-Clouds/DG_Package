@@ -39,7 +39,7 @@ public with sharing class GoogleDocPreview {
             //get pdf blob of google doc
             pdfBlob = getPDF(googleDocId, format);
             if (pdfBlob == null) {
-                return 'error:Get PDF error:Unable to fetch the PDF from Google Drive:-';
+                return 'error:Get PDF error:Unable to fetch the PDF from Google Drive:Unable to fetch the PDF from Google Drive';
             }
 
         } catch (Exception e) {
@@ -70,13 +70,14 @@ public with sharing class GoogleDocPreview {
         try {
             String endpoint = 'https://oauth2.googleapis.com/token';
             List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            // List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             request.setTimeout(120000);
-            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + authProvider.MVDG__ClientId__c + '&client_secret=' + authProvider.MVDG__ClientSecret__c + '&grant_type=refresh_token');
             request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
+            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             System.debug('Response of refreshAccessToken: ' + response.getBody());
@@ -89,12 +90,14 @@ public with sharing class GoogleDocPreview {
                 return newToken;
             }
             responseList.put('refreshAccessToken', response);
-            return 'error:Access Token Error:Error in getting access token:' + String.valueOf(response.getStatusCode());
+            // return 'error:Access Token Error:Error in getting access token:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
+
         } catch (Exception e) {
             System.debug('Error In refreshAccessToken ==> ' + e.getMessage() + e.getLineNumber());
             Log_Handler.store_Exception(e, 'GoogleDocPreview', 'refreshAccessToken');
-            return 'error:Access Token Error:Error in getting access token:' + e.getMessage();
+            // return 'error:Access Token Error:Error in getting access token:' + e.getMessage();
         }
+        return null;
     }
 
     /**
@@ -147,7 +150,7 @@ public with sharing class GoogleDocPreview {
                 }
             }
             responseList.put('getDocument', response);
-            return 'error:Get Document Error:Error in getting document:' + String.valueOf(response.getStatusCode());
+            return 'error:Get Document Error:Error in getting document:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
             
         } catch (Exception e) {
             System.debug('Error In getDocument ==> ' + e.getMessage() + e.getLineNumber());
@@ -177,13 +180,13 @@ public with sharing class GoogleDocPreview {
                 authProvider = getAuthProviderSettings();
             }
             if (String.isBlank(authProvider.MVDG__access_token__c)) {
-                responseWrapper.error = 'error:CopyGoogleDoc:No Google Integration Found.:-';
+                responseWrapper.error = 'error:CopyGoogleDoc:No Google Integration Found.:No Google Integration Found.';
                 return responseWrapper;
             }
             templateData = [SELECT MVDG__Google_Doc_Template_Id__c, MVDG__Template__r.MVDG__Signature_Size__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c = :templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c ASC];
 
             if (templateData.size() == 0) {
-                responseWrapper.error = 'warning:Template Error:No Google Document linked with this template.:-';
+                responseWrapper.error = 'warning:Template Error:No Google Document linked with this template.:No Google Document linked with this template.';
                 return responseWrapper;
                 
             }
@@ -222,7 +225,7 @@ public with sharing class GoogleDocPreview {
                 }
             }
             responseList.put('copyGoogleDoc', response);
-            responseWrapper.error = 'error:Copy Google Doc:Error in processing the document:' + String.valueOf(response.getStatusCode());
+            responseWrapper.error = 'error:Copy Google Doc:Error in processing the document:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
             return responseWrapper;
         } catch (Exception e) {
             responseWrapper.error = 'error:Copy Google Doc:Error in processing the document:' + e.getMessage();
@@ -353,16 +356,8 @@ public with sharing class GoogleDocPreview {
     public static Boolean deleteGoogleDoc(String googleDocId) {
         try {
             String endpoint = 'https://www.googleapis.com/drive/v3/files/' + googleDocId;
-            Map<String, String> params = new Map<String, String>();
-            String paramString = '';
-            for (String key : params.keySet()) {
-                if (!String.isEmpty(paramString)) {
-                    paramString += '&';
-                }
-                paramString += EncodingUtil.urlEncode(key, 'UTF-8') + '=' + EncodingUtil.urlEncode(params.get(key), 'UTF-8');
-            }
             HttpRequest request = new HttpRequest();
-            request.setEndpoint(endpoint + '?' + paramString);
+            request.setEndpoint(endpoint);
             request.setMethod('DELETE');
             request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
             request.setTimeout(120000);
@@ -411,7 +406,6 @@ public with sharing class GoogleDocPreview {
         try {
             List<OriginalObjectWrapper> jsObject = new List<OriginalObjectWrapper>();
             jsObject = (List<OriginalObjectWrapper>) JSON.deserialize(queryObject, List<OriginalObjectWrapper>.class);
-            String query;
             Integer tableCount = 1;
             
             for (OriginalObjectWrapper obj : jsObject) {
@@ -454,8 +448,7 @@ public with sharing class GoogleDocPreview {
                         subQuery = '(SELECT ' + String.escapeSingleQuotes(String.join(mappingFields, ',')) + ' FROM ' + String.escapeSingleQuotes(obj.childRelation);
 
                         if (obj.filter != null) {
-                            subQuery += ' ';
-                            subQuery += String.escapeSingleQuotes(obj.filter);
+                            subQuery += ' ' + String.escapeSingleQuotes(obj.filter);
                         }
                         if (obj.queryLimit != null && obj.queryLimit < 50) {
                             subQuery += ' LIMIT ' + String.valueOf(obj.queryLimit);
@@ -464,6 +457,7 @@ public with sharing class GoogleDocPreview {
                         }
                         subQuery += ')';
                         
+                        String query;
                         query = 'SELECT ' + String.escapeSingleQuotes(subQuery) + ' FROM ' + String.escapeSingleQuotes(objectApiName) + ' WHERE Id =: recordId';
                         List<SObject> childRecords = queryChildObject(query, recordId);
 
@@ -479,6 +473,7 @@ public with sharing class GoogleDocPreview {
         } catch (Exception e) {
             System.debug('Error In mapFieldValues ==> ' + e.getMessage() + e.getLineNumber());
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'mapFieldValues');
+            returnList.add(new Map<String,String>{'Error' => e.getMessage()});
         }
         return returnList;
     }
@@ -548,80 +543,6 @@ public with sharing class GoogleDocPreview {
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'queryChildObject');
         }
         return null;
-    }
-
-    /**
-    * Method Name : mailMessage
-    * @description : Sends a email notification in case any process fails
-    * @param code Status code for the HTTP callout - Integer
-    * @param fileName file name for the HTTP callout - String
-    */ 
-    /***********************************************************************
-    MODIFICATION LOG* 
-    * Last Update Date : 03/06/2024
-    * Updated By : Developer name
-    * Name of methods changed (Comma separated if more then one) : method1 
-    * Change Description : 
-    ***********************************************************************/
-    public static void mailMessage(Integer code, String fileName){
-        String emailBody;
-        if (code == 400) {
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have noticed an issue while attempting to generate a preview for  ' + fileName + '.\n\n' +
-                'To resolve this issue, please ensure that your credentials are correct. If the problem persists, try the following steps:\n\n' +
-                '1. Remove the existing Google Drive connection.\n' +
-                '2. Reconnect to Google Drive.\n\n' +
-                'These steps should help resolve the issue. If you continue to experience difficulties, please feel free to contact our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        else if (code == 401) {
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have noticed an issue while attempting to generate a preview for ' + fileName + ' to Google Drive.\n\n' +
-                'To resolve this issue, please follow these steps to reconnect:\n\n' +
-                '1. Remove the existing Google Drive connection.\n' +
-                '2. Reconnect to Google Drive.\n\n' +
-                'These steps should help re-establish the connection. If you continue to experience difficulties, please don\'t hesitate to reach out to our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        else if (code == 404){
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have encountered a connection error (404 - File Not Found) while attempting to access your Google Drive.\n\n' +
-                'This error indicates that the file or resource you are trying to access may not exist or could not be found. To resolve this issue, please try the following steps:\n\n' +
-                '1. Verify that the file or resource exists in your Google Drive.\n' +
-                '2. Ensure that the file\'s name and path are correct.\n' +
-                '3. Check that you have the necessary permissions to access the file.\n\n' +
-                'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        else if (code == 500){
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have encountered a server error (500 - Internal Server Error) while attempting to upload your file to Google Drive. This error typically indicates a problem with our server or the service.\n\n' +
-                'To resolve this issue, please try the following:\n\n' +
-                '1. Wait for a few minutes and try previewing the file again.\n' +
-                '2. If the issue persists, it may be due to temporary server problems on google\'s end.\n\n' +
-                'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        else if (code != 200 && code != 204) {
-            emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
-                'We have encountered error with code: '+ code + 'while attempting to preview your file' + fileName + ' from Google Drive. \n\n' +
-                'To resolve this issue, please try the following:\n\n' +
-                '1. Wait for a few minutes and try previewing the file again.\n' +
-                '2. If the issue persists, it may be due to temporary server problems on google\'s end.\n\n' +
-                'If the problem persists after following these steps, please feel free to contact our support team for further assistance.\n\n' +
-                'Thank you for your cooperation.\n\n' +
-                'Best regards,\n' +
-                'DocGenius';
-        }
-        System.debug('emailBody==>' + emailBody);
     }
 
     /**

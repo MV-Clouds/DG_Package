@@ -366,7 +366,7 @@ visibility: hidden;
 .customSetTimeout.setTimeAnimation{
   animation: dummyAnimation var(--timeoutTime) linear 0s 1 forwards normal;
 }
-@keyframes dummyAnimation{ to{ width: 0px; } };
+@keyframes dummyAnimation{ to{ width: 0px; } }
 
 
 /* ------------------ ------------------------ Loading State CSS ------------------------- --------------------------- */

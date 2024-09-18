@@ -1,13 +1,12 @@
-import { LightningElement , api, track} from 'lwc';
+import { LightningElement , track} from 'lwc';
 import getAllObjects from '@salesforce/apex/ButtonGeneratorController.getAllObjects';
 import getCombinedData from '@salesforce/apex/NewTemplateCreationController.getCombinedData';
 import saveTemplate from '@salesforce/apex/NewTemplateCreationController.saveTemplate';
 import { NavigationMixin } from 'lightning/navigation';
-import {navigationComps, nameSpace} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
 
 export default class NewTemplateCreation extends NavigationMixin(LightningElement) {
 
-    @api showModel;
     @track isShowSpinner = false;
     @track objectNames = [];
     @track templateTypes = [];
@@ -22,7 +21,6 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     
     connectedCallback() {
         try {
-            this.showModel = true;
             this.showSpinner = true;
             this.isImageLoaded = false;
             this.fetchData();
@@ -129,15 +127,13 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
     }
     
     closeModel() {
-        const closeModalEvent = new CustomEvent('closemodal');
-        this.dispatchEvent(closeModalEvent);
+        if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('closemodal'));
     }
     handleNavigate() {
         try {
             let paramToPass = {
                 templateId: this.templateId,
                 objectName: this.selectedObject,
-                isNew: true
             };
             if (this.selectedTemplateType === 'Simple Template') {
                 this.navigateToComp(navigationComps.simpleTemplateBuilder, paramToPass);
@@ -181,16 +177,25 @@ export default class NewTemplateCreation extends NavigationMixin(LightningElemen
                     templateType: this.selectedTemplateType
                 }
                 saveTemplate({ templateData : templateData })
-                .then((data) => {
-                    this.templateId = data;
-                    this.handleNavigate();
-                    this.dispatchEvent(new CustomEvent('aftersave'));
-                    this.closeModel();
+                .then((result) => {
+                    if(!result.includes('Error')){
+                        this.templateId = result;
+                        this.handleNavigate();
+                        if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('aftersave'));
+                        this.closeModel();
+                    }else{
+                        this.isShowSpinner = false;
+                        errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate > failure', result, 'warn');
+                        if( result.includes('STORAGE_LIMIT_EXCEEDED')){
+                            this.showToast('error', 'Storage Limit Exceeded!', 'You are running out of your data storage, please clean up data and try again...', 5000);
+                        }else{
+                            this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
+                        }
+                    }
                 })
                 .catch(e => {
-                    this.isShowSpinner = false;
-                    errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate', e, 'warn');
-                    this.showToast('error', 'Something went wrong!', 'There was error saving the template...');
+                    this.showToast('error', 'Something went wrong!', 'There was error saving the template...', 5000);
+                    errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate > failure', e, 'warn');
                 });
             }else{
                 this.isShowSpinner = false;
