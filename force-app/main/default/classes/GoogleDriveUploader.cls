@@ -96,6 +96,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 ********************************************************
 */
 
+@deprecated
 global static String getToken(){
     try {
         List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
