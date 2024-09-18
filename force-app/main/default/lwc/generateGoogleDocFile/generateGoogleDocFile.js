@@ -84,9 +84,6 @@ export default class GenerateGoogleDocFile extends LightningElement {
     formatContent(body) {
         var content = body.body.content;
         var objectDetails = [];
-        var objectFieldSet = new Set();
-        var generalFieldSet = new Set();
-        var signatureImage = new Set();
         var tableNo = 0;
         try {
             console.log("content \n", content);
@@ -122,7 +119,6 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                 });
                             });       
                         });
-                        tableNo++;
                         object.fieldArray = fieldsNameUsingParsing;
                     }
 
@@ -138,6 +134,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
                     // Send table for apex processing only when all fields are present
                     if (object.objApi && object.childRelation && object.fieldName && object.fieldName.length > 0) {
+                        tableNo++;
                         object.tableNo = tableNo;
                         objectDetails.push(object);
                     }
@@ -148,6 +145,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             let stringBody = JSON.stringify(content);
 
             // Get object fields
+            let objectFieldSet = new Set();
             pattern = /{{#(.*?)}}/g;
             while ((matcher = pattern.exec(stringBody)) != null) {
                 objectFieldSet.add(matcher[0]);
@@ -155,6 +153,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             objectDetails.push({ objApi: this.objectname, fieldName: Array.from(objectFieldSet) });
 
             // Get general fields
+            let generalFieldSet = new Set();
             pattern = /{{Doc.(.*?)}}/g;
             while ((matcher = pattern.exec(stringBody)) != null) {
                 generalFieldSet.add(matcher[0]);
@@ -162,6 +161,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             objectDetails.push({ objApi: "General Fields", fieldName: Array.from(generalFieldSet) });
 
             // Get Signature Image
+            let signatureImage = new Set();
             pattern = /{{Sign.DocGenius *Signature Key*}}/g;
             while ((matcher = pattern.exec(stringBody)) != null) {
                 signatureImage.add(matcher[0]);
@@ -304,8 +304,8 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                             this.tableOffset++;
                                         }
                                     }
+                                    tableNo++;
                                 }
-                                tableNo++;
                             } else {
                                 // Checks for the signature key inside the table
                                 if (matchedBody.includes(this.signatureKey)) {

@@ -1,14 +1,45 @@
+/**
+* Class Name: DeleteGoogleDocument
+* Test Class: DeleteGoogleDocumentTest
+* @description: Used to delete the copy google document after two minutes of creation
+* Date: 14/08/2024
+* Created By: Dhairya Koshti
+*/
 public with sharing class DeleteGoogleDocument implements Schedulable{
     public String templateId;
     public String documentId;
     public static MVDG__AuthProviderSettings__c authProvider;
 
-
+     /**
+    * Method Name : DeleteGoogleDocument
+    * @description : Contructor to initialise the variable values
+    * @param templateId the templateId for the template - String
+    * @param documentId the google Doc Id of the template - String
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public DeleteGoogleDocument(String templateId, String documentId) {
         this.templateId = templateId;
         this.documentId = documentId;
     }
 
+     /**
+    * Method Name : execute
+    * @description : Executes when the Job is scheduled
+    * @param sc the schedulableContext - SchedulableContext..
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public void execute(SchedulableContext sc) {
         try {
             System.debug('Schedule class run');
@@ -22,6 +53,19 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
 
     }
 
+    /**
+    * Method Name : deleteGoogleDoc
+    * @description : Delete cloned google doc.
+    * @param googleDocId google Document Id - String
+    * @return Status if the document was deleted or not - Boolean.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     @Future(callout=true)
     public static void deleteDocument(String googleDocId) {
         try {
@@ -59,6 +103,18 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
         }
     }
 
+    /**
+    * Method Name : refreshAccessToken
+    * @description : get new access token using refresh token.
+    * @return The new access Token - String.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static String refreshAccessToken() {
         try {
             List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
@@ -88,6 +144,18 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
         return null;
     }
 
+     /**
+    * Method Name : getAuthProviderSettings
+    * @description : Gets the authProviderSettings Custom Settings record
+    * @return the custom setting record - MVDG__AuthProviderSettings__c.
+    */ 
+    /***********************************************************************
+    MODIFICATION LOG* 
+    * Last Update Date : 03/06/2024
+    * Updated By : Developer name
+    * Name of methods changed (Comma separated if more then one) : method1 
+    * Change Description : 
+    ***********************************************************************/
     public static MVDG__AuthProviderSettings__c getAuthProviderSettings() {
         List<MVDG__AuthProviderSettings__c> aps = new List<MVDG__AuthProviderSettings__c>();
         aps = [SELECT Id, IsDeleted, Name, SetupOwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
