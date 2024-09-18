@@ -442,7 +442,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     connectedCallback() {
         this.showSpinner = true;
         try{
-            if (!import.meta.env.SSR) window.addEventListener('message', this.simpleTempFileGenResponse);
+            window?.addEventListener('message', this.simpleTempFileGenResponse);
             this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
@@ -495,14 +495,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     disconnectedCallback(){
-        if (!import.meta.env.SSR) window.removeEventListener('message', this.simpleTempFileGenResponse);
+        window?.removeEventListener('message', this.simpleTempFileGenResponse);
     }
 
     renderedCallback() {
         try{
             if(this.isInitialStyleLoaded) return;
-            let updatedStyle;
-            if (!import.meta.env.SSR) updatedStyle = document.createElement('style');
+            let updatedStyle = document.createElement('style');
             updatedStyle.innerText = `
 
                 :host{
@@ -1120,14 +1119,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     //Bottom Button Controls
 
     handleClose(){
-        if (!import.meta.env.SSR) window.removeEventListener('message', this.simpleTempFileGenResponse);
+        window?.removeEventListener('message', this.simpleTempFileGenResponse);
         if(this.currentPageReference.type === "standard__quickAction"){
-            if (!import.meta.env.SSR) this.dispatchEvent(new CloseActionScreenEvent())
+            this.dispatchEvent(new CloseActionScreenEvent())
         }else if(this.showCloseButton){ 
             if(this.isCalledFromPreview){
-                if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('close'));
+                this.dispatchEvent(new CustomEvent('close'));
             }else{
-                if (!import.meta.env.SSR) location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
+                location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
             }
         }
     }
@@ -1374,8 +1373,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 redirect: "follow"
             };
 
-            let domainURL;
-            if (!import.meta.env.SSR) domainURL= location.origin;
+            let domainURL = location.origin;
             domainURL = domainURL.replace('lightning.force.com', 'my.salesforce.com');
 
             return fetch(encodeURI(domainURL + queryURL), requestOptions)
@@ -1512,8 +1510,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }else if(this.selectedExtension === '.xls'){
                 element = 'data:application/vnd.ms-excel,' + encodeURIComponent(csvContent);
             }
-            let link;
-            if (!import.meta.env.SSR) link = document.createElement('a');
+            let link = document.createElement('a');
             link.href = element;
             link.target = '_self';
             link.download = this.fileName+ this.selectedExtension;
@@ -1547,8 +1544,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         try{
             this.showSpinner = true;
             this.labelOfLoader = 'Downloading...';
-            let link;
-            if (!import.meta.env.SSR) link = document.createElement('a');
+            const link = document.createElement('a');
             link.href = "data:application/pdf;base64,"+this.googleDocData;
             link.download = this.fileName+this.selectedExtension;
             document.body.appendChild(link);

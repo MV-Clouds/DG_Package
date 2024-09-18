@@ -267,10 +267,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             if(this.initialRender){
                 // To OverRider standard slds css properties...
                 let mainFilterDiv = this.template.querySelector('.main-div');
-                let styleEle;
-                if (!import.meta.env.SSR) {
-                    styleEle = document.createElement('style');
-                }
+                let styleEle = document.createElement('style');
                 styleEle.innerText = `
                     .override-css-from-js .slds-input:not(c-custom-combobox .slds-input){
                         height: calc( 2.5rem - 2px );
@@ -1804,7 +1801,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 let fields = this.selectedFields.map(field => {return field.apiName}).join(',');
                 if(this.isChild){
                     this.showSpinner = false;
-                    if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('save', {detail : {selectedFields: this.selectedFields , query: this.generatedQuery, generatedData : {fields : fields, filters :this.separatedData }}}));
+                    this.dispatchEvent(new CustomEvent('save', {detail : {selectedFields: this.selectedFields , query: this.generatedQuery, generatedData : {fields : fields, filters :this.separatedData }}}));
                 }
                 else{
                     this.saveTemplate(isPreview);
@@ -1874,7 +1871,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     handleClose(){
         try {
             if(this.isChild){
-                if (!import.meta.env.SSR) this.dispatchEvent(new CustomEvent('close'));
+                this.dispatchEvent(new CustomEvent('close'));
             }else if(this.isEditTabChanged || this.isBasicTabChanged){
                 this.isClose = true;
                 this.showWarningPopup('warning', 'Are you sure, you want to close?', 'Your unsaved changes will be discarded once you leave the this page.');
@@ -2228,10 +2225,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     headers: myHeaders,
                     redirect: "follow"
                     };
-                    let domainURL;
-                    if (!import.meta.env.SSR) {
-                        domainURL = location?.origin;
-                    }
+                    let domainURL = location?.origin;
                     if(!domainURL){
                         this.showToast('error', 'Something went wrong!', 'Some error occurred!, please try again.', 5000);
                     }
