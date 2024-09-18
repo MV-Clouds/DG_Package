@@ -281,7 +281,9 @@ export default class KeyMappingContainer extends LightningElement {
                 this.fetchFormatMappingKeys();
                 this.fetchSignatureInfo();
             }
-            window.addEventListener('resize', this.resizeFunction);
+            if (typeof window !== 'undefined') {
+                window.addEventListener('resize', this.resizeFunction);
+            }
 
             if(this.hideMergeTemplates){
                 const index = this.mappingTypeTabs.indexOf(this.mappingTypeTabs.find(ele => ele.name == 'mergeTemplates'));

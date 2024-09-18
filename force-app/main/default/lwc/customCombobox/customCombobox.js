@@ -364,7 +364,9 @@ export default class CustomCombobox extends LightningElement {
                 (!this.displayOptions.length) 
             };
 
-            (this.searchable) && this.dispatchEvent(new CustomEvent('search', {detail : event.target.value}));
+            if (typeof window !== 'undefined') {
+                this.searchable && this.dispatchEvent(new CustomEvent('search', {detail : event.target.value}));
+            }
             // sort After each Search
             this.sortDisplayItems();
         } catch (error) {

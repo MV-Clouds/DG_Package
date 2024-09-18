@@ -105,45 +105,48 @@ function setFontSize(event, note){
  * @returns 
  */
 function createFontResizer(note){
-        var fontReiszerContanier = document?.createElement('div');
-        fontReiszerContanier.classList.add('fontResizer');
+  if (typeof window !== 'undefined') { 
+    var fontReiszerContanier = document?.createElement('div');
+    fontReiszerContanier.classList.add('fontResizer');
     
-        var minusBtn = document?.createElement('span');
-        minusBtn.classList.add('minusBtn');
-        minusBtn.setAttribute("data-name", "font-minus");
-        // minusBtn.innerText = 'A-';
-        minusBtn.innerHTML = customeIcons.minusSize
-        minusBtn.addEventListener('click', function(e){setFontSize(e, note)});
-        fontReiszerContanier.appendChild(minusBtn);
+    var minusBtn = document?.createElement('span');
+    minusBtn.classList.add('minusBtn');
+    minusBtn.setAttribute("data-name", "font-minus");
+    // minusBtn.innerText = 'A-';
+    minusBtn.innerHTML = customeIcons.minusSize
+    minusBtn.addEventListener('click', function(e){setFontSize(e, note)});
+    fontReiszerContanier.appendChild(minusBtn);
     
-        var sizeInput = document?.createElement('input');
-        sizeInput.setAttribute("type", "number");
-        sizeInput.setAttribute("data-name", "font-input");
-        sizeInput.value=13;
-        sizeInput.classList.add('sizeInput');
-        sizeInput.addEventListener('change', function(e){setFontSize(e, note)});
-        sizeInput.addEventListener('focus', function(e){setFontSize(e, note)});
-        sizeInput.addEventListener('keypress', function(e){setFontSize(e, note)});
-        fontReiszerContanier.appendChild(sizeInput);
+    var sizeInput = document?.createElement('input');
+    sizeInput.setAttribute("type", "number");
+    sizeInput.setAttribute("data-name", "font-input");
+    sizeInput.value=13;
+    sizeInput.classList.add('sizeInput');
+    sizeInput.addEventListener('change', function(e){setFontSize(e, note)});
+    sizeInput.addEventListener('focus', function(e){setFontSize(e, note)});
+    sizeInput.addEventListener('keypress', function(e){setFontSize(e, note)});
+    fontReiszerContanier.appendChild(sizeInput);
     
-        var plusBtn = document?.createElement('span');
-        plusBtn.classList.add('plusBtn');
-        plusBtn.addEventListener('click', function(e){setFontSize(e, note)});
-        // plusBtn.innerText = 'A+';
-        plusBtn.innerHTML = customeIcons.plusSize
-        plusBtn.setAttribute("data-name", "font-plus");
-        fontReiszerContanier.appendChild(plusBtn);
-        
-        var ui = $.summernote.ui;
-        // create button
-        var button = ui.button({
-            contents: fontReiszerContanier,
-            tooltip: 'Set font-size',
-            click: function () {
-            // invoke insertText method with 'hello' on editor module.
-            }
-        });
-        return button.render();   // return button as jquery object
+    var plusBtn = document?.createElement('span');
+    plusBtn.classList.add('plusBtn');
+    plusBtn.addEventListener('click', function(e){setFontSize(e, note)});
+    // plusBtn.innerText = 'A+';
+    plusBtn.innerHTML = customeIcons.plusSize
+    plusBtn.setAttribute("data-name", "font-plus");
+    fontReiszerContanier.appendChild(plusBtn);
+    
+    var ui = $.summernote.ui;
+    // create button
+    var button = ui.button({
+      contents: fontReiszerContanier,
+      tooltip: 'Set font-size',
+      click: function () {
+        // invoke insertText method with 'hello' on editor module.
+      }
+    });
+    return button.render();   // return button as jquery object
+  }
+  return null;
 }
 
 // ======== ===== ====== Set Font Size Using Custom Button  - END ======== ===== ====== ========

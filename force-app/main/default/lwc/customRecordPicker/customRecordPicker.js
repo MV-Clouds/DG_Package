@@ -441,7 +441,9 @@ export default class CustomRecordPicker extends LightningElement {
 
     errorHandler(error){
         console.warn('custom combobox graphQL Error : ', error);
-        this.dispatchEvent(new CustomEvent('error', {detail : error}));
+        if (typeof window !== 'undefined') {
+            this.dispatchEvent(new CustomEvent('error', {detail : error}));
+        }
         this.disabled = true;
         this.isGqlError = true;
         this.setErrorBorder();

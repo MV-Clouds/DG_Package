@@ -164,9 +164,9 @@ export default class ChildObjectTableBuilder extends LightningElement {
             navigator.clipboard.write([
                 new ClipboardItem({
                     'text/html': new Blob([table.outerHTML], { type: 'text/html' }),
-                    // 'text/plain': new Blob([textarea.value], { type: 'text/plain' })
                 })
             ]);
+            // 'text/plain': new Blob([textarea.value], { type: 'text/plain' })
 
             // Show animation on copy...
             const copyBtn = event.currentTarget;
