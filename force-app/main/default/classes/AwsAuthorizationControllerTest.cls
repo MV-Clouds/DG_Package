@@ -23,7 +23,6 @@ private class AwsAuthorizationControllerTest {
 
     @IsTest
     static void testCheckAwsAuth() {
-        // Insert mock settings
         
         Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());
 
@@ -47,7 +46,11 @@ private class AwsAuthorizationControllerTest {
     }
 
     @IsTest
-    static void testelseverifyAuth(){
+    static void testifverifyAuth(){
+
+        Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());
+
+
         MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
         settings.MVDG__NamedCredential__c = '';
         insert settings;
@@ -57,6 +60,21 @@ private class AwsAuthorizationControllerTest {
         System.assertEquals(False, result);
     }
 
+    @IsTest
+    static void testelseverifyAuth(){
+
+        Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());
+
+        MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+        settings.MVDG__NamedCredential__c = 'AWS';
+        insert  settings;
+        
+        Test.startTest();
+        Boolean result = AwsAuthorizationController.verifyAuth();
+        Test.stopTest();
+        System.assertEquals(True, result);
+    }
+    
     @IsTest
     static void testAuthorize() {
         Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());

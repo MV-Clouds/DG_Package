@@ -8,6 +8,14 @@
 * Company       : MV Clouds
 *******************************************************/
 public with sharing class GoogleDriveAuthorizationController {
+
+/*
+*********************************************************
+@description     : Method is used to check user wide google auth integration
+@param           : none
+@return          : result {Map<String,Object>} - return integration details if successful
+********************************************************
+*/
   @AuraEnabled
   public static Map<String, Object> checkgoogleauth(){
       try{
@@ -33,7 +41,13 @@ public with sharing class GoogleDriveAuthorizationController {
       }
   }
 
-
+/*
+*********************************************************
+@description     : Method is used to check org wide google auth integration
+@param           : none
+@return          : result {Map<String,Object>} - return integration details if successful
+********************************************************
+*/
   @AuraEnabled
   public static Map<String, Object> checkorggoogleauth(){
       try{
@@ -56,7 +70,13 @@ public with sharing class GoogleDriveAuthorizationController {
       }
   }
 
-
+/*
+*********************************************************
+@description     : Method is used to check if org wide exists
+@param           : none
+@return          : {Boolean} - return integration details if successful
+********************************************************
+*/
   @AuraEnabled
   public static Boolean isOrgWide(){
       try {
@@ -67,20 +87,22 @@ public with sharing class GoogleDriveAuthorizationController {
           else{
               return false;
           }
-
-
       } catch (Exception e) {
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'isOrgWide');
           return false;
       }
   }
 
-
+/*
+*********************************************************
+@description     : Method is used to get access token
+@param           : isOrg {Boolean} - Let them know if the access token is for org wide or user wide
+@return          : {Boolean} - return integration details if successful
+********************************************************
+*/
   public static Boolean getToken(Boolean isOrg){
       try {
           List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-          System.debug('This is client id'+mdata[0].MVDG__CID__c);
-          System.debug('This is client secret'+mdata[0].MVDG__CSEC__c);
           MVDG__AuthProviderSettings__c settings;
           if(isOrg){
               settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
@@ -101,9 +123,6 @@ public with sharing class GoogleDriveAuthorizationController {
 
           Http http = new Http();
           HttpResponse response = http.send(request);
-
-
-
 
           if (response.getStatusCode() == 200) {
               Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
@@ -131,31 +150,27 @@ public with sharing class GoogleDriveAuthorizationController {
   }
 
 
+/*
+*********************************************************
+@description     : Method is used to get Auth code
+@param           : clientId {String} - GoogleApp Client ID
+@param           : clientSecret {String} - GoogleApp Client Secret
+@return          : {String} - AuthCode
+********************************************************
+*/
   @AuraEnabled
   public static String getAuthCode(String clientId, String clientSecret) {
       try{
           if (String.isBlank(clientId) || String.isBlank(clientSecret)) {
               return 'Both Client ID and Client Secret are required.';
           }
-
-
           MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
           if (settings == null) {
               settings = new MVDG__AuthProviderSettings__c();
           }
           List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-          System.debug('This is client id'+mdata[0].MVDG__CID__c);
-          System.debug('This is client secret'+mdata[0].MVDG__CSEC__c);
-
-
           clientId = mdata[0].MVDG__CID__c;
           clientSecret = mdata[0].MVDG__CSEC__c;
-
-
-          // settings.MVDG__ClientId__c = clientId;
-          // settings.MVDG__ClientSecret__c = clientSecret;
-
-
           String authUrl = authcode(clientId, clientSecret);
           return authUrl;
       }
@@ -167,11 +182,18 @@ public with sharing class GoogleDriveAuthorizationController {
 
 
 
-
+/* 
+*********************************************************
+@description     : Method is used to get Auth url
+@param           : clientId {String} - GoogleApp Client ID
+@param           : clientSecret {String} - GoogleApp Client Secret
+@return          : {String} - AuthCode
+********************************************************
+*/
   public static String authcode(String clientId, String clientSecret){
       try{
           String authorizeUrl = 'https://accounts.google.com/o/oauth2/auth';
-          String redirectUri = System.label.AuthCode;  //REPLACE IT WITH VFPAGE URL
+          String redirectUri = System.label.AuthCode;  //REPLACE IT WITH force.com site URL
           String googleDriveScope = 'https://www.googleapis.com/auth/drive.file';
           String authUrl = authorizeUrl + '?response_type=code' +
                           '&client_id=' + clientId +
@@ -190,19 +212,28 @@ public with sharing class GoogleDriveAuthorizationController {
 
 
 
-
+/*
+*********************************************************
+@description     : Method is used to integrate with google
+@param           : authCode {String} - GoogleApp Client ID
+@param           : isOrg {Boolean} - Let them know if the access token is for org wide or user wide
+@return          : {String} - success or not
+********************************************************
+*/
   @AuraEnabled
   public static String authorizeGoogle(String authcode, Boolean isOrg){
       try{
           List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-          System.debug('This is client id'+mdata[0].MVDG__CID__c);
-          System.debug('This is client secret'+mdata[0].MVDG__CSEC__c);
+
           MVDG__AuthProviderSettings__c defsettings = MVDG__AuthProviderSettings__c.getOrgDefaults();
           MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
           string clientId = mdata[0].MVDG__CID__c;
           string clientSecret = mdata[0].MVDG__CSEC__c;
-          String redirectUri = System.Label.AuthCode;          
-          Map<String, String> result = generaterefreshtoken(clientId, clientSecret, redirectUri, authcode);
+          String redirectUri = System.Label.AuthCode;   
+          List<String> credentials = new List<String>();
+          credentials[0] = clientId;
+          credentials[1] = clientSecret;       
+          Map<String, String> result = generaterefreshtoken(credentials, redirectUri, authcode);
           String refresh = result.get('refresh_token');
           String access = result.get('access_token');
           if(refresh != null){
@@ -219,9 +250,7 @@ public with sharing class GoogleDriveAuthorizationController {
               Map<String, Object> parsedResponse = (Map<String, Object>) JSON.deserializeUntyped(userdetails);
               Map<String, Object> userObject = (Map<String, Object>) parsedResponse.get('user');
               String emailAddress = (String) userObject.get('emailAddress');
-              // System.debug('Email Address: ' + emailAddress);
               String displayName = (String) userObject.get('displayName');
-              // System.debug('Display Name: ' + displayName);
               String userPhoto = (String) userObject.get('photoLink');
               settings.MVDG__photolink__c = userPhoto;
               settings.MVDG__username__c = displayName;
@@ -235,9 +264,7 @@ public with sharing class GoogleDriveAuthorizationController {
               defsettings.MVDG__WorkingStatus__c = true;
             
           }
-          System.debug('isOrg = '+isOrg);
           if(isOrg){
-              // System.debug('isOrg = '+isOrg);
               defsettings.SetupOwnerId = UserInfo.getOrganizationId();
               upsert defsettings;
               settings.SetupOwnerId = UserInfo.getUserId();
@@ -254,14 +281,18 @@ public with sharing class GoogleDriveAuthorizationController {
       }
       }catch(Exception e){
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'getuserdata');
-          // system.debug('exception in GoogleDriveAuthorize : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber());
           return null;
       }
   }
 
 
-
-
+/*
+**************************************************
+@description: This method is used to fetch the user details from google
+@param: String accessToken, String endpoint
+@return: {HTTPRequest} - return request to fetch data from google
+**************************************************
+*/
   public static HttpRequest getuserdata(String acctok){
       try {
           HttpRequest req= new HttpRequest();
@@ -271,14 +302,19 @@ public with sharing class GoogleDriveAuthorizationController {
           return req;
       } catch (Exception e) {
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'getUerData');
-          // System.debug('Exception of getuserdata got invoked');
           return null;
       }   
   }
 
 
 
-
+/*
+**************************************************
+@description: This method is used to fetch the user details from google
+@param: String access - access Token
+@return: {String} - return response recieved from google
+**************************************************
+*/
   @AuraEnabled
   public static String fetchUserDetails(String access) {
       try {
@@ -299,14 +335,19 @@ public with sharing class GoogleDriveAuthorizationController {
           }
       } catch (Exception e) {
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'fetchUserDetails');
-          // System.debug('Exception of fetchUserDetails got invoked');
           return null;
       }
   }
 
 
 
-
+/*
+**************************************************
+@description: This method is used to send request
+@param: req {HttpRequest} - Request recieved to be sent to google
+@return: {HttpResponse} - return response recieved from google
+**************************************************
+*/
   private static HttpResponse sendHttpRequest(HttpRequest req) {
       try {
           Http h = new Http();
@@ -314,19 +355,22 @@ public with sharing class GoogleDriveAuthorizationController {
           return h.send(req);
       } catch (Exception e) {
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'sendHttpRequest');
-          // System.debug('Exception of sendHttpRequest got invoked');
           return null;
       }
   }
 
 
-
-
-  public static Map<String, String> generaterefreshtoken(String clientId, String clientSecret, String redirectUri, String authcode){
+/*
+********************************
+@description: This method is used to fetch refresh token from google
+@param: credentials {List<String>} - credential details
+@param: redirectUri {String} - redirect uri
+@param: authCode {String} - auth code recieved after authorization
+@return: {Map<String,String>} - return response recieved from google
+********************************
+*/
+public static Map<String, String> generaterefreshtoken(List<String> credentials, String redirectUri, String authcode){
       try{
-          System.debug(clientId);
-          System.debug(clientSecret);
-          System.debug(redirectUri);
           String scope = 'https://www.googleapis.com/auth/drive.file';
           String endpoint = 'https://oauth2.googleapis.com/token';
           HttpRequest request = new HttpRequest();
@@ -335,28 +379,21 @@ public with sharing class GoogleDriveAuthorizationController {
           request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
           request.setHeader('Accept-Encoding', 'gzip, deflate, br');
           request.setHeader('Connection', 'keep-alive');
-          // System.debug(authcode);
           request.setBody('code=' + authcode +
-                          '&client_id=' + clientId +
-                          '&client_secret=' + clientSecret +
+                          '&client_id=' + credentials[0] +
+                          '&client_secret=' + credentials[1] +
                           '&redirect_uri=' + redirectUri +
                           '&grant_type=authorization_code');
            Http http = new Http();
           HttpResponse response = http.send(request);
-          // Parse the response and extract refresh token
           Map<String, String> result = new Map<String, String>();
-          // System.debug(response.getStatusCode());
-          // System.debug(response.getBody());
+
           if (response.getStatusCode() == 200) {
               Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
-              // System.debug(jsonResponse.get('scope'));
-              // System.debug(jsonResponse);
-              // System.debug('access token : '+(String) jsonResponse.get('access_token'));
-              // System.debug('refresh token : '+(String) jsonResponse.get('refresh_token'));
+
               result.put('refresh_token', (String) jsonResponse.get('refresh_token'));
               result.put('access_token', (String) jsonResponse.get('access_token'));
           } else {
-              // Handle error response
               Response_Handler.store_Callout_Response(response, 'GoogleDriveAuthorizationController', 'generaterefreshtoken');
               result.put('error', 'Error obtaining refresh token & access token. HTTP Status Code: ' + response.getStatusCode() +
                                   ', Response Body: ' + response.getBody());
@@ -364,14 +401,19 @@ public with sharing class GoogleDriveAuthorizationController {
           return result;
       }catch(Exception e){
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'generaterefreshtoken');
-              // system.debug('exception in mappingFieldDataVF : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber());
           return null;
       }
   }
 
   
 
-
+/*
+********************************
+@description: This method is used to unauthorize google
+@param: none
+@return: {Boolean} - returns true after successful unauthorization
+********************************
+*/
    @AuraEnabled
   public static Boolean unauthorize(){
       try {
@@ -389,12 +431,17 @@ public with sharing class GoogleDriveAuthorizationController {
           return false;
       } catch (Exception e) {
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'unauthorize');
-          // System.debug('Exception of unauthorize got invoked');
           return null;
       }
   }
 
-
+/*
+********************************
+@description: This method is used to unauthorize google org wide
+@param: none
+@return: {Boolean} - returns true after successful org wide unauthorization
+********************************
+*/
   @AuraEnabled
   public static Boolean orgunauthorize(){
       try {
@@ -408,13 +455,11 @@ public with sharing class GoogleDriveAuthorizationController {
                     settings.MVDG__username__c = '';
                     settings.MVDG__WorkingStatus__c = false;
                     update settings;
-                    // delete settings;
                     return true;
                 }
            return false;
       } catch (Exception e) {
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'orgunauthorize');
-          // System.debug('Exception of orgunauthorize got invoked');
           return null;
       }
   }

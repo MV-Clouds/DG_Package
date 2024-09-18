@@ -8,7 +8,13 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
     global Id contentVersionId;
     global string activity;
 
-
+/*
+*********************************************************
+@description     : constructor to define values
+@param           : cvid{Id} - ContentVersionId
+@param           : activityId{Id} - ActivityId
+********************************************************
+*/
     global AwsUploader(Id cvid, Id activityId) {
         this.contentVersionId = cvid;
         this.activity = activityId;
@@ -66,11 +72,12 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                 }
 
                 if (fileSize < maxSize) {
-                    System.debug('Uploading small file');
-                    uploadObject(fileName.toLowerCase(), attach.FileExtension, attach.VersionData, activity);
+                    List<String> fileDetails = new List<String>();
+                    file[0] = fileName.toLowerCase();
+                    file[1] = attach.FileExtension;
+                    uploadObject(fileDetails, attach.VersionData, activity);
                 } else {
                     if(namedCredential != ''){
-                    System.debug('Uploading large file');
                     String formattedDate = DateTime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss z');
                     String timestamp = DateTime.now().format('yyyyMMddHHmmss');
                     awsFileName = filename.replace(' ', '%20') + '_' + timestamp + '.' + attach.fileExtension;
@@ -87,7 +94,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                     Http http = new Http();
                     HTTPResponse res = http.send(req);
 
-                    System.debug('phase 2');
 
                     if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
                         String uploadId = '';
@@ -111,9 +117,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                             obj.Id = activity; 
                             update obj;
                         mailMessage(res.getStatusCode());
-                        System.debug('Error during large file upload initiation: ' + res.getStatusCode());
-                        System.debug('Error during large file upload initiation: ' + res.getBody());
-
                     }
                 }
                 }
@@ -128,11 +131,16 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
     }
 
     global void finish(Database.BatchableContext bC) {
-        // Optionally perform any final actions after batch execution
-        System.debug('It is final');
+        // System.debug('It is final');
     }
 
-
+/*
+*********************************************************
+@description     : Method is used to return mimetype according to the external storage
+@param           : fileType{String} - fileType of the attachment
+@return          : {String} - mimeType of the file
+********************************************************
+*/
     public static string contentType(string fileType) {
         Switch on fileType.toLowerCase() {
             when 'csv' {
@@ -159,6 +167,14 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         }
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to send email to user if uploading fails
+@param           : message{String} - message of the error
+@return          : none
+********************************************************
+*/
     @AuraEnabled
     public static void emailUser(String message) {
         String subject = 'Issue in uploading file to AWS';
@@ -166,17 +182,20 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         String userEmail = UserInfo.getUserEmail();
         if (userEmail != null && userEmail.contains('@')) {
             mail.setToAddresses(new List<String>{userEmail});
-        } else {
-            // Handle the case when email is null or invalid
-            System.debug('Invalid user email: ' + userEmail);
         }
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
     }
 
+/*
+*********************************************************
+@description     : Method is used to send email to user if uploading fails
+@param           : code{Integer} - status code
+@return          : none
+********************************************************
+*/
     public static void mailMessage(Integer code){
-        System.debug('This is status code --->'+code);
         if (code == 400) {
             String emailBody = 'Dear ' + UserInfo.getName() + ',\n\n' +
                    'We have noticed an issue while attempting to upload the file ' + awsFullFileName + ' to AWS.\n\n' +
@@ -260,9 +279,14 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         }
     }
 
-
+/*
+*********************************************************
+@description     : Method is used to create signature to upload file to aws
+@param           : parameters{SignatureDetails} - wrapper class containing all values
+@return          : {String} - returns signature
+********************************************************
+*/
     public static string createAuthHeader(SignatureDetails parameters) {
-        System.debug('sign input-->'+ parameters.contentType + parameters.filename + parameters.formatedDateString + parameters.fileExtension + parameters.methodName + parameters.bucketName + parameters.awsKey + parameters.awsSecret);
         string auth;
         string stringToSign = parameters.methodName + '\n\n' + contentType(parameters.fileExtension) + '\n' + parameters.formatedDateString + '\n/' + parameters.bucketName + '/' + parameters.filename.toLowerCase() + '.' + parameters.fileExtension.toLowerCase();
         Blob mac = Crypto.generateMac('HMACSHA1', Blob.valueOf(stringToSign), Blob.valueOf(parameters.awsSecret));
@@ -271,38 +295,42 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         return auth;
     }
 
-    // public static string createAuthHeader(string contentType, string filename, string formatedDateString, string fileExtension, String methodName, String bucketName, String awsKey, String awsSecret) {
-    //     System.debug('sign input-->'+ contentType + filename + formatedDateString + fileExtension + methodName + bucketName + awsKey + awsSecret);
-    //     string auth;
-    //     string stringToSign = methodName + '\n\n' + contentType(fileExtension) + '\n' + formatedDateString + '\n/' + bucketName + '/' + filename.toLowerCase() + '.' + fileExtension.toLowerCase();
-    //     Blob mac = Crypto.generateMac('HMACSHA1', Blob.valueOf(stringToSign), Blob.valueOf(awsSecret));
-    //     string sig = EncodingUtil.base64Encode(mac);
-    //     auth = 'AWS' + ' ' + awsKey + ':' + sig;
-    //     System.debug('This is signature -->'+auth);
-    //     return auth;
-    // }
-
+/*
+*********************************************************
+@description     : Method is used to get base64 length of blob
+@param           : versionDataBlob{Blob} - File which needs to be upload
+@return          : {Integer} - returns length
+********************************************************
+*/
     public static Integer getLengthOfFile(Blob versionDataBlob) {
         return EncodingUtil.base64Encode(versionDataBlob).length();
     }
 
-    public static void uploadObject( String filename, String fileExtension, Blob body, String activity) {
+/*
+*********************************************************
+@description     : Method is used to upload small files
+@param           : fileDetails{List<String>} - File Name and File Extension which needs to be upload
+@param           : body{Blob} - File blob which needs to be upload
+@param           : activity{String} - Activity for which file needs to be upload
+@return          : none
+********************************************************
+*/
+    public static void uploadObject( List<String> fileDetails, Blob body, String activity) {
         try {
             String formatedDateString = DateTime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss z');
             String endpoint;
             String authHeader;
             String timestamp = DateTime.now().format('yyyyMMddHHmmss');
-            String uniqueFilename = filename.replace(' ', '%20') + '_' + timestamp + '.' + fileExtension;
+            String uniqueFilename = fileDetails[0].replace(' ', '%20') + '_' + timestamp + '.' + fileDetails[1];
             if(namedCredential != ''){
-                System.debug('Named');
                  endpoint = 'callout:'+ namedCredential +'/'+ uniqueFilename;
             }
             else{
                 SignatureDetails sigDetail = new SignatureDetails();
                 sigDetail.contentType = '';
-                sigDetail.filename = filename.replace(' ', '%20') + '_' + timestamp;
+                sigDetail.filename = fileDetails[0].replace(' ', '%20') + '_' + timestamp;
                 sigDetail.formatedDateString = formatedDateString;
-                sigDetail.fileExtension = fileExtension;
+                sigDetail.fileExtension = fileDetails[1];
                 sigDetail.methodName = 'PUT';
                 sigDetail.bucketName = bucket;
                 sigDetail.awsKey = key;
@@ -315,11 +343,9 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             reqObj.setMethod('PUT');
             reqObj.setBodyAsBlob(body);
             reqObj.setEndpoint(endpoint);
-            System.debug(endpoint);
             reqObj.setHeader('Date', formatedDateString);
-            reqObj.setHeader('Content-Type', contentType(fileExtension.toLowerCase()));
+            reqObj.setHeader('Content-Type', contentType(fileDetails[1].toLowerCase()));
             if(namedCredential == ''){
-                System.debug('checkpoint of named credential');
                 reqObj.setHeader('Host', bucket + '.' + 's3.amazonaws.com');
                 reqObj.setHeader('Authorization', authHeader);
                 reqObj.setHeader('Connection', 'keep-alive');
@@ -329,7 +355,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             HTTPResponse resObj = httpObj.send(reqObj);
 
             if (resObj.getStatusCode() == 200 || resObj.getStatusCode() == 201) {
-                System.debug('Successfully uploaded to AWS');
                 Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                 obj.AWS__c = 'Success';
                 obj.Id = activity; 
@@ -342,7 +367,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                 obj.Id = activity; 
                 update obj;
                 mailMessage(resObj.getStatusCode());
-                System.debug('Error during small file upload initiation: ' + resObj.getBody());
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsUploader', 'uploadObject', activity);
@@ -353,6 +377,14 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         }
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to upload file in chunks
+@param           : parameters{UploadMultipartDetails} - wrapper class containing details of file to be uploaded
+@return          : none
+********************************************************
+*/
     public static void uploadMultipart( UploadMultipartDetails parameters) {
         try {
             Integer chunkSize = 10000000; // 10 MB
@@ -400,6 +432,14 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         }
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to invoke chunk upload methods
+@param           : parameters{ChunkDetails} - wrapper class containing details of chunks to be uploaded
+@return          : none
+********************************************************
+*/
     public static void subMethod(ChunkDetails parameters) {
         try {
             
@@ -428,7 +468,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                 obj.Id = parameters.activity; 
                 update obj;
                 mailMessage(response.getStatusCode());
-                System.debug('Error during multipart upload: ' + response.getStatus());
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsUploader', 'subMethod', parameters.activity);
@@ -439,14 +478,42 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         }
     }
 
+    
+/*
+*********************************************************
+@description     : Method is used to create chunk
+@param           : versionDataBlob {Blob} - file which needs to be upload
+@param           : chunkStart {Integer} - start of chunk
+@param           : chunkSize {Integer} - size of chunk
+@return          : Blob - returns chunk in form of blob
+********************************************************
+*/
     public static Blob decodingUtilMethod(Blob versionDataBlob, Integer chunkStart, Integer chunkSize) {
         return EncodingUtil.base64Decode(encodingUtilMethod(versionDataBlob, chunkStart, chunkSize));
     }
 
+
+/*
+*********************************************************
+@description     : Method is used to invoke chunk upload methods
+@param           : versionDataBlob {Blob} - file which needs to be upload
+@param           : chunkStart {Integer} - start of chunk
+@param           : chunkSize {Integer} - size of chunk
+@return          : String - returns base64 encoded chunk
+********************************************************
+*/
     public static String encodingUtilMethod(Blob versionDataBlob, Integer chunkStart, Integer chunkSize) {
         return EncodingUtil.base64Encode(versionDataBlob).mid(chunkStart, chunkSize);
     }
 
+    
+/*
+*********************************************************
+@description     : Method is used to upload last chunk
+@param           : parameters {ChunkDetails} - contains chunk details
+@return          : none
+********************************************************
+*/
     public static void completeFile(ChunkDetails parameters) {
         try {
             
@@ -494,7 +561,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             HTTPResponse resCmp = httpCmp.send(reqCmp);
     
             if (resCmp.getStatusCode() == 200 || resCmp.getStatusCode() == 201) {
-                System.debug('Multipart upload completed successfully');
                 Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
                 obj.AWS__c = 'Success';
                 obj.Id = parameters.activity; 
@@ -506,8 +572,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                 obj.Id = parameters.activity; 
                 update obj;
                 mailMessage(resCmp.getStatusCode());
-                System.debug('Error completing multipart upload: ' + resCmp.getStatus());
-                System.debug('Error completing multipart upload: ' + resCmp.getBody());
     
             }
         } catch (Exception e) {
@@ -519,6 +583,19 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         }
     }
 
+/*
+*********************************************************
+@description     : wrapper containing data to create signature
+@param           : contentType {String} - File Details in String which is required to upload file
+@param           : filename {String} - File Name
+@param           : formatedDateString {String} - Date String
+@param           : fileExtension {String} - File Extension
+@param           : methodName {String} - Method Name
+@param           : bucketName {String} - Bucket Name
+@param           : awsKey {String} - AWS Key
+@param           : awsSecret {String} - AWS Secret
+********************************************************
+*/
     public class SignatureDetails {
         @AuraEnabled public String contentType { get; set; }
         @AuraEnabled public String filename { get; set; }
@@ -530,6 +607,17 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         @AuraEnabled public String awsSecret { get; set; }
     }
 
+/*
+*********************************************************
+@description     : wrapper containing data to upload small files
+@param           : uploadId {String} - Upload Id
+@param           : lengthOfFile {Decimal} - Length of the file
+@param           : filename {String} - File Name
+@param           : fileExtension {String} - File Extension
+@param           : attach {ContentVersion} - Attachment
+@param           : activity {String} - Activity Id
+********************************************************
+*/
     public class UploadMultipartDetails {
         @AuraEnabled public String uploadId { get; set; }
         @AuraEnabled public Decimal lengthOfFile { get; set; }
@@ -539,6 +627,17 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
         @AuraEnabled public String activity { get; set; }
     }
 
+/*
+*********************************************************
+@description     : wrapper containing data to upload chunks
+@param           : url {String} - Endpoint Url
+@param           : start {Integer} - Start bytes
+@param           : ending {Integer} - Ending bytes
+@param           : body {Blob} - File Body
+@param           : partNumber {Integer} - Part Number
+
+********************************************************
+*/
     public class ChunkDetails {
         @AuraEnabled public String url { get; set; }
         @AuraEnabled public Integer start { get; set; }
