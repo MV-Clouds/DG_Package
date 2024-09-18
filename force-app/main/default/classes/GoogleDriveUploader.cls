@@ -17,6 +17,10 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
         this.activity = activityId;
     }
 
+    global GoogleDriveUploader(Id cvid) {
+        this.contentVersionId = cvid;
+    }
+
     global Database.QueryLocator start(Database.BatchableContext bC) {
         try {
             if(contentVersionId != null){
@@ -91,6 +95,41 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 @return          : {String} - return Token if successful
 ********************************************************
 */
+
+@deprecated
+global static String getToken(){
+    try {
+        List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        String endpoint = 'https://oauth2.googleapis.com/token';
+        HttpRequest request = new HttpRequest();
+        request.setEndpoint(endpoint);
+        request.setMethod('POST');
+        request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
+                        '&client_id=' + mdata[0].CID__c +
+                        '&client_secret=' + mdata[0].CSEC__c +
+                        '&grant_type=refresh_token');
+
+        Http http = new Http();
+        HttpResponse response = http.send(request);
+
+        if (response.getStatusCode() == 200) {
+            Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
+            String newToken = (String) jsonResponse.get('access_token');
+            return newToken;
+        }
+        else{
+            Response_Handler.store_Callout_Response(response, 'GoogleDriveUploader', 'getToken');
+            mailMessage(response.getStatusCode());
+        }
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'getToken');
+            update obj;
+    }
+    return null;
+}
+
     global static String getToken(String activity){
         try {
             List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();

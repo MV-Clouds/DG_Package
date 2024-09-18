@@ -56,9 +56,12 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     *********************************************************
     */
     global OneDriveUploader(Id cvid, Id activityId) {
-        System.debug(activity);
         this.contentVersionId = cvid;
         this.activity = activityId;  //activity will be used to send mail
+    }
+
+    global OneDriveUploader(Id cvid) {
+        this.contentVersionId = cvid;
     }
 
 

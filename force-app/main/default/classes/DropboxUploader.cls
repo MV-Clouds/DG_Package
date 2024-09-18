@@ -72,6 +72,10 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
         this.activity = activityId;  //activity will be used to send mail
     }
 
+    global DropboxUploader(Id cvid) {
+        this.contentVersionId = cvid;
+    }
+
     global Database.QueryLocator start(Database.BatchableContext bC) {
         try {
             if(contentVersionId != null){
