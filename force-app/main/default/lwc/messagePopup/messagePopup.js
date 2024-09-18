@@ -1,5 +1,5 @@
-import { LightningElement, api, track, wire } from "lwc";
-import { CloseActionScreenEvent } from 'lightning/actions';
+import { LightningElement, api, track } from "lwc";
+// import { CloseActionScreenEvent } from 'lightning/actions';
 export default class MessagePopup extends LightningElement {
     @track type;
     @track status;
@@ -75,7 +75,7 @@ export default class MessagePopup extends LightningElement {
     isInitial = true;
     renderedCallback(){
         try {
-
+            null;
             
             
         } catch (error) {

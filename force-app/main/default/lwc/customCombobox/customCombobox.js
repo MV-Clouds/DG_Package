@@ -221,7 +221,7 @@ export default class CustomCombobox extends LightningElement {
         }
     }
 
-    onBodyClick = (event) => {
+    onBodyClick = () => {
         if(this.isDropDownOpen){
             this.closeDropDown();
         }

@@ -1,4 +1,4 @@
-import { LightningElement, api, track, wire } from "lwc";
+import { LightningElement, api, track } from "lwc";
 import previewModalImg from "@salesforce/resourceUrl/previewModal_img";
 import getObjectNameField from '@salesforce/apex/TemplateBuilder_Controller.getObjectNameField';
 
@@ -137,6 +137,7 @@ export default class TemplatePreviewModal extends LightningElement {
 
     renderedCallback(){
         try {
+            null;
         } catch (error) {
             console.warn('error in TemplatePreviewModal > renderedCallback : ', error.message);
         }
@@ -177,7 +178,7 @@ export default class TemplatePreviewModal extends LightningElement {
                 var paraDataStringify = JSON.stringify(paraData);
 
                 // var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
-                var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify;
+                var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
     
                 if(newSRC !== previousSRC){
                     this.vfPageSRC = newSRC;
@@ -193,7 +194,7 @@ export default class TemplatePreviewModal extends LightningElement {
                 }
                 else{
                     // this.vfPageSRC = '/apex/DocGeneratePage';
-                    this.vfPageSRC = '/apex/MVDG__DocGeneratePage';
+                    this.vfPageSRC = '/apex/DocGeneratePage';
 
                     // setTimeout( () => {
                     //     this.vfPageSRC = newSRC;

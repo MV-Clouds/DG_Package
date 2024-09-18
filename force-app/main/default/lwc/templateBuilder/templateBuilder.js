@@ -24,7 +24,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     @track bodyData = '';                           // To store template main content data.
     @track headerData = '';                         // To store template header data.
-    @track headerData = '';                         // To store template footer data.
 
     @track templateRecord = {}                      // Store template record field data,
     @track tempRecordBackup = {}                    // for backup to revert template data on cancel click,
@@ -180,7 +179,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 else{
                     this.noTemplateFound = true;
                 }
-                globalThis?.window?.addEventListener('resize', this.resizeFunction);
+                window?.addEventListener('resize', this.resizeFunction);
 
         } catch (error) {
             errorDebugger('TemplateBuilder', 'connectedCallback', error, 'warn');
@@ -507,7 +506,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 else{
                     completedProcess++;
                     this.isSpinner = this.stopSpinner(completedProcess, totalProcesses);
-                    errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTemplateApex APEX Method');
+                    errorDebugger('TemplateBuilder', 'saveTemplateValue', result, 'warn', 'Error in saveTemplateApex APEX Method');
                 }
             })
             .catch(error => {
@@ -530,7 +529,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     else{
                         completedProcess++;
                         this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
-                        errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
+                        errorDebugger('TemplateBuilder', 'saveTemplateValue', result, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                     }
                 })
                 .catch((error) => {
@@ -620,8 +619,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     vfPageLoaded(){
         try {
             this.isSpinner = false;
-            const iframe = this.template.querySelector('iframe');
-            const pdfViewer = iframe.querySelector( 'pdf-viewer' );
+            // const iframe = this.template.querySelector('iframe');
+            // const pdfViewer = iframe.querySelector( 'pdf-viewer' );
         } catch (error) {
             errorDebugger('TemplateBuilder', 'vfPageLoaded', error, 'warn');
         }

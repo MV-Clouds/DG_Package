@@ -105,10 +105,10 @@ function setFontSize(event, note){
  * @returns 
  */
 function createFontResizer(note){
-        var fontReiszerContanier = globalThis.document?.createElement('div');
+        var fontReiszerContanier = document?.createElement('div');
         fontReiszerContanier.classList.add('fontResizer');
     
-        var minusBtn = globalThis.document?.createElement('span');
+        var minusBtn = document?.createElement('span');
         minusBtn.classList.add('minusBtn');
         minusBtn.setAttribute("data-name", "font-minus");
         // minusBtn.innerText = 'A-';
@@ -116,7 +116,7 @@ function createFontResizer(note){
         minusBtn.addEventListener('click', function(e){setFontSize(e, note)});
         fontReiszerContanier.appendChild(minusBtn);
     
-        var sizeInput = globalThis.document?.createElement('input');
+        var sizeInput = document?.createElement('input');
         sizeInput.setAttribute("type", "number");
         sizeInput.setAttribute("data-name", "font-input");
         sizeInput.value=13;
@@ -126,7 +126,7 @@ function createFontResizer(note){
         sizeInput.addEventListener('keypress', function(e){setFontSize(e, note)});
         fontReiszerContanier.appendChild(sizeInput);
     
-        var plusBtn = globalThis.document?.createElement('span');
+        var plusBtn = document?.createElement('span');
         plusBtn.classList.add('plusBtn');
         plusBtn.addEventListener('click', function(e){setFontSize(e, note)});
         // plusBtn.innerText = 'A+';

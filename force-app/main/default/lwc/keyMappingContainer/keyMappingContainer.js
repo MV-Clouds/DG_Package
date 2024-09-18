@@ -247,6 +247,7 @@ export default class KeyMappingContainer extends LightningElement {
         else if(this.clickedFieldType == 'CURRENCY' || this.clickedFieldType == 'NUMBER' || this.clickedFieldType == 'PERCENTAGE'){
             return `Format Options for ${this.clickedFieldType} field`;
         }
+        return null;
     }
 
     /**
@@ -417,7 +418,7 @@ export default class KeyMappingContainer extends LightningElement {
                         this.setOtherMappingTemplates();
                 }
                 else{
-                    errorDebugger('FieldMappingKey', 'fetchAllActiveTemps', error, 'warn', `error in fetchAllActiveTemps apex  : ${result.returnMessage}`);
+                    errorDebugger('FieldMappingKey', 'fetchAllActiveTemps', result, 'warn', `error in fetchAllActiveTemps apex  : ${result.returnMessage}`);
                 }
             })
         } catch (error) {
@@ -457,7 +458,7 @@ export default class KeyMappingContainer extends LightningElement {
                     this.setContVerImgToDisplay();
                 }
                 else{
-                    errorDebugger('FieldMappingKey', 'fetchAllContentVersionImages', error, 'warn', `error in getAllContentVersionImgs Apex : ${result.returnMessage}`)
+                    errorDebugger('FieldMappingKey', 'fetchAllContentVersionImages', result, 'warn', `error in getAllContentVersionImgs Apex : ${result.returnMessage}`)
                 }
             })
             .catch(error => {
@@ -634,6 +635,7 @@ export default class KeyMappingContainer extends LightningElement {
                 this.setMappingKeysForObjFields();
             }
             else if(this.activeMappingTabName == 'relatedListFields'){
+                null;
             }
             else if(this.activeMappingTabName == 'generalFields'){
                 this.setGeneralFieldsToDisplay();
@@ -1119,7 +1121,7 @@ export default class KeyMappingContainer extends LightningElement {
                         roundModeText.classList.remove('roundMode');
 
                         // add round Mode with decimal places if rM value is not available and value is not none...
-                        if(!this.numberFormat.hasOwnProperty('rM') && roundMode.value != 'none'){
+                        if(!Object.prototype.hasOwnProperty.call(this.numberFormat, 'rM') && roundMode.value != 'none'){
                             this.numberFormat['rM'] = roundMode.value;
                         }
                     }
@@ -1398,7 +1400,7 @@ export default class KeyMappingContainer extends LightningElement {
                 });
             });
 
-            this.otherActiveTempList.map(ele => {
+            this.otherActiveTempList.foreach(ele => {
                 objectKeys.mergeTemps.push(ele.name);
             });
 
