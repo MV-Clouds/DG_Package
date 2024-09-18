@@ -73,15 +73,6 @@ export default class MessagePopup extends LightningElement {
     }
 
     isInitial = true;
-    renderedCallback(){
-        try {
-            null;
-            
-            
-        } catch (error) {
-            console.error('error in renderedCallback : ', error.stack);
-        }
-    }
 
     @api
     showMessagePopup(messageData){
