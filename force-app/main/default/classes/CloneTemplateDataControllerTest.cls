@@ -59,19 +59,17 @@ public class CloneTemplateDataControllerTest {
         System.debug('templateRecord *** : '+templateRecord);
         
         // Create a JSON string for dataMap
-        String jsonData = '{"templateType":"Simple Template","templateBody":"true","header":"true","pageConfiguration":"true","footer":"true"}';
+        String jsonData = '{"templateName": "test", "templateDescription": "desc", "templateType":"Simple Template","templateBody":"true","header":"true","pageConfiguration":"true","footer":"true"}';
         
         // Call the method to be tested
-        CloneTemplateDataController.newTempleatData result = CloneTemplateDataController.cloneTempData(
+        CloneTemplateDataController.newTemplateData result = CloneTemplateDataController.cloneTempData(
             templateRecord.Id,
-            templateRecord.MVDG__Template_Name__c,
-            templateRecord.MVDG__Description__c,
             jsonData
         );
         
         // Verify the cloned template data
         MVDG__Template__c clonedTemplate = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c FROM MVDG__Template__c WHERE Id = :result.tempId];
-        System.assertEquals(templateRecord.MVDG__Template_Name__c, clonedTemplate.MVDG__Template_Name__c);
+        System.assertEquals(templateRecord.MVDG__Template_Name__c, 'Test Simple Template');
         System.assertNotEquals(templateRecord.Id, clonedTemplate.Id, 'Cloned template should have a different ID');
         
         // Verify the cloned template page data
@@ -86,20 +84,17 @@ public class CloneTemplateDataControllerTest {
         System.debug('templateRecord *** : '+templateRecord);
         
         // Create a JSON string for dataMap
-        String jsonData = '{"templateType":"CSV Template","newSelectedFields":"true","newFieldsFilters":"true","newFieldOrderBy":"true","newFieldLimit":"true"}';
+        String jsonData = '{"templateName": "test", "templateDescription": "desc", "templateType":"CSV Template","newSelectedFields":"true","newFieldsFilters":"true","newFieldOrderBy":"true","newFieldLimit":"true"}';
         
         // Call the method to be tested
-        CloneTemplateDataController.newTempleatData result = CloneTemplateDataController.cloneTempData(
+        CloneTemplateDataController.newTemplateData result = CloneTemplateDataController.cloneTempData(
             templateRecord.Id,
-            'Cloned CSV Template Name',
-            'Cloned CSV Template Description',
             jsonData
         );
         
         // Verify the cloned template data
         MVDG__Template__c clonedTemplate = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c FROM MVDG__Template__c WHERE Id = :result.tempId];
-        System.assertEquals('Cloned CSV Template Name', clonedTemplate.MVDG__Template_Name__c);
-        System.assertEquals('Cloned CSV Template Description', clonedTemplate.MVDG__Description__c);
+        System.assertEquals('test', clonedTemplate.MVDG__Template_Name__c);
         
         // Verify the cloned template data records
         List<MVDG__Template_Data__c> clonedTemplateData = [SELECT Id FROM MVDG__Template_Data__c WHERE MVDG__Template__c = :result.tempId];

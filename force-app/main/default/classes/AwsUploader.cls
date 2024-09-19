@@ -77,8 +77,8 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
 
                 if (fileSize < maxSize) {
                     List<String> fileDetails = new List<String>();
-                    fileDetails[0] = fileName.toLowerCase();
-                    fileDetails[1] = attach.FileExtension;
+                    fileDetails.add(fileName.toLowerCase());
+                    fileDetails.add(attach.FileExtension);
                     uploadObject(fileDetails, attach.VersionData, activity);
                 } else {
                     if(namedCredential != ''){

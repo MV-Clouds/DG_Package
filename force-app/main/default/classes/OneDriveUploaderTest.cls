@@ -55,6 +55,21 @@ public class OneDriveUploaderTest {
     }
 
     @isTest
+    static void testErrorinitiateUploadSession() {
+        String uploader;
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new MockErrorHttpResponseToken());
+
+        List<ContentVersion> contentVersion = [SELECT Id, ContentSize FROM ContentVersion];
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+
+        // First element
+        uploader = OneDriveUploader.initiateUploadSession('pdf',contentVersion[0], act[0].Id);
+        System.assertNotEquals(null, uploader, 'The batch result cannot be null');
+        Test.stopTest();
+    }
+
+    @isTest
     static void testcontentTypeForOneDrive() {
         String result;
         Test.startTest();
@@ -110,12 +125,31 @@ public class OneDriveUploaderTest {
     //     System.assertEquals(true, result);
     // }
 
+    @isTest
+    static void getToken(){
+        String result;
+        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new MockErrorHttpResponseToken());
+        result = OneDriveUploader.getToken(act[0].Id);
+    }
+
     public class MockHttpResponseToken implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             HttpResponse res = new HttpResponse();
             res.setHeader('Content-Type', 'application/json');
             res.setBody('{"access_token": "testAccessToken", "uploadUrl": "https://www.example.com/param1" }');
             res.setStatusCode(200);
+            return res;
+        }
+    }
+
+    public class MockErrorHttpResponseToken implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setHeader('Content-Type', 'application/json');
+            res.setBody('{"access_token": "testAccessToken", "uploadUrl": "https://www.example.com/param1" }');
+            res.setStatusCode(400);
             return res;
         }
     }

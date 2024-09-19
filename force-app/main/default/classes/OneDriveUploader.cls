@@ -99,9 +99,9 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
                 Integer maxSize = (8 * 1024 * 1024);  // 8 MB chunk factor
                 List<String> fileDetails = new List<String>();
-                fileDetails[0] = fileName;
-                fileDetails[1] = contentType;
-                fileDetails[2] = activity;
+                fileDetails.add(fileName);
+                fileDetails.add(contentType);
+                fileDetails.add(activity);
                 if (Test.isRunningTest()) {
                     maxSize = 800;
                 }
