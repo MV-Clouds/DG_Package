@@ -311,9 +311,6 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 if (event && event.detail) {
                     this.closePopup();
                     this.navigateToComp("homePage", {});
-                } else if (event && event.detail === false) {
-                    this.activeTabName = "basicTab";
-                    this.setActiveTab();
                 }
             } else {
                 this.closePopup();
