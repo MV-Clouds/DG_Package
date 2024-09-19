@@ -27,8 +27,15 @@ public class OneDriveUploaderTest {
         contentVersion2.VersionData = data;
         insert contentVersion2;
 
-        Generate_Document_Activity__c gda = new Generate_Document_Activity__c();
-        gda.AWS__c = 'Success';
+        MVDG__Template__c temp = new MVDG__Template__c();
+        temp.MVDG__Object_API_Name__c = 'Account';
+        temp.MVDG__Template_Type__c	= 'Simple Template';
+        temp.MVDG__Template_Name__c	= 'test';
+        insert temp;
+
+        MVDG__Generate_Document_Activity__c gda = new MVDG__Generate_Document_Activity__c();
+        gda.MVDG__AWS__c = 'Success';
+        gda.DocGenius_Template__c = temp.Id;
         insert gda;
     }
 
@@ -38,7 +45,7 @@ public class OneDriveUploaderTest {
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseToken());
 
         List<ContentVersion> contentVersion = [SELECT Id, ContentSize FROM ContentVersion];
-        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
 
         // First element
         OneDriveUploader uploader = new OneDriveUploader(contentVersion[0].Id, act[0].Id);
@@ -61,7 +68,7 @@ public class OneDriveUploaderTest {
         Test.setMock(HttpCalloutMock.class, new MockErrorHttpResponseToken());
 
         List<ContentVersion> contentVersion = [SELECT Id, ContentSize FROM ContentVersion];
-        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
 
         // First element
         uploader = OneDriveUploader.initiateUploadSession('pdf',contentVersion[0], act[0].Id);
@@ -128,7 +135,7 @@ public class OneDriveUploaderTest {
     @isTest
     static void getToken(){
         String result;
-        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockErrorHttpResponseToken());
         result = OneDriveUploader.getToken(act[0].Id);

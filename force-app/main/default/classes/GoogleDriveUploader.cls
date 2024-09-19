@@ -33,8 +33,8 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
             return null;    
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'batch start', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-            obj.Google_Drive__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+            obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
             obj.Id = activity; 
             update obj;
             return null;
@@ -71,8 +71,8 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                 }
             } catch (System.LimitException e) {
                 Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'execute batch', activity);
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
                 emailUser('File size too large. Try uploading file with smaller size.\n\n Or Download it and then upload file manually.');
@@ -153,16 +153,16 @@ global static String getToken(){
             }
             else{
                 Response_Handler.store_Callout_Response(response, 'GoogleDriveUploader', 'getToken');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                    obj.Google_Drive__c = 'Failure '+ response.getStatusCode() + response.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                    obj.MVDG__Google_Drive__c = 'Failure '+ response.getStatusCode() + response.getBody();
                     obj.Id = activity; 
                     update obj;
                 mailMessage(response.getStatusCode());
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'getToken', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
         }
@@ -189,15 +189,15 @@ global static String getToken(){
                 HttpResponse resp = sendHttpRequest(req);
                 
                 if (resp.getStatusCode() == 200) {
-                    Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                        obj.Google_Drive__c = 'Success';
+                    MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                        obj.MVDG__Google_Drive__c = 'Success';
                         obj.Id = fileDetails[1]; 
                         update obj;
                     return true;
                 } else {
                     Response_Handler.store_Callout_Response(resp, 'GoogleDriveUploader', 'uploadToGoogleDrive');
-                    Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                        obj.Google_Drive__c = 'Failure '+ resp.getStatusCode() + resp.getBody();
+                    MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                        obj.MVDG__Google_Drive__c = 'Failure '+ resp.getStatusCode() + resp.getBody();
                         obj.Id = fileDetails[1]; 
                         update obj;
                     mailMessage(resp.getStatusCode());
@@ -206,8 +206,8 @@ global static String getToken(){
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadToGoogleDrive', fileDetails[1]);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = fileDetails[1]; 
                 update obj;
         }
@@ -323,8 +323,8 @@ global static String getToken(){
             
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadLargeFileInChunks', fileDetails[1]);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = fileDetails[1]; 
                 update obj;
         }
@@ -452,8 +452,8 @@ global static String getToken(){
                 return (String) res.getHeader('Location');
             } else {
                 Response_Handler.store_Callout_Response(res, 'GoogleDriveUploader', 'initiateUploadSession');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Google_Drive__c = 'Failure '+ res.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Google_Drive__c = 'Failure '+ res.getBody();
                 obj.Id = activity; 
                 update obj;
                 mailMessage(res.getStatusCode());
@@ -462,8 +462,8 @@ global static String getToken(){
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'initiateUploadSession', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
                 return 'failure';
@@ -505,14 +505,14 @@ global static String getToken(){
             }
             else if(res.getStatusCode() == 200){
                 System.debug('Everything was succes'+ res.getStatusCode() + res.getBody());
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Google_Drive__c = 'Success';
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Google_Drive__c = 'Success';
                 obj.Id = parameters.activity; 
                 update obj;
             } else {
                 Response_Handler.store_Callout_Response(res, 'GoogleDriveUploader', 'uploadChunk');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Google_Drive__c = 'Failure '+ res.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Google_Drive__c = 'Failure '+ res.getBody();
                 obj.Id = parameters.activity; 
                 update obj;
                 mailMessage(res.getStatusCode());
@@ -520,8 +520,8 @@ global static String getToken(){
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadChunk', parameters.activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Google_Drive__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = parameters.activity; 
                 update obj;
         }

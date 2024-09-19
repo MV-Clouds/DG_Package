@@ -41,8 +41,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             return jsonvalues.get('access_token');
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxUploader', 'TokenPermanent', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
                 return null;
@@ -88,8 +88,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             return null;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxUploader', 'batch start', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-            obj.Dropbox__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+            obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
             obj.Id = activity; 
             update obj;
             return null;
@@ -123,8 +123,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 }
             } catch (Exception e) {
                 Log_Handler.store_Exception(e, 'DropboxUploader', 'batch execute', activity);
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ e.getMessage();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
                 System.debug('Error during Dropbox file upload: ' + e.getMessage());
@@ -234,14 +234,14 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     
             if (res.getStatusCode() == 200) {
                 System.debug('Small file uploaded successfully to Dropbox');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Success';
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Success';
                 obj.Id = activity; 
                 update obj;
             } else {
                 Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'uploadSmallFile');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ res.getStatusCode() + res.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ res.getStatusCode() + res.getBody();
                 obj.Id = activity;
                 update obj;
                 mailMessage(res.getStatusCode());
@@ -250,8 +250,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxUploader', 'uploadSmallFile', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
         }
@@ -291,8 +291,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             completeUploadSession(sessionId, lastChunk, offset, activity);
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxUploader', 'uploadLargeFileInChunks', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
         }
@@ -317,8 +317,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 return (String) jsonResponse.get('session_id');
             } else {
                 Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'initiateUploadSession');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ res.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ res.getBody();
                 obj.Id = activity; 
                 update obj;
                 mailMessage(res.getStatusCode());
@@ -326,8 +326,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxUploader', 'initiateUploadSession', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
         }
@@ -349,8 +349,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     
             if (res.getStatusCode() != 200) {
                 Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'uploadChunk');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ res.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ res.getBody();
                 obj.Id = activity; 
                 update obj;
                 mailMessage(res.getStatusCode());
@@ -358,8 +358,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxUploader', 'uploadChunk', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
         }
@@ -382,14 +382,14 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     
             if (res.getStatusCode() == 200) {
                 System.debug('Large file uploaded successfully to Dropbox');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Success';
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Success';
                 obj.Id = activity; 
                 update obj;
             } else {
                 Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'completeUploadSession');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ res.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ res.getBody();
                 obj.Id = activity; 
                 update obj;
                 mailMessage(res.getStatusCode());
@@ -398,8 +398,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxUploader', 'completeUploadSession', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.Dropbox__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
         }

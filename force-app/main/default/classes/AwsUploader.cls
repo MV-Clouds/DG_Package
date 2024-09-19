@@ -37,8 +37,8 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             return null;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsUploader', 'batch start', activity);
-            Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-            obj.AWS__c = 'Failure '+ e.getMessage();
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+            obj.MVDG__AWS__c = 'Failure '+ e.getMessage();
             obj.Id = activity; 
             update obj;
             return null;
@@ -116,8 +116,8 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                         uploadMultipart(multipartDetail);
                     } else {
                         Response_Handler.store_Callout_Response(res, 'AwsUploader', 'execute');
-                        Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                            obj.AWS__c = 'Failure '+ res.getBody();
+                        MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                            obj.MVDG__AWS__c = 'Failure '+ res.getBody();
                             obj.Id = activity; 
                             update obj;
                         mailMessage(res.getStatusCode());
@@ -127,8 +127,8 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsUploader', 'execute batch', activity);
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Failure '+ e.getMessage();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
         }
@@ -359,23 +359,23 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             HTTPResponse resObj = httpObj.send(reqObj);
 
             if (resObj.getStatusCode() == 200 || resObj.getStatusCode() == 201) {
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Success';
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Success';
                 obj.Id = activity; 
                 update obj;
 
             } else {
                 Response_Handler.store_Callout_Response(resObj, 'AwsUploader', 'uploadObject');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Failure '+ resObj.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Failure '+ resObj.getBody();
                 obj.Id = activity; 
                 update obj;
                 mailMessage(resObj.getStatusCode());
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsUploader', 'uploadObject', activity);
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Failure '+ e.getMessage();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 update obj;
         }
@@ -429,8 +429,8 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsUploader', 'uploadMultipart', parameters.activity);
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Failure '+ e.getMessage();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Failure '+ e.getMessage();
                 obj.Id = parameters.activity; 
                 update obj;
         }
@@ -467,16 +467,16 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                 }
             } else {
                 Response_Handler.store_Callout_Response(response, 'AwsUploader', 'subMethod');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Failure '+ response.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Failure '+ response.getBody();
                 obj.Id = parameters.activity; 
                 update obj;
                 mailMessage(response.getStatusCode());
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsUploader', 'subMethod', parameters.activity);
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Failure '+ e.getMessage();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Failure '+ e.getMessage();
                 obj.Id = parameters.activity; 
                 update obj;
         }
@@ -565,14 +565,14 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             HTTPResponse resCmp = httpCmp.send(reqCmp);
     
             if (resCmp.getStatusCode() == 200 || resCmp.getStatusCode() == 201) {
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Success';
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Success';
                 obj.Id = parameters.activity; 
                 update obj;
             } else {
                 Response_Handler.store_Callout_Response(resCmp, 'AwsUploader', 'completeFile');
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Failure '+ resCmp.getBody();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Failure '+ resCmp.getBody();
                 obj.Id = parameters.activity; 
                 update obj;
                 mailMessage(resCmp.getStatusCode());
@@ -580,8 +580,8 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsUploader', 'completeFile', parameters.activity);
-                Generate_Document_Activity__c obj = new Generate_Document_Activity__c();
-                obj.AWS__c = 'Failure '+ e.getMessage();
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__AWS__c = 'Failure '+ e.getMessage();
                 obj.Id = parameters.activity; 
                 update obj;
         }
