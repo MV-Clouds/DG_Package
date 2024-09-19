@@ -327,9 +327,9 @@ export default class KeyMappingContainer extends LightningElement {
                         var fieldMappingKeysList = [];
                         result.fieldMappingsWithObj.forEach(obj => {
                             relatedObjectList.push({label : obj.label, value: obj.name});
-                            if(!obj.label.includes('>')){
-                                this.objectName = obj.name;
-                            }
+                            // if(!obj.label.includes('>')){
+                            //     this.objectName = obj.name;
+                            // }
                             obj.fieldMappings.forEach(ele => {
                                 fieldMappingKeysList.push(ele.name);
                             })

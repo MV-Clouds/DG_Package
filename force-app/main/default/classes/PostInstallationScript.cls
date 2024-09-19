@@ -29,11 +29,6 @@ global class PostInstallationScript implements InstallHandler{
             String buttonEndURL = buttonData.get('buttonEndURL');
             String buttonLabel = buttonData.get('buttonLabel');
 
-            MetadataService.MetadataPort service = new MetadataService.MetadataPort();
-            if (!Test.isRunningTest()) {   
-                service.SessionHeader = new MetadataService.SessionHeader_element();
-                service.SessionHeader.sessionId = Page.UserSessionIdPage.getContent().toString();
-            }
             List<MetadataService.Metadata> webLinks = new List<MetadataService.Metadata>();
             for (String obj: objects) {
                 String buttonURL = '/lightning/cmp/MVDG__generateDocument?c__objectApiName='+ obj +  buttonEndURL;

@@ -293,11 +293,11 @@ input[type=number]::-webkit-outer-spin-button {
     /* ====== ====== ======= Top Section ===== ===== ========== */
 
      /* #fieldMapping... */
-     c-key-mapping-container{
+     .keyMappingContainer {
       width: var(--fieldMappingWidth);
       height: calc(100% - var(--toolbar_height) - 1.5rem);
       top: calc(var(--toolbar_height) + 0.5rem);
-      display: none;
+      display: none;   
       transition: all linear 0.325s;
 
       position: absolute;
@@ -305,7 +305,7 @@ input[type=number]::-webkit-outer-spin-button {
       z-index: 101;
     }
     .desicionContainer{
-      margin-inline: 1rem;
+      margin-inline: 0rem;
       margin-bottom: 0.5rem;
       max-width: 100%;
       display: none;

@@ -1,4 +1,4 @@
-import { LightningElement , track} from 'lwc';
+import { LightningElement , track, api} from 'lwc';
 import getAllObjects from '@salesforce/apex/ButtonGeneratorController.getAllObjects';
 import getCombinedData from '@salesforce/apex/NewTemplateCreationController.getCombinedData';
 import saveTemplate from '@salesforce/apex/NewTemplateCreationController.saveTemplate';
@@ -7,6 +7,7 @@ import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
 
 export default class NewTemplateCreation extends NavigationMixin(LightningElement) {
 
+    @api showModel;
     @track isShowSpinner = false;
     @track objectNames = [];
     @track templateTypes = [];

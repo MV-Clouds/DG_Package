@@ -38,7 +38,7 @@ iframe {
     position: relative;
 }
 
-c-key-mapping-container {
+.key-mapping-container {
     background-color: #ffff;
     width: 30rem;
     min-width: 30rem;
@@ -46,8 +46,8 @@ c-key-mapping-container {
     margin: 0.5rem;
     height: calc(100% - 1rem);
 }
-.decisionContainer {
-    margin-right: 1rem;
+.decision-container {
+    margin-right: 0rem;
     margin-bottom: 0.5rem;
     max-width: 100%;
     display: flex;

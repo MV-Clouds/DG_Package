@@ -109,7 +109,7 @@ public with sharing class CloneTemplateDataController {
                     cloneTempData.MVDG__Value_Type__c = tempData.MVDG__Value_Type__c;
                     newTempData.add(cloneTempData);
                 }
-                insert as user newTempData;
+                insert as user newTempData; 
             }
             System.debug('cloneTemp.Id'+cloneTemp.Id);
              
