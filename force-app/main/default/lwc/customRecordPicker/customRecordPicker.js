@@ -104,6 +104,8 @@ export default class CustomRecordPicker extends LightningElement {
     @api get disabled(){ return this._disabled };
     set disabled(value){ this._disabled = (value == 'true' || value == true) ? true : false };
 
+    @track isDisabled = this.disabled;
+
     // use to displays cross icon once option in selected...
     _showClearButton = true;
     @api get showClearButton(){ return this._showClearButton};
@@ -127,6 +129,8 @@ export default class CustomRecordPicker extends LightningElement {
 
     valueToSet = [];
     @api get value(){ return this.valueToSet };
+    @track trackValue = this.value;
+
     set value(val){
         if(Array.isArray(val)){
             this.valueToSet = val.map(ele => { return ele.trim()} );
@@ -333,22 +337,22 @@ export default class CustomRecordPicker extends LightningElement {
             }
             // If value is set...add Id into filter list to fetch record
             var valueString = ''
-            if(this.value?.length){
-                valueString += `{ Id : {in : ["${this.value.join('","')}"]}}`;
+            if(this.trackValue?.length){
+                valueString += `{ Id : {in : ["${this.trackValue.join('","')}"]}}`;
             }
 
             // console.log('This.filtes :::', this.filters);
 
             // Merge search and filter query to fetch records based on search and filter....
             var filterQuery = '';
-            if(this.searchedValue || this.filters?.length || this.value?.length){
+            if(this.searchedValue || this.filters?.length || this.trackValue?.length){
                  filterQuery = `where : {
                                             or : [
                                                 { and : [
                                                     ${this.searchedValue ? `{ or : [${searchingString}]}, \n`  : ``} 
                                                     ${this.filters?.length ?       `${filterString} \n`     : ``} 
                                                 ] }
-                                                ${this.value?.length ? valueString : ''}
+                                                ${this.trackValue?.length ? valueString : ''}
                                             ]
                                         }`;
             }
@@ -444,7 +448,7 @@ export default class CustomRecordPicker extends LightningElement {
         if (typeof window !== 'undefined') {
             this.dispatchEvent(new CustomEvent('error', {detail : error}));
         }
-        this.disabled = true;
+        this.isDisabled = true;
         this.isGqlError = true;
         this.setErrorBorder();
         this.fetchingRecords = false;
@@ -581,7 +585,7 @@ export default class CustomRecordPicker extends LightningElement {
     
                 this.displayOptions = tempOptions;
     
-                if(this.value?.length){
+                if(this.trackValue?.length){
                     this.setDefaultValue();
                 }
                 else{
@@ -597,7 +601,7 @@ export default class CustomRecordPicker extends LightningElement {
     // Set default value if user passes value...
     setDefaultValue(){
         try {
-            const valueToSet = this.value;
+            const valueToSet = this.trackValue;
 
             if(this.multiselect){
                 valueToSet.forEach(ele => {
@@ -672,14 +676,14 @@ export default class CustomRecordPicker extends LightningElement {
                     if(!selectedRecord.isSelected){
                         this.displayOptions[itemIndex].isSelected = true;
                         this.selectedOptions.push(selectedRecord);
-                        this.value.push(itemValue);
+                        this.trackValue.push(itemValue);
                     }
                     else{
                         this.displayOptions[itemIndex].isSelected = false;
                         this.selectedOptions = this.selectedOptions.filter((ele) => {
                             return ele.value != itemValue;
                         });
-                        this.value = this.value.filter(ele => {
+                        this.trackValue = this.trackValue.filter(ele => {
                             return ele != itemValue;
                         });
 
@@ -703,7 +707,7 @@ export default class CustomRecordPicker extends LightningElement {
                     this.selectedOptionLabel = event.currentTarget.dataset.label;
                     
                     this.selectedOptions = [selectedRecord];
-                    this.value = [itemValue];
+                    this.trackValue = [itemValue];
                     this.setSelection();
     
                     // if combobox is not multi-select it will return array with only one element...
@@ -742,7 +746,7 @@ export default class CustomRecordPicker extends LightningElement {
                 searchInput && searchInput.focus();
             }
 
-            (this.value?.length) && (this.value = []);
+            (this.trackValue?.length) && (this.trackValue = []);
 
             this.clearSearch();
             this.setErrorBorder();
@@ -904,7 +908,7 @@ export default class CustomRecordPicker extends LightningElement {
     @api
     resetValue(){
         this.clearValue();
-        if(this.value?.length){
+        if(this.trackValue?.length){
             // this.setDefaultSection();
             this.setDefaultValue();
         }
