@@ -27,16 +27,25 @@ public class GoogleDriveUploaderTest {
         cv2.FirstPublishLocationId = acc.Id;
         insert cv2;
 
-        Generate_Document_Activity__c gda = new Generate_Document_Activity__c();
-        gda.AWS__c = 'Success';
+        MVDG__Template__c temp = new MVDG__Template__c();
+        temp.MVDG__Object_API_Name__c = 'Account';
+        temp.MVDG__Template_Type__c	= 'Simple Template';
+        temp.MVDG__Template_Name__c	= 'test';
+        insert temp;
+
+        MVDG__Generate_Document_Activity__c gda = new MVDG__Generate_Document_Activity__c();
+        gda.MVDG__AWS__c = 'Success';
+        gda.DocGenius_Template__c = temp.Id;
         insert gda;
+
+        
     }
 
     @IsTest
     static void testBatchableMethods(){
         List<ContentVersion> cv = new List<ContentVersion>();
         cv = [SELECT Id FROM ContentVersion];
-        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
 
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockResponse());

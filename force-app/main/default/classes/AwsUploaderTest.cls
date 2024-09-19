@@ -37,8 +37,15 @@ public class AwsUploaderTest {
         cv2.FirstPublishLocationId = acc.Id;
         insert cv2;
 
-        Generate_Document_Activity__c gda = new Generate_Document_Activity__c();
-        gda.AWS__c = 'Success';
+        MVDG__Template__c temp = new MVDG__Template__c();
+        temp.MVDG__Object_API_Name__c = 'Account';
+        temp.MVDG__Template_Type__c	= 'Simple Template';
+        temp.MVDG__Template_Name__c	= 'test';
+        insert temp;
+
+        MVDG__Generate_Document_Activity__c gda = new MVDG__Generate_Document_Activity__c();
+        gda.MVDG__AWS__c = 'Success';
+        gda.DocGenius_Template__c = temp.Id;
         insert gda;
     }
 
@@ -50,7 +57,7 @@ public class AwsUploaderTest {
         
         List<ContentVersion> cv = new List<ContentVersion>();
         cv = [SELECT Id FROM ContentVersion];
-        List<Generate_Document_Activity__c> act = [SELECT Id FROM Generate_Document_Activity__c];
+        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
 
         if (cv.size() > 1) {
             AwsUploader awsUploader = new AwsUploader(cv[0].Id, act[0].Id);
