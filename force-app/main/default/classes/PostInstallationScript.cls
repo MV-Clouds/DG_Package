@@ -17,7 +17,7 @@ global class PostInstallationScript implements InstallHandler{
             buttonData.put('buttonLabel', 'DG Basic Print');
             createListViewButtons(objects, buttonData);
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'PostInstallationScript', 'onInstall');
+            // Log_Handler.store_Exception(e, 'PostInstallationScript', 'onInstall');
             System.debug('Exception in onInstall==>' + e.getMessage());
         }
     }
@@ -74,7 +74,7 @@ global class PostInstallationScript implements InstallHandler{
                 }
             }
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'PostInstallationScript', 'createListViewButtons');
+            // Log_Handler.store_Exception(e, 'PostInstallationScript', 'createListViewButtons');
             system.debug('exception in createListViewButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
         }
     }
@@ -84,6 +84,9 @@ global class PostInstallationScript implements InstallHandler{
             MetadataService.MetadataPort service = new MetadataService.MetadataPort();
             if (!Test.isRunningTest()) {   
                 service.SessionHeader = new MetadataService.SessionHeader_element();
+                if (String.isBlank(Page.UserSessionIdPage.getContent().toString())) {
+                    return false;
+                }
                 service.SessionHeader.sessionId = Page.UserSessionIdPage.getContent().toString();
             }
             list<MetadataService.UpsertResult> saveResultList = new list<MetadataService.UpsertResult>();
@@ -96,9 +99,10 @@ global class PostInstallationScript implements InstallHandler{
             }
             return true;
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'PostInstallationScript', 'addButtons');
+            // Log_Handler.store_Exception(e, 'PostInstallationScript', 'addButtons');
             system.debug('exception in addButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return false;
+            
         }
     }
 }
