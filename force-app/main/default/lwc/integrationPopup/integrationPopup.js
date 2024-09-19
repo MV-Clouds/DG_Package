@@ -7,7 +7,7 @@ import {errorDebugger} from 'c/globalProperties';
 export default class integrationPopup extends NavigationMixin(LightningElement) {
 
     @track popupimg = Popupimg;
-    @track showModel;
+    @api showModel;
     @track showSpinner;
     
     @api draggedkey;
