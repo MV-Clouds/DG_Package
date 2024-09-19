@@ -52,8 +52,8 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                 String contentType = contentType(cv.FileExtension);
                 Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
                 List<String> fileDetails = new List<String>();
-                fileDetails[0] = contentType;
-                fileDetails[1] = activity;
+                fileDetails.add(contentType);
+                fileDetails.add(activity);
                 if(acctoken != null){
                     googleDriveAccessToken = acctoken;
 
@@ -96,7 +96,6 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 ********************************************************
 */
 
-@deprecated
 global static String getToken(){
     // try {
     //     List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
