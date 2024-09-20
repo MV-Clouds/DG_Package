@@ -3,7 +3,7 @@ global class PostInstallationScript implements InstallHandler{
         List<PermissionSetAssignment> permissionSets = new List<PermissionSetAssignment>();
         try {
             List<PermissionSet> ps = new List<PermissionSet>();
-            ps = [SELECT Id, Name FROM PermissionSet WHERE Name = 'MVDG__DocGenius_Admin_Permissions' LIMIT 1];
+            ps = [SELECT Id, Name FROM PermissionSet WHERE Name = 'DocGenius_Admin_Permissions' LIMIT 1];
 
             List<User> admins = new List<User>();
             admins = [SELECT Id, ProfileId FROM User WHERE Profile.Name = 'System Administrator'];
