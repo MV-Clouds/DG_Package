@@ -130,6 +130,7 @@ public with sharing class DocGenActivityTriggerHandler {
                 }
             }
             emailBody += '</table>';
+            emailBody += '<p>Visit <a href="https://mvclouds.com/docgenius/faqs/">our FAQs page</a> for any queries.</p>';
             emailBody += '<p>Thank you for using DocGenius.</p>';
             emailBody += '<p>Regards,</p>';
             emailBody += '<p>Team DocGenius</p>';
@@ -137,9 +138,10 @@ public with sharing class DocGenActivityTriggerHandler {
 
             System.debug('The Email HTMl Body ::'+ emailBody);
 
+            String resultStatus = failed.size() > 0 ? 'Failed' : 'Success';
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             mail.setToAddresses(new String[] {UserInfo.getUserEmail()});
-            mail.setSubject('DocGenius Generation Results - '+ templates[0].MVDG__Template_Name__c);
+            mail.setSubject(resultStatus +' - DocGenius Generation Results ('+ templates[0].MVDG__Template_Name__c + ')');
             mail.setHtmlBody(emailBody);
 
             Messaging.SendEmailResult[] result = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
