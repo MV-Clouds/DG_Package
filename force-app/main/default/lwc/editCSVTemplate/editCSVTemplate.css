@@ -631,13 +631,13 @@ button:hover{
 
 .selected-sort-order svg{
     fill: white;
+    stroke: white;
 }
 
 .sort-btn{
     background-color: white;
     border-radius: 0.5rem;
     cursor: pointer;
-    border: 0.063rem transparent solid;
 }
 
 .sort-btn:hover {
@@ -666,10 +666,6 @@ button:hover{
 
 .error-in-input:focus{
     --slds-c-input-color-border : red !important;
-}
-
-.sort-btn svg{
-    margin: 0.438rem;
 }
 
 .field-select, .logic-select-div{

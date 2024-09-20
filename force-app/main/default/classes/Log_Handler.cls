@@ -1,6 +1,22 @@
-public class Log_Handler {
+/*
+*********************************************************
+Apex Class Name    : Log_Handler
+@description       : This class is used for logging the errors and exceptions occurs within the DocGenius App
+@author            : Nirbhay Navik
+@last Modified     : Kevin Suvagiya - 20 Sep, 2024
+*********************************************************
+*/
+public with sharing class Log_Handler {
 
-
+/*
+*********************************************************
+@description     : Method is used to create a exception log record without activity id
+@param           : e - {Exception} - the actual exception
+@param           : classname - {String} - name of the class in which the error occured
+@param           : methodname - {String} - name of the method in which the error occured
+@return          : none
+********************************************************
+*/
     public static void store_Exception(Exception e,String classname, String methodname) {
         try{
             MVDG__Exception_Logs__c error = new MVDG__Exception_Logs__c();
@@ -31,6 +47,16 @@ public class Log_Handler {
         }
     } 
 
+/*
+*********************************************************
+@description     : Method is used to create a exception log record with activity id
+@param           : e - {Exception} - the actual exception
+@param           : classname - {String} - name of the class in which the error occured
+@param           : methodname - {String} - name of the method in which the error occured
+@param           : activityId - {String} - Id of the generate document activity Id having information about generation results
+@return          : none
+********************************************************
+*/
     public static void store_Exception(Exception e,String classname, String methodname, String activityId) {
         try{
             MVDG__Exception_Logs__c ex = new MVDG__Exception_Logs__c();

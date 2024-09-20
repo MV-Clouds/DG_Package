@@ -1612,7 +1612,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 if (filter.fieldName && filter.operator && filter.value && filter.type) {
                     let condition = '';
                     if (filter.type.toUpperCase() == 'MULTIPICKLIST'){
-                        if(["=","!="].includes(filter.operator)){
+                        if(["=","!="]?.includes(filter.operator)){
                             let newValue = filter.value.split('<|CS|>').map(item => item.trim());
                             newValue = newValue?.join(";");
                             condition =  filter.fieldName + ' ' + filter.operator + ' \'' + newValue + '\' ';
@@ -1651,7 +1651,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     conditions.push(condition);
     
                 }
-                filter.value.includes('<|CS|>') ? filter.value= filter.value.split('<|CS|>') : undefined;
+                filter?.value?.includes('<|CS|>') ? filter.value= filter.value.split('<|CS|>') : undefined;
             });
             if(this.isCustomLogic===false && conditions.length >0){
                 this.generatedQuery += ' WHERE ' + conditions?.join(' '+ this.selectedLogic +' ');
@@ -1663,7 +1663,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 });
             }
     
-            let orderBy = this.sorts.filter(sort => sort.field && sort.order).map(sort => { return (sort.field +' '+ sort.order) });
+            let orderBy = this.sorts?.filter(sort => sort.field && sort.order).map(sort => { return (sort.field +' '+ sort.order) });
             if(orderBy.length >0){
                 this.generatedQuery += ' ORDER BY '+  orderBy?.join(', ');
             }
