@@ -156,6 +156,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
         }
         else if(result == 'DocGenius_Standard_Permissions'){
             this.isPartialAccess = true;
+            const dgSetup = this.template.querySelector('.text0');
+            if(dgSetup) dgSetup.style.display = 'none';
+
         }
        });
    }
