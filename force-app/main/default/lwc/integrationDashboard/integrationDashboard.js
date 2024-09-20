@@ -23,7 +23,8 @@ import noconnection from "@salesforce/resourceUrl/noconnection";
 import awsAuthorization from "@salesforce/apex/AwsAuthorizationController.authorize";
 import oneDriveAuthorization from "@salesforce/apex/OneDriveAuthorizationController.authorize";
 import authorizeNamed from "@salesforce/apex/AwsAuthorizationController.authorizeNamed";
-import dropboxAuthorization from "@salesforce/apex/DropBoxAuthorizationController.authorize"
+import dropboxAuthorization from "@salesforce/apex/DropBoxAuthorizationController.authorize";
+import checkAccess from '@salesforce/apex/GoogleDriveAuthorizationController.checkAccess';
 import { NavigationMixin } from 'lightning/navigation';
 
 
@@ -95,6 +96,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    @track isSpinner = true;
    @track invoke; //used to track who called the popup
 
+   @track isAccess;
+   @track isPartialAccess;
+
 
    get googledrive_(){
        return integrationImages + '/googleDrive.png';
@@ -119,6 +123,18 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    get googledrive_org(){
        return integrationImages + '/googleDriveOrg.png';
    }
+   get allowGoogle() {
+    return this.isAccess && !this.isActiveGoogleAuth;
+   }
+   get allowDropbox() {
+    return this.isAccess && !this.isActiveDropboxAuth;
+   }
+   get allowOneDrive() {
+    return this.isAccess && !this.isActiveOnedriveAuth;
+   }
+   get allowAws() {
+    return this.isAccess && !this.isActiveAwsAuth;
+   }
 
 
   
@@ -128,6 +144,20 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        this.dropable = Dropablearea;
        this.popupimg = Popupimg;
        this.checkauth();
+       this.checkAccess();
+   }
+
+
+   checkAccess(){
+       checkAccess()
+       .then((result) =>{
+        if(result == 'DocGenius_Admin_Permissions'){
+            this.isAccess = true;
+        }
+        else if(result == 'DocGenius_Standard_Permissions'){
+            this.isPartialAccess = true;
+        }
+       });
    }
 
    checkauth(){
@@ -154,6 +184,15 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        return `background-color: ${this.isRed ? this.redColor : this.lightRedColor}`;
    }
 
+//    get disbaleBtn(){
+//         if(!this.isAccess && this.activeTab == 'text1'){
+//             return true;
+//         }
+//         else{
+//             false
+//         }
+//    }
+
    renderedCallback() {
       
        if(this.awsuserdata){
@@ -168,6 +207,38 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                }
                this.awsuserdata = false;
            }
+
+        if(!this.isAccess && this.activeTab == 'text1'){
+            if(this.isPartialAccess){
+                const disableimg = this.template.querySelectorAll('.partial');
+                disableimg?.forEach(ele => {
+                    ele.children[0].style.opacity = '0.5';
+                    ele.removeAttribute('draggable');
+                })
+                const unlink = this.template.querySelectorAll('.partial-btn');
+                unlink?.forEach(ele => {
+                    ele.disabled = true;
+                })
+            }
+            else{
+                const awsimg = this.template.querySelector('.ac img');
+                if(awsimg) awsimg.style.opacity = '0.5';
+                const gcimg = this.template.querySelector('.gc' + ' img');
+                if(gcimg) gcimg.style.opacity = '0.5';
+                const dbimg = this.template.querySelector('.dc' + ' img');
+                if(dbimg) dbimg.style.opacity = '0.5';
+                const odimg = this.template.querySelector('.oc' + ' img');
+                if(odimg) odimg.style.opacity = '0.5';
+                const unlink = this.template.querySelectorAll('.unauthorize');
+                unlink?.forEach(ele => {
+                    ele.disabled = true;
+                })
+                const card = this.template.querySelectorAll('.card');
+                card?.forEach(ele => {
+                    ele.removeAttribute('draggable');
+                })
+            }
+        }
    }
 
    checkinggoogleauth(){
@@ -345,33 +416,45 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
 
    handledDrop(event){
-       // console.log('handledDrop Invoked');
-       this.template.querySelector('.dragbackground').style.opacity = '1';
-       this.draggedkey = event.dataTransfer.getData('key');
-       this.isSpinner = true;
-       if(this.draggedkey == 'aws'){
-           this.isAws = true;
-           this.ispopup = true;
+       if(this.isAccess){
+           this.template.querySelector('.dragbackground').style.opacity = '1';
+           this.draggedkey = event.dataTransfer.getData('key');
+           this.isSpinner = true;
+           if(this.draggedkey == 'aws'){
+               this.isAws = true;
+               this.ispopup = true;
+           }
+           else if(this.draggedkey == 'onedrive'){
+               this.fetchonedriveredirecturi();
+               this.isOneDrive = true;
+              
+           }
+           else if(this.draggedkey == 'google'){
+               // this.fetchgoogledredirecturi();
+               this.clientId='google';
+               this.clientSecret = 'google';
+               this.isGoogle = true;
+               this.ispopup = true;
+           }
+           else if(this.draggedkey == 'dropbox'){
+               this.fetchdropboxredirecturi();
+               this.isDropBox = true;
+           }
+           else{
+               this.isSpinner = false;
+               this.ispopup = false;
+           }
        }
-       else if(this.draggedkey == 'onedrive'){
-           this.fetchonedriveredirecturi();
-           this.isOneDrive = true;
-          
-       }
-       else if(this.draggedkey == 'google'){
-           // this.fetchgoogledredirecturi();
-           this.clientId='google';
-           this.clientSecret = 'google';
-           this.isGoogle = true;
-           this.ispopup = true;
-       }
-       else if(this.draggedkey == 'dropbox'){
-           this.fetchdropboxredirecturi();
-           this.isDropBox = true;
-       }
-       else{
-           this.isSpinner = false;
-           this.ispopup = false;
+       else if(this.isPartialAccess){
+        this.template.querySelector('.dragbackground').style.opacity = '1';
+           this.draggedkey = event.dataTransfer.getData('key');
+           this.isSpinner = true;
+           if(this.draggedkey == 'google'){
+            this.clientId='google';
+            this.clientSecret = 'google';
+            this.isGoogle = true;
+            this.ispopup = true;
+            }
        }
    }
 
@@ -474,7 +557,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                // console.log('going for integration');
                // console.log(this.isOrg);
                // console.log(typeof(this.isOrg));
-               authorizeGoogle({ authcode: this.authcode, isOrg: this.isOrg})
+               authorizeGoogle({ authcode: this.authcode, isOrg: this.isOrg })
                .then(result =>{
                    if(result === 'success'){
                       
@@ -608,18 +691,25 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 }
 
    unauthorize(event) {
-       // this.invoke = event.target.dataset.key;
-       // console.log(event.target.dataset.key);
-       this.invoke = event.target.dataset.key;
-       // console.log(this.invoke);
-       const messageContainer = this.template.querySelector('c-message-popup')
-               messageContainer.showMessagePopup({
-                       status: 'Warning',
-                       title: 'Confirm',
-                       message : 'Are you sure you want to unlink integration',
-                   });
-      
-       // console.log('something will happen');
+    if(this.isAccess){
+        this.invoke = event.target.dataset.key;
+        const messageContainer = this.template.querySelector('c-message-popup')
+                messageContainer.showMessagePopup({
+                        status: 'Warning',
+                        title: 'Confirm',
+                        message : 'Are you sure you want to unlink integration',
+                    });
+        }
+    else if(this.isPartialAccess && event.target.dataset.key){
+        this.invoke = event.target.dataset.key;
+        const messageContainer = this.template.querySelector('c-message-popup')
+                messageContainer.showMessagePopup({
+                        status: 'Warning',
+                        title: 'Confirm',
+                        message : 'Are you sure you want to unlink integration',
+                    });
+        }
+    
    }
 
    handleConfimation(event){
