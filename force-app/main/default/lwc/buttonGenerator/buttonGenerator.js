@@ -27,6 +27,9 @@ export default class ButtonGenerator extends LightningElement {
     @track objOptionsForQAButton = [];
     @track objOptionsForBPButton = [];
 
+    @track showInitialButtonCreation = false;
+    operationCounter = 0;
+    initialObjectsList = ['Account' , 'Contact' , 'Lead', 'Opportunity', 'Case', 'Contract'];
 
     get enableLVCreate(){
         return this.selectedLVObjects.length > 0;
@@ -52,6 +55,7 @@ export default class ButtonGenerator extends LightningElement {
 
     fetchAlreadyCreatedObjects(){
         try{
+            if(!this.operationCounter==0) return;
             getCombinedData()
             .then((data) => {
                 if(data.isSuccess){
@@ -72,10 +76,13 @@ export default class ButtonGenerator extends LightningElement {
                     this.isNoQAObjectCreated = this.createdQAButtonObj.length > 0 ? false : true;
                     this.isNoBPObjectCreated = this.createdBPButtonObj.length > 0 ? false : true;
 
+                    this.showInitialButtonCreation = !this.initialObjectsList.some(obj => [...this.createdLVButtonObj , ...this.createdBPButtonObj, ...this.createdQAButtonObj].includes(obj));
+
                     this.template.querySelector('.list-view-generator').value = this.selectedLVObjects.length > 0 ? this.selectedLVObjects : null;
                     this.template.querySelector('.quick-action-generator').value = this.selectedQAObjects.length > 0 ? this.selectedQAObjects : null;
                     this.template.querySelector('.basic-print-generator').value = this.selectedBPObjects.length > 0 ? this.selectedBPObjects : null;
                 }else{
+                    errorDebugger('buttonGenerator', 'getCombinedData > not success', e, 'warn');
                     this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
                 }
                 this.showSpinner = false;
@@ -89,6 +96,22 @@ export default class ButtonGenerator extends LightningElement {
             this.showSpinner = false;
             errorDebugger('buttonGenerator', 'fetchAlreadyCreatedObjects', e, 'warn');
             this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
+        }
+    }
+
+    handleInitialCreate(){
+        try {
+            this.showSpinner = true;
+            ['LV', 'BP', 'QA'].forEach(type =>{
+                this['selected'+ type + 'Objects'] = JSON.parse(JSON.stringify(this.initialObjectsList));
+            })
+            this.operationCounter += 3;
+            this.handleCreateWebLinkButton('listView');
+            this.handleCreateWebLinkButton('basicPrint');
+            this.handleCreateQuickAction();
+        } catch (e) {
+            this.showSpinner = false;
+            console.log('Error in function handleInitialCreate:::', e.message);
         }
     }
 
@@ -135,18 +158,21 @@ export default class ButtonGenerator extends LightningElement {
                         this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
                         return;
                     }
+                    this.operationCounter++;
                     this.handleCreateWebLinkButton('listView');
                 }else if(type === 'quickAction'){
                     if(this.selectedQAObjects.length < 1){
                         this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
                         return;
                     }
+                    this.operationCounter++;
                     this.handleCreateQuickAction();
                 }else if(type === 'basicPrint'){
                     if(this.selectedBPObjects.length < 1){
                         this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
                         return;
                     }
+                    this.operationCounter++;
                     this.handleCreateWebLinkButton('basicPrint')
                 }
             }else{
@@ -184,13 +210,13 @@ export default class ButtonGenerator extends LightningElement {
                     this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
                     errorDebugger('buttonGenerator', 'createListViewButtons > failure', result, 'warn');
                 }
-                this.showSpinner = false;
+                this.operationCounter--;
                 this.fetchAlreadyCreatedObjects();
             })
             .catch((e)=>{
                 this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
                 errorDebugger('buttonGenerator', 'createListViewButtons', e, 'warn');
-                this.showSpinner = false;
+                this.operationCounter--;
                 this.fetchAlreadyCreatedObjects();
             })
         } catch (e) {
@@ -235,6 +261,7 @@ export default class ButtonGenerator extends LightningElement {
                         .then(response => response.json())
                         .then(result => {
                             if(i == requestBodyExpanded.length - 1){
+                                this.operationCounter--;
                                 this.fetchAlreadyCreatedObjects();
                                 if(failedButtonsNumber > 0){
                                     this.showToast('error','Something went Wrong!','There was error creating '+ failedButtonsNumber + (failedButtonsNumber==1?' button,' : ' buttons,') + 'please try again...', 5000);
@@ -246,6 +273,7 @@ export default class ButtonGenerator extends LightningElement {
                         })
                         .catch(e => {
                             if(i == requestBodyExpanded.length - 1){
+                                this.operationCounter--;
                                 this.fetchAlreadyCreatedObjects();
                                 if(failedButtonsNumber > 0){
                                     this.showToast('error','Something went Wrong!','There was error creating '+ failedButtonsNumber + (failedButtonsNumber==1?' button,' : 'buttons,') + 'please try again...', 5000);

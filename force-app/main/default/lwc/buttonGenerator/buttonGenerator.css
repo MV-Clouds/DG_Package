@@ -17,6 +17,15 @@
     gap: 0.5rem;
 }
 
+.initial-button-generator-div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: min(100%, 45rem);
+    gap: 2rem;
+    margin-inline: auto;
+}
+
 .help-text-div{
     display: flex;
 }

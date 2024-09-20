@@ -1,5 +1,20 @@
 <template>
     <div class="main-generator-div">
+        <div class="single-btn-generator initial-button-generator-div" if:true={showInitialButtonCreation}>
+            <div class="initial-buttons-info">
+                It seems there are no buttons created for key objects like Account, Contact, Lead, Opportunity, Case, and Contract.
+            </div>
+            <div class="initial-generate-btn">
+                <div class="btn-div">
+                    <button class="create-btn initial-btn" onclick={handleInitialCreate}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-0.5 -0.5 24 24" height="24" width="24">
+                            <path fill="#fff" d="M3.354166666666667 17.25C2.9708333333333337 17.25 2.635416666666667 17.106250000000003 2.347916666666667 16.81875C2.060416666666667 16.53125 1.9166666666666667 16.195833333333333 1.9166666666666667 15.8125V7.1875C1.9166666666666667 6.804166666666666 2.060416666666667 6.46875 2.347916666666667 6.18125C2.635416666666667 5.893750000000001 2.9708333333333337 5.75 3.354166666666667 5.75H19.645833333333336C20.029166666666665 5.75 20.364583333333336 5.893750000000001 20.652083333333334 6.18125C20.939583333333335 6.46875 21.083333333333336 6.804166666666666 21.083333333333336 7.1875V15.8125C21.083333333333336 16.195833333333333 20.939583333333335 16.53125 20.652083333333334 16.81875C20.364583333333336 17.106250000000003 20.029166666666665 17.25 19.645833333333336 17.25H3.354166666666667ZM6.876041666666667 14.375H8.05V12.098958333333334H10.326041666666667V10.901041666666668H8.05V8.625H6.876041666666667V10.901041666666668H4.6V12.098958333333334H6.876041666666667V14.375Z" stroke-width="1"></path>
+                        </svg>
+                        Create Buttons Now
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="single-btn-generator">
             <div class="title-div">Add List View Button
                 <div class="help-text-div list-view-help">
