@@ -23,6 +23,20 @@
     align-items: center;
     gap: 2rem;
     margin-inline: auto;
+    border: 1px dashed #00aeff;
+    box-shadow: none !important;
+}
+
+.initial-button-generator-div:hover {
+    background-color: #d5ebff99;
+    transition: all 0.2s;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px 0px #00aeff99 !important;
+}
+
+.initial-buttons-info .header-text{
+    font-size: 18px;
+    color: #00aeff;
 }
 
 .help-text-div{

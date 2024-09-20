@@ -1957,9 +1957,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
         
                 sendEmail({ allEmails:allEmails, emailData:emailData, activityId : this.activity.Id })
-                .then(() => {
-                    this.succeeded.push('Email');
-                    resolve();
+                .then((result) => {
+                    if(result === 'success'){
+                        this.succeeded.push('Email');
+                        resolve();
+                    }else{
+                        this.failed['Email'] = result;
+                        errorDebugger('generateDocument', 'sendWithEmail > sendEmail > failure', result, 'error');
+                        this.showSpinner = false;
+                        resolve();
+                    }
                 })
                 .catch(e => {
                     this.failed['Email'] = e?.body?.message;
