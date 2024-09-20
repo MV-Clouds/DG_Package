@@ -80,13 +80,13 @@ public with sharing class GoogleDriveAuthorizationController {
   @AuraEnabled
   public static Boolean isOrgWide(){
     String UserId = UserInfo.getUserId();
-    Integer access = 5;
+    Integer access = 0;
     if(UserId != null){
         access = [SELECT COUNT() FROM PermissionSetAssignment 
         WHERE PermissionSet.Name = 'DocGenius_Admin_Permissions'
         AND AssigneeId =: UserId];
     }
-    if(access == 1 || access == 5){
+    if(access == 1){
       try {
           MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
           if(settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null){
