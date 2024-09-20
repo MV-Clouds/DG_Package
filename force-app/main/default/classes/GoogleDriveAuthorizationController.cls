@@ -112,7 +112,7 @@ public with sharing class GoogleDriveAuthorizationController {
 */
   public static Boolean getToken(Boolean isOrg){
       try {
-          List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+          List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
           MVDG__AuthProviderSettings__c settings;
           if(isOrg){
               settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
@@ -126,8 +126,8 @@ public with sharing class GoogleDriveAuthorizationController {
           request.setMethod('POST');
           request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
           request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-                          '&client_id=' + mdata[0].CID__c +
-                          '&client_secret=' + mdata[0].CSEC__c +
+                          '&client_id=' + mdata[0].MVDG__CID__c +
+                          '&client_secret=' + mdata[0].MVDG__CSEC__c +
                           '&grant_type=refresh_token');
 
 
@@ -178,9 +178,9 @@ public with sharing class GoogleDriveAuthorizationController {
           if (settings == null) {
               settings = new MVDG__AuthProviderSettings__c();
           }
-          List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
-          clientId = mdata[0].CID__c;
-          clientSecret = mdata[0].CSEC__c;
+          List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+          clientId = mdata[0].MVDG__CID__c;
+          clientSecret = mdata[0].MVDG__CSEC__c;
           String authUrl = authcode(clientId, clientSecret);
           return authUrl;
       }
@@ -233,16 +233,16 @@ public with sharing class GoogleDriveAuthorizationController {
   @AuraEnabled
   public static String authorizeGoogle(String authcode, Boolean isOrg){
       try{
-          List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+          List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
 
           MVDG__AuthProviderSettings__c defsettings = MVDG__AuthProviderSettings__c.getOrgDefaults();
           MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
-          string clientId = mdata[0].CID__c;
-          string clientSecret = mdata[0].CSEC__c;
+          string clientId = mdata[0].MVDG__CID__c;
+          string clientSecret = mdata[0].MVDG__CSEC__c;
           String redirectUri = System.Label.AuthCode;   
           List<String> credentials = new List<String>();
-          credentials.add(mdata[0].CID__c);
-          credentials.add(mdata[0].CSEC__c);       
+          credentials.add(mdata[0].MVDG__CID__c);
+          credentials.add(mdata[0].MVDG__CSEC__c);       
           Map<String, String> result = generaterefreshtoken(credentials, redirectUri, authcode);
           String refresh = result.get('refresh_token');
           String access = result.get('access_token');
