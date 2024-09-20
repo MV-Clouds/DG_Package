@@ -158,11 +158,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
             Integer batchSize = 10;
             Integer totalSize = objects.size();
 
-            MetadataService.MetadataPort service = new MetadataService.MetadataPort();
-            if (!Test.isRunningTest()) {   
-                service.SessionHeader = new MetadataService.SessionHeader_element();
-                service.SessionHeader.sessionId = Page.UserSessionIdPage.getContent().toString();
-            }
             List<MetadataService.Metadata> webLinks = new List<MetadataService.Metadata>();
             for (Integer i = 0; i < totalSize; i++) {
                 String obj = objects[i];

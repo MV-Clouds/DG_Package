@@ -38,6 +38,8 @@ export default class KeyMappingContainer extends LightningElement {
     @track selectedChildObjectName;
     @track selectedChildObjAPI;
 
+    @track searchFieldValue = '';
+
     mappingTypeTabs = [
         {   label: 'Object Fields',        name: 'objectFields',
             helpText : 'Insert Base Object and Lookup (Related) Object\'s Fields in Template.',

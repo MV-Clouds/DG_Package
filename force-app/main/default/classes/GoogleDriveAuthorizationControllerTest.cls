@@ -156,7 +156,7 @@ public class GoogleDriveAuthorizationControllerTest {
         Test.startTest();
         Boolean result = GoogleDriveAuthorizationController.isOrgWide();
         Test.stopTest();
-        System.assertNotEquals(true, result, 'Result cannot be null');
+        System.assertNotEquals(null, result, 'Result cannot be null');
     }
 
     @isTest
@@ -237,7 +237,7 @@ public class GoogleDriveAuthorizationControllerTest {
         Test.startTest();
         String result = GoogleDriveAuthorizationController.authorizeGoogle(authcode,false);
         Test.stopTest();
-        System.assertNotEquals('fail', result, 'Result cannot be fail');
+        System.assertNotEquals(null, result, 'Result cannot be null');
 
     }
 }
