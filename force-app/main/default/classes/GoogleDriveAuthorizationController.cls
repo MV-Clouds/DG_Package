@@ -231,8 +231,8 @@ public with sharing class GoogleDriveAuthorizationController {
           string clientSecret = mdata[0].MVDG__CSEC__c;
           String redirectUri = System.Label.AuthCode;   
           List<String> credentials = new List<String>();
-          credentials[0] = clientId;
-          credentials[1] = clientSecret;       
+          credentials.add(mdata[0].MVDG__CID__c);
+          credentials.add(mdata[0].MVDG__CSEC__c);       
           Map<String, String> result = generaterefreshtoken(credentials, redirectUri, authcode);
           String refresh = result.get('refresh_token');
           String access = result.get('access_token');
@@ -280,7 +280,7 @@ public with sharing class GoogleDriveAuthorizationController {
           return 'fail';
       }
       }catch(Exception e){
-          Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'getuserdata');
+          Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'authorizeGoogle');
           return null;
       }
   }
