@@ -79,8 +79,8 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 limit = this.childTableQuery.substring(limitIndex, this.childTableQuery.length).trim();
             }
 
-            console.log('filters : ', filters);
-            console.log('limit : ', limit);
+            // console.log('filters : ', filters);
+            // console.log('limit : ', limit);
             
             if(this.selectedFieldList && this.selectedFieldList.length){
                 const childTBody = this.template.querySelector('[data-name="childTBody"]');
@@ -141,7 +141,8 @@ export default class ChildObjectTableBuilder extends LightningElement {
                 childTBody.appendChild(infoRow);
             }
         } catch (error) {
-            console.log('error in generateTable : ', error.stack);
+            errorDebugger('HomePage', 'generateTable', error, 'warn');
+
         }
     }
 
@@ -178,7 +179,8 @@ export default class ChildObjectTableBuilder extends LightningElement {
             document.body.removeChild(table); 
 
         } catch (error) {
-            console.log('error in copyTable : ', error.stack);
+            errorDebugger('HomePage', 'copyTable', error, 'warn');
+
         }
     }
 }

@@ -108,7 +108,6 @@ export default class TemplatePreviewModal extends LightningElement {
                 this.isSpinner = true;
                 getObjectNameField({objectApiName: this.objectname})
                 .then(result => {
-                    console.log('getObjectNameField :  ', result);
                     this.objectLabel = result.label;
                     this.recordLabelField = result.nameField;
                     if(result.nameFieldType === 'NUMBER' || result.nameFieldType === 'PERCENTAGE' || result.nameFieldType === 'CURRENCY'){
@@ -169,8 +168,8 @@ export default class TemplatePreviewModal extends LightningElement {
                 }
                 var paraDataStringify = JSON.stringify(paraData);
 
-                // var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
-                var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify;
+                var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
+                // var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify;
     
                 if(newSRC !== previousSRC){
                     this.vfPageSRC = newSRC;
@@ -185,8 +184,8 @@ export default class TemplatePreviewModal extends LightningElement {
                     }, 4000);
                 }
                 else{
-                    // this.vfPageSRC = '/apex/DocGeneratePage';
-                    this.vfPageSRC = '/apex/MVDG__DocGeneratePage';
+                    this.vfPageSRC = '/apex/DocGeneratePage';
+                    // this.vfPageSRC = '/apex/MVDG__DocGeneratePage';
 
                     // setTimeout( () => {
                     //     this.vfPageSRC = newSRC;

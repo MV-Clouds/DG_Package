@@ -204,7 +204,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.isSpinner = true;
             getTemplateList()
             .then(result => {
-                console.log('result : ', result);
+                // console.log('result : ', result);
                 if(result.isSuccess === true){
                     this.templateTypeList = result.templateTypes;
                     if(result.returnMessage !== 'No Template Found'){
@@ -612,7 +612,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
             // When Scrolling Downward... ADD template in bottom...
             if(currentScroll >= this.lastScroll && currentScroll >= offsetToBottom){
-                console.log('Scrolling downward');
+                // console.log('Scrolling downward');
                 if(this.displayedTemplateList.length < this.maxTempToDisplay){
 
                     const firstIndex = this.displayedTemplateList.length;
@@ -627,7 +627,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
             //When Scrolling Upward... REMOVED templates from bottom...
            else if(currentScroll < this.lastScroll && currentScroll < halfOffset){
-                console.log('Scrolling Upward');
+                // console.log('Scrolling Upward');
                 if(this.displayedTemplateList.length > 50){
                     let lastIndex = this.displayedTemplateList.length - 50;
                     lastIndex = Math.min(lastIndex, 50);

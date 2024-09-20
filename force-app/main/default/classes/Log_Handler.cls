@@ -1,4 +1,4 @@
-public class Log_Handler {
+public with sharing class Log_Handler {
 
 
     public static void store_Exception(Exception e,String classname, String methodname) {

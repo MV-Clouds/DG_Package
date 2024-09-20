@@ -125,7 +125,6 @@ export default class MessagePopup extends LightningElement {
         try {
             event.preventDefault();
             var conform = event.currentTarget.dataset.name == 'conform' ? true : false;
-            console.log('conform : ', conform);
 
             // Send data to parent compoent...
             // this.dispatchEvent(new CustomEvent('confirmation',{
