@@ -498,21 +498,39 @@ public with sharing class GoogleDocPreview {
             WHERE LatestPublishedVersion.FirstPublishLocationId =: recordId AND LatestPublishedVersion.Title LIKE '%Signature-%' AND LatestPublishedVersion.FileType != 'PDF' WITH SECURITY_ENFORCED ORDER BY CreatedDate DESC];
             
             if (!signatureImage.isEmpty()) {
-                List<ContentDistribution> existingDistributions = signatureImage[0].ContentDistributions;
-                
-                if (existingDistributions.isEmpty()) {
-                    ContentDistribution cdt = new ContentDistribution();
-                    cdt.Name = signatureImage[0].Title;
-                    cdt.ContentVersionId = signatureImage[0].LatestPublishedVersionId;
-                    cdt.PreferencesAllowViewInBrowser = true;
+                List<contentDistribution> contentDistributions = new List<contentDistribution>();
 
-                    if (Schema.sObjectType.ContentDistribution.isAccessible() && Schema.sObjectType.ContentDistribution.isCreateable()) {
-                        insert cdt;
-                        existingDistributions = [SELECT Id, ContentDownloadUrl FROM ContentDistribution WHERE Id = :cdt.Id WITH SECURITY_ENFORCED];
+                for (ContentDocument cd : signatureImage) {
+                    List<ContentDistribution> existingDistributions = cd.ContentDistributions;
+                    
+                    if (existingDistributions.isEmpty()) {
+                        ContentDistribution cdt = new ContentDistribution();
+                        cdt.Name = cd.Title;
+                        cdt.ContentVersionId = cd.LatestPublishedVersionId;
+                        cdt.PreferencesAllowViewInBrowser = true;
+                        contentDistributions.add(cdt);
+
+                    } else {
+                        salesforceImageValues.put('Signature Image', existingDistributions);
+                        return salesforceImageValues;
                     }
                 }
                 
-                salesforceImageValues.put('Signature Image', existingDistributions);
+                if (contentDistributions.size() > 0 && Schema.sObjectType.ContentDistribution.isCreateable() && Schema.sObjectType.ContentDistribution.fields.ContentVersionId.isCreateable() && Schema.sObjectType.ContentDistribution.fields.Name.isCreateable() && Schema.sObjectType.ContentDistribution.fields.PreferencesAllowViewInBrowser.isCreateable()) {
+                    Database.SaveResult[] results = Database.insert(contentDistributions, false);
+
+                    String requiredId = '';
+                    for (Integer i = 0; i < results.size(); i++) {
+                        if (results[i].isSuccess()) {
+                            requiredId = (String) contentDistributions[i].Id;
+                            break;
+                        }
+                    }
+                    if (String.isNotBlank(requiredId)) {
+                        ContentDistribution existingDistributions = [SELECT Id, ContentDownloadUrl FROM ContentDistribution WHERE Id = :requiredId WITH SECURITY_ENFORCED];
+                        salesforceImageValues.put('Signature Image', existingDistributions);
+                    }
+                }
             }
         } catch (Exception e) {
             System.debug('Error In getSignatureImage ==> ' + e.getMessage() + e.getLineNumber());
