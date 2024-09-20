@@ -355,7 +355,7 @@ public with sharing class KeyMappingController {
         RetrunWrapper retrunWrapper = new RetrunWrapper();
         try {
             List<MVDG__Template__c> activeTemps = new List<MVDG__Template__c>();
-            if (String.isNotBlank(sourceObjectAPI) && String.isNotBlank(templateId)) {
+            if (sourceObjectAPI != null && templateId != null) {
                 activeTemps = [SELECT Id, Name, MVDG__Template_Name__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true AND Id != :templateId AND MVDG__Template_Type__c IN ('Simple Template') AND MVDG__Object_API_Name__c =: sourceObjectAPI WITH SECURITY_ENFORCED];
             }
             if(activeTemps != null){
@@ -522,7 +522,7 @@ public with sharing class KeyMappingController {
         Decimal signatureSize = 50;
         
         List<MVDG__Template__c> temp = new List<MVDG__Template__c>();
-        if (String.isNotBlank(templateId)) {
+        if (templateId != null) {
             temp = [SELECT Id, MVDG__Signature_Size__c FROM MVDG__Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED];
         }
 

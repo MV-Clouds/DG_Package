@@ -108,7 +108,6 @@ export default class TemplatePreviewModal extends LightningElement {
                 this.isSpinner = true;
                 getObjectNameField({objectApiName: this.objectname})
                 .then(result => {
-                    console.log('getObjectNameField :  ', result);
                     this.objectLabel = result.label;
                     this.recordLabelField = result.nameField;
                     if(result.nameFieldType === 'NUMBER' || result.nameFieldType === 'PERCENTAGE' || result.nameFieldType === 'CURRENCY'){

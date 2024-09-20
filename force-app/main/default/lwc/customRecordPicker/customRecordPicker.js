@@ -326,8 +326,6 @@ export default class CustomRecordPicker extends LightningElement {
                                         `{ ${ele} : { like : $searchedValue } } \n`;
             });
 
-            // console.log('Filter String :::', filterString);
-            // console.log('This.filters :::', this.filters);
             // create graphQL query string for filters...
             var filterString = '';
             filterString = this.generateFilterString();
@@ -340,8 +338,6 @@ export default class CustomRecordPicker extends LightningElement {
             if(this.trackValue?.length){
                 valueString += `{ Id : {in : ["${this.trackValue.join('","')}"]}}`;
             }
-
-            // console.log('This.filtes :::', this.filters);
 
             // Merge search and filter query to fetch records based on search and filter....
             var filterQuery = '';
@@ -356,8 +352,6 @@ export default class CustomRecordPicker extends LightningElement {
                                             ]
                                         }`;
             }
-
-            // console.log('filterQuery String :::', filterQuery);
 
 
             // Create a set of field to query to avoid duplicate fields....

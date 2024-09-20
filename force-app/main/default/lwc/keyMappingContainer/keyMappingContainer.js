@@ -21,7 +21,6 @@ export default class KeyMappingContainer extends LightningElement {
     @api get templateId(){return this.tempId};
     set templateId(value){ this.tempId = value };
 
-
     hideMergeTemplatesFor = ['Google Doc Template'];
     showFullHeightButtonFor = ['Simple Template'];
     showMaxSizeLimit = ['Simple Template'];
@@ -321,7 +320,7 @@ export default class KeyMappingContainer extends LightningElement {
             getFieldMappingKeys({sourceObjectAPI : this.objectName, getParentFields : true})
             .then(result => {
                 this.isDataRefreshing = false;
-                console.log('getFieldMappingKeys result  : ', result);
+                // console.log('getFieldMappingKeys result  : ', result);
                     if(result.isSuccess){
                         // Set... Base Object, Related Parent Object and It's Fields with mapping key
                         this.object_Label = result.objectLabelAPI.label;
@@ -364,7 +363,7 @@ export default class KeyMappingContainer extends LightningElement {
             getChildObjects({sourceObjectAPI : this.objectName})
             .then(result =>{
                 this.isDataRefreshing = false;
-                console.log('getChildObjects result  : ', result);
+                // console.log('getChildObjects result  : ', result);
                 if(result.isSuccess){
                     result.fieldMappingsWithObj.forEach(ele =>{
                         this.relatedChildObjects.push({label : ele.label, value : ele.name, description : ele.additionalInfo, childObjApi : ele.objectAPI});
@@ -440,7 +439,7 @@ export default class KeyMappingContainer extends LightningElement {
             getAllContentVersionImgs({templateType : this.templateType})
             .then(result => {
                 this.isDataRefreshing = false;
-                console.log('getAllContentVersionImgs result => ', result);
+                // console.log('getAllContentVersionImgs result => ', result);
                 if(result.isSuccess == true){
                     this.contentVersionImages = result.cdImages;
                     // this.cvIdVsImageSRC = result.cvIdVsImageSRC;
@@ -482,7 +481,7 @@ export default class KeyMappingContainer extends LightningElement {
             formattingFieldKeys()
             .then(result => {
                 this.isDataRefreshing = false;
-                console.log('formattingFieldKeys result => ', result);
+                // console.log('formattingFieldKeys result => ', result);
                 if(result.isSuccess == true){
                     if(result.fieldFormatting && result.fieldFormatting.length){
                         this.dateFormatKeys = result.fieldFormatting.find(ele => ele.formatType == 'DATE').fieldMappings;

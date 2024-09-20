@@ -325,10 +325,13 @@
       height: 2rem;
       width: 4rem;
     }
-    .asc_desc_SVG
-    {
-      width: 1rem;
-      height: 1rem;
+    .asc_desc_SVG{
+      width: 1.75rem;
+      height: 1.75rem;
+      fill: var(--mainThemeColor);
+      stroke: var(--mainThemeColor);
+    }
+    .asc_desc_SVG path{
       fill: var(--mainThemeColor);
       stroke: var(--mainThemeColor);
     }
@@ -336,14 +339,15 @@
       color: var(--mainThemeColor);
       font-size: 12px;
     }
-    input[type="radio"]:checked + label .asc_descBtn
-    {
+    input[type="radio"]:checked + label .asc_descBtn{
       background-color: var(--mainThemeColor);
     }
     input[type="radio"]:checked + label .asc_descText{
       color: white;
     }
-    input[type="radio"]:checked + label .asc_desc_SVG{
+
+    input[type="radio"]:checked + label .asc_desc_SVG,
+    input[type="radio"]:checked + label .asc_desc_SVG path{
       fill: white;
       stroke: white;
     }

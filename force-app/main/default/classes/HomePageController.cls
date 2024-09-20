@@ -139,7 +139,7 @@ public with sharing class HomePageController {
     @AuraEnabled
     public static string updateTemplate(String templateId, Boolean isActive){
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
-        if (String.isNotBlank(templateId)) {
+        if (String.isNotBlank(templateId) && templateId != null) {
 
             List<MVDG__Template__c> tempToUpdate = [SELECT ID, Name, MVDG__Template_Name__c  FROM MVDG__Template__c WHERE ID = : templateId WITH SECURITY_ENFORCED LIMIT 1];
             if(tempToUpdate.size() > 0){
@@ -161,7 +161,7 @@ public with sharing class HomePageController {
     @AuraEnabled
     public static boolean deleteTemplate(String templateId){
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
-        if (String.isNotBlank(templateId)) {    
+        if (String.isNotBlank(templateId) && templateId != null) {    
             List<MVDG__Template__c> tempToDelete = [SELECT ID, Name  FROM MVDG__Template__c WHERE ID =:templateId WITH SECURITY_ENFORCED LIMIT 1];
             if(tempToDelete.size() > 0){
                 delete as user tempToDelete[0];
