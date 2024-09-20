@@ -79,6 +79,14 @@ public with sharing class GoogleDriveAuthorizationController {
 */
   @AuraEnabled
   public static Boolean isOrgWide(){
+    String UserId = UserInfo.getUserId();
+    Integer access = 5;
+    if(UserId != null){
+        access = [SELECT COUNT() FROM PermissionSetAssignment 
+        WHERE PermissionSet.Name = 'DocGenius_Admin_Permissions'
+        AND AssigneeId =: UserId];
+    }
+    if(access == 1 || access == 5){
       try {
           MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
           if(settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null){
@@ -91,6 +99,8 @@ public with sharing class GoogleDriveAuthorizationController {
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'isOrgWide');
           return false;
       }
+    }
+    return true;
   }
 
 /*
@@ -231,8 +241,8 @@ public with sharing class GoogleDriveAuthorizationController {
           string clientSecret = mdata[0].MVDG__CSEC__c;
           String redirectUri = System.Label.AuthCode;   
           List<String> credentials = new List<String>();
-          credentials[0] = clientId;
-          credentials[1] = clientSecret;       
+          credentials.add(mdata[0].MVDG__CID__c);
+          credentials.add(mdata[0].MVDG__CSEC__c);       
           Map<String, String> result = generaterefreshtoken(credentials, redirectUri, authcode);
           String refresh = result.get('refresh_token');
           String access = result.get('access_token');
@@ -280,7 +290,7 @@ public with sharing class GoogleDriveAuthorizationController {
           return 'fail';
       }
       }catch(Exception e){
-          Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'getuserdata');
+          Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'authorizeGoogle');
           return null;
       }
   }
@@ -462,5 +472,26 @@ public static Map<String, String> generaterefreshtoken(List<String> credentials,
           Log_Handler.store_Exception(e, 'GoogleDriveAuthorizationController', 'orgunauthorize');
           return null;
       }
-  }
+    }
+
+  @AuraEnabled
+  public static String checkAccess(){
+    String UserId = UserInfo.getUserId();
+    List<PermissionSetAssignment> access;
+    if(UserId != null){
+        access = [SELECT Id, PermissionSet.Name FROM PermissionSetAssignment 
+        WHERE (PermissionSet.Name = 'DocGenius_Admin_Permissions' OR PermissionSet.Name = 'DocGenius_Standard_Permissions')
+        AND AssigneeId =: UserId];
+    }
+    if(!access.isEmpty()){
+        for (PermissionSetAssignment psa : access) {
+            if (psa.PermissionSet.Name == 'DocGenius_Admin_Permissions') {
+                return 'DocGenius_Admin_Permissions';  
+            }
+        }
+        return 'DocGenius_Standard_Permissions';
+    }
+    return null;
+    }
+
 }
