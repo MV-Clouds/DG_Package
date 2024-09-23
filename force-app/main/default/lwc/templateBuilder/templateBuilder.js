@@ -202,8 +202,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         loadScript(this, summerNote_Editor + '/summernote-lite.js'),
 
                         loadStyle(this, summerNote_Editor + '/codeMirror/codemirror.css'),
-                        loadStyle(this, summerNote_Editor + '/codeMirror/blackboard.min.css'),
-                        loadStyle(this, summerNote_Editor + '/codeMirror/monokai.css'),
+                        // loadStyle(this, summerNote_Editor + '/codeMirror/blackboard.min.css'),
+                        // loadStyle(this, summerNote_Editor + '/codeMirror/monokai.css'),
                         loadScript(this, summerNote_Editor + '/codeMirror/codemirror.js'),
                         loadScript(this, summerNote_Editor + '/codeMirror/formatting.js'),
                         loadScript(this, summerNote_Editor + '/codeMirror/xml.js'),

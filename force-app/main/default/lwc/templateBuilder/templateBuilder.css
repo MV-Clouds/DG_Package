@@ -995,6 +995,7 @@ input[type=number]::-webkit-outer-spin-button {
       overflow: hidden;
       transition: all linear 0.5s;
       padding : 1rem;
+      margin-inline: auto;
       margin-top: 0.5rem;
     }
     .logoSection{
@@ -1354,7 +1355,7 @@ input[type=number]::-webkit-outer-spin-button {
     .basicDetails{
       flex-grow: 1;
       height: calc(100% - 5rem);
-      padding: 1rem;
+      padding: 1rem 0rem;
       padding-top: 0rem;
       width: 100%;
     }
@@ -1375,14 +1376,14 @@ input[type=number]::-webkit-outer-spin-button {
       width: 100%;
       min-width: 50%;
       height: 100%;
-      padding-inline: 1rem;
-      overflow: auto;
-      scrollbar-color: #01aeff transparent;
-      scrollbar-width: thin;
+      /* padding-inline: 1rem; */
+      overflow: hidden;
     }
 
     .detailHeader, .pageConfigTitle {
-      width: 100%;
+      /* width: 100%; */
+      width: calc(100% - 2rem);
+      margin-inline: auto;
       text-align: center;
       font-size: 16px;
       color: white;
@@ -1394,6 +1395,11 @@ input[type=number]::-webkit-outer-spin-button {
     }
     
     .detailEditSection {
+      overflow: auto;
+      scrollbar-color: #01aeff transparent;
+      scrollbar-width: thin;
+      padding-inline: 1rem;
+      height: calc(100% - 3rem);
       --sds-c-input-shadow-focus : none !important;
       --slds-c-textarea-shadow-focus : none !important;
     }
@@ -1576,16 +1582,18 @@ input[type=number]::-webkit-outer-spin-button {
       min-width: 50%;
       height: 100%;
       font-family: var(--ff_Bahnschrift);
-      padding-inline: 1rem;
-      overflow: auto;
-      scrollbar-color: #01aeff transparent;
-      scrollbar-width: thin;
+      /* padding-top: 0.5rem; */
+      overflow: hidden;
     }
     .pageConfig_sub{
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      height: calc(100% - 2rem);
+      height: calc(100% - 3rem);
+      padding-inline: 1rem;
+      overflow: auto;
+      scrollbar-color: #01aeff transparent;
+      scrollbar-width: thin;
     }
     .pageConfigSections{
       padding-block: 0.5rem;
@@ -1862,7 +1870,7 @@ input[type=number]::-webkit-outer-spin-button {
       padding-top: 1.25rem;
       background: white;
       border-radius: 6px;
-      width: 35rem;
+      width: 37rem;
       height: min(90%, 40rem);
       max-height: min(90%, 40rem);
 

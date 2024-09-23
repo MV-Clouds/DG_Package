@@ -34,11 +34,11 @@ export default class KeyMappingContainer extends LightningElement {
     @track isMappingContainerExpanded;
     @track isMappingTabExpanded;
 
+    @track searchFieldValue = '';
+
     @track relatedChildObjects = [];
     @track selectedChildObjectName;
     @track selectedChildObjAPI;
-
-    @track searchFieldValue = '';
 
     mappingTypeTabs = [
         {   label: 'Object Fields',        name: 'objectFields',

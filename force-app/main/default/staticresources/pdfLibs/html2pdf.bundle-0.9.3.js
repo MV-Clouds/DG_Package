@@ -8846,8 +8846,8 @@ Worker.prototype.toImg = function toImg() {
                 //   pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
                 }
 
-                console.log('page : ', page);
-                console.log('pageHeight : ', pageHeight);
+                // console.log('page : ', page);
+                // console.log('pageHeight : ', pageHeight);
     
                 var w = pageCanvas.width;
                 var h = pageCanvas.height;

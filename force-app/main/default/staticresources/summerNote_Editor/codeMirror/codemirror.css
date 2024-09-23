@@ -123,6 +123,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 .CodeMirror-sizer {
   position: relative;
+  min-width: var(--pageWidth) !important; 
 }
 
 /* The fake, visible scrollbars. Used to force redraw during scrolling
@@ -164,8 +165,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   margin-bottom: -32px;
   display: inline-block;
   /* Hack to make IE7 behave */
-  *zoom:1;
-  *display:inline;
+  /* *zoom:1;
+  *display:inline; */
 }
 .CodeMirror-gutter-elt {
   position: absolute;
@@ -201,7 +202,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   border-right: 30px solid transparent;
   width: -webkit-fit-content;
   width: -moz-fit-content;
-  width: fit-content;
+  /* width: fit-content;
+   */
+  width: 100%;
+  white-space: pre-line;
+  padding: 1rem !important;
+  margin-left: 1rem !important;
+  margin-block: 1rem !important;
 }
 .CodeMirror-wrap .CodeMirror-code pre {
   border-right: none;
@@ -253,7 +260,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 
 /* IE7 hack to prevent it from returning funny offsetTops on the spans */
-.CodeMirror span { *vertical-align: text-bottom; }
+.CodeMirror span { vertical-align: text-bottom; }
 
 @media print {
   /* Hide the cursor when printing */

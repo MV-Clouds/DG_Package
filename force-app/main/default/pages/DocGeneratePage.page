@@ -572,9 +572,9 @@
     
                         function replaceKeysWithValue(){
                             
-                            bodyHtml = decodeHTMLEntities(bodyHtml);
-                            headerHtml = decodeHTMLEntities(headerHtml);
-                            footerHtml = decodeHTMLEntities(footerHtml);
+                            // bodyHtml = decodeHTMLEntities(bodyHtml);
+                            // headerHtml = decodeHTMLEntities(headerHtml);
+                            // footerHtml = decodeHTMLEntities(footerHtml);
 
                             // ...remove merge Template keys from mergeTemplateKeys ...
                             // Note: this logic will note remove merge Template keys from cuurent template Data as we already remove currentTempId from mergeTemplateKeys to avoid this...
@@ -596,22 +596,25 @@
                             if(selfMergeTempKey){
                                 bodyHtml = bodyHtml.replaceAll(selfMergeTempKey, selfMergeTempKey + '<span style="color:red"> --- Self Merge Not Allow. --- </span>');
                             }
+
+                            // ...replace child object records....
+                            for(let key in childRecordTableKeys){
+                                // const tableHtml = decodeHTMLEntities(key);
+                                // const modifiedTable = decodeHTMLEntities(childRecordTableKeys[key]);
+
+                                const tableHtml = key;
+                                const modifiedTable = childRecordTableKeys[key];
+
+                                bodyHtml = bodyHtml.replaceAll(tableHtml, modifiedTable);
+                                headerHtml = headerHtml.replaceAll(tableHtml, modifiedTable);
+                                footerHtml = footerHtml.replaceAll(tableHtml, modifiedTable);
+                            }
     
                             // ...replace object field key and general field key with actual value...
                             for(let key in mappingKeyVsMappingValues){
                                 bodyHtml = bodyHtml.replaceAll(key, mappingKeyVsMappingValues[key]);
                                 headerHtml = headerHtml.replaceAll(key, mappingKeyVsMappingValues[key]);
                                 footerHtml = footerHtml.replaceAll(key, mappingKeyVsMappingValues[key])
-                            }
-
-                            // ...replace child object records....
-                            for(let key in childRecordTableKeys){
-                                const tableHtml = decodeHTMLEntities(key);
-                                const modifiedTable = decodeHTMLEntities(childRecordTableKeys[key]);
-
-                                bodyHtml = bodyHtml.replaceAll(tableHtml, modifiedTable);
-                                headerHtml = headerHtml.replaceAll(tableHtml, modifiedTable);
-                                footerHtml = footerHtml.replaceAll(tableHtml, modifiedTable);
                             }
     
                             // ...replace salesforce image url with base64...
@@ -632,7 +635,12 @@
                                     footerHtml = footerHtml.replaceAll(src, salesforceImages[src]);
                                 }
                             }
-    
+                            
+
+                            bodyHtml = bodyHtml.replaceAll('"', '\"');
+                            headerHtml = headerHtml.replaceAll('"', '\"');
+                            footerHtml = footerHtml.replaceAll('"', '\"');
+
                             const promises = [];
     
                             let node = document.createElement('div');

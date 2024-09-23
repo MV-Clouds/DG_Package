@@ -708,14 +708,19 @@
   overflow-y: scroll;
   scrollbar-color: #28b3f4 #28b3f400;
   scrollbar-width: thin;
+
+  display: flex;
+  scrollbar-width: thin;
+  flex-direction: column;
+  gap: 1rem;
 }
 .templateCardContainer {
-  width: 100%;
-  height: 6.25rem;
+  min-width: 100%;
+  min-height: 6.25rem;
   box-shadow: 0px 0px 15px 0px #00000040;
   border-radius: 8px;
   background-color: white;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
 
   display: flex;
   justify-content: space-between;
@@ -743,8 +748,9 @@
     padding-left: 41px;
   }
   .tempNumerSec[data-disable=true],
-  .statusNversion[data-disable=true]{
+  .statusNType[data-disable=true]{
     filter : grayscale(1);
+    cursor: not-allowed;
   }
   .tempDetailSection {
     height: 100%;
