@@ -44,28 +44,28 @@ export default class KeyMappingContainer extends LightningElement {
         {   label: 'Object Fields',        name: 'objectFields',
             helpText : 'Insert Base Object and Lookup (Related) Object\'s Fields in Template.',
             showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : false,
-            showSearchbar : true, searchBarPlaceHolder : 'Search Fields...',
+            showSearchbar : true, searchBarPlaceHolder : 'Search Fields...', selected : true,
         },
         {   label: 'Related Lists',  name: 'relatedListFields',
             helpText : 'Insert Related Lists (Child Object Records) In Template as a Table Format.',
-            showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : true,
+            showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : true , selected : false,
         },
         {   label: 'General Fields',        name: 'generalFields',
             helpText : 'Insert & Add Document Creation Date, Document Creation User Info, Organization Info, etc... In Template',
             showCombobox : true, comboboxPlaceholder : 'Select Object...',  showDescription : false,
-            showSearchbar : true, searchBarPlaceHolder : 'Search General Fields...',
+            showSearchbar : true, searchBarPlaceHolder : 'Search General Fields...', selected : false,
         },
         {   label: 'Merge Templates',      name: 'mergeTemplates',
             helpText : 'Merge Other Templates Into The Current Template',
-            showSearchbar : true, searchBarPlaceHolder : 'Search Templates by Name...',
+            showSearchbar : true, searchBarPlaceHolder : 'Search Templates by Name...', selected : false,
         },
         {   label: 'Salesforce Images',     name: 'sfImages',
             helpText : 'Add Salesforce images Into The Template.',
-            showSearchbar : true, searchBarPlaceHolder : 'Search Salesforce Images...',
+            showSearchbar : true, searchBarPlaceHolder : 'Search Salesforce Images...', selected : false,
             showRefresh : true,
         },
         {   label: 'Signature',     name: 'signature',
-            helpText : 'Add Signature into Your file by Mapping Signature Key in The Template.',
+            helpText : 'Add Signature into Your file by Mapping Signature Key in The Template.', selected : false,
         },
     ];
 
@@ -524,24 +524,19 @@ export default class KeyMappingContainer extends LightningElement {
     setMappingTab(event){
         try {
             if(event && event.currentTarget && this.activeMappingTabName !== event.currentTarget.dataset.name){
+
+                // clear combo-box search value
                 this.template.querySelector('[data-combox="relatedObj"]')?.clearSearch();
+
                 this.activeMappingTabName = event.currentTarget.dataset.name;
-                
-                var tabSelection = this.template.querySelectorAll('.tabSelection');
-                if(tabSelection){
-                    tabSelection.forEach(ele => {
-                        if(ele.dataset.name == this.activeMappingTabName){
-                            ele.classList.add('selected');
-                            this.searchFieldValue = null;
-                        }
-                        else if(ele.classList.contains('selected')){
-                            ele.classList.remove('selected');
-                        }
-                    });
-                };
+
+                // To set css Property of tab selector...
+                this.mappingTypeTabs.forEach(ele => {
+                    ele.selected = ele.name === this.activeMappingTabName;
+                })
                 
                 var index = this.mappingTypeTabs.indexOf(this.mappingTypeTabs.find(ele => ele.name == this.activeMappingTabName));
-                this.selectedMappingType = this.mappingTypeTabs[index];
+                this.selectedMappingType = this.mappingTypeTabs[index];                 // To set label of selected tab...
     
                 this.handleKeySearch();
             }

@@ -162,7 +162,7 @@
     user-select: none;
 }
 
-.tabSelection.selected {
+.tabSelection[data-selected=true] {
     margin-inline: auto;
     /* border: 1px solid #06aeff; */
     outline: 1px #06aeff;

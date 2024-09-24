@@ -8,6 +8,7 @@ export default class MessagePopup extends LightningElement {
     @track duration;
     timeoutInstance
 
+    @track doneButtonLabel = 'Okay'
 
     @track showPopup = false;
     designCurveColor = '#00ffee5c';
@@ -81,9 +82,10 @@ export default class MessagePopup extends LightningElement {
             this.status = messageData['status'] ? messageData['status'] : 'warning';
             this.title = messageData.title ? messageData.title : '';
             this.message = messageData.message ? messageData.message : '';
+            this.doneButtonLabel = messageData?.doneButtonLabel ? messageData.doneButtonLabel : 'Okay';
             this.showPopup = true;
         } catch (error) {
-            console.error('error in showPopup poupMessgae : ', error.stack);
+            errorDebugger('MessagePopup', 'showMessagePopup', error, 'warn');
         }
     }
 
@@ -107,7 +109,7 @@ export default class MessagePopup extends LightningElement {
             }, duration);
             
         } catch (error) {
-            console.error('error in showToast poupMessgae : ', error.stack);
+            errorDebugger('MessagePopup', 'showMessageToast', error, 'warn');
         }
     }
 
@@ -134,7 +136,7 @@ export default class MessagePopup extends LightningElement {
             this.closeModal(conform);
             
         } catch (error) {
-            console.error('error in handleConfirmation poupMessgae : ', error.stack);
+            errorDebugger('MessagePopup', 'handleConfirmation', error, 'warn');
         }
     }
 
@@ -156,7 +158,7 @@ export default class MessagePopup extends LightningElement {
             }));
 
         } catch (error) {
-            console.error('error in closeModal poupMessgae', error.stack);
+            errorDebugger('MessagePopup', 'closeModal', error, 'warn');
         }
     }
 

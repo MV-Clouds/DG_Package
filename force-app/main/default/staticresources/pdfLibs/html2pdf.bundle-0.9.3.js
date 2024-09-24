@@ -6119,7 +6119,7 @@ var isInlineBase64Image = function isInlineBase64Image(src) {
     return INLINE_BASE64.test(src);
 };
 var isBlobImage = function isBlobImage(src) {
-    return src.substr(0, 4) === 'blob';
+    return src?.substr(0, 4) === 'blob';
 };
 
 var isSVG = function isSVG(src) {
