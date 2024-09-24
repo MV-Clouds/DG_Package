@@ -45,6 +45,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     noTemplateFound = false;                        // To check weather template available for not
 
     editorDataChanges = false;                      // To identify any editor data change or not
+    @track doneButtonLabel = 'Okay';
 
     /**
      * variable to store page configuration to display on UI, used in HTML
@@ -201,12 +202,12 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                         loadStyle(this, summerNote_Editor + '/summernote-lite.css'),
                         loadScript(this, summerNote_Editor + '/summernote-lite.js'),
 
-                        loadStyle(this, summerNote_Editor + '/codeMirror/codemirror.css'),
-                        loadStyle(this, summerNote_Editor + '/codeMirror/blackboard.min.css'),
-                        loadStyle(this, summerNote_Editor + '/codeMirror/monokai.css'),
-                        loadScript(this, summerNote_Editor + '/codeMirror/codemirror.js'),
-                        loadScript(this, summerNote_Editor + '/codeMirror/formatting.js'),
-                        loadScript(this, summerNote_Editor + '/codeMirror/xml.js'),
+                        // loadStyle(this, summerNote_Editor + '/codeMirror/codemirror.css'),
+                        // loadStyle(this, summerNote_Editor + '/codeMirror/blackboard.min.css'),
+                        // loadStyle(this, summerNote_Editor + '/codeMirror/monokai.css'),
+                        // loadScript(this, summerNote_Editor + '/codeMirror/codemirror.js'),
+                        // loadScript(this, summerNote_Editor + '/codeMirror/formatting.js'),
+                        // loadScript(this, summerNote_Editor + '/codeMirror/xml.js'),
                     ])
                     .then(() => {
                         this.isInitialRender = false;
@@ -258,7 +259,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.resolvedPromise++
             }
             else{
-                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.')
+                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 'Reload Page')
                 this.resolvedPromise++
             }
         } catch (error) {
@@ -272,7 +273,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let isLoadedSuccessfully = initializeSummerNote(this, docGeniusLogoSvg, 'headerEditor');
 
             if(!isLoadedSuccessfully){
-                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.')
+                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 'Reload Page')
             }           
         } catch (error) {
             errorDebugger('TemplateBuilder', 'initialize_Header_Editor', error, 'warn');
@@ -285,7 +286,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let isLoadedSuccessfully = initializeSummerNote(this, docGeniusLogoSvg, 'footerEditor');
 
             if(!isLoadedSuccessfully){
-                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.')
+                this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 'Reload Page')
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'initialize_Footer_Editor', error, 'warn');
@@ -1451,13 +1452,16 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     handleMsgPopConfirmation(event){
         try {
-            if(!this.isLoadedSuccessfully || this.noTemplateFound){
+            if(this.noTemplateFound){
                 /**
                  * ... Popup message show WHEN Editor fail to initialize... 
                  * OR
                  * ... Popup message show WHEN Template Id Not Found...
                  */
                 this.closeEditTemplate();
+            }
+            else if(!this.isLoadedSuccessfully){
+                location.reload();
             }
             else if(!this.templateRecord.MVDG__Template_Name__c && !this.noTemplateFound){
                 // ... Popup Message Appear when user try to save without filling template name...
@@ -1479,13 +1483,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     // ====== ======= ======== ======= ======= ====== GENERIC Method ====== ======= ======== ======= ======= ======
      // Generic Method to test Message Popup and Toast
-        showMessagePopup(Status, Title, Message){
+        showMessagePopup(Status, Title, Message, doneBtnLabel){
             const messageContainer = this.template.querySelector('c-message-popup')
             if(messageContainer){
                 messageContainer.showMessagePopup({
                     status: Status,
                     title: Title,
                     message : Message,
+                    doneButtonLabel : doneBtnLabel,
                 });
             }
         }

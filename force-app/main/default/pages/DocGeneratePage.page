@@ -318,22 +318,29 @@
 
         <script type="text/javascript">
                     const parentURL = (window.location != window.parent.location) ? document.referrer : document.location.href;
-
-                    function sendInfoToLWC(completedChannel, status, error, cvId) {
-                        const message = {
-                            messageFrom : 'docGenerate',
-                            completedChannel:completedChannel,
-                            status: status,
-                            error: error,
-                            cvId : cvId,
-                        };
-                        parent.postMessage(message, parentURL);
-                    }
-
                     const intialLoading = document.querySelector('.intialLoading');
                     const loadingInfo = document.querySelector('.loadingInfo');
                     const docIcon = intialLoading?.querySelector('svg');
                     const useMode = '{!JSENCODE(useMode)}';
+
+                    function sendInfoToLWC(completedChannel, status, error, cvId) {
+                        if(useMode === 'preview'){
+                            loadingInfo && (loadingInfo.innerText = 'Facing Issue While Generating Preview, Please Try Agian...');
+                            docIcon?.classList.add('error');
+                        }
+                        else{
+                            // send message to parent LWC component if useMode === 'download'
+                            const message = {
+                                messageFrom : 'docGenerate',
+                                completedChannel:completedChannel,
+                                status: status,
+                                error: error,
+                                cvId : cvId,
+                            };
+                            parent.postMessage(message, parentURL);
+                        }
+                    }
+
                 try {
 
                     const apexError = '{!JSENCODE(apexError)}';
@@ -428,6 +435,7 @@
                         const signatureImageCvId = signatureImageCvIdString ? JSON.parse(signatureImageCvIdString) : null;
                         const signatureKey = '{!JSENCODE(signatureKey)}';
                         const signatureSize = '{!signatureSize}';
+
                         // Add signature image key and cv Id into salesforceImage List to fetch base64;
                         if(signatureImageCvId && signatureImageCvId[signatureKey]){
                             salesforceImages[signatureKey] = signatureImageCvId[signatureKey];
@@ -571,13 +579,28 @@
                         }
     
                         function replaceKeysWithValue(){
-                            
-                            bodyHtml = decodeHTMLEntities(bodyHtml);
-                            headerHtml = decodeHTMLEntities(headerHtml);
-                            footerHtml = decodeHTMLEntities(footerHtml);
+    
+                            // Create DOM ELement for Body, header and footer
+                            let bodyElement = document.createElement('div');
+                            bodyElement.innerHTML = editorNode.replace('<HTMLContent>', bodyHtml);
+                            bodyElement.innerHTML = bodyElement.innerHTML.replace('@typeClass', '');
+
+                            let headerElement = document.createElement('div');
+                            if(showHeader === true && headerHtml){
+                                headerElement.innerHTML = editorNode.replace('<HTMLContent>', headerHtml)
+                                                                        .replace('@typeClass', 'headerEditor');
+                                headerElement.style = ` max-height : headerFooterMaxHeight;
+                                                        overflow: hidden;`
+                            }
+
+                            let footerElement = document.createElement('div');
+                            if(showFooter === true && footerHtml){
+                                footerElement.innerHTML = editorNode.replace('<HTMLContent>', footerHtml)
+                                                                     .replace('@typeClass', 'footerEditor');
+                            }
 
                             // ...remove merge Template keys from mergeTemplateKeys ...
-                            // Note: this logic will note remove merge Template keys from cuurent template Data as we already remove currentTempId from mergeTemplateKeys to avoid this...
+                            // Note: this logic will not remove merge Template keys from cuurent template Data as we already remove currentTempId from mergeTemplateKeys to avoid this...
                             for(let key in mergeTemplateKeys){
                                 const tempData = mergeTemplateKeys[key];
                                 const pattern = /{{Temp.(.*?)}}/g;
@@ -589,61 +612,64 @@
     
                             // ...replace merge template key with merge template data....
                             for(let key in mergeTemplateKeys){
-                                bodyHtml = bodyHtml.replaceAll(key, mergeTemplateKeys[key]);
+                                bodyElement.innerHTML = bodyElement.innerHTML.replaceAll(key, mergeTemplateKeys[key]);
                             }
     
-                            // ...if bodyHtml have self merging key ...then append message within merge template key...
+                            // ...if bodyElement.innerHTML have self merging key ...then append message within merge template key...
                             if(selfMergeTempKey){
-                                bodyHtml = bodyHtml.replaceAll(selfMergeTempKey, selfMergeTempKey + '<span style="color:red"> --- Self Merge Not Allow. --- </span>');
-                            }
-    
-                            // ...replace object field key and general field key with actual value...
-                            for(let key in mappingKeyVsMappingValues){
-                                bodyHtml = bodyHtml.replaceAll(key, mappingKeyVsMappingValues[key]);
-                                headerHtml = headerHtml.replaceAll(key, mappingKeyVsMappingValues[key]);
-                                footerHtml = footerHtml.replaceAll(key, mappingKeyVsMappingValues[key])
+                                bodyElement.innerHTML = bodyElement.innerHTML.replaceAll(selfMergeTempKey, selfMergeTempKey + '<span style="color:red"> --- Self Merge Not Allow. --- </span>');
                             }
 
                             // ...replace child object records....
                             for(let key in childRecordTableKeys){
-                                const tableHtml = decodeHTMLEntities(key);
-                                const modifiedTable = decodeHTMLEntities(childRecordTableKeys[key]);
+                                // const tableHtml = decodeHTMLEntities(key);
+                                // const modifiedTable = decodeHTMLEntities(childRecordTableKeys[key]);
 
-                                bodyHtml = bodyHtml.replaceAll(tableHtml, modifiedTable);
-                                headerHtml = headerHtml.replaceAll(tableHtml, modifiedTable);
-                                footerHtml = footerHtml.replaceAll(tableHtml, modifiedTable);
+                                const tableHtml = key;
+                                const modifiedTable = childRecordTableKeys[key];
+
+                                bodyElement.innerHTML = bodyElement.innerHTML.replaceAll(tableHtml, modifiedTable);
+                                headerElement.innerHTML = headerElement.innerHTML.replaceAll(tableHtml, modifiedTable);
+                                footerElement.innerHTML = footerElement.innerHTML.replaceAll(tableHtml, modifiedTable);
                             }
-    
+
+                            // ...replace object field key and general field key with actual value...
+                            for(let key in mappingKeyVsMappingValues){
+                                bodyElement.innerHTML = bodyElement.innerHTML.replaceAll(key, mappingKeyVsMappingValues[key]);
+                                headerElement.innerHTML = headerElement.innerHTML.replaceAll(key, mappingKeyVsMappingValues[key]);
+                                footerElement.innerHTML = footerElement.innerHTML.replaceAll(key, mappingKeyVsMappingValues[key])
+                            }
+
                             // ...replace salesforce image url with base64...
-                            for(let src in salesforceImages){
-                                if(src === signatureKey){
-                                    const signatureImageInPt = (signatureSize * pageFormats()[pageSize][0]) / 100;
-                                    const signatureImageEle = `<p><img style="width : ${signatureImageInPt}pt; max-width:100%;" src="${salesforceImages[src]}" ></p>`
-                                    
-                                    // replace signature key with signature image....
-                                    bodyHtml = bodyHtml.replaceAll(signatureKey, signatureImageEle);
-                                    headerHtml = headerHtml.replaceAll(signatureKey, signatureImageEle);
-                                    footerHtml = footerHtml.replaceAll(signatureKey, signatureImageEle)
+                            let bodyImages = bodyElement.querySelectorAll('img');
+                            let headerImages = headerElement.querySelectorAll('img');
+                            let footerImages = footerElement.querySelectorAll('img');
+                            let images = [...bodyImages, ...headerImages, ...footerImages]
 
+                            images?.forEach(ele => {
+                                // Check if the image Src exists in the salesforceImages object
+                                if (salesforceImages[ele.src]) {
+                                    ele.src = salesforceImages[ele.src];
                                 }
-                                else{
-                                    bodyHtml = bodyHtml.replaceAll(src, salesforceImages[src]);
-                                    headerHtml = headerHtml.replaceAll(src, salesforceImages[src]);
-                                    footerHtml = footerHtml.replaceAll(src, salesforceImages[src]);
-                                }
+                            })
+
+                            let signatureValue = '';
+                            // If salesforceImages Object contains signatureKey, Meanse signature image is available...
+                            if(salesforceImages[signatureKey]){
+                                const signatureImageInPt = (signatureSize * pageFormats()[pageSize][0]) / 100;
+                                signatureValue = `<p><img style="width : ${signatureImageInPt}pt; max-width:100%;" src="${salesforceImages[signatureKey]}" ></p>`
                             }
+                            
+                            // replace signature key with signature image or blank string....
+                            bodyElement.innerHTML = bodyElement.innerHTML.replaceAll(signatureKey, signatureValue);
+                            headerElement.innerHTML = headerElement.innerHTML.replaceAll(signatureKey, signatureValue);
+                            footerElement.innerHTML = footerElement.innerHTML.replaceAll(signatureKey, signatureValue);
+
+                            // document.body.appendChild(bodyElement);
     
                             const promises = [];
-    
-                            let node = document.createElement('div');
-                            node.innerHTML = editorNode.replace('<HTMLContent>', bodyHtml);
-                            node.innerHTML = node.innerHTML.replace('@typeClass', '');
-
-                            // document.body.appendChild(node);
-    
                             //  ==== Convert URL src into base64 =======
-                            const nodeImages = node.querySelectorAll('img');
-                            nodeImages.forEach(ele => {
+                            bodyImages.forEach(ele => {
                                 if(ele.src.startsWith('http')){
                                     // promises.push(convertImgToBase64(ele.src).then(base64Img => {
                                     //     ele.src = base64Img;
@@ -655,25 +681,25 @@
                             // === Once all URL image src convet to base64 src ===  exectute further process....
                             Promise.all(promises).then(() => {
                                 // All images have been converted to base64
-                                generateFile(node);
+                                generateFile(bodyElement, headerElement, footerElement);
                             })
                         }
     
     
                         // ========= ========= File Generation Methods -- START --- ============== =============
 
-                        function generateFile(node){
+                        function generateFile(bodyElement, headerElement, footerElement){
                             if(selectedExtension === '.pdf' || useMode === 'preview'){
-                                generatePDF(node);
+                                generatePDF(bodyElement, headerElement, footerElement);
                             }
                             else if(selectedExtension == '.docx'){
-                                // generatePDF(node);
+                                // generatePDF(bodyElement);
                                 selectedExtension = '.doc';
-                                generateDoc(node);
+                                generateDoc(bodyElement, headerElement, footerElement);
                             }
                         }
     
-                        function generatePDF(node){
+                        function generatePDF(bodyElement, headerElement, footerElement){
                             
                             const opt = {
                                 // margin : [top, left, bottom, right]
@@ -689,11 +715,6 @@
                             };
     
                             if(showHeader === true && headerHtml){
-                                let headerElement = document.createElement('div');
-                                headerElement.innerHTML = editorNode.replace('<HTMLContent>', headerHtml)
-                                                                        .replace('@typeClass', 'headerEditor');
-                                headerElement.style = ` max-height : headerFooterMaxHeight;
-                                                        overflow: hidden;`
     
                                 const headerImgs =  headerElement.querySelectorAll('img');
                                 headerImgs.forEach(ele => {
@@ -710,9 +731,6 @@
                             }
     
                             if(showFooter === true && footerHtml){
-                                let footerElement = document.createElement('div');
-                                footerElement.innerHTML = editorNode.replace('<HTMLContent>', footerHtml)
-                                                                        .replace('@typeClass', 'footerEditor');
     
                                 const footerImgs =  footerElement.querySelectorAll('img');
                                 footerImgs.forEach(ele => {
@@ -729,14 +747,14 @@
                             }
     
                             // ....Download PDF file....
-                            //     html2pdf().set(opt).from(node).outputPdf().save()
+                            //     html2pdf().set(opt).from(bodyElement).outputPdf().save()
     
                             // For Preview Use
                             docIcon && (docIcon.style = 'animation : none');
                             loadingInfo && (loadingInfo.innerText = 'Rendering Preview...');
 
     
-                            html2pdf().set(opt).from(node).outputPdf()
+                            html2pdf().set(opt).from(bodyElement).outputPdf()
                             .then(function (rawPDF){
                                 if(useMode === 'preview'){
                                     intialLoading.style.display = 'none';
@@ -770,8 +788,8 @@
                             return ab;
                         };
     
-                        function generateDoc(node){
-                            node.classList.add('section');
+                        function generateDoc(bodyElement, headerElement, footerElement){
+                            bodyElement.classList.add('section');
     
                                 //  _html_ will be replace with custom html
                             let meta= "Mime-Version: 1.0\nContent-Base: " + location.href + "\nContent-Type: Multipart/related; boundary=\"NEXT.ITEM-BOUNDARY\";type=\"text/html\"\n\n--NEXT.ITEM-BOUNDARY\nContent-Type: text/html; charset=\"utf-8\"\nContent-Location: " + location.href + "\n\n<!DOCTYPE html>\n<html>\n_html_</html>";
@@ -780,12 +798,12 @@
                 
                             const htmlElement = document.createElement('div');
                             htmlElement.classList.add('section');
-                            htmlElement.innerHTML =  node.innerHTML;
+                            htmlElement.innerHTML =  bodyElement.innerHTML;
     
                             if( showHeader == 'true' || showHeader == true){
-                                let headerElement = document.createElement('div');
-                                headerElement.innerHTML = editorNode.replace('<HTMLContent>', headerHtml)
-                                                                            .replace('@typeClass', 'headerEditor');
+                                // let headerElement = document.createElement('div');
+                                // headerElement.innerHTML = editorNode.replace('<HTMLContent>', headerHtml)
+                                //                                             .replace('@typeClass', 'headerEditor');
                                 
                                 document.body.appendChild(headerElement);
                                 headerElement.style.maxheight = headerFooterMaxHeight + 'px';
@@ -808,9 +826,9 @@
     
                             if(showFooter == 'true' || showFooter == true){
     
-                                let footerElement = document.createElement('div');
-                                footerElement.innerHTML = editorNode.replace('<HTMLContent>', footerHtml)
-                                                                            .replace('@typeClass', 'footerEditor');
+                                // let footerElement = document.createElement('div');
+                                // footerElement.innerHTML = editorNode.replace('<HTMLContent>', footerHtml)
+                                //                                             .replace('@typeClass', 'footerEditor');
     
                                 document.body.appendChild(footerElement);
                                 footerElement.style.maxheight = headerFooterMaxHeight + 'px';
@@ -876,7 +894,7 @@
                             //  Image Area %%%%
                             let options = { maxWidth: 624};
                             let images = Array();
-                            let img = node.querySelectorAll("img");
+                            let img = bodyElement.querySelectorAll("img");
                             for (let i = 0; i < img.length; i++) {
                                 // Calculate dimensions of output image
                                 // let w = Math.min(img[i].width, options.maxWidth);
@@ -1143,6 +1161,7 @@
                                 })
                                 .catch(error => {
                                     console.log('error in External Storage : ', error.json());
+                                    sendInfoToLWC('External Storage', true, null, result.id);
                                 })
                                 // console.log('result of create contetVersion : ', result);
                             
@@ -1470,14 +1489,7 @@
                 } 
                 catch (error) {
                     console.error('error in docGenerate JS : ', error.stack);
-                    if(useMode === 'preview'){
-                        loadingInfo && (loadingInfo.innerText = 'Facing Issue While Generating Preview, Please Try Agian...');
-                        docIcon?.classList.add('error');
-                    }
-                    else{
-                        // send message to parent LWC component
-                        sendInfoToLWC('unknown', false, error)
-                    }
+                    sendInfoToLWC('unknown', false, error)
                 }
 
         </script>

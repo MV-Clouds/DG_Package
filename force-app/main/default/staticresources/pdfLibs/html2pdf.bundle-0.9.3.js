@@ -6119,7 +6119,7 @@ var isInlineBase64Image = function isInlineBase64Image(src) {
     return INLINE_BASE64.test(src);
 };
 var isBlobImage = function isBlobImage(src) {
-    return src.substr(0, 4) === 'blob';
+    return src?.substr(0, 4) === 'blob';
 };
 
 var isSVG = function isSVG(src) {
@@ -8846,8 +8846,8 @@ Worker.prototype.toImg = function toImg() {
                 //   pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
                 }
 
-                console.log('page : ', page);
-                console.log('pageHeight : ', pageHeight);
+                // console.log('page : ', page);
+                // console.log('pageHeight : ', pageHeight);
     
                 var w = pageCanvas.width;
                 var h = pageCanvas.height;

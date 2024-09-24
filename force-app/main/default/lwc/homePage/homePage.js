@@ -204,7 +204,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             this.isSpinner = true;
             getTemplateList()
             .then(result => {
-                // console.log('result : ', result);
                 if(result.isSuccess === true){
                     this.templateTypeList = result.templateTypes;
                     if(result.returnMessage !== 'No Template Found'){
@@ -439,8 +438,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 return obj.value !== unselectedValue;
             });
 
-            // console.log(`this.filterOpts['objectsToFilter'] : `, this.filterOpts['objectsToFilter']);
-
             this.filterOpts['objectsToFilter'] = this.filterOpts['objectsToFilter'].filter((option) => {
                 return option !== unselectedValue;
             });
@@ -503,7 +500,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
                 this.previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts));
 
-                // console.log('isClear : ', isClear);
                 this.toggleFilterOptions();
             }
         } catch (error) {
@@ -612,7 +608,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
             // When Scrolling Downward... ADD template in bottom...
             if(currentScroll >= this.lastScroll && currentScroll >= offsetToBottom){
-                // console.log('Scrolling downward');
+                // ('Scrolling downward');
                 if(this.displayedTemplateList.length < this.maxTempToDisplay){
 
                     const firstIndex = this.displayedTemplateList.length;
@@ -627,7 +623,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
             //When Scrolling Upward... REMOVED templates from bottom...
            else if(currentScroll < this.lastScroll && currentScroll < halfOffset){
-                // console.log('Scrolling Upward');
+                // ('Scrolling Upward');
                 if(this.displayedTemplateList.length > 50){
                     let lastIndex = this.displayedTemplateList.length - 50;
                     lastIndex = Math.min(lastIndex, 50);
@@ -742,9 +738,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
                 // Update Template in Backend...
                 updateTemplate({ templateId : this.toggelTemplateId, isActive : true})
-                .then(() => {
-                    // console.log('result on updateTemplate : ', result);
-                })
                 .catch(error => {
                     errorDebugger('HomePage', 'handleChangeStatus', error, 'warn', 'error in apex method updateTemplate');
                 })
@@ -783,7 +776,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     handleDeleteTemplate(event){
         try {
             this.deleteTemplateId = event.currentTarget.dataset.id;
-            // console.log('this.deleteTemplateId : ', this.deleteTemplateId);
             this.isDeleteTemplate = true;
             this.showMessagePopup('Warning', 'Confirm to Delete ?', 'Do you want to Delete this Template');
             
@@ -810,9 +802,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
                     // Update Template in Backend...
                     updateTemplate({ templateId : this.toggelTemplateId, isActive : toggelInput.checked})
-                    .then(() => {
-                        // console.log('result on updateTemplate : ', result);
-                    })
                     .catch(error => {
                         errorDebugger('HomePage', 'handleConfirmation', error, 'warn', 'error in apex method updateTemplate');
                     })
@@ -904,7 +893,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 this.showMessagePopup('info', 'Clone Not Available', 'Clone functionality not available for Google Doc Template type');
             }
             else{
-                // console.log('click on the clone Bt');
                 this.selectedTemplateId = event.currentTarget.dataset.id;
                 this.selectedTemplate = this.templateList.find(ele => ele.Id === this.selectedTemplateId);
                 this.selectedObjectName = event.currentTarget.dataset.objapi;
@@ -951,13 +939,13 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 }
                 
                   let encodedDef = btoa(JSON.stringify(cmpDef));
-                  // console.log('encodedDef : ', encodedDef);
                   this[NavigationMixin.Navigate]({
                     type: "standard__webPage",
                     attributes: {
                       url:  "/one/one.app#" + encodedDef
                     }
                   });
+
             } catch (error) {
                 errorDebugger('HomePage', 'navigateToComp', error, 'warn');
             }

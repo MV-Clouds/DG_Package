@@ -27,7 +27,7 @@
       </div>
       <div class="mergingTypeSelection">
         <template for:each={mappingTypeTabs} for:item="mappingTab" for:index="index">
-          <div class="tabSelection" data-name={mappingTab.name} data-index={index} key={mappingTab} onclick={setMappingTab}>{mappingTab.label}
+          <div class="tabSelection" data-name={mappingTab.name} data-selected={mappingTab.selected} data-index={index} key={mappingTab} onclick={setMappingTab}>{mappingTab.label}
             <div class="customToolTip top left">{mappingTab.helpText}</div>
           </div>
         </template>

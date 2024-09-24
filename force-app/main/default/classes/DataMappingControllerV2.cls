@@ -709,7 +709,7 @@ public with sharing class DataMappingControllerV2 {
     
                 map<string, string> dateFormats = KeyMappingController.dateFormats();
                 for(string dateInfo : dateFormats.keySet()){
-                    validFields.put('Date.'+dateInfo, dateFormats.get(dateInfo).split('; ')[1]);
+                    validFields.put('Date.'+dateInfo, dateFormats.get(dateInfo).split(';')[1]);
                 }
             }
             else{
