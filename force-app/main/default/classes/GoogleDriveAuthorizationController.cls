@@ -84,7 +84,7 @@ public with sharing class GoogleDriveAuthorizationController {
     if(UserId != null){
         access = [SELECT COUNT() FROM PermissionSetAssignment 
         WHERE PermissionSet.Name = 'DocGenius_Admin_Permissions'
-        AND AssigneeId =: UserId];
+        AND AssigneeId =: UserId WITH SECURITY_ENFORCED];
     }
     if(access == 1){
       try {
@@ -276,12 +276,12 @@ public with sharing class GoogleDriveAuthorizationController {
           }
           if(isOrg){
               defsettings.SetupOwnerId = UserInfo.getOrganizationId();
-              upsert defsettings;
+              upsert as user defsettings;
               settings.SetupOwnerId = UserInfo.getUserId();
-              upsert settings;
+              upsert as user settings;
           }else{
               settings.SetupOwnerId = UserInfo.getUserId();
-              upsert settings;
+              upsert as user settings;
           }
         
           return 'success';
@@ -434,7 +434,7 @@ public static Map<String, String> generaterefreshtoken(List<String> credentials,
                 }
                 
                 if(settings != null){
-                    delete settings;
+                    delete as user settings;
                     return true;
                 }
           }
@@ -464,7 +464,7 @@ public static Map<String, String> generaterefreshtoken(List<String> credentials,
                     settings.MVDG__email__c = '';
                     settings.MVDG__username__c = '';
                     settings.MVDG__WorkingStatus__c = false;
-                    update settings;
+                    update as user settings;
                     return true;
                 }
            return false;
@@ -481,7 +481,7 @@ public static Map<String, String> generaterefreshtoken(List<String> credentials,
     if(UserId != null){
         access = [SELECT Id, PermissionSet.Name FROM PermissionSetAssignment 
         WHERE (PermissionSet.Name = 'DocGenius_Admin_Permissions' OR PermissionSet.Name = 'DocGenius_Standard_Permissions')
-        AND AssigneeId =: UserId];
+        AND AssigneeId =: UserId WITH SECURITY_ENFORCED];
     }
     if(!access.isEmpty()){
         for (PermissionSetAssignment psa : access) {

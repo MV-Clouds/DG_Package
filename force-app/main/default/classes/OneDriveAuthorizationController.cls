@@ -76,14 +76,14 @@ public with sharing class OneDriveAuthorizationController {
                     settings.MVDG__access_token4__c = newtoken5;
                 }
                 settings.MVDG__WorkingStatus__c = true;
-                Update settings;
+                update as user settings;
                 return true;
         }
         else {
             Response_Handler.store_Callout_Response(response1, 'OneDriveAuthorizationController', 'getToken');
             System.debug('No token generated');
             settings.MVDG__WorkingStatus__c = false;
-            Update settings;
+            update as user settings;
             return false;
         }
     }
@@ -107,7 +107,7 @@ public with sharing class OneDriveAuthorizationController {
                 settings.MVDG__refresh_token__c = '';
                 settings.MVDG__refresh_token1__c = '';
                 settings.MVDG__email__c = '';
-                upsert settings;
+                upsert as user settings;
                 return true;
             }
             return false;
@@ -179,7 +179,7 @@ public with sharing class OneDriveAuthorizationController {
             settings.MVDG__ClientId__c = clientId;
             settings.MVDG__ClientSecret__c = clientSecret;
             String durl = authcode(clientId, clientSecret);
-            upsert settings;
+            upsert as user settings;
             System.debug(durl);
             return durl;
         } catch (Exception e) {

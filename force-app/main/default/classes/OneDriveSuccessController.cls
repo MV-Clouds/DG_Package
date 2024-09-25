@@ -125,7 +125,7 @@ public with sharing class OneDriveSuccessController {
                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isCreateable() &&
                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isCreateable() &&
                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isCreateable()) {
-                           upsert settings;
+                           upsert as user settings;
                            return 'Success';
                        }
                }

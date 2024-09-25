@@ -37,6 +37,7 @@ public class DeleteGoogleDocumentTest {
 
         Test.startTest();
         DeleteGoogleDocument.deleteDocument(googleDocId);
+        System.assertEquals(1, Limits.getAsyncCalls());
         Test.stopTest();
 
     }
