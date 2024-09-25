@@ -394,11 +394,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     get updatedTemplates(){
-        let searchedTemplates = this.allTemplates.filter(t => t.MVDG__Template_Name__c.toUpperCase().includes(this.templateSearchKey.toUpperCase()));
-        this.noTemplateFound = searchedTemplates.length < 1 ? true : false;
         if(!this.templateSearchKey){
             return this.allTemplates;
         }
+        let searchedTemplates = this.allTemplates.filter(t => t.MVDG__Template_Name__c.toUpperCase().includes(this.templateSearchKey.toUpperCase()));
+        this.noTemplateFound = searchedTemplates.length < 1 ? true : false;
         return searchedTemplates;
     }
 
@@ -1241,6 +1241,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     //Back to generate
     backToGenerate(){
+        this.templateSearchKey = null;
         this.showAllTemplates = false;
         this.showCSVPreview = false;
         this.showGDocPreview = false;

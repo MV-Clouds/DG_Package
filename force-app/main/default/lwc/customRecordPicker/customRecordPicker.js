@@ -143,6 +143,8 @@ export default class CustomRecordPicker extends LightningElement {
                 this.valueToSet = [val.trim()];
             }
         }
+        this.trackValue = this.valueToSet;
+        if(this.trackValue?.length) this.setDefaultValue();
     }
 
     @track setDropDownPosition = '';
