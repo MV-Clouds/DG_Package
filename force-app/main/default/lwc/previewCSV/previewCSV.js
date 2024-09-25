@@ -11,6 +11,10 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
     _popup;
     @api get isPopup(){ return this._popup }
     set isPopup(value){ this._popup= value === "true" ?  true : false }
+
+    _previewFromEditor;
+    @api get previewFromEditor(){ return this._previewFromEditor }
+    set previewFromEditor(value){ this._previewFromEditor= value === "true" ?  true : false }
     
     @track _showAdditionalInfo = false;
 
