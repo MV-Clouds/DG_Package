@@ -70,14 +70,14 @@ public with sharing class GoogleDocPreview {
         try {
             String endpoint = 'https://oauth2.googleapis.com/token';
             List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-            // List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            // List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             request.setTimeout(120000);
             request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
-            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
+            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             System.debug('Response of refreshAccessToken: ' + response.getBody());
@@ -223,6 +223,11 @@ public with sharing class GoogleDocPreview {
                     responseWrapper = copyGoogleDoc(templateId);
                     return responseWrapper;
                 }
+            } else if (response.getStatusCode() == 404 && authProvider.SetupOwnerId != null && authProvider.SetupOwnerId != UserInfo.getOrganizationId()) {
+                authProvider = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+                refreshToken = authProvider.SetupOwnerId;
+                responseWrapper = copyGoogleDoc(templateId);
+                return responseWrapper;
             }
             responseList.put('copyGoogleDoc', response);
             responseWrapper.error = 'error:Copy Google Doc:Error in processing the document:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
@@ -272,6 +277,10 @@ public with sharing class GoogleDocPreview {
                 if (refreshToken != null) {
                     updateGoogleDoc(googleDocId, requests);
                 }
+            } else if (response.getStatusCode() == 403 && authProvider.SetupOwnerId != null && authProvider.SetupOwnerId != UserInfo.getOrganizationId()) {
+                authProvider = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+                refreshToken = authProvider.SetupOwnerId;
+                updateGoogleDoc(googleDocId, requests);
             }
             if (response.getStatusCode() != 200 && response.getStatusCode() != 201 && response.getStatusCode() != 202 && response.getStatusCode() != 204 && response.getStatusCode() != 206) {
                 responseList.put('updateGoogleDoc', response);

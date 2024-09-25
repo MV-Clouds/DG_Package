@@ -187,7 +187,7 @@
                             <path d="M21 29C25.4183 29 29 25.4183 29 21C29 16.5817 25.4183 13 21 13C16.5817 13 13 16.5817 13 21C13 25.4183 16.5817 29 21 29Z" stroke="#ABB7C2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             <path d="M31 31.0002L26.7 26.7002" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        <input class="searchInput" placeholder="Search..." type="text" onkeyup={handleSearch} value={serachString} />
+                        <input class="searchInput" placeholder="Search..." type="text" onkeyup={handleSearch} value={searchString} />
                     </div>
                     <div class="right-side-button">
                         <div class="button-div">
@@ -321,7 +321,7 @@
                             <g lwc-1tsr6p0f0fe=""><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z" lwc-1tsr6p0f0fe=""></path></g></svg
                         >Cancel
                     </button>
-                    <button type="button" class="button next" onclick={next} disabled>
+                    <button type="button" class="button next" onclick={next} disabled={disableNextButton}>
                         <svg class="button-svg" viewBox="0 0 520 520" lwc-1tsr6p0f0fe="">
                             <g lwc-1tsr6p0f0fe=""><path d="M371 40v136c0 10-8 19-19 19H139c-10 0-19-8-19-19V40H80a40 40 0 00-40 40v360a40 40 0 0040 40h360a40 40 0 0040-40V112l-72-72zm70 381c0 10-8 19-19 19H99c-10 0-19-8-19-19V254c0-10 8-19 19-19h323c10 0 19 8 19 19zM248 136c0 10 8 19 19 19h46c10 0 19-8 19-19V40h-83z" lwc-1tsr6p0f0fe="" fill="white"></path></g></svg
                         >Next

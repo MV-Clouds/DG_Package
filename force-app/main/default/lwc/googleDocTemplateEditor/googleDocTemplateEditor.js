@@ -21,13 +21,13 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     isSpinner = true;
     loaderLabel = null;
-    selectedTemplate;
+    selectedTemplate = {};
     showPopup = false;
     webViewLink;
 
     @track templates;
     @track allTemplates;
-    @track serachString = "";
+    @track searchString = "";
     @track profile;
     @track warning = '';
 
@@ -53,6 +53,10 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     }
     get showNoDocumentFiles() {
         return this.allTemplates && this.allTemplates.length == 0;
+    }
+
+    get disableNextButton() {
+        return (this.selectedTemplate.id == null) || (this.selectedTemplate.id != null && !this.templates.some(temp => temp.id == this.selectedTemplate.id));
     }
 
     connectedCallback() {
@@ -365,10 +369,10 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         try {
             console.log('handleSearch');
             if (this.templates) {
-                this.serachString = event.target.value;
-                if (this.serachString) {
+                this.searchString = event.target.value;
+                if (this.searchString) {
                     this.templates = this.allTemplates.filter((template) => {
-                        return template.name.toLowerCase().includes(this.serachString.toLowerCase());
+                        return template.name.toLowerCase().includes(this.searchString.toLowerCase());
                     });
                 } else {
                     this.templates = this.allTemplates;
