@@ -335,7 +335,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         MVDG__Files__c : null,
         MVDG__Chatter__c : null,
         MVDG__Documents__c : null,
-        Related_Record_Id__c : null,
+        MVDG__Related_Record_Id__c : null,
     }
 
     get showCloseButton(){
@@ -1202,7 +1202,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         this.activity.MVDG__DocGenius_Template__c = this.selectedTemplate;
         this.activity.MVDG__Selected_Channels__c = this.selectedChannels.join(',');
         this.activity.MVDG__File_Name__c = this.fileName + this.selectedExtension;
-        this.activity.Related_Record_Id__c = this.isCSVTemplate ? null : this.recordId;
+        this.activity.MVDG__Related_Record_Id__c = this.isCSVTemplate ? null : this.recordId;
         this.generateActivity()
         .then((result) => {
             if(result){

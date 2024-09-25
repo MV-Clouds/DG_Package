@@ -34,7 +34,7 @@ public with sharing class DocGenActivityTriggerHandler {
                     }
                 }
                 if(noOfCompletedhnnels == noOfSelectedChannels){
-                    sendResultsEmail(succeeded, failed, new Map<String,String>{'templateId' => act.MVDG__DocGenius_Template__c , 'fileName'=> act.MVDG__File_Name__c, 'recordId' => act.Related_Record_Id__c});
+                    sendResultsEmail(succeeded, failed, new Map<String,String>{'templateId' => act.MVDG__DocGenius_Template__c , 'fileName'=> act.MVDG__File_Name__c, 'recordId' => act.MVDG__Related_Record_Id__c});
                 }
             }
         }catch (Exception e){
@@ -61,7 +61,7 @@ public with sharing class DocGenActivityTriggerHandler {
             String logoUrl = 'https://mvclouds.com/wp-content/uploads/2024/08/Docgenius-Logo-Horizontal-1.png';
 
             List<MVDG__Template__c> templates= new List<MVDG__Template__c>();
-            templates = [SELECT MVDG__Template_Name__c, MVDG__Description__c, MVDG__Object_API_Name__c, MVDG__Template_Type__c FROM MVreDG__Template__c WHERE Id =:templateId WITH USER_MODE LIMIT 1];
+            templates = [SELECT MVDG__Template_Name__c, MVDG__Description__c, MVDG__Object_API_Name__c, MVDG__Template_Type__c FROM MVDG__Template__c WHERE Id =:templateId WITH USER_MODE LIMIT 1];
 
             if(templates.size() < 1){
                 throw new AuraHandledException('No Template Linked With Document Generation Activity...');
@@ -74,7 +74,6 @@ public with sharing class DocGenActivityTriggerHandler {
             emailBody += '<p>Your Document Generation process has been completed.</p>';
 
             emailBody += '<p>This email is sent to you to inform you about the results of the document generation process for the <strong>' +templates[0].MVDG__Template_Name__c+ '</strong> related to the <strong>' +templates[0].MVDG__Object_API_Name__c+ '</strong> source object.</p>';
-            // emailBody += '<h3>Document Information:</h3>';
             emailBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
             emailBody += '<tr>';
             emailBody += '<th style="background-color:#00aeffaa" colspan="2"><strong>Template Details</strong></th>';
