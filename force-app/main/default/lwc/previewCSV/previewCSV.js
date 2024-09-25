@@ -68,6 +68,18 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             fetchPreviewData({templateId: this.templateId})
             .then((result) =>{
                 this.noResultsFound = true;
+                if(result.errorMessage){
+                    this.noDataFoundText = 'There was some error fetching preview data, please try again...';
+                    let regex = /No such column '(\w+)' on entity '(\w+)'/;
+                    let match = result.errorMessage.match(regex);
+                    let fieldName = match ? match[1] : null;
+                    let entityName = match ? match[2] : null;
+                    if(match && fieldName && entityName){
+                        this.noDataFoundText = 'Please check permission of the field \''+ fieldName + '\' on object \'' + entityName + '\'.';
+                    }
+                    this.showSpinner = false;
+                    return;
+                }
                 this.previewData = result.records;
                 this.fields = result.templateData.MVDG__CSV_Fields__c?.split(',');
                 this.additionalData['Name'] = result.templateData.MVDG__Template__r.MVDG__Template_Name__c;

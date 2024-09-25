@@ -20,7 +20,7 @@ public with sharing class GenerateDocumentController {
         CombinedDataWrapper combinedData = new CombinedDataWrapper();
         try {
             List<EmailTemplate> emailTemplates = new List<EmailTemplate>();
-            emailTemplates = [SELECT Id, Name, Subject, HtmlValue FROM EmailTemplate WITH SECURITY_ENFORCED];
+            emailTemplates = [SELECT Id, Name, Subject, HtmlValue FROM EmailTemplate WHERE IsActive = true WITH SECURITY_ENFORCED];
             combinedData.emailTemplates = emailTemplates;
             combinedData.folderWrapper = getFolders();
             combinedData.integrationWrapper = getIntegrationStatus();
@@ -356,11 +356,12 @@ public with sharing class GenerateDocumentController {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
             if(templateId != null){
-                templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+                templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Status__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
             }
             if(templates.size() > 0){
                 ddw.templateId = templates[0].Id;
                 ddw.templateName = templates[0].MVDG__Template_Name__c;
+                ddw.templateStatus = templates[0].MVDG__Template_Status__c;
                 ddw.buttonLabel = templates[0].MVDG__Button_Label__c;
                 ddw.buttonName = templates[0].MVDG__Button_Api_Name__c;
                 ddw.docType = templates[0].MVDG__Document_Type__c;
@@ -475,6 +476,7 @@ public with sharing class GenerateDocumentController {
 @description     : wrapper containing with default data for the template
 @param           : templateId {String} - Id of the template to update
 @param           : templateName {String} - name of the template
+@param           : templateStatus {Boolean} - Status of the template
 @param           : buttonLabel {String} - label of the Button for default creation
 @param           : buttonName {String} - Api Name of the Button for default creation
 @param           : docType {String} - Id of generated content version from API
@@ -491,6 +493,7 @@ public with sharing class GenerateDocumentController {
     public class DefaultDataWrapper{
         @AuraEnabled public String templateId;
         @AuraEnabled public String templateName;
+        @AuraEnabled public Boolean templateStatus;
         @AuraEnabled public String buttonLabel;
         @AuraEnabled public String buttonName;
         @AuraEnabled public String docType;

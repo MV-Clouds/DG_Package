@@ -335,6 +335,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         MVDG__Files__c : null,
         MVDG__Chatter__c : null,
         MVDG__Documents__c : null,
+        Related_Record_Id__c : null,
     }
 
     get showCloseButton(){
@@ -664,6 +665,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             getTemplateDefaultValues({ templateId : this.selectedTemplate})
             .then((data) =>{
                 if(data){
+                    if(!data.templateStatus){
+                        this.showSpinner = false;
+                        this.showWarningPopup('error', 'Inactive Template', 'The template you are trying to generate document from is inactive, please make it active to generate document.');
+                        this.isClosableError = true;
+                        return;
+                    }
                     if(data?.docType){
                         this.documentTypes.forEach(dt => {dt.isSelected = false});
                         this.documentTypes.find(item => item.name === data?.docType).isSelected = true;
@@ -710,7 +717,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             })
             .catch((e) =>{
                 errorDebugger('generateDocument', 'getTemplateDefaultValues', e, 'error');
-                this.showToast('error', 'Something went Wrong!', e.body.message.includes('Insufficient permissions') ? 'Please check the permissions to access the object...' : 'Couldn\'t get default values, please try again...', 5000);
+                if(e.body.message.includes('Insufficient permissions')){
+                    this.showSpinner = false;
+                    this.showWarningPopup('error', 'Insufficient permissions', 'Please check the permissions to access the data...');
+                    this.isClosableError = true;
+                }else{
+                    this.showToast('error', 'Something went Wrong!', 'Couldn\'t get default values, please try again...', 5000);
+                }
             })
         } catch (e) {
             this.showSpinner = false;
@@ -1189,6 +1202,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         this.activity.MVDG__DocGenius_Template__c = this.selectedTemplate;
         this.activity.MVDG__Selected_Channels__c = this.selectedChannels.join(',');
         this.activity.MVDG__File_Name__c = this.fileName + this.selectedExtension;
+        this.activity.Related_Record_Id__c = this.isCSVTemplate ? null : this.recordId;
         this.generateActivity()
         .then((result) => {
             if(result){
@@ -1286,7 +1300,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                 this.generateCSVDocument();
                                 resolve();
                             }
-                            reject();
                         })
                         .catch(e => {
                             reject(e);
@@ -1334,7 +1347,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                 this.generateCSVDocument();
                                 resolve();
                             }
-                            reject();
                         })
                         .catch(e => {
                             reject(e);
@@ -1390,7 +1402,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     if(match && fieldName && entityName){
                         errorMessage = 'Please check permission of the field \''+ fieldName + '\' on object \'' + entityName + '\'.';
                     }
-                    this.showToast('error', result[0].errorCode.replaceAll('_', ' '), errorMessage, 5000);
+                    this.showWarningPopup('error', result[0].errorCode.replaceAll('_', ' '), errorMessage);
+                    this.isClosableError = true;
                     return false;
                 }
                 
@@ -2144,7 +2157,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 return;
             }
 
-            if(!this.isOldButton && this.allButtons.includes(this.buttonLabel.trim().replace(/[^a-zA-Z_]+/g, '_'))){
+            if(!this.isOldButton && this.allButtons.includes(this.buttonLabel.trim().replace(/[^a-zA-Z0-9_]+/g, '_'))){
                 this.showToast('error', 'Something went wrong!','This button name is used, try changing name!', 5000)
                 return;
             }
@@ -2170,7 +2183,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             let defaults = {
                 templateId : this.templateIdFromParent,
                 buttonLabel : this.buttonLabel,
-                buttonName: this.buttonName ? this.buttonName : this.buttonLabel.trim().replace(/[^a-zA-Z_]+/g, '_'),
+                buttonName: this.buttonName ? this.buttonName : this.buttonLabel.trim().replace(/[^a-zA-Z0-9_]+/g, '_'),
                 docType : this.selectedExtension?.slice(1,).toUpperCase(),
                 iStorage : iStorages,
                 eStorage : eStorages,
@@ -2189,7 +2202,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         objList.push(this.internalObjectApiName);
                         let buttonData = {
                             buttonLabel: this.buttonLabel,
-                            buttonName: this.buttonName ? this.buttonName : this.buttonLabel.replace(/[^a-zA-Z_]+/g, '_'),
+                            buttonName: this.buttonName ? this.buttonName : this.buttonLabel.replace(/[^a-zA-Z0-9_]+/g, '_'),
                             buttonEndURL: '&c__isDefaultGenerate=true&c__templateIdToGenerate='+this.templateIdFromParent
                         }
                         createListViewButtons({objects: objList, buttonData : buttonData})
@@ -2240,7 +2253,8 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                                         this.bottomBtnLabel = 'Update Defaults'
                                         this.showToast('success', 'Action Performed!','The button is created with defaults!', 5000);
                                     }else{
-                                        this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
+                                        errorDebugger('generateDocument', 'handleSetDefaults > fetch (create quick action button) > failure', result, 'error');
+                                        this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000); 
                                     }
                                 })
                                 .catch(e => {

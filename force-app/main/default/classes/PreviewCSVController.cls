@@ -29,11 +29,12 @@ public with sharing class PreviewCSVController {
                 if(Integer.valueOf(query.substringAfterLast('LIMIT ')) > 25){
                     query = query.substringBeforeLast('LIMIT') + ' LIMIT 25';
                 }
-                previewRecords = Database.query(query);
+                previewRecords = Database.query(query, AccessLevel.USER_MODE);
                 listOfPDW.records = previewRecords;
                 listOfPDW.templateData = queryData[0];
             }
         } catch (Exception e) {
+            listOfPDW.errorMessage = e.getMessage();
             log_Handler.store_Exception(e, 'PreviewCSVController', 'fetchPreviewData');
         }
         return listOfPDW;
@@ -50,6 +51,7 @@ public with sharing class PreviewCSVController {
     public class PreviewDataWrapper{
         @AuraEnabled public List<sObject> records;
         @AuraEnabled public MVDG__Template_Data__c templateData;
+        @AuraEnabled public String errorMessage;
     }
 
 }
