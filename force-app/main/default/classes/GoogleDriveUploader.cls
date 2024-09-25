@@ -44,10 +44,10 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 
     global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
         try {
+            String acctoken = getToken(activity);
             for (ContentVersion cv: scope) {
                 String fileName = cv.Title;
                 googleFileName = cv.Title+'.'+cv.fileExtension;
-                String acctoken = getToken(activity);
                 Integer fileSize = cv.ContentSize;
                 String contentType = contentType(cv.FileExtension);
                 Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
@@ -63,10 +63,17 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                     } 
                     if (fileSize < maxSize) { // 5 MB threshold
                         System.debug('Uploading small file directly to googledrive');
-                        uploadToGoogleDrive(cv, fileName, fileDetails);
+                        Boolean result = uploadToGoogleDrive(cv, fileName, fileDetails);
+                        if (!result) {
+                            break;
+                        }
+
                     } else {
                         System.debug('Uploading large file in chunks to googledrive');
-                        uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
+                        Boolean result = uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
+                        if (!result) {
+                            break;
+                        }
                     }
                 }
             }
@@ -283,7 +290,7 @@ global static String getToken(){
 @return          : none
 ********************************************************
 */
-    private static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, List<String> fileDetails) {
+    private static Boolean uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, List<String> fileDetails) {
         try {
             String result = initiateUploadSession(fileDetails[0], contentVersion, fileDetails[1]);
             if (result != 'failure') {
@@ -320,7 +327,7 @@ global static String getToken(){
                     System.debug(Limits.getHeapSize());
                 }
             }
-            
+            return true;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadLargeFileInChunks', fileDetails[1]);
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
@@ -328,7 +335,7 @@ global static String getToken(){
                 obj.Id = fileDetails[1]; 
                 update as user obj;
         }
-
+        return false;
     }
 
 
