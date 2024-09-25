@@ -96,8 +96,14 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    @track isSpinner = true;
    @track invoke; //used to track who called the popup
 
-   @track isAccess;
+   @track isAccess = false;
    @track isPartialAccess;
+   @track obj = {
+        'googleKey' : false,
+        'oneDriveKey' : false,
+        'dropboxKey' : false,
+        'awsKey' :false
+   }
 
 
    get googledrive_(){
@@ -149,18 +155,35 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
 
    checkAccess(){
-       checkAccess()
-       .then((result) =>{
-        if(result == 'DocGenius_Admin_Permissions'){
-            this.isAccess = true;
-        }
-        else if(result == 'DocGenius_Standard_Permissions'){
-            this.isPartialAccess = true;
-            const dgSetup = this.template.querySelector('.text0');
-            if(dgSetup) dgSetup.style.display = 'none';
+    try {
+        
+        checkAccess()
+        .then((result) =>{
+             if(result == 'DocGenius_Admin_Permissions'){
+                 this.isAccess = true;
 
-        }
-       });
+             }
+             else if(result == 'DocGenius_Standard_Permissions'){
+                 this.isPartialAccess = true;
+                 const dgSetup = this.template.querySelector('.text0');
+                 if(dgSetup) dgSetup.style.display = 'none';
+
+                 this.obj.oneDriveKey = false;
+                 this.obj.awsKey = false;
+                 this.obj.dropboxKey = false;
+             }
+             else{
+                this.obj.oneDriveKey = false;
+                this.obj.awsKey = false;
+                this.obj.dropboxKey = false;
+             }
+ 
+        });
+    } catch (error) {
+        console.log('error in checkAccess : ', error.message);
+        
+        
+    }
    }
 
    checkauth(){
@@ -197,7 +220,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 //    }
 
    renderedCallback() {
-      
+        console.log("Rendered callback called");
+        
        if(this.awsuserdata){
            // console.log('inaws');
            // console.log('bucket'+this.awsbucket);
@@ -213,25 +237,14 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
         if(!this.isAccess && this.activeTab == 'text1'){
             if(this.isPartialAccess){
-                const disableimg = this.template.querySelectorAll('.partial');
-                disableimg?.forEach(ele => {
-                    ele.children[0].style.opacity = '0.5';
-                    ele.removeAttribute('draggable');
-                })
                 const unlink = this.template.querySelectorAll('.partial-btn');
                 unlink?.forEach(ele => {
                     ele.disabled = true;
                 })
             }
             else{
-                const awsimg = this.template.querySelector('.ac img');
-                if(awsimg) awsimg.style.opacity = '0.5';
-                const gcimg = this.template.querySelector('.gc' + ' img');
-                if(gcimg) gcimg.style.opacity = '0.5';
-                const dbimg = this.template.querySelector('.dc' + ' img');
-                if(dbimg) dbimg.style.opacity = '0.5';
-                const odimg = this.template.querySelector('.oc' + ' img');
-                if(odimg) odimg.style.opacity = '0.5';
+                console.log('Going in else');
+                
                 const unlink = this.template.querySelectorAll('.unauthorize');
                 unlink?.forEach(ele => {
                     ele.disabled = true;
@@ -279,24 +292,16 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                this.isWorkingAwsAuth = result.active;
                this.awslinkdate = result.linkdate;
                this.awsuserdata = true;
-               // this.template.querySelector('.ac').style.opacity = '0.5';
-               const awsimg = this.template.querySelector('.ac img');
-               awsimg.style.opacity = '0.5';
-               const awsintegration = this.template.querySelector('.ac');
-               awsintegration.removeAttribute('draggable');
-               const awsintegrationhover = this.template.querySelector('.ac');
-               awsintegrationhover.style.pointerEvents = "none";
+               this.obj.awsKey = false;
                this.isActiveAwsAuth = true;
            }
            else{
-               this.isActiveAwsAuth = false;
-               // this.template.querySelector('.ac').style.opacity = '1';
-               const awsimg = this.template.querySelector('.ac img');
-               awsimg.style.opacity = '1';
-               const awsintegration = this.template.querySelector('.ac');
-               awsintegration.setAttribute('draggable', 'true');
-               const awsintegrationhover = this.template.querySelector('.ac');
-               awsintegrationhover.style.pointerEvents = "auto";
+            if(!this.isPartialAccess){
+                this.isActiveAwsAuth = false;
+                this.obj.awsKey = true;
+                const awsintegrationhover = this.template.querySelector('.ac');
+                awsintegrationhover.style.pointerEvents = "auto";
+            }
            }
            this.loaded();
        })
@@ -331,50 +336,41 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            if(integrationname == 'dropbox'){
                this.isWorkingDropboxAuth = result.active;
                this.isActiveDropboxAuth = true;
+               this.obj.dropboxKey = false;
            }
            else if(integrationname == 'onedrive'){
                this.isWorkingOnedriveAuth = result.active;
                this.isActiveOnedriveAuth = true;
+               this.obj.oneDriveKey = false;
+
            }
            else if(integrationname == 'google'){
                this.isWorkingGoogleAuth = result.active;
                this.isActiveGoogleAuth = true;
+               this.obj.googleKey = false;
+
            }
            else if(integrationname == 'orggoogle'){
                this.isWorkingOrgGoogleAuth = result.active;
                this.isActiveOrgGoogleAuth = true;
            }
            this[integrationname + 'linkdate'] = result.linkdate;
-           // this.template.querySelector('.'+cssname).style.opacity = '0.5';
-           if(integrationname != 'orggoogle'){
-           const integrationimg = this.template.querySelector('.'+cssname + ' img');
-           integrationimg.style.opacity = '0.5';
-           const integrations = this.template.querySelector('.'+cssname);
-           integrations.removeAttribute('draggable');
-           const integrationhover = this.template.querySelector('.'+cssname);
-           integrationhover.style.pointerEvents = "none";
-           }
        }
        else{
-           if(integrationname == 'dropbox'){
-               this.isActiveDropboxAuth = false;
-           }
-           else if(integrationname == 'onedrive'){
-               this.isActiveOnedriveAuth = false;
-           }
-           else if(integrationname == 'google'){
-               this.isActiveGoogleAuth = false;
-
-           }
-           if(integrationname != 'orggoogle'){
-           // this.template.querySelector('.'+cssname).style.opacity = '1';
-           const integrationimg = this.template.querySelector('.'+cssname + ' img');
-           integrationimg.style.opacity = '1';
-           const integrations = this.template.querySelector('.'+cssname);
-           integrations.setAttribute('draggable', 'true');
-           const integrationhover = this.template.querySelector('.'+cssname);
-           integrationhover.style.pointerEvents = "auto";
-           }
+            if(integrationname == 'google'){
+                this.isActiveGoogleAuth = false;
+                this.obj.googleKey = true;
+            }
+            if(!this.isPartialAccess){
+                if(integrationname == 'dropbox'){
+                    this.isActiveDropboxAuth = false;
+                    this.obj.dropboxKey = true;
+                }
+                else if(integrationname == 'onedrive'){
+                    this.isActiveOnedriveAuth = false;
+                    this.obj.oneDriveKey = true;
+                } 
+            }
        }
    }
 
@@ -458,6 +454,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             this.isGoogle = true;
             this.ispopup = true;
             }
+            else{
+                this.isSpinner = false;
+            }
        }
    }
 
@@ -505,7 +504,16 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            this.isFaq = false;
            const cursor = this.template.querySelectorAll('.cursor');
            cursor?.forEach(ele => {
-               if(ele.dataset.name == tabName){
+                if(ele.dataset.name == tabName && tabName == 'text0' && this.isPartialAccess == true){
+                    this.isSpinner = false;
+                    const messageContainer = this.template.querySelector('c-message-popup')
+                       messageContainer.showMessageToast({
+                           status: 'error',
+                           title: 'error',
+                           message : 'Error you don\'t have access to DG Setup',
+                       });
+                }
+               else if(ele.dataset.name == tabName){
                    ele.classList.add('enable');
                    if(tabName == 'text0'){
                        this.isSetup = true;

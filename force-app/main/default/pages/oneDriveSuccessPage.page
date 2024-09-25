@@ -72,8 +72,7 @@
                 }
 
                 function init() {
-                    var currentUrl = '{!$CurrentPage.URL}';
-                    console.log('currentUrl');
+                    var currentUrl = '{!JSENCODE($CurrentPage.URL)}';
                     if(currentUrl && currentUrl !== ''){
                         Visualforce.remoting.Manager.invokeAction(
                             '{!$RemoteAction.OneDriveSuccessController.gettoken}',
