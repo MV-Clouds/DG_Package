@@ -43,8 +43,8 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 
 
     global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
-        for (ContentVersion cv: scope) {
-            try {
+        try {
+            for (ContentVersion cv: scope) {
                 String fileName = cv.Title;
                 googleFileName = cv.Title+'.'+cv.fileExtension;
                 String acctoken = getToken(activity);
@@ -69,15 +69,15 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                         uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
                     }
                 }
-            } catch (System.LimitException e) {
-                Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'execute batch', activity);
-                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
-                obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
-                obj.Id = activity; 
-                update as user obj;
-                emailUser('File size too large. Try uploading file with smaller size.\n\n Or Download it and then upload file manually.');
-                System.debug('Error during Google file upload: heap size issue' + e.getMessage());
             }
+        } catch (System.LimitException e) {
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'execute batch', activity);
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+            obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
+            obj.Id = activity; 
+            update as user obj;
+            emailUser('File size too large. Try uploading file with smaller size.\n\n Or Download it and then upload file manually.');
+            System.debug('Error during Google file upload: heap size issue' + e.getMessage());
         }
     }
 
