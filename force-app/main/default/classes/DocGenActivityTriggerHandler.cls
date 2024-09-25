@@ -73,7 +73,7 @@ public with sharing class DocGenActivityTriggerHandler {
             emailBody += '<p>Dear ' + UserInfo.getName() + ',</p>';
             emailBody += '<p>Your Document Generation process has been completed.</p>';
 
-            emailBody += '<p>This email is sent to you to inform you about the results of the document generation process for the <strong>' +templates[0].MVDG__Template_Name__c+ '</strong> related to the <strong>' +templates[0].MVDG__Object_API_Name__c+ '</strong> source object.</p>';
+            emailBody += '<p>Here is a quick review of document generation process for <strong>' +templates[0].MVDG__Template_Name__c+ '</strong> template.</p>';
             emailBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
             emailBody += '<tr>';
             emailBody += '<th style="background-color:#00aeffaa" colspan="2"><strong>Template Details</strong></th>';
@@ -103,7 +103,7 @@ public with sharing class DocGenActivityTriggerHandler {
             // Success section
             emailBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
             emailBody += '<tr>';
-            emailBody += '<th style="background-color:#00aeffaa" colspan="3"><strong>Generation Results</strong></th>';
+            emailBody += '<th style="background-color:#00aeffaa" colspan="3"><strong>Document Status</strong></th>';
             emailBody += '</tr>';
             emailBody += '<tr>';
             emailBody += '<th bgcolor="#d5ebff"><strong>Option</strong></th>';
@@ -130,7 +130,7 @@ public with sharing class DocGenActivityTriggerHandler {
                 }
             }
             emailBody += '</table>';
-            emailBody += '<p>Visit <a href="https://mvclouds.com/docgenius/faqs/">our FAQs page</a> for any queries.</p>';
+            emailBody += '<p>In case of any questions or queries, please visit <a href="https://mvclouds.com/docgenius/faqs/">our FAQs page</a> for quick resolution.</p>';
             emailBody += '<p>Regards,</p>';
             emailBody += '<p style="line-height: 0;">Team DocGenius</p>';
             emailBody += '<img width="150" alt="DocGenius-Logo" src="'+ logoUrl +'" >';
