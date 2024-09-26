@@ -20,9 +20,14 @@ public with sharing class GenerateDocumentControllerTest {
         insert templateInactive;
 
         MVDG__Generate_Document_Activity__c gda = new MVDG__Generate_Document_Activity__c();
-        gda.MVDG__DocGenius_Template__c = templateActive.Id;
+        gda.MVDG__DocGenius_Template__c = templateInactive.Id;
         gda.MVDG__Selected_Channels__c = 'chatter,Files';
         insert gda;
+
+        Account a = new Account(
+            Name = 'Test Account'
+        );
+        insert a;
     }
 
     @isTest
@@ -49,10 +54,7 @@ public with sharing class GenerateDocumentControllerTest {
             );
             insert cv2;
 
-            Account a = new Account(
-                Name = 'Test Account'
-            );
-            insert a;
+            Account a = [SELECT Id from Account LIMIT 1];
 
             MVDG__Generate_Document_Activity__c gda = [SELECT Id FROM MVDG__Generate_Document_Activity__c LIMIT 1];
 
@@ -170,8 +172,10 @@ public with sharing class GenerateDocumentControllerTest {
     @isTest
     static void testUpsertActivity(){
         MVDG__Generate_Document_Activity__c gda = [SELECT Id FROM MVDG__Generate_Document_Activity__c LIMIT 1];
+        Account a = [SELECT Id from Account LIMIT 1];
         gda.MVDG__Chatter__c = 'success';
         gda.MVDG__Files__c = 'some random error';
+        gda.MVDG__Related_Record_Id__c = a.Id;
         Test.startTest();
         GenerateDocumentController.upsertActivity(gda);
         Test.stopTest();
