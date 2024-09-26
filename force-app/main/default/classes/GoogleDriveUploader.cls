@@ -71,16 +71,10 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                     if (fileSize < maxSize) { // 5 MB threshold
                         System.debug('Uploading small file directly to googledrive');
                         Boolean result = uploadToGoogleDrive(cv, fileName, fileDetails);
-                        if (!result) {
-                            break;
-                        }
 
                     } else {
                         System.debug('Uploading large file in chunks to googledrive');
                         Boolean result = uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
-                        if (!result) {
-                            break;
-                        }
                     }
                 }
         } catch (System.LimitException e) {
