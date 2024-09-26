@@ -26,7 +26,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     @track headerData = '';                         // To store template header data.
 
     @track templateRecord = {}                      // Store template record field data,
-    @track tempRecordBackup = {}                    // for backup to revert template data on cancel click,
+    @track tempRecordSaved = {}                    // for backup to revert template data on cancel click,
 
     @track vfPageSRC = ''                           // DocGenerate VF page src to generate preview or file,
 
@@ -45,7 +45,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     noTemplateFound = false;                        // To check weather template available for not
 
     editorDataChanges = false;                      // To identify any editor data change or not
+
     @track doneButtonLabel = 'Okay';
+    @track spinnerFor = null                        // To define spinner is running for which action
 
     /**
      * variable to store page configuration to display on UI, used in HTML
@@ -94,6 +96,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
      * Used to store value fetched from MVDG__Template_Page__c record.
      */
     @track pageConfigRecord = {};
+    @track popConfigDiscard = {};       // Used when user discard page configuration from page config popup
+    @track pageConfigSaved = {};     // Used to restore last saved page configs
     currentPageWidth = 792;             // in PX...
     currentPageHeight = 1120;           // in PX...
 
@@ -306,13 +310,13 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     // console.log(' get result size : ' , new Blob([JSON.stringify(result)]).size / 1000000, ' mb');
                     this.templateRecord = result.template;
                     this.templateRecord.createDateOnly = this.templateRecord.CreatedDate.split("T")[0];
-                    this.tempRecordBackup = JSON.parse(JSON.stringify(this.templateRecord));
+                    this.tempRecordSaved = JSON.parse(JSON.stringify(this.templateRecord));
                     this.bodyData = '';
                     this.headerData = '';
                     this.footerData = '';
                     let watermarkData = ''
                     this.pageConfigRecord = result.pageConfigs;
-                    this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
+                    this.pageConfigSaved = JSON.parse(JSON.stringify(this.pageConfigRecord));
 
                     // Collect Value in Single variable...
                     result.template.MVDG__Template_Data__r?.forEach(ele => {
@@ -508,8 +512,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 if(result){
                     completedProcess++;
                     this.handleOngoingAction(actionName, completedProcess, totalProcesses);
-                    this.tempRecordBackup = JSON.parse(JSON.stringify(this.templateRecord));
-                    this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
+                    this.tempRecordSaved = JSON.parse(JSON.stringify(this.templateRecord));
+                    this.pageConfigSaved = JSON.parse(JSON.stringify(this.pageConfigRecord));
                 }
                 else{
                     completedProcess++;
@@ -537,7 +541,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     else{
                         completedProcess++;
                         this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
-                        errorDebugger('TemplateBuilder', 'saveTemplateValue', result, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
+                        errorDebugger('TemplateBuilder', 'saveTemplateValue', {'message' : result.returnMessage}, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                     }
                 })
                 .catch((error) => {
@@ -557,18 +561,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
             if(!this.isSpinner){
+                this.spinnerFor = actionName;
                 if(actionName == 'save'){
                     this.loaderLabel = 'Data Saved Successfully...'
                 }
                 else if(actionName == 'preview'){
+                    // Spinner is running for preview; 
+                    // On the spinner close, dispatch event will run, that will make variable true to open preview modal
                     this.loaderLabel = 'Opening Preview...'
-
-                    // for the custom solution of settimeout...
-                    this.template.querySelector(`[data-name="custom_timeout"]`).classList.add('dummyAnimation');
-                    // To not confect with loader...
-                    // setTimeout(() =>{
-                    // }, 500)
-                    this.isPreview = true;
                 }
             }
         } catch (error) {
@@ -601,8 +601,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     }
 
     cancelEditTemplate(){
-        this.templateRecord = JSON.parse(JSON.stringify(this.tempRecordBackup));
-        this.pageConfigRecord = JSON.parse(JSON.stringify(this.pageConfigRecBackup));
+        this.templateRecord = JSON.parse(JSON.stringify(this.tempRecordSaved));
+        this.pageConfigRecord = JSON.parse(JSON.stringify(this.pageConfigSaved));
         
         this.setPageConfigVariable();
         this.currentTab = 'contentTab';
@@ -1157,14 +1157,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 const basicDetails_sub = this.template.querySelector('.basicDetails_sub');
                 basicDetails_sub.appendChild(pageConfigs);
             }
+            this.popConfigDiscard = JSON.parse(JSON.stringify(this.pageConfigRecord));
         } catch (error) {
             errorDebugger('TemplateBuilder', 'togglePageConfigPopover', error, 'warn');
         }
     }
     // === ==== ==== ==== ==== Method called from EditorConfig JS -- END --  === ==== ==== ==== ==== ====
 
-    cancelPageConfig(){
-        this.pageConfigRecord = JSON.parse(JSON.stringify(this.pageConfigRecBackup));
+    discardPageConfig(){
+        this.pageConfigRecord = JSON.parse(JSON.stringify(this.popConfigDiscard));
         this.setPageConfigVariable();
         this.togglePageConfigPopover();
     }
@@ -1447,7 +1448,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     customTimeoutMethod = (event) =>{
         event.target.classList.remove('dummyAnimation');
-        this.isPreview = true;
+        // this.isPreview = true;
     }
 
     handleMsgPopConfirmation(event){
@@ -1477,6 +1478,18 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleMsgPopConfirmation', error, 'warn');
+        }
+    }
+
+
+    handleSpinnerClose(){
+        try {
+            if(this.spinnerFor == 'preview'){
+                this.isPreview = true;
+                this.spinnerFor = null;
+            }
+        } catch (error) {
+            errorDebugger('TemplateBuilder', 'handleSpinnerClose', error, 'warn');
         }
     }
 

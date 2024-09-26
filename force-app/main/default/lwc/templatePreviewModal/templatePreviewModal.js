@@ -1,7 +1,7 @@
 import { LightningElement, api, track } from "lwc";
 import previewModalImg from "@salesforce/resourceUrl/previewModal_img";
 import getObjectNameField from '@salesforce/apex/TemplateBuilder_Controller.getObjectNameField';
-
+import { errorDebugger } from "c/globalProperties";
 export default class TemplatePreviewModal extends LightningElement {
 
     @api templateid;
@@ -76,8 +76,9 @@ export default class TemplatePreviewModal extends LightningElement {
        return `Select ${this.objectLabel} Record To Dispay Data on Template.`;
     }
 
+    _disableRecordPicker = false;
     get disableRecordPicker(){
-        return this.recordId ? true : false;
+        return !this.recordId || this._disableRecordPicker;
     }
 
     get disablePreviewBtn(){
@@ -130,7 +131,7 @@ export default class TemplatePreviewModal extends LightningElement {
             // this.vfPageMessageHandler();
 
         } catch (error) {
-            console.warn('error in TemplatePreviewModal > connectedCallback', error.message);
+            errorDebugger('TemplatePreviewModal', 'connectedCallback', error, warn);
         }
     }
 
@@ -143,12 +144,12 @@ export default class TemplatePreviewModal extends LightningElement {
                 this.selectedRecordId = null;
             }
         } catch (error) {
-            console.warn('error in TemplatePreviewModal > onRecordSelect', error.message);
+            errorDebugger('TemplatePreviewModal', 'onRecordSelect', error, warn);
         }
     }
 
     handleRecordPickerError(event){
-        console.warn('handleRecordPickerError : ', event.detail);
+        errorDebugger('TemplatePreviewModal', 'handleRecordPickerError', {'message' : event.detail}, warn);
     }
 
     generatePreview(){
@@ -203,7 +204,7 @@ export default class TemplatePreviewModal extends LightningElement {
                         this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod(() => {
                             this.updateSpinnerLabel('We are Almost There... Please wait a while...')
                         }, 4000);
-                    }, 400);
+                    }, 1000);
                 }
             }
             else if(this.templateType === 'Google Doc Template'){
@@ -217,21 +218,17 @@ export default class TemplatePreviewModal extends LightningElement {
                 // }, 300);
             }
         } catch (error) {
-            console.warn('error in TemplatePreviewModal > previewData', error.message);
+            errorDebugger('TemplatePreviewModal', 'previewData', error, warn);
         }
     }
 
     generateGoogleDocPreview(){
-        this.template.querySelector('c-preview-google-document').previewDocument();
+        this.template.querySelector('c-preview-google-document')?.previewDocument();
     }
 
     contentLoaded(){
-        try {
-            this.isSpinner = false;
-            this.spinnerLabel = 'Ready to Preview...';
-        } catch (error) {
-            console.warn('error in TemplatePreviewModal > contentLoaded', error.message);
-        }
+        this.isSpinner = false;
+        this.spinnerLabel = 'Ready to Preview...';
     }
   
     fileDownloaded(){
@@ -239,35 +236,31 @@ export default class TemplatePreviewModal extends LightningElement {
     }
 
     updateSpinnerLabel(labelToUpdate){
-        if(this.isSpinner && this.spinnerLabel !== 'Your Document took a little long... Thank you for your patience...'){
-            this.spinnerLabel = labelToUpdate;
-
-            // setTimeout(() => {
-            //     this.updateSpinnerLabel('Your Document took a little long... Thank you for your patience...')
-            // }, 5000)
-
-            this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod(() => {
-                this.updateSpinnerLabel('Your Document took a little long... Thank you for your patience...')
-            }, 5000);
+        try {
+            if(this.isSpinner && this.spinnerLabel !== 'Your Document took a little long... Thank you for your patience...'){
+                this.spinnerLabel = labelToUpdate;
+    
+                // setTimeout(() => {
+                //     this.updateSpinnerLabel('Your Document took a little long... Thank you for your patience...')
+                // }, 5000)
+    
+                this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod(() => {
+                    this.updateSpinnerLabel('Your Document took a little long... Thank you for your patience...')
+                }, 5000);
+            }
+        } catch (error) {
+            errorDebugger('TemplatePreviewModal', 'updateSpinnerLabel', error, warn);
         }
     }
 
     @track isGenerate = false;
     generateDocument(){
-        try {
-            this.isGenerate = true;
-        } catch (error) {
-            console.warn('error in TemplatePreviewModal > generateDocument : ', error.message);
-        }
+        this.isGenerate = true;
     }
 
     closeTemplatePreview(){
-        try {
-            this.showPreview = true;
-            this.dispatchEvent(new CustomEvent('closepreview'));
-        } catch (error) {
-            console.warn('error in TemplatePreviewModal > closeTemplatePreview', error.message);
-        }
+        this.showPreview = true;
+        this.dispatchEvent(new CustomEvent('closepreview'));
     }
 
     closeGenerate(){

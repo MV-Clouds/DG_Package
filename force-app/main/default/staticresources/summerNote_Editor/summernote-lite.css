@@ -1912,11 +1912,13 @@ a.note-dropdown-item:hover {
                 margin-inline: auto;
             }
             .headerEditor.note-editor.note-frame .note-placeholder{
-                padding-top: var(--headerMarginsTop);
+                --max-top-padding: min(var(--headerMarginsTop), calc((var(--pageHeight) * 0.4) - 1rem));
+                padding-top: var(--max-top-padding);
             }
             .footerEditor.note-editor.note-frame .note-placeholder{
                 padding-top: 0;
-                padding-bottom: var(--footerMarginsBottom);
+                --max-top-bottom: min(var(--footerMarginsBottom), calc((var(--pageHeight) * 0.4) - 1rem));
+                padding-bottom: var(--max-top-bottom);
                 height: 0;
                 align-content: flex-end;
             }
@@ -1957,12 +1959,20 @@ a.note-dropdown-item:hover {
                 overflow: hidden;
             }
             .headerEditor.note-editor.note-frame .note-editing-area .note-editable{
-                min-height: max(var(--pageMarginTop), 2rem);
+                /* Header height should be larger than 40% of page height */
+                --max-height-header: min(var(--pageMarginTop), calc(var(--pageHeight) * 0.4));
+                min-height: max(var(--max-height-header), 2rem);
+
                 padding-top: var(--headerMarginsTop);
+                padding-bottom: unset;
             }
-            .footerEditor.note-editor.note-frame .note-editing-area .note-editable{                
-                min-height: max(var(--pageMarginBottom), 2rem);
+            .footerEditor.note-editor.note-frame .note-editing-area .note-editable{    
+                /* Footer height should be larger than 40% of page height */
+                --max-height-footer: min(var(--pageMarginBottom), calc(var(--pageHeight) * 0.4));
+                min-height: max(var(--max-height-footer), 2rem);
+
                 padding-bottom: var(--footerMarginsBottom);
+                padding-top: unset;
                 /* display: flex;
                 flex-direction: column;
                 justify-content: flex-end; */

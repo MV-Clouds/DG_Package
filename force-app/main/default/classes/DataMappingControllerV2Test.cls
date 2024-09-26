@@ -1,24 +1,4 @@
-/**
- * This class contains unit tests for validating the behavior of Apex classes
- * and triggers.
- *
- * Unit tests are class methods that verify whether a particular piece
- * of code is working properly. Unit test methods take no arguments,
- * commit no data to the database, and are flagged with the testMethod
- * keyword in the method definition.
- *
- * All test methods in an org are executed whenever Apex code is deployed
- * to a production org to confirm correctness, ensure code
- * coverage, and prevent regressions. All Apex classes are
- * required to have at least 75% code coverage in order to be deployed
- * to a production org. In addition, all triggers must have some code coverage.
- * 
- * The @isTest class annotation indicates this class only contains test
- * methods. Classes defined with the @isTest annotation do not count against
- * the org size limit for all Apex scripts.
- *
- * See the Apex Language Reference for more information about Testing and Code Coverage.
- */
+
 @isTest
 private class DataMappingControllerV2Test {
 
@@ -33,8 +13,10 @@ private class DataMappingControllerV2Test {
         String accountId = createAccountRecord().Id;
 
         Test.startTest();
-        DataMappingControllerV2.getMappingsKeyValues(tempIds, accountId, true);
+        map<String, Map<String, String>> returnValue = DataMappingControllerV2.getMappingsKeyValues(tempIds, accountId, true);
         Test.stopTest();
+
+        System.assertEquals(5, returnValue.size());
     }
 
     @isTest 
@@ -47,9 +29,10 @@ private class DataMappingControllerV2Test {
         String accountId = createAccountRecord().Id;
         
         Test.startTest();
-        DataMappingControllerV2.getMappingsKeyValues(tempIds, accountId, true);
+        map<String, Map<String, String>> returnValue =  DataMappingControllerV2.getMappingsKeyValues(tempIds, accountId, true);
         Test.stopTest();
 
+        System.assertEquals(5, returnValue.size());
     }
     
 
@@ -198,7 +181,7 @@ private class DataMappingControllerV2Test {
         String orgDomain = URL.getOrgDomainURL().toExternalForm();
         String orgHost = orgDomain.substringBefore('.');
 
-        String templateValue ='<p>{{#Id}}&nbsp;{{#Name}}&nbsp;{{Doc.Date.date}}&nbsp;{{Doc.User.AboutMe}}&nbsp;{{Doc.Org.City}}&nbsp;{{#CreatedBy.Username}}</p><p>{{#Name *L:20*}}&nbsp;{{#CreatedDate *dd/MM/yyyy HH:mm:ss*}}&nbsp;{{#IsDeleted *yes/no*}}&nbsp;{{#NumberOfEmployees *F:yes,*}}</p><table data-name="childRecords"><tbody class="" lwc-1tbjdqlnk30=""><tr><td style="overflow: hidden; text-align: center;">No.</td><td style="overflow: hidden; text-align: center;">Account ID</td><td style="overflow: hidden; text-align: center;">Created Date</td><td style="overflow: hidden; text-align: center;">Last Modified Date</td></tr><tr data-name="keyRow"><td style="overflow: hidden; text-align: center;">{{No.Index}}</td><td style="overflow: hidden; text-align: center;">{{!AccountId}}</td><td style="overflow: hidden; text-align: center;">{{!CreatedDate}}</td><td style="overflow: hidden; text-align: center;">{{!LastModifiedDate}}</td></tr><tr data-name="infoRow"><td colspan="4" style="position: relative; text-align: center; overflow: hidden; border-color: rgb(203, 203, 203) !important; color: rgb(76, 76, 76) !important;">Object: Contact,<br>$objApi:Contact$, $childRelation:Contacts$, $limit:12$, , $filter: IsDeleted = false  ORDER BY AccountId ASC $<br></td></tr></tbody></table>';
+        String templateValue ='<p>{{#Id}}&nbsp;{{#Name}}&nbsp;{{Doc.Date.date}}&nbsp;{{Doc.User.AboutMe}}&nbsp;{{Doc.Org.City}}&nbsp;{{#CreatedBy.Username}}</p><p>{{#Name *L:20*}}&nbsp;{{#CreatedDate *dd/MM/yyyy HH:mm:ss*}}&nbsp;{{#IsDeleted *yes/no*}}&nbsp;{{#NumberOfEmployees *F:yes,*}}</p><table data-name="childRecords"><tbody class="" lwc-1tbjdqlnk30=""><tr><td style="overflow: hidden; text-align: center;">No.</td><td style="overflow: hidden; text-align: center;">Account ID</td><td style="overflow: hidden; text-align: center;">Created Date</td><td style="overflow: hidden; text-align: center;">Last Modified Date</td></tr><tr data-name="keyRow"><td style="overflow: hidden; text-align: center;">{{No.Index}}</td><td style="overflow: hidden; text-align: center;">{{!AccountId}}</td><td style="overflow: hidden; text-align: center;">{{!CreatedDate}}</td><td style="overflow: hidden; text-align: center;">{{!LastModifiedDate}}</td></tr><tr data-name="infoRow"><td colspan="4" style="position: relative; text-align: center; overflow: hidden; border-color: rgb(203, 203, 203) !important; color: rgb(76, 76, 76) !important;">Object: Contact,<br>$objApi:Contact$, $childRelation:Contacts$, $limit:12$, , $filter: WHERE IsDeleted = false  ORDER BY AccountId ASC $<br></td></tr></tbody></table>';
         templateValue += '{{Doc.Temp.'+mergeTempId+' *test merge temp*'+'}}';
         templateValue += '{{Doc.Temp.'+inActiveMergeTempId+' *test merge temp*'+'}}';
         templateValue += '{{Doc.Temp.'+csvMergeTempId+' *test merge temp*'+'}}';
@@ -207,7 +190,7 @@ private class DataMappingControllerV2Test {
     }
 
     public static string extractedKey(){
-        String key = '{\"objectFields\":[\"{{#Id}}\",\"{{#Name}}\",\"{{#CreatedBy.Username}}\",\"{{#Name *L:20*}}\",\"{{#CreatedDate *dd/MM/yyyy HH:mm:ss*}}\",\"{{#IsDeleted *yes/no*}}\",\"{{#NumberOfEmployees *F:yes,*}}\"],\"generalFields\":[\"{{Doc.Date.date}}\",\"{{Doc.User.AboutMe}}\",\"{{Doc.Org.City}}\"],\"mergeTempKeys\":[\"{{Temp.a09H3000000O5RbIAK *Demo temp*}}\"],\"childRecordTables\":[{\"tableHTML\":\"<table data-name=\\\"childRecords\\\"><tbody class=\\\"\\\"><tr><td style=\\\"overflow: hidden; text-align: center;\\\">No.</td><td style=\\\"overflow: hidden; text-align: center;\\\">Account ID</td><td style=\\\"overflow: hidden; text-align: center;\\\">Created Date</td><td style=\\\"overflow: hidden; text-align: center;\\\">Last Modified Date</td></tr><tr data-name=\\\"keyRow\\\"><td style=\\\"overflow: hidden; text-align: center;\\\">{{No.Index}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!AccountId}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!CreatedDate}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!LastModifiedDate}}</td></tr><tr data-name=\\\"infoRow\\\"><td colspan=\\\"4\\\" style=\\\"position: relative; text-align: center; overflow: hidden; border-color: rgb(203, 203, 203) !important; color: rgb(76, 76, 76) !important;\\\">Object: Contact,<br>$objApi:Contact$, $childRelation:Contacts$, $limit:12$, , $filter: IsDeleted = false  ORDER BY AccountId ASC $<br></td></tr></tbody></table>\",\"keyRow\":\"<tr data-name=\\\"keyRow\\\"><td style=\\\"overflow: hidden; text-align: center;\\\">{{No.Index}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!AccountId}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!CreatedDate}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!LastModifiedDate}}</td></tr>\",\"infoRow\":\"<tr data-name=\\\"infoRow\\\"><td colspan=\\\"4\\\" style=\\\"position: relative; text-align: center; overflow: hidden; border-color: rgb(203, 203, 203) !important; color: rgb(76, 76, 76) !important;\\\">Object: Contact,<br>$objApi:Contact$, $childRelation:Contacts$, $limit:12$, , $filter: IsDeleted = false  ORDER BY AccountId ASC $<br></td></tr>\",\"mappingFields\":[\"{{!AccountId}}\",\"{{!CreatedDate}}\",\"{{!LastModifiedDate}}\"]}],\"signatureKeys\":[\"{{Sign.DocGenius *Signature Key*}}\"],\"salesforceImages\":[\"https://sanrafael-module-4006-dev-ed.scratch.file.force.com/sfc/dist/version/download/?oid=00DH300000017YT&ids=068H30000005jnn&d=%2Fa%2FH3000000L2eg%2FjTUXdIXBeYL1pXuV21e5ks7HNe9148cT5ERU4e1yahw&asPdf=false\"]}';
+        String key = '{\"objectFields\":[\"{{#Id}}\",\"{{#Name}}\",\"{{#CreatedBy.Username}}\",\"{{#Name *L:20*}}\",\"{{#CreatedDate *dd/MM/yyyy HH:mm:ss*}}\",\"{{#IsDeleted *yes/no*}}\",\"{{#NumberOfEmployees *F:yes,*}}\"],\"generalFields\":[\"{{Doc.Date.date}}\",\"{{Doc.User.AboutMe}}\",\"{{Doc.Org.City}}\"],\"mergeTempKeys\":[\"{{Temp.a09H3000000O5RbIAK *Demo temp*}}\"],\"childRecordTables\":[{\"tableHTML\":\"<table data-name=\\\"childRecords\\\"><tbody class=\\\"\\\"><tr><td style=\\\"overflow: hidden; text-align: center;\\\">No.</td><td style=\\\"overflow: hidden; text-align: center;\\\">Account ID</td><td style=\\\"overflow: hidden; text-align: center;\\\">Created Date</td><td style=\\\"overflow: hidden; text-align: center;\\\">Last Modified Date</td></tr><tr data-name=\\\"keyRow\\\"><td style=\\\"overflow: hidden; text-align: center;\\\">{{No.Index}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!AccountId}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!CreatedDate}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!LastModifiedDate}}</td></tr><tr data-name=\\\"infoRow\\\"><td colspan=\\\"4\\\" style=\\\"position: relative; text-align: center; overflow: hidden; border-color: rgb(203, 203, 203) !important; color: rgb(76, 76, 76) !important;\\\">Object: Contact,<br>$objApi:Contact$, $childRelation:Contacts$, $limit:12$, , $filter: WHERE IsDeleted = false  ORDER BY AccountId ASC $<br></td></tr></tbody></table>\",\"keyRow\":\"<tr data-name=\\\"keyRow\\\"><td style=\\\"overflow: hidden; text-align: center;\\\">{{No.Index}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!AccountId}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!CreatedDate}}</td><td style=\\\"overflow: hidden; text-align: center;\\\">{{!LastModifiedDate}}</td></tr>\",\"infoRow\":\"<tr data-name=\\\"infoRow\\\"><td colspan=\\\"4\\\" style=\\\"position: relative; text-align: center; overflow: hidden; border-color: rgb(203, 203, 203) !important; color: rgb(76, 76, 76) !important;\\\">Object: Contact,<br>$objApi:Contact$, $childRelation:Contacts$, $limit:12$, , $filter: WHERE IsDeleted = false  ORDER BY AccountId ASC $<br></td></tr>\",\"mappingFields\":[\"{{!AccountId}}\",\"{{!CreatedDate}}\",\"{{!LastModifiedDate}}\"]}],\"signatureKeys\":[\"{{Sign.DocGenius *Signature Key*}}\"],\"salesforceImages\":[\"https://sanrafael-module-4006-dev-ed.scratch.file.force.com/sfc/dist/version/download/?oid=00DH300000017YT&ids=068H30000005jnn&d=%2Fa%2FH3000000L2eg%2FjTUXdIXBeYL1pXuV21e5ks7HNe9148cT5ERU4e1yahw&asPdf=false\"]}';
         return key;
     }
 }
