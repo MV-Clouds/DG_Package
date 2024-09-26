@@ -76,14 +76,14 @@ public with sharing class OneDriveAuthorizationController {
                     settings.MVDG__access_token4__c = newtoken5;
                 }
                 settings.MVDG__WorkingStatus__c = true;
-                Update settings;
+                update as user settings;
                 return true;
         }
         else {
             Response_Handler.store_Callout_Response(response1, 'OneDriveAuthorizationController', 'getToken');
             System.debug('No token generated');
             settings.MVDG__WorkingStatus__c = false;
-            Update settings;
+            update as user settings;
             return false;
         }
     }
@@ -107,7 +107,50 @@ public with sharing class OneDriveAuthorizationController {
                 settings.MVDG__refresh_token__c = '';
                 settings.MVDG__refresh_token1__c = '';
                 settings.MVDG__email__c = '';
-                upsert settings;
+                if (Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__ClientId__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__ClientSecret__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__LinkedDate__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__email__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token1__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__ClientId__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__ClientSecret__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__LinkedDate__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__email__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token1__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__ClientId__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__ClientSecret__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__LinkedDate__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__email__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token1__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()) {
+                    upsert settings;
+                    }
+                    else{
+                        return false;
+                    }
                 return true;
             }
             return false;
@@ -179,7 +222,7 @@ public with sharing class OneDriveAuthorizationController {
             settings.MVDG__ClientId__c = clientId;
             settings.MVDG__ClientSecret__c = clientSecret;
             String durl = authcode(clientId, clientSecret);
-            upsert settings;
+            upsert as user settings;
             System.debug(durl);
             return durl;
         } catch (Exception e) {

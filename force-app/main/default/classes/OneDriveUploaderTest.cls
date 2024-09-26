@@ -139,6 +139,8 @@ public class OneDriveUploaderTest {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockErrorHttpResponseToken());
         result = OneDriveUploader.getToken(act[0].Id);
+        System.assertEquals(null, result, 'The result is null');
+        Test.stopTest();
     }
 
     public class MockHttpResponseToken implements HttpCalloutMock {
