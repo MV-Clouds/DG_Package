@@ -133,9 +133,6 @@ public with sharing class EditCSVTemplateController {
                 Id = configData.get('templateId'),
                 MVDG__List_View__c = configData.get('listView')
             );
-            if(!Schema.sObjectType.MVDG__Template__c.isUpdateable()){
-                throw new AuraHandledException('You can not update the object Template.');
-            }
             update as User template;
 
             MVDG__Template_Data__c td = new MVDG__Template_Data__c();
@@ -151,10 +148,7 @@ public with sharing class EditCSVTemplateController {
             if(existingData.size() > 0){
                 td.Id = existingData[0].Id;
             }
-
-            if(Schema.sObjectType.MVDG__Template_Data__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable()){
-                upsert as User td;
-            }
+            upsert as User td;
             return 'success';
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'saveTemplateFields');
@@ -179,9 +173,6 @@ public with sharing class EditCSVTemplateController {
                 MVDG__Template_Status__c = Boolean.valueOf(templateInfo.get('templateStatus')),
                 MVDG__List_View__c = templateInfo.get('listView')
             );
-            if(!Schema.sObjectType.MVDG__Template__c.isUpdateable()){
-                throw new AuraHandledException('you can not update the template object.');
-            }
             update as User updatedTemplate;
             return 'success';
         }catch(Exception e){

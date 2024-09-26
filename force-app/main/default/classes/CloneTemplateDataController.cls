@@ -115,18 +115,21 @@ public with sharing class CloneTemplateDataController {
              
             field.tempId = cloneTemp.Id;
             field.tempObj = cloneTemp.MVDG__Object_API_Name__c;
+            field.isSuccess = true;
 
         } catch (Exception e) {
             System.debug('Exception'+e);
             System.debug('Exception occurred at line: ' + e.getLineNumber());
             System.debug('Exception Type: ' + e.getTypeName());
+            field.isSuccess = false;
         }
         return field;
     }
 
     public class NewTemplateData{
-        @AuraEnabled public String tempId{get; set;}
-        @AuraEnabled public String tempObj{get; set;}
+        @AuraEnabled public String tempId;
+        @AuraEnabled public String tempObj;
+        @AuraEnabled public Boolean isSuccess;
     }
 
 }

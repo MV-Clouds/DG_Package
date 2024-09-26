@@ -860,6 +860,10 @@ svg:not(.bottom-btn svg){
     margin: 0.5rem;
 }
 
+.select-template-option:not(:has(.edit )) .name{
+    width: 38%;
+}
+
 .select-template-option .active-status {
     background: #a3e2ff;
 }

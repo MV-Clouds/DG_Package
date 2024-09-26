@@ -541,7 +541,7 @@
     </div>
     <div class="preview-csv-div" if:true={showPreview}>
         <div class="slds-backdrop slds-backdrop_open"></div>
-        <c-preview-c-s-v is-popup="true" template-id={templateId} object-name={objectName} onclose={closePreview}></c-preview-c-s-v>
+        <c-preview-c-s-v is-popup="true" preview-from-editor="true" template-id={templateId} object-name={objectName} onclose={closePreview}></c-preview-c-s-v>
     </div>
 
     <c-chat-bot></c-chat-bot>

@@ -20,12 +20,14 @@ public with sharing class GenerateDocumentController {
         CombinedDataWrapper combinedData = new CombinedDataWrapper();
         try {
             List<EmailTemplate> emailTemplates = new List<EmailTemplate>();
-            emailTemplates = [SELECT Id, Name, Subject, HtmlValue FROM EmailTemplate WITH SECURITY_ENFORCED];
+            emailTemplates = [SELECT Id, Name, Subject, HtmlValue FROM EmailTemplate WHERE IsActive = true WITH SECURITY_ENFORCED];
             combinedData.emailTemplates = emailTemplates;
             combinedData.folderWrapper = getFolders();
             combinedData.integrationWrapper = getIntegrationStatus();
             combinedData.templates = fetchTemplates(objName);
-            combinedData.isSuccess = combinedData.folderWrapper != null && combinedData.integrationWrapper != null && combinedData.templates != null ? true : false;
+            Integer countOfPermission = [SELECT Count() FROM PermissionSetAssignment WHERE PermissionSet.Name IN ('DocGenius_Standard_Permissions', 'DocGenius_Admin_Permissions') AND AssigneeId =:userInfo.getUserId() WITH SECURITY_ENFORCED];
+            combinedData.isEditorAccess = countOfPermission > 0 ? true : false;
+            combinedData.isSuccess = combinedData.folderWrapper != null && combinedData.integrationWrapper != null && combinedData.templates != null && combinedData.isEditorAccess != null ? true : false;
             System.debug('Combined Data::'+ combinedData);
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'fetchCombinedData');
@@ -134,9 +136,7 @@ public with sharing class GenerateDocumentController {
             }
             cdl.LinkedEntityId = recordId;
             cdl.Sharetype = 'V';
-            if(Schema.sObjectType.ContentDocumentLink.isCreateable()){
-                insert as User cdl;
-            }
+            insert as User cdl;
             return 'success';
         }catch (Exception e) {
             System.debug('Error in storeInFiles =>' + e.getMessage());
@@ -168,9 +168,7 @@ public with sharing class GenerateDocumentController {
             }
             feed.RelatedRecordId = contentVersionId;
             feed.Body = body;
-            if(Schema.sObjectType.FeedItem.isCreateable()){
-                insert as User feed;
-            }
+            insert as User feed;
             return 'success';
         }catch (Exception e) {
             System.debug('Error in postToChatter =>' + e.getMessage());
@@ -254,12 +252,9 @@ public with sharing class GenerateDocumentController {
     public static String upsertActivity(MVDG__Generate_Document_Activity__c activity){
         try{
             if(activity != null){
-                if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.isCreateable() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.isUpdateable()){
-                    activity.MVDG__Initiated_By__c = UserInfo.getUserId();
-                    upsert as User activity;
-                    return activity.Id;
-                }
-                return null;
+                activity.MVDG__Initiated_By__c = UserInfo.getUserId();
+                upsert as User activity;
+                return activity.Id;
             }
             return null;
         }catch(Exception e){
@@ -356,11 +351,12 @@ public with sharing class GenerateDocumentController {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
             if(templateId != null){
-                templates = [SELECT Id, MVDG__Template_Name__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+                templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Status__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
             }
             if(templates.size() > 0){
                 ddw.templateId = templates[0].Id;
                 ddw.templateName = templates[0].MVDG__Template_Name__c;
+                ddw.templateStatus = templates[0].MVDG__Template_Status__c;
                 ddw.buttonLabel = templates[0].MVDG__Button_Label__c;
                 ddw.buttonName = templates[0].MVDG__Button_Api_Name__c;
                 ddw.docType = templates[0].MVDG__Document_Type__c;
@@ -406,9 +402,7 @@ public with sharing class GenerateDocumentController {
                 MVDG__Email_Body__c  = defaultData.get('emailBody'),
                 MVDG__Email_Template__c = defaultData.get('emailTemplate')
             );
-            if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
-                update as User template;
-            }
+            update as User template;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'setDefaultOptions');
             system.debug('exception in setDefaultOptions : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
@@ -475,6 +469,7 @@ public with sharing class GenerateDocumentController {
 @description     : wrapper containing with default data for the template
 @param           : templateId {String} - Id of the template to update
 @param           : templateName {String} - name of the template
+@param           : templateStatus {Boolean} - Status of the template
 @param           : buttonLabel {String} - label of the Button for default creation
 @param           : buttonName {String} - Api Name of the Button for default creation
 @param           : docType {String} - Id of generated content version from API
@@ -491,6 +486,7 @@ public with sharing class GenerateDocumentController {
     public class DefaultDataWrapper{
         @AuraEnabled public String templateId;
         @AuraEnabled public String templateName;
+        @AuraEnabled public Boolean templateStatus;
         @AuraEnabled public String buttonLabel;
         @AuraEnabled public String buttonName;
         @AuraEnabled public String docType;
@@ -520,6 +516,7 @@ public with sharing class GenerateDocumentController {
         @AuraEnabled public List<FolderWrapper> folderWrapper;
         @AuraEnabled public List<MVDG__Template__c> templates;
         @AuraEnabled public List<EmailTemplate> emailTemplates;
+        @AuraEnabled public Boolean isEditorAccess;
         @AuraEnabled public Boolean isSuccess;
     }
 }

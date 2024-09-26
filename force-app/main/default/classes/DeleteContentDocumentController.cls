@@ -24,7 +24,7 @@ public with sharing class DeleteContentDocumentController implements Schedulable
             List<ContentDocument> contentDocuments = new List<ContentDocument>();
             contentDocuments = [SELECT id FROM ContentDocument WHERE LatestPublishedVersionId =: cvIDToDelete WITH SECURITY_ENFORCED];
             if(contentDocuments.size() > 0){
-                delete contentDocuments[0];
+                delete as user contentDocuments[0];
                 database.emptyRecycleBin(contentDocuments[0]); 
             }
         }catch(Exception e){
