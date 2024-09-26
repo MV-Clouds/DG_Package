@@ -98,6 +98,7 @@ public class ChatBotControllerTest {
 
         Test.startTest();
         ChatBotController.sendEmailWithAttachment(emailDetails);
+        System.assertEquals(1, Limits.getEmailInvocations());
         Test.stopTest();
 
         // Verify the email was sent (mocking email sending in real scenarios)
@@ -113,6 +114,7 @@ public class ChatBotControllerTest {
 
         Test.startTest();
         ChatBotController.sendFeedbackEmail(toAddress, key, feedback, chats);
+        System.assertEquals(1, Limits.getEmailInvocations());
         Test.stopTest();
 
         // Verify the email was sent (mocking email sending in real scenarios)

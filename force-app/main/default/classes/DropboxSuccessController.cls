@@ -68,7 +68,7 @@ public with sharing class DropboxSuccessController {
                         Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable() &&
                         Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() && 
                         Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__refresh_token__c.isCreateable()) {
-                        upsert settings;
+                        upsert as user settings;
                     } else {
                         return 'error';
                     }

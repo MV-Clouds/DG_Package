@@ -67,13 +67,13 @@ public with sharing class DropBoxAuthorizationController {
             jsonvalues = parseJSONToMap(res.getBody());
             settings.MVDG__access_token__c = jsonvalues.get('access_token');
             settings.MVDG__WorkingStatus__c = true;
-            Update settings;
+            Update as user settings;
             return true;
         }
         else{
             Response_Handler.store_Callout_Response(res, 'DropBoxAuthorizationController', 'verifyAuth');
             settings.MVDG__WorkingStatus__c = false;
-            Update settings;
+            Update as user settings;
             return false;
         }
     }
@@ -114,7 +114,7 @@ public with sharing class DropBoxAuthorizationController {
                 settings.MVDG__refresh_token__c = '';
                 settings.MVDG__access_token__c = '';
                 settings.MVDG__WorkingStatus__c = false;
-                upsert settings;
+                upsert as user settings;
                 return true;
             }
             return false;
@@ -140,7 +140,7 @@ public with sharing class DropBoxAuthorizationController {
             settings.MVDG__ClientSecret__c = clientSecret;
             String durl = authcode(clientId, clientSecret);
             System.debug('before upsert');
-            upsert settings;
+            upsert as user settings;
             System.debug(durl);
             return durl;
         }catch (Exception e) {

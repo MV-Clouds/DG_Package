@@ -83,7 +83,7 @@ public with sharing class AwsAuthorizationController {
                 if(!Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__NamedCredential__c.isUpdateable() || !Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() || !Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__NamedCredential__c.isCreateable() || !Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()){
                     return null;
                 }
-                upsert settings;
+                upsert as user settings;
                 return true;
             }
             return false;
@@ -178,7 +178,7 @@ public with sharing class AwsAuthorizationController {
                     String formattedDate = datetimeToday.format('dd/MM/yyyy');
                     settings.MVDG__LinkedDate__c = formattedDate;
                     settings.MVDG__WorkingStatus__c = true;
-                    upsert settings;
+                    upsert as user settings;
                     return 'Success';
                 }
             }
@@ -219,7 +219,7 @@ public with sharing class AwsAuthorizationController {
             Boolean status = testCallout(bucket, clientId, clientSecret);
             if(status)
             {
-                upsert settings;
+                upsert as user settings;
                 return 'Success';
             }
             else{

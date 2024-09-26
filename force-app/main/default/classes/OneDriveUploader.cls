@@ -3,6 +3,8 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     global static string oneDriveAccessToken;
     global static string fullFileName;
     global string activity;
+    global static List<MVDG__Generate_Document_Activity__c> listMessage = new List<MVDG__Generate_Document_Activity__c>();
+
 
     /*
     *********************************************************
@@ -35,7 +37,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure '+ response1.getStatusCode() + response1.getBody();
                 obj.Id = activity; 
-                update obj;
+                updateActivityMessage(obj);
                 mailMessage(response1.getStatusCode());
                 return null;
             }
@@ -44,7 +46,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
-                update obj;
+                updateActivityMessage(obj);
                 return null;
         }
     }
@@ -64,6 +66,13 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
         this.contentVersionId = cvid;
     }
 
+    global static void updateActivityMessage(MVDG__Generate_Document_Activity__c record){
+        if (listMessage == null) {
+            listMessage = new List<MVDG__Generate_Document_Activity__c>();
+        }
+        listMessage.add(record);
+    }
+
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
         try {
@@ -80,48 +89,48 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
             obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
             obj.Id = activity; 
-            update obj;
+            updateActivityMessage(obj);
             return null;
         }
     }
 
 
     global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
-        for (ContentVersion cv: scope) {
-            try {
-                String fileName = cv.Title;
-                Integer fileSize = cv.ContentSize;
-                fullFileName = cv.Title +'.'+ cv.fileExtension;
-                String contentType = contentTypeForOneDrive(cv.FileExtension);
-                System.debug(activity);
-                
-                String acctoken = getToken(activity);
-                Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
-                Integer maxSize = (8 * 1024 * 1024);  // 8 MB chunk factor
-                List<String> fileDetails = new List<String>();
-                fileDetails.add(fileName);
-                fileDetails.add(contentType);
-                fileDetails.add(activity);
-                if (Test.isRunningTest()) {
-                    maxSize = 800;
-                }
-                if(acctoken != null){
-                    oneDriveAccessToken = acctoken;
-                    if (fileSize < maxSize) { // 8 MB threshold
-                        uploadToOneDrive(cv, fileDetails);
-                    } else {
-                        uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
-                    }
-                }
-            } catch (Exception e) {
-                Log_Handler.store_Exception(e, 'OneDriveUploader', 'batch execute', activity);
-                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
-                obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
-                obj.Id = activity; 
-                update obj;
-                System.debug('Error during Dropbox file upload: ' + e.getMessage());
+        try {
+            ContentVersion cv = scope[0];
+            String fileName = cv.Title;
+            Integer fileSize = cv.ContentSize;
+            fullFileName = cv.Title +'.'+ cv.fileExtension;
+            String contentType = contentTypeForOneDrive(cv.FileExtension);
+            System.debug(activity);
+            
+            String acctoken = getToken(activity);
+            Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
+            Integer maxSize = (8 * 1024 * 1024);  // 8 MB chunk factor
+            List<String> fileDetails = new List<String>();
+            fileDetails.add(fileName);
+            fileDetails.add(contentType);
+            fileDetails.add(activity);
+            if (Test.isRunningTest()) {
+                maxSize = 800;
             }
+            if(acctoken != null){
+                oneDriveAccessToken = acctoken;
+                if (fileSize < maxSize) { // 8 MB threshold
+                    uploadToOneDrive(cv, fileDetails);
+                } else {
+                    uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
+                }
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'OneDriveUploader', 'batch execute', activity);
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+            obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
+            obj.Id = activity; 
+            updateActivityMessage(obj);
+            System.debug('Error during Dropbox file upload: ' + e.getMessage());
         }
+        update as user listMessage[0];
     }
 
 
@@ -165,14 +174,14 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Success';
                 obj.Id = fileDetails[2]; 
-                update obj;
+                updateActivityMessage(obj);
                 return true;
             } else {
                 Response_Handler.store_Callout_Response(resp, 'OneDriveUploader', 'uploadToOneDrive');
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure '+ resp.getStatusCode() + resp.getBody();
                 obj.Id = fileDetails[2]; 
-                update obj;
+                updateActivityMessage(obj);
                 mailMessage(resp.getStatusCode());
                 System.debug('Something went wrong');
                 return false;
@@ -182,7 +191,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = fileDetails[2]; 
-                update obj;
+                updateActivityMessage(obj);
                 return false;
         }
     }
@@ -322,7 +331,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = fileDetails[2]; 
-                update obj;
+                updateActivityMessage(obj);
         }
 
     }
@@ -381,7 +390,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure'+ res.getStatusCode() + res.getBody();
                 obj.Id = activity; 
-                update obj;
+                updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
                 System.debug('Error initiating upload session: ' + res.getStatusCode() + res.getBody());
                 return 'failure';
@@ -391,7 +400,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
-                update obj;
+                updateActivityMessage(obj);
                 return 'failure';
         }
     }
@@ -432,14 +441,14 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Success';
                 obj.Id = parameters.activity; 
-                update obj;
+                updateActivityMessage(obj);
             }else {
                 System.debug('Everything was in else' + res.getStatusCode() + res.getBody());
                 Response_Handler.store_Callout_Response(res, 'OneDriveUploader', 'uploadChunk');
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure'+ res.getStatusCode() + res.getBody();
                 obj.Id = parameters.activity; 
-                update obj;
+                updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
             }
         }
@@ -448,7 +457,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = parameters.activity; 
-                update obj;
+                updateActivityMessage(obj);
         }
     }
 
