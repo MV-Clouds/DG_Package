@@ -53,6 +53,7 @@ export default class DocumentLoader extends LightningElement {
 
 			this.customTimeout?.setCustomTimeoutMethod(() => {
 				this.isDisplay = false;
+				this.dispatchEvent(new CustomEvent('close'));
 			}, this.scaleOutTime + 300)
 			
 			// setTimeout(() => {
@@ -66,6 +67,7 @@ export default class DocumentLoader extends LightningElement {
 		}
 		else{
 			this.isDisplay = false;
+			this.dispatchEvent(new CustomEvent('close'));
 		}
 	}
 	// === Loader Display (Show/Hide) Methods Label - END - =====

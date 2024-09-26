@@ -548,7 +548,7 @@
 
   <c-message-popup onconfirmation={handleMsgPopConfirmation} done-button-label={doneButtonLabel}></c-message-popup>
 
-  <c-document-loader display={isSpinner} label={loaderLabel}></c-document-loader>
+  <c-document-loader display={isSpinner} label={loaderLabel} onclose={handleSpinnerClose}></c-document-loader>
 
   <c-chat-bot onclick={openChatBot} ontoggleclose={updateChatStatus}></c-chat-bot>
   

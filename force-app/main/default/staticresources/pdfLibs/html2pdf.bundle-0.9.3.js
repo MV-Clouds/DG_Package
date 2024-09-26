@@ -8833,27 +8833,28 @@ Worker.prototype.toImg = function toImg() {
           // Initialize the PDF document
           this.prop.pdf = this.prop.pdf || new jspdf_min.jsPDF(opt.jsPDF);
 
-          console.log('this.opt', this.opt);
-          console.log('this.prop', this.prop);
-
           for (var page = 0; page < nPages; page++) {
             /**
              * Do Not render page more than 20 pages...
              */
               if(page < 20){
                 if (page === nPages - 1 && pxFullHeight % pxPageHeight !== 0) {
-                //   pageCanvas.height = pxFullHeight % pxPageHeight;
-                //   pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
+                  pageCanvas.height = pxFullHeight % pxPageHeight;
+                  pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
                 }
 
                 // console.log('page : ', page);
                 // console.log('pageHeight : ', pageHeight);
+
+                // added to resolve bug
+                let topOffset = page > 10 ? ((page + 1) * 4) : (((page + 1) * 2) + 20);
+                // console.log('topOffset : ', topOffset);
     
                 var w = pageCanvas.width;
                 var h = pageCanvas.height;
                 pageCtx.fillStyle = 'white';
                 pageCtx.fillRect(0, 0, w, h);
-                pageCtx.drawImage(canvas, 0, (page * pxPageHeight - 2), w, h, 0, 0, w, h);
+                pageCtx.drawImage(canvas, 0, ((page * pxPageHeight) - topOffset), w, h, 0, 0, w, h);
     
                 if (page) this.prop.pdf.addPage();
                 var imgData = pageCanvas.toDataURL('image/' + opt.image.type, opt.image.quality);

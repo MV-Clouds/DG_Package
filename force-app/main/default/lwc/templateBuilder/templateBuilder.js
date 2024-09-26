@@ -45,7 +45,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     noTemplateFound = false;                        // To check weather template available for not
 
     editorDataChanges = false;                      // To identify any editor data change or not
+
     @track doneButtonLabel = 'Okay';
+    @track spinnerFor = null                        // To define spinner is running for which action
 
     /**
      * variable to store page configuration to display on UI, used in HTML
@@ -539,7 +541,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     else{
                         completedProcess++;
                         this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
-                        errorDebugger('TemplateBuilder', 'saveTemplateValue', result, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
+                        errorDebugger('TemplateBuilder', 'saveTemplateValue', {'message' : result.returnMessage}, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                     }
                 })
                 .catch((error) => {
@@ -559,18 +561,14 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         try {
             this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
             if(!this.isSpinner){
+                this.spinnerFor = actionName;
                 if(actionName == 'save'){
                     this.loaderLabel = 'Data Saved Successfully...'
                 }
                 else if(actionName == 'preview'){
+                    // Spinner is running for preview; 
+                    // On the spinner close, dispatch event will run, that will make variable true to open preview modal
                     this.loaderLabel = 'Opening Preview...'
-
-                    // for the custom solution of settimeout...
-                    this.template.querySelector(`[data-name="custom_timeout"]`).classList.add('dummyAnimation');
-                    // To not confect with loader...
-                    // setTimeout(() =>{
-                    // }, 500)
-                    this.isPreview = true;
                 }
             }
         } catch (error) {
@@ -1450,7 +1448,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
 
     customTimeoutMethod = (event) =>{
         event.target.classList.remove('dummyAnimation');
-        this.isPreview = true;
+        // this.isPreview = true;
     }
 
     handleMsgPopConfirmation(event){
@@ -1480,6 +1478,18 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleMsgPopConfirmation', error, 'warn');
+        }
+    }
+
+
+    handleSpinnerClose(){
+        try {
+            if(this.spinnerFor == 'preview'){
+                this.isPreview = true;
+                this.spinnerFor = null;
+            }
+        } catch (error) {
+            errorDebugger('TemplateBuilder', 'handleSpinnerClose', error, 'warn');
         }
     }
 
