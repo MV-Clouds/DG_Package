@@ -4,8 +4,6 @@ public class ChatBotControllerTest {
     @testSetup
     static void setupTestData() {
         // Create necessary test data
-        MVDG__chatBotChats__c chatBotChats = new MVDG__chatBotChats__c(MVDG__Enable_storage__c = false);
-        insert chatBotChats;
 
         // Create a MVDG__ChatBotData__c record for the running user
         MVDG__ChatBotData__c chatBotData = new MVDG__ChatBotData__c(MVDG__Chats__c = 'Initial chat data');
