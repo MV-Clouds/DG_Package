@@ -1244,6 +1244,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     //Back to generate
     backToGenerate(){
         this.templateSearchKey = null;
+        this.noTemplateFound = this.allTemplates.length < 1 ? true : false;
         this.showAllTemplates = false;
         this.showCSVPreview = false;
         this.showGDocPreview = false;
