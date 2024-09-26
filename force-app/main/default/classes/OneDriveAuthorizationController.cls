@@ -76,7 +76,30 @@ public with sharing class OneDriveAuthorizationController {
                     settings.MVDG__access_token4__c = newtoken5;
                 }
                 settings.MVDG__WorkingStatus__c = true;
-                update as user settings;
+                if (
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isAccessible() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isCreateable() &&
+                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()) {
+                    update settings;
+                    }
+                    else{
+                        return false;
+                    }
                 return true;
         }
         else {
