@@ -60,12 +60,10 @@ public with sharing class NewTemplateCreationController {
             template.MVDG__Template_Type__c = templateData.get('templateType');
             template.MVDG__Template_Status__c = true;
     
-            if(Schema.sObjectType.MVDG__Template__c.isCreateable()){
-                insert as User template;
-            }
+            insert as User template;
             templateId = template.Id;
 
-            if(templateData.get('templateType') == 'Simple Template' && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){
+            if(templateData.get('templateType') == 'Simple Template'){
                 MVDG__Template_Page__c page = new MVDG__Template_Page__c();
                 page.MVDG__Template__c = templateId;
                 page.MVDG__Page_Number__c = 1;

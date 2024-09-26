@@ -23,8 +23,8 @@ public with sharing class DeleteContentDocumentController implements Schedulable
         try{
             List<ContentDocument> contentDocuments = new List<ContentDocument>();
             contentDocuments = [SELECT id FROM ContentDocument WHERE LatestPublishedVersionId =: cvIDToDelete WITH SECURITY_ENFORCED];
-            if(contentDocuments.size() > 0 && Schema.sObjectType.ContentDocument.isDeletable()){
-                delete contentDocuments[0];
+            if(contentDocuments.size() > 0){
+                delete as user contentDocuments[0];
                 database.emptyRecycleBin(contentDocuments[0]); 
             }
         }catch(Exception e){

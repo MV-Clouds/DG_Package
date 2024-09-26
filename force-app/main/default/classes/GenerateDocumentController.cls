@@ -136,9 +136,7 @@ public with sharing class GenerateDocumentController {
             }
             cdl.LinkedEntityId = recordId;
             cdl.Sharetype = 'V';
-            if(Schema.sObjectType.ContentDocumentLink.isCreateable()){
-                insert as User cdl;
-            }
+            insert as User cdl;
             return 'success';
         }catch (Exception e) {
             System.debug('Error in storeInFiles =>' + e.getMessage());
@@ -170,9 +168,7 @@ public with sharing class GenerateDocumentController {
             }
             feed.RelatedRecordId = contentVersionId;
             feed.Body = body;
-            if(Schema.sObjectType.FeedItem.isCreateable()){
-                insert as User feed;
-            }
+            insert as User feed;
             return 'success';
         }catch (Exception e) {
             System.debug('Error in postToChatter =>' + e.getMessage());
@@ -256,12 +252,9 @@ public with sharing class GenerateDocumentController {
     public static String upsertActivity(MVDG__Generate_Document_Activity__c activity){
         try{
             if(activity != null){
-                if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.isCreateable() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.isUpdateable()){
-                    activity.MVDG__Initiated_By__c = UserInfo.getUserId();
-                    upsert as User activity;
-                    return activity.Id;
-                }
-                return null;
+                activity.MVDG__Initiated_By__c = UserInfo.getUserId();
+                upsert as User activity;
+                return activity.Id;
             }
             return null;
         }catch(Exception e){
@@ -409,9 +402,7 @@ public with sharing class GenerateDocumentController {
                 MVDG__Email_Body__c  = defaultData.get('emailBody'),
                 MVDG__Email_Template__c = defaultData.get('emailTemplate')
             );
-            if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
-                update as User template;
-            }
+            update as User template;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'setDefaultOptions');
             system.debug('exception in setDefaultOptions : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
