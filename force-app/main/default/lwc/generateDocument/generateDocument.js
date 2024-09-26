@@ -438,6 +438,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return channels;
     }
 
+    get isNotTemplateEditable(){
+        return this.isEditDisabled || !this.selectedTemplate || !this.allTemplates?.find(t => t.Id === this.selectedTemplate)?.isEditable;
+    }
+
     @wire(CurrentPageReference)
     currentPageReference;
 
@@ -772,6 +776,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 return {
                     ...temp,
                     isSelectable : temp.MVDG__Template_Status__c,
+                    isEditable : true,
                     LastModifiedDate: formattedDate,
                     index: +index + 1
                 };
@@ -803,7 +808,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.allTemplates = this.allTemplates.map((t)=> {
                     return {
                         ...t,
-                        isSelectable: t.MVDG__Template_Type__c === 'Google Doc Template' ? false : t.isSelectable
+                        isSelectable: t.MVDG__Template_Type__c === 'Google Doc Template' ? false : t.isSelectable,
+                        isEditable: t.MVDG__Template_Type__c === 'Google Doc Template' ? false : t.isEditable
+                    }
+                })
+            }else if(!integrations.isUserWideAccessible){
+                this.allTemplates = this.allTemplates.map((t)=> {
+                    return {
+                        ...t,
+                        isEditable: t.MVDG__Template_Type__c === 'Google Doc Template' ? false : t.isEditable
                     }
                 })
             }

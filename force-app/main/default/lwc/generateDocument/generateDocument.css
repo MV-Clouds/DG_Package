@@ -453,6 +453,12 @@ li.info-topic {
     width: 12rem !important;
 }
 
+.edit-template-btn:has(svg.true){
+    box-shadow: none;
+    pointer-events: none;
+    background-color: lightgray !important;
+}
+
 .send-mail-btn{
     height: 3rem;
     width: 10rem;
@@ -855,6 +861,11 @@ svg:not(.bottom-btn svg){
     background-color: lightgray !important;
 }
 
+.edit-template-button:has(svg.false){
+    box-shadow: none;
+    pointer-events: none;
+    background-color: lightgray !important;
+}
 .select-template-option .edit{
     width: 8%;
     margin: 0.5rem;
