@@ -25,7 +25,9 @@ public with sharing class GenerateDocumentController {
             combinedData.folderWrapper = getFolders();
             combinedData.integrationWrapper = getIntegrationStatus();
             combinedData.templates = fetchTemplates(objName);
-            combinedData.isSuccess = combinedData.folderWrapper != null && combinedData.integrationWrapper != null && combinedData.templates != null ? true : false;
+            Integer countOfPermission = [SELECT Count() FROM PermissionSetAssignment WHERE PermissionSet.Name IN ('DocGenius_Standard_Permissions', 'DocGenius_Admin_Permissions') AND AssigneeId =:userInfo.getUserId() WITH SECURITY_ENFORCED];
+            combinedData.isEditorAccess = countOfPermission > 0 ? true : false;
+            combinedData.isSuccess = combinedData.folderWrapper != null && combinedData.integrationWrapper != null && combinedData.templates != null && combinedData.isEditorAccess != null ? true : false;
             System.debug('Combined Data::'+ combinedData);
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'fetchCombinedData');
@@ -523,6 +525,7 @@ public with sharing class GenerateDocumentController {
         @AuraEnabled public List<FolderWrapper> folderWrapper;
         @AuraEnabled public List<MVDG__Template__c> templates;
         @AuraEnabled public List<EmailTemplate> emailTemplates;
+        @AuraEnabled public Boolean isEditorAccess;
         @AuraEnabled public Boolean isSuccess;
     }
 }

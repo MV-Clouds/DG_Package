@@ -68,6 +68,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @track allTemplates = [];
     @track activeTemplates = [];
     @track templateList = [];
+    @track isEditorAccess = false;
 
     @track selectedTemplate = null;
     @track showEmailSection = false;
@@ -738,6 +739,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 getCombinedData({objName: this.internalObjectApiName})
                 .then((data) => {
                     if (data.isSuccess){
+                        this.isEditorAccess = data.isEditorAccess;
                         this.setUpAllTemplates(data.templates);
                         this.setUpIntegrationStatus(data.integrationWrapper);
                         this.setUpAllFolders(data.folderWrapper);
@@ -1642,10 +1644,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.showSpinner = false;
                     });
                 }
-    
             }else{
                 ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error Generating File => '+event);
-                this.handleGenerationResult();
+                this.showWarningPopup('error', 'Something went wrong!', 'The Document could not be generated, please try again...');
+                this.isClosableError = true;
+                this.showSpinner = false;
             }
         } catch (e) {
             this.showSpinner = false;
@@ -1663,8 +1666,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         this.showSpinner = false;
         errorDebugger('generateDocument', 'handleGDocError', event, 'error');
         ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error Creating File => '+event?.detail?.message);
-        this.showToast('error', 'Something went Wrong!', 'There was error generating file, please try again.', 5000);
-        this.handleGenerationResult();
+        this.showWarningPopup('error', 'Something went wrong!', 'The Document could not be generated, please try again...');
+        this.isClosableError = true;
+        this.showSpinner = false;
     }
 
 //-------------------------------------------------------PDF / DOC Generation Methods --------------------------------------------------------
@@ -1729,11 +1733,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     if(cvId){
                         this.resultPromises.push(this.createFilesChatterEmail(cvId));
                         this.uploadToExternalStorage(cvId);
+                        this.handleGenerationResult();
                     }else{
                         ['Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = message.data.error?.message);
-                        this.showToast('error', 'Something Went wrong!', 'The Document couldn\'t be created!', 5000);
+                        this.showWarningPopup('error', 'Something went wrong!', 'The Document could not be generated, please try again...');
+                        this.isClosableError = true;
+                        this.showSpinner = false;
                     }
-                    this.handleGenerationResult();
                 }
             }
         }catch(e){

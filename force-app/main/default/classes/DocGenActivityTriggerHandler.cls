@@ -71,9 +71,8 @@ public with sharing class DocGenActivityTriggerHandler {
             // Template information section
             String emailBody = '<body style="font-family:Verdana, sans-serif; background-color: #00aeff10; padding:0.5rem 1rem;border-radius: 0.5rem;border: 1px solid #00aeff20;">';
             emailBody += '<p>Dear ' + UserInfo.getName() + ',</p>';
-            emailBody += '<p>Your Document Generation process has been completed.</p>';
-
-            emailBody += '<p>Here is a quick review of document generation process for <strong>' +templates[0].MVDG__Template_Name__c+ '</strong> template.</p>';
+            emailBody += '<p>Greetings!</p>';    
+            emailBody += '<p>The document generation process for the <b>"' +templates[0].MVDG__Template_Name__c +'"</b> has been completed. Below is a summary of the key details:</p>';
             emailBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
             emailBody += '<tr>';
             emailBody += '<th style="background-color:#00aeffaa" colspan="2"><strong>Template Details</strong></th>';
@@ -130,7 +129,7 @@ public with sharing class DocGenActivityTriggerHandler {
                 }
             }
             emailBody += '</table>';
-            emailBody += '<p>In case of any questions or queries, please visit <a href="https://mvclouds.com/docgenius/faqs/">our FAQs page</a> for quick resolution.</p>';
+            emailBody += '<p>If you have any questions or need further assistance, please feel free to visit <a href="https://mvclouds.com/docgenius/faqs/">our FAQs page</a> for quick support.</p>';
             emailBody += '<p>Regards,</p>';
             emailBody += '<p style="line-height: 0;">Team DocGenius</p>';
             emailBody += '<img width="150" alt="DocGenius-Logo" src="'+ logoUrl +'" >';
