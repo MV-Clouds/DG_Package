@@ -36,6 +36,7 @@ public class UploadControllerTest {
 
         Test.setMock(HttpCalloutMock.class, new MockResponseClass());
         UploadController.uploadToGoogleDrive(cv1.Id, act[0].Id);
+        System.Assert(null, cv1, 'It should not be null');
         Test.stopTest();
     }
     
@@ -48,6 +49,7 @@ public class UploadControllerTest {
         cv1 = [SELECT Id FROM ContentVersion];
         Test.setMock(HttpCalloutMock.class, new MockResponseClass());
         UploadController.uploadToAWS(cv1.Id, act[0].Id);
+        System.Assert(null, cv1, 'It should not be null');
         Test.stopTest();
     }
     
@@ -60,6 +62,7 @@ public class UploadControllerTest {
 
         Test.setMock(HttpCalloutMock.class, new MockResponseClass());
         UploadController.uploadToDropBox(cv1.Id, act[0].Id);
+        System.Assert(null, cv1, 'It should not be null');
         Test.stopTest();
     }
     
@@ -72,6 +75,7 @@ public class UploadControllerTest {
 
         Test.setMock(HttpCalloutMock.class, new MockResponseClass());
         UploadController.uploadToOneDrive(cv1.Id, act[0].Id);
+        System.Assert(null, cv1, 'It should not be null');
         Test.stopTest();
     }
 

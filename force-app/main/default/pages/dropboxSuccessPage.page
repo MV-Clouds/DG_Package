@@ -72,13 +72,13 @@
                 }
 
                 function init() {
-                    console.log('currentUrl:', '{!$CurrentPage.URL}');
-                    var currentUrl = '{!$CurrentPage.URL}';
+                    var currentUrl = '{!JSENCODE($CurrentPage.URL)}';
+
                     console.log('currentUrl');
 
                     Visualforce.remoting.Manager.invokeAction(
                         '{!$RemoteAction.DropboxSuccessController.gettoken}',
-                        '{!$CurrentPage.URL}',
+                        currentUrl,
                         function(result, event) {
                             if(result == 'Success'){
                                 if (event.status) {

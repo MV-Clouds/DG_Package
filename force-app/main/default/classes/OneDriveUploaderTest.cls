@@ -35,7 +35,7 @@ public class OneDriveUploaderTest {
 
         MVDG__Generate_Document_Activity__c gda = new MVDG__Generate_Document_Activity__c();
         gda.MVDG__AWS__c = 'Success';
-        gda.DocGenius_Template__c = temp.Id;
+        gda.MVDG__DocGenius_Template__c = temp.Id;
         insert gda;
     }
 
@@ -139,6 +139,8 @@ public class OneDriveUploaderTest {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockErrorHttpResponseToken());
         result = OneDriveUploader.getToken(act[0].Id);
+        System.assertEquals(null, result, 'The result is null');
+        Test.stopTest();
     }
 
     public class MockHttpResponseToken implements HttpCalloutMock {

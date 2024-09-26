@@ -181,8 +181,8 @@ public class ChildRelationshipInfo {
     Map<String, Schema.SObjectField> fields = Schema.getGlobalDescribe().get(objectType).getDescribe().fields.getMap();
     boolean isRecordID = fields.containsKey('RecordTypeId');
     if(isRecordID){
-        String query = 'SELECT RecordTypeId FROM ' + objectType + ' WHERE Id = \'' + recordId + '\'';
-        SObject record = Database.query(query);
+        String query = 'SELECT RecordTypeId FROM ' + String.escapeSingleQuotes(objectType) + ' WHERE Id = \'' + String.escapeSingleQuotes(recordId) + '\'';
+        SObject record = Database.query(String.escapeSingleQuotes(query));
         if (record != null) {
             return (String) record.get('RecordTypeId');
         }
@@ -244,8 +244,8 @@ public class ChildRelationshipInfo {
                 }
             }
 
-            String soql = 'SELECT Id, ' + String.join(fieldNames, ', ') + ' FROM ' + objectName + ' WHERE Id = \''+recordId+'\'';
-            SObject record = Database.query(soql);
+            String soql = 'SELECT Id, ' + String.escapeSingleQuotes(String.join(fieldNames, ', ')) + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id = \''+String.escapeSingleQuotes(recordId)+'\'';
+            SObject record = Database.query(String.escapeSingleQuotes(soql));
             
             Map<String, Object> recordFieldValues = new Map<String, Object>();
             for (String fieldName : fieldNames) {

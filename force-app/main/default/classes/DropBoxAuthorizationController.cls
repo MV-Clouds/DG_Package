@@ -67,13 +67,13 @@ public with sharing class DropBoxAuthorizationController {
             jsonvalues = parseJSONToMap(res.getBody());
             settings.MVDG__access_token__c = jsonvalues.get('access_token');
             settings.MVDG__WorkingStatus__c = true;
-            Update settings;
+            Update as user settings;
             return true;
         }
         else{
             Response_Handler.store_Callout_Response(res, 'DropBoxAuthorizationController', 'verifyAuth');
             settings.MVDG__WorkingStatus__c = false;
-            Update settings;
+            Update as user settings;
             return false;
         }
     }
@@ -104,8 +104,6 @@ public with sharing class DropBoxAuthorizationController {
         try {
             MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
             if(settings != null){
-                System.debug(settings);
-                System.debug('I am not null');
                 settings.MVDG__ClientId__c = '';
                 settings.MVDG__ClientSecret__c = '';
                 settings.MVDG__username__c = '';
@@ -114,13 +112,14 @@ public with sharing class DropBoxAuthorizationController {
                 settings.MVDG__refresh_token__c = '';
                 settings.MVDG__access_token__c = '';
                 settings.MVDG__WorkingStatus__c = false;
-                upsert settings;
+                upsert as user settings;
                 return true;
             }
             return false;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'unauthorize');
-            System.debug('Exception of unauthorize got invoked');
+            System.debug('Exception of unauthorize got invoked' + e.getStackTraceString());
+            System.debug('Exception message' + e.getDmlMessage(0));
             return null;
         }
     }
@@ -140,7 +139,7 @@ public with sharing class DropBoxAuthorizationController {
             settings.MVDG__ClientSecret__c = clientSecret;
             String durl = authcode(clientId, clientSecret);
             System.debug('before upsert');
-            upsert settings;
+            upsert as user settings;
             System.debug(durl);
             return durl;
         }catch (Exception e) {

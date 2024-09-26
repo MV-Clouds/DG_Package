@@ -45,7 +45,7 @@ public class AwsUploaderTest {
 
         MVDG__Generate_Document_Activity__c gda = new MVDG__Generate_Document_Activity__c();
         gda.MVDG__AWS__c = 'Success';
-        gda.DocGenius_Template__c = temp.Id;
+        gda.MVDG__DocGenius_Template__c = temp.Id;
         insert gda;
     }
 

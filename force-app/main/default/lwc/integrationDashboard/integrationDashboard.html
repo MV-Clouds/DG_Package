@@ -53,10 +53,10 @@ Integration</h3>
                     </div>
                     <div class="integration-options" draggable="false">
                         <div class="all-cards" draggable="false">
-                            <div class="card gc" draggable={allowGoogle} ondragstart={handleDragStart} ondragend={handleDragEnd} data-key="google"><img src={googledrive_} alt="" draggable="false" onload={loaded}></div>
-                            <div class="card oc partial" draggable={allowOneDrive} ondragstart={handleDragStart} ondragend={handleDragEnd} data-key="onedrive"><img src={onedrive_} alt="" draggable="false" onload={loaded}></div>
-                            <div class="card ac partial" draggable={allowAws} ondragstart={handleDragStart} ondragend={handleDragEnd} data-key="aws"><img src={aws_} alt="" draggable="false" onload={loaded}></div>
-                            <div class="card dc partial" draggable={allowDropbox} ondragstart={handleDragStart} ondragend={handleDragEnd} data-key="dropbox"><img src={dropbox_} alt="" draggable="false" onload={loaded}></div>
+                            <div class="card gc" draggable={obj.googleKey} ondragstart={handleDragStart} ondragend={handleDragEnd} data-key="google" data-access={obj.googleKey}><img src={googledrive_} alt="" draggable="false" onload={loaded}></div>
+                            <div class="card oc partial" draggable={obj.oneDriveKey} ondragstart={handleDragStart} ondragend={handleDragEnd} data-key="onedrive"  data-access={obj.oneDriveKey}><img src={onedrive_} alt="" draggable="false" onload={loaded}></div>
+                            <div class="card ac partial" draggable={obj.awsKey} ondragstart={handleDragStart} ondragend={handleDragEnd} data-key="aws"  data-access={obj.awsKey}><img src={aws_} alt="" draggable="false" onload={loaded}></div>
+                            <div class="card dc partial" draggable={obj.dropboxKey} ondragstart={handleDragStart} ondragend={handleDragEnd} data-key="dropbox"  data-access={obj.dropboxKey}><img src={dropbox_} alt="" draggable="false" onload={loaded}></div>
                         </div>
                         <div class="dropstatus">
                             <div class="dragparent">

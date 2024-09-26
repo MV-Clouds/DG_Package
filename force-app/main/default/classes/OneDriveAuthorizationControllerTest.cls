@@ -17,7 +17,9 @@ public class OneDriveAuthorizationControllerTest {
             MVDG__email__c = 'test@example.com',
             MVDG__LinkedDate__c = ''+Date.today(),
             MVDG__WorkingStatus__c = true,
-            MVDG__username__c = 'testuser'
+            MVDG__username__c = 'testuser',
+            MVDG__ClientId__c = 'MockClientId',
+            MVDG__ClientSecret__c = 'MockClientSecret'
         );
         insert settings;
     }
@@ -52,7 +54,7 @@ public class OneDriveAuthorizationControllerTest {
     }
 
     @isTest
-    static void testheckonedriveauth(){
+    static void testcheckonedriveauth(){
         Test.setMock(HttpCalloutMock.class, new OnedriveCalloutMock());
         Test.startTest();
         Map<String, Object> mappedResult = OneDriveAuthorizationController.checkonedriveauth();
