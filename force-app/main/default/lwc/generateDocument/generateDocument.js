@@ -702,7 +702,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }else{
                         this.buttonName = null;
                     }
-                    this.fileName = this.templateName;
+                    this.fileName = this.templateName?.slice(0,240);
                     this.showCC = this.ccEmails.length > 0 ? true : false;
                     this.showBCC = this.bccEmails.length > 0 ? true : false;
                     this.isAdditionalInfo = true;
@@ -864,7 +864,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             let result = event.detail[0]?.Id;
             this.selectedTemplate = result || null;
-            this.fileName = this.templateName;
+            this.fileName = this.templateName?.slice(0,240);
             this.csvDocumentTypes.forEach(dt => {dt.isSelected = false});
             this.generalDocumentTypes.forEach(dt => {dt.isSelected = false});
             if (this.isCSVTemplate) {
@@ -1114,7 +1114,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     handleTemplateSelection(event){
         try{
             this.selectedTemplate = event.currentTarget.dataset.value;
-            this.fileName = this.selectedTemplate;
+            this.fileName = this.selectedTemplate?.slice(0,240);
             this.handleSelectTemplate({detail:[{Id: this.selectedTemplate}]});
             this.backToGenerate();
         }catch(e){
@@ -1518,7 +1518,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.fetchedResults = [];
             if(!this.fileName){
                 let thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                this.fileName = thisTemplate.Template_Name__c;
+                this.fileName = thisTemplate.Template_Name__c?.slice(0,240);
             }
             let element ;
             if(this.selectedExtension === '.csv'){

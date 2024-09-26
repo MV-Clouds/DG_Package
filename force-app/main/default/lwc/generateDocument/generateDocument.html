@@ -282,7 +282,7 @@
                 </div>
                 <div class="file-name-input-div">
                     <span>File name </span>
-                    <input type="text" placeholder="Enter file name" value={fileName} onkeyup={handleFileNameChange} onblur={handleFileNameChange}>
+                    <input type="text" maxlength="240" placeholder="Enter file name" value={fileName} onkeyup={handleFileNameChange} onblur={handleFileNameChange}>
                     <div class="extension-div">{selectedExtension}</div>
                 </div>
             </div>
