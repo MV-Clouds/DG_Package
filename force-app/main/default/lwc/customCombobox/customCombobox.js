@@ -337,13 +337,13 @@ export default class CustomCombobox extends LightningElement {
         }
     }
 
-    preventTabOverlap(event){
+    handleSpecialKeyPress(event){
         try {
-            if(event.key === 'Tab'){
-                event.preventDefault();
+            if(event.code === 'Tab' || event.code === 'Escape'){
+                this.closeDropDown();
             }
         } catch (error) {
-            errorDebugger('CustomCombobox', 'preventTabOverlap', error, 'warn');
+            errorDebugger('CustomCombobox', 'handleSpecialKeyPress', error, 'warn');
         }
     }
 
