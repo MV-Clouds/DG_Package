@@ -3,7 +3,6 @@ import Userguide from "@salesforce/resourceUrl/Userguide";
 import Userguide2 from "@salesforce/resourceUrl/Userguide2";
 import integrationImages from "@salesforce/resourceUrl/integrationImages";
 import { errorDebugger } from 'c/globalProperties';
-import TotalOpportunityQuantity from '@salesforce/schema/Opportunity.TotalOpportunityQuantity';
 
 export default class UserGuide extends LightningElement {
 
@@ -338,7 +337,7 @@ export default class UserGuide extends LightningElement {
     @track gdtempTab = false;
     @track keysecTab = false;
     @track docgenTab = false;
-    @track tabList = ['btngenTab', 'awsTab', 'gdriveTab', 'odriveTab', 'dropboxTab', 'gdtempTab', 'stempTab', 'csvtempTab', 'dochomeTab', 'keysecTab', 'docgenTab'];
+    @track tabList = ['dochomeTab', 'btngenTab', 'awsTab', 'gdriveTab', 'odriveTab', 'dropboxTab', 'stempTab', 'csvtempTab', 'gdtempTab', 'keysecTab', 'docgenTab'];
 
     @track isOpen = true;
     @track showModal = false;
@@ -357,47 +356,11 @@ export default class UserGuide extends LightningElement {
         }
     }
 
-    @track contentSections = [];
-    intialRender = true;
-    
-
     renderedCallback() {
-
-        try {
-            if (this.showModal) {
-                window.addEventListener('keydown', this.handleKeyPress);
-    
-            } else {
-                window.removeEventListener('keydown', this.handleKeyPress);
-            }
-    
-        } catch (error) {
-            console.log(`error in renderedCallback : `, error.stack);
-            
-            
-        }
-
-    }
-
-    handleOnScroll(event) {
-        
-        console.log('event.target.scrollTop : ', event.target.scrollTop);
-        for (let i = 0; i < this.tabList.length; i++) {
-            const element = this.template.querySelector(`[data-id="${this.tabList[i]}"]`);
-
-            if (element && this.isInViewport(element, event.target)) {
-                    
-                let currentTab = this.template.querySelector('.selected-tab');
-                if (currentTab) {
-                    currentTab.classList.remove('selected-tab');
-                }
-
-                let tab = this.template.querySelector(`a.tabs[data-tab="${this.tabList[i].slice(0, -3)}"]`);
-                if (tab) {
-                    tab.classList.add('selected-tab');
-                }
-                break;
-            }
+        if (this.showModal) {
+            window.addEventListener('keydown', this.handleKeyPress);
+        } else {
+            window.removeEventListener('keydown', this.handleKeyPress);
         }
     }
 
@@ -411,59 +374,28 @@ export default class UserGuide extends LightningElement {
             if (!tabName) {
                 tabName = event.target.parentElement.dataset.tab;
             }
-            // this.tabList.forEach(tab => {
-            //     this[tab] = false;
-            // });
-            // this[tabName + 'Tab'] = true;
+            this.tabList.forEach(tab => {
+                this[tab] = false;
+            });
+            this[tabName + 'Tab'] = true;
             
-            // let currentTab = this.template.querySelector('.selected-tab');
-            // if (currentTab) {
-            //     currentTab.classList.remove('selected-tab');
-            // }
+            let currentTab = this.template.querySelector('.selected-tab');
+            if (currentTab) {
+                currentTab.classList.remove('selected-tab');
+            }
 
-            // let tab = this.template.querySelector(`a.tabs[data-tab="${tabName}"]`);
-            // if (tab) {
-            //     tab.classList.add('selected-tab');
-            // }
+            let tab = this.template.querySelector(`div.tabs[data-tab="${tabName}"]`);
+            if (tab) {
+                tab.classList.add('selected-tab');
+            }
 
-            // this.template.querySelector('.tab-content').scrollTop = 0;
-            // this.template.querySelector('.content').scrollTop = 0;
-            // this.template.querySelector('.white-background').scrollTop = 0;
-
+            this.template.querySelector('.tab-content').scrollTop = 0;
+            this.template.querySelector('.content').scrollTop = 0;
+            this.template.querySelector('.white-background').scrollTop = 0;
         } catch (error) {
             errorDebugger("userGuide", 'handleTabSelection', error, 'error', 'Error in changing tabs. Please try again later');
         }
     }
-
-    isInViewport(element, target) {
-        // var rect = element.getBoundingClientRect();
-        // var html = this.template.querySelector('.content');
-        console.log('element : ', element);
-
-        console.log('element.offsetTop : ',  element.offsetTop);
-        console.log('target.clientHeight : ',  target.clientHeight);
-
-        if(target.scrollTop < (element.scrollHeight - target.clientHeight/2)){
-            return true;
-        }
-
-        // const viewPortTop = html.clientTop;
-        // const viewPortBottom = html.clientTop + html.clientHeight;
-        // const elementTop = element.getBoundingClientRect().top - html.getBoundingClientRect().top;
-        // const elementBottom = element.offsetTop + element.offsetHeight;
-        
-        // var isTallerThanViewport = element.offsetHeight > this.template.querySelector('.white-background')?.clientHeight;
-        // console.log('isTallerThanViewport : ', isTallerThanViewport);        
-        // console.log("elementTop > viewPortTop && elementTop < viewPortBottom && elementBottom > viewPortTop && elementBottom < viewPortBottom==>", elementTop > viewPortTop && elementTop < viewPortBottom && elementBottom > viewPortTop && elementBottom < viewPortBottom);
-
-        return false;
-
-        if (isTallerThanViewport) {
-          return elementTop > viewPortTop && elementTop < viewPortBottom && elementBottom > viewPortTop && elementBottom < viewPortBottom;
-        }
-        
-        // return (element.clientTop >= 0 && element.clientLeft >= 0 && (element.clientTop + element.clientHeight) <= (window.innerHeight || html.clientHeight) &&  (element.clientLeft + element.clientWidth) <= (window.innerWidth || html.clientWidth));
-      }
 
     toggleTab() {
         if(this.isOpen) {
