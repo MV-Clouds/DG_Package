@@ -9,7 +9,7 @@
     height: calc(100% + 1.5rem);
     background-color: #ffffff;
     background-image: var(--main-background-image-url);
-    background-size: contain;
+    background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     overflow: hidden;
@@ -19,6 +19,11 @@
     /* min-height: 100%; */
     height: 100%;
     padding-block: 0.5rem;
+}
+
+.no-result-svg{
+    width: 50% !important;
+    height: 50% !important;
 }
 
 iframe {
@@ -520,7 +525,8 @@ input:focus {
 
 .emptySearch {
     height: 66%;
-    width: 100%;
+    width: 97%;
+    margin: 0.5% 1.5%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -550,7 +556,6 @@ input:focus {
     color: #111824;
 }
 .empty-text2 {
-    margin-top: 1%;
     width: 100%;
     font-family:
         Bahnschrift,

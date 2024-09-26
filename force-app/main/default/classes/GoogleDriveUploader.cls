@@ -4,7 +4,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     global static string googleDriveAccessToken;
     global static string googleFileName;
     global string activity;
-
+    global static List<MVDG__Generate_Document_Activity__c> listMessage = new List<MVDG__Generate_Document_Activity__c>();
 /*
 *********************************************************
 @description     : constructor to define values
@@ -19,6 +19,13 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 
     global GoogleDriveUploader(Id cvid) {
         this.contentVersionId = cvid;
+    }
+
+    global static void updateActivityMessage(MVDG__Generate_Document_Activity__c record){
+        if (listMessage == null) {
+            listMessage = new List<MVDG__Generate_Document_Activity__c>();
+        }
+        listMessage.add(record);
     }
 
     global Database.QueryLocator start(Database.BatchableContext bC) {
@@ -36,18 +43,18 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
             obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
             obj.Id = activity; 
-            update obj;
+            updateActivityMessage(obj);
             return null;
         }
     }
 
 
     global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
-        for (ContentVersion cv: scope) {
-            try {
+        try {
+            String acctoken = getToken(activity);
+            ContentVersion cv = scope[0];
                 String fileName = cv.Title;
                 googleFileName = cv.Title+'.'+cv.fileExtension;
-                String acctoken = getToken(activity);
                 Integer fileSize = cv.ContentSize;
                 String contentType = contentType(cv.FileExtension);
                 Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
@@ -63,22 +70,29 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                     } 
                     if (fileSize < maxSize) { // 5 MB threshold
                         System.debug('Uploading small file directly to googledrive');
-                        uploadToGoogleDrive(cv, fileName, fileDetails);
+                        Boolean result = uploadToGoogleDrive(cv, fileName, fileDetails);
+                        if (!result) {
+                            break;
+                        }
+
                     } else {
                         System.debug('Uploading large file in chunks to googledrive');
-                        uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
+                        Boolean result = uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
+                        if (!result) {
+                            break;
+                        }
                     }
                 }
-            } catch (System.LimitException e) {
-                Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'execute batch', activity);
-                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
-                obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
-                obj.Id = activity; 
-                update obj;
-                emailUser('File size too large. Try uploading file with smaller size.\n\n Or Download it and then upload file manually.');
-                System.debug('Error during Google file upload: heap size issue' + e.getMessage());
-            }
+        } catch (System.LimitException e) {
+            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'execute batch', activity);
+            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+            obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
+            obj.Id = activity; 
+            updateActivityMessage(obj);
+            emailUser('File size too large. Try uploading file with smaller size.\n\n Or Download it and then upload file manually.');
+            System.debug('Error during Google file upload: heap size issue' + e.getMessage());
         }
+        update as user listMessage[0];
     }
 
 
@@ -156,7 +170,7 @@ global static String getToken(){
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                     obj.MVDG__Google_Drive__c = 'Failure '+ response.getStatusCode() + response.getBody();
                     obj.Id = activity; 
-                    update obj;
+                    updateActivityMessage(obj);
                 mailMessage(response.getStatusCode());
             }
         } catch (Exception e) {
@@ -164,7 +178,7 @@ global static String getToken(){
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
-                update obj;
+                updateActivityMessage(obj);
         }
         return null;
     }
@@ -192,14 +206,14 @@ global static String getToken(){
                     MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                         obj.MVDG__Google_Drive__c = 'Success';
                         obj.Id = fileDetails[1]; 
-                        update obj;
+                        updateActivityMessage(obj);
                     return true;
                 } else {
                     Response_Handler.store_Callout_Response(resp, 'GoogleDriveUploader', 'uploadToGoogleDrive');
                     MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                         obj.MVDG__Google_Drive__c = 'Failure '+ resp.getStatusCode() + resp.getBody();
                         obj.Id = fileDetails[1]; 
-                        update obj;
+                        updateActivityMessage(obj);
                     mailMessage(resp.getStatusCode());
                     return false; // Retry after token refresh
                 }
@@ -209,7 +223,7 @@ global static String getToken(){
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = fileDetails[1]; 
-                update obj;
+                updateActivityMessage(obj);
         }
         
         
@@ -283,7 +297,7 @@ global static String getToken(){
 @return          : none
 ********************************************************
 */
-    private static void uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, List<String> fileDetails) {
+    private static Boolean uploadLargeFileInChunks(ContentVersion contentVersion, Integer fileSize, List<String> fileDetails) {
         try {
             String result = initiateUploadSession(fileDetails[0], contentVersion, fileDetails[1]);
             if (result != 'failure') {
@@ -320,15 +334,15 @@ global static String getToken(){
                     System.debug(Limits.getHeapSize());
                 }
             }
-            
+            return true;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadLargeFileInChunks', fileDetails[1]);
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = fileDetails[1]; 
-                update obj;
+                updateActivityMessage(obj);
         }
-
+        return false;
     }
 
 
@@ -455,7 +469,7 @@ global static String getToken(){
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Failure '+ res.getBody();
                 obj.Id = activity; 
-                update obj;
+                updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
                 System.debug('Error initiating upload session: ' + res.getStatusCode() + res.getHeader('Location'));
                 return 'failure';
@@ -465,7 +479,7 @@ global static String getToken(){
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
-                update obj;
+                updateActivityMessage(obj);
                 return 'failure';
         }
     }
@@ -508,13 +522,13 @@ global static String getToken(){
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Success';
                 obj.Id = parameters.activity; 
-                update obj;
+                updateActivityMessage(obj);
             } else {
                 Response_Handler.store_Callout_Response(res, 'GoogleDriveUploader', 'uploadChunk');
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Failure '+ res.getBody();
                 obj.Id = parameters.activity; 
-                update obj;
+                updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
             }
             }
@@ -523,7 +537,7 @@ global static String getToken(){
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = parameters.activity; 
-                update obj;
+                updateActivityMessage(obj);
         }
     }
 
