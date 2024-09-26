@@ -84,7 +84,7 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
         this.template.querySelector('.t-name').classList.remove("error-border");
         this.template.querySelectorAll('label')[0].classList.remove("error-label");
         this.templateName = event.target.value.trim();
-        if (!this.templateName) {
+        if (!this.templateName || this.templateName.length > 255) {
             this.template.querySelector('.t-name').classList.add("error-border");
             this.template.querySelectorAll('label')[0].classList.add("error-label");
             this.isDataInvalid = true;
@@ -107,6 +107,13 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
             this.isShowSpinner = true;
             this.templateName = this.template.querySelector(`[data-name="temp-name"]`).value;
             if(!this.templateName){
+                this.isShowSpinner = false;
+                return;
+            }
+            if(this.templateName.length > 255){
+                this.showToast('error', 'Something went wrong!', 'Template Name should not be more than 255 characters!', 5000);
+                this.template.querySelector('.t-name').classList.add('error-border');
+                this.template.querySelectorAll('label')[0].classList.add('error-label');
                 this.isShowSpinner = false;
                 return;
             }
@@ -160,14 +167,18 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
             console.log('this is a test log ');
             cloneTempData({templateId: this.templateId, jsonData: this.templateSelectOption })
             .then(response=>{
-                console.log('This is a Test Log *** : ',response);
-                this.templateId = response.tempId;
-                this.trmplateObject = response.tempObj;
-                this.handleNavigate();
-                if (typeof window !== 'undefined') {
-                    this.dispatchEvent(new CustomEvent('aftersave'));
+                if(response.isSuccess ){
+                    console.log('This is a Test Log *** : ',response);
+                    this.templateId = response.tempId;
+                    this.trmplateObject = response.tempObj;
+                    this.handleNavigate();
+                    if (typeof window !== 'undefined') {
+                        this.dispatchEvent(new CustomEvent('aftersave'));
+                    }
+                    this.closeModel();
+                }else{
+                    this.showToast('error','Something went wrong!','The template could not be cloned, please try again...', 5000);
                 }
-                this.closeModel();
             }).catch(error=>{
                 this.isShowSpinner = false;
                 console.log('error in apex cloneTempData : ', error);
@@ -201,6 +212,16 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
         } catch (error) {
             console.error('Error in handleNavigate:', error.message);
         }
+    }
+    showToast(status, title, message, duration){
+        this.showSpinner = false;
+        const messageContainer = this.template.querySelector('c-message-popup')
+        messageContainer.showMessageToast({
+            status: status,
+            title: title,
+            message : message,
+            duration : duration
+        });
     }
 
     // -=-=- Used to navigate to the other Components -=-=-

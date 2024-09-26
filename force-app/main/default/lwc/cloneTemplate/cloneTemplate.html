@@ -18,11 +18,11 @@
                             <p>Clone Template</p>
                         </div>
                         <div class="label-float">
-                            <input type="text" class="t-name" data-name="temp-name" placeholder="Enter Template Name" value={templateName} onkeyup={handleTemplateNameChange} onblur={handleTemplateNameChange}/>
+                            <input type="text" class="t-name" maxlength="255" data-name="temp-name" placeholder="Enter Template Name" value={templateName} onkeyup={handleTemplateNameChange} onblur={handleTemplateNameChange}/>
                             <label>Template Name</label>
                         </div>
                         <div class="label-float">
-                            <input type="text" class="t-description" data-name="temp-description" placeholder="Template is about.." value={templateDescription} onkeyup={handleTemplateDescriptionChange}/>
+                            <input type="text" class="t-description" maxlength="131072" data-name="temp-description" placeholder="Template is about.." value={templateDescription} onkeyup={handleTemplateDescriptionChange}/>
                             <label>Template Description</label>
                         </div>
                         <div class="text-box"><b>Source Object: </b> {trmplateObject}</div>
