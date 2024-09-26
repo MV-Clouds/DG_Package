@@ -41,8 +41,8 @@ public with sharing class DropboxAuthorizationControllerTest {
 
     @isTest
     static void testAuthorize(){
-        String client_id = 'MockClientId';
-        String client_secret = 'MockClientSecret';
+        String client_id = 'Mock';
+        String client_secret = 'Mock';
         Test.startTest();
         String result = DropBoxAuthorizationController.authorize(client_id, client_secret);
         MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getInstance();

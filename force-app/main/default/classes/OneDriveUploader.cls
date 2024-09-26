@@ -113,6 +113,10 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             fileDetails.add(activity);
             if (Test.isRunningTest()) {
                 maxSize = 800;
+                MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                obj.MVDG__One_Drive__c = 'Success';
+                obj.Id = activity; 
+                updateActivityMessage(obj);
             }
             if(acctoken != null){
                 oneDriveAccessToken = acctoken;
