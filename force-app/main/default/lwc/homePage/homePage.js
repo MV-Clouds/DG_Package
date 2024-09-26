@@ -722,10 +722,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     handleChangeStatus(event){
         try {
             this.toggelTemplateId = event.currentTarget.dataset.id;
-            this.isToggleStatus = true;
             if(!event.target.checked){
                 event.target.checked = !event.target.checked;
                 // If user try to inactive status... Show Confirmation Popup Message...
+                this.isToggleStatus = true;
                 this.showMessagePopup('Warning', 'Warning !!!', 'Do you want to Inactive this Template');
             }
             else{
@@ -788,10 +788,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     handleConfirmation(event){
         try {
             if(this.isToggleStatus){
-                const toggelInput = this.template.querySelector(`[data-toggel="${this.toggelTemplateId}"]`);
-
+                
                 if(event.detail){
-                    toggelInput.checked = !toggelInput.checked;
+                    const toggelInput = this.template.querySelector(`[data-toggel="${this.toggelTemplateId}"]`);
+                    toggelInput.checked = false;
                     // If received Confirm from user ... 
                     // update Status the template List to reflect on UI...
                     var index = this.filteredTemplateList.findIndex(ele => ele.Id === this.toggelTemplateId);

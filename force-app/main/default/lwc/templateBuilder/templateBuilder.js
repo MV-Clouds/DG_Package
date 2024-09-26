@@ -26,7 +26,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     @track headerData = '';                         // To store template header data.
 
     @track templateRecord = {}                      // Store template record field data,
-    @track tempRecordBackup = {}                    // for backup to revert template data on cancel click,
+    @track tempRecordSaved = {}                    // for backup to revert template data on cancel click,
 
     @track vfPageSRC = ''                           // DocGenerate VF page src to generate preview or file,
 
@@ -94,6 +94,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
      * Used to store value fetched from MVDG__Template_Page__c record.
      */
     @track pageConfigRecord = {};
+    @track popConfigDiscard = {};       // Used when user discard page configuration from page config popup
+    @track pageConfigSaved = {};     // Used to restore last saved page configs
     currentPageWidth = 792;             // in PX...
     currentPageHeight = 1120;           // in PX...
 
@@ -306,13 +308,13 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     // console.log(' get result size : ' , new Blob([JSON.stringify(result)]).size / 1000000, ' mb');
                     this.templateRecord = result.template;
                     this.templateRecord.createDateOnly = this.templateRecord.CreatedDate.split("T")[0];
-                    this.tempRecordBackup = JSON.parse(JSON.stringify(this.templateRecord));
+                    this.tempRecordSaved = JSON.parse(JSON.stringify(this.templateRecord));
                     this.bodyData = '';
                     this.headerData = '';
                     this.footerData = '';
                     let watermarkData = ''
                     this.pageConfigRecord = result.pageConfigs;
-                    this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
+                    this.pageConfigSaved = JSON.parse(JSON.stringify(this.pageConfigRecord));
 
                     // Collect Value in Single variable...
                     result.template.MVDG__Template_Data__r?.forEach(ele => {
@@ -508,8 +510,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 if(result){
                     completedProcess++;
                     this.handleOngoingAction(actionName, completedProcess, totalProcesses);
-                    this.tempRecordBackup = JSON.parse(JSON.stringify(this.templateRecord));
-                    this.pageConfigRecBackup = JSON.parse(JSON.stringify(this.pageConfigRecord));
+                    this.tempRecordSaved = JSON.parse(JSON.stringify(this.templateRecord));
+                    this.pageConfigSaved = JSON.parse(JSON.stringify(this.pageConfigRecord));
                 }
                 else{
                     completedProcess++;
@@ -601,8 +603,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     }
 
     cancelEditTemplate(){
-        this.templateRecord = JSON.parse(JSON.stringify(this.tempRecordBackup));
-        this.pageConfigRecord = JSON.parse(JSON.stringify(this.pageConfigRecBackup));
+        this.templateRecord = JSON.parse(JSON.stringify(this.tempRecordSaved));
+        this.pageConfigRecord = JSON.parse(JSON.stringify(this.pageConfigSaved));
         
         this.setPageConfigVariable();
         this.currentTab = 'contentTab';
@@ -1157,14 +1159,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 const basicDetails_sub = this.template.querySelector('.basicDetails_sub');
                 basicDetails_sub.appendChild(pageConfigs);
             }
+            this.popConfigDiscard = JSON.parse(JSON.stringify(this.pageConfigRecord));
         } catch (error) {
             errorDebugger('TemplateBuilder', 'togglePageConfigPopover', error, 'warn');
         }
     }
     // === ==== ==== ==== ==== Method called from EditorConfig JS -- END --  === ==== ==== ==== ==== ====
 
-    cancelPageConfig(){
-        this.pageConfigRecord = JSON.parse(JSON.stringify(this.pageConfigRecBackup));
+    discardPageConfig(){
+        this.pageConfigRecord = JSON.parse(JSON.stringify(this.popConfigDiscard));
         this.setPageConfigVariable();
         this.togglePageConfigPopover();
     }

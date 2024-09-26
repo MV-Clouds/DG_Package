@@ -233,7 +233,7 @@ public with sharing class DataMappingControllerV2 {
                 }
                 childQuery += ')';
     
-                String mainRecordQuery = 'SELECT Id, '+childQuery+' FROM '+ tableInfo.sourceObjectAPI +' WHERE Id =: recordId LIMIT 1';
+                String mainRecordQuery = 'SELECT Id, '+String.escapeSingleQuotes(childQuery)+' FROM '+ String.escapeSingleQuotes(tableInfo.sourceObjectAPI) +' WHERE Id =: recordId LIMIT 1';
 
                 sObject sourceObject = querySObject(mainRecordQuery, recordId, tableInfo.sourceObjectAPI);
                 Object cr = sourceObject.getPopulatedFieldsAsMap().get(tableInfo.childRelationshipName);
@@ -492,7 +492,7 @@ public with sharing class DataMappingControllerV2 {
                 fieldsToQuery.add('Id');
     
                 String fieldApiString = string.join(fieldsToQuery, ',');
-                String dynamicQuery = 'SELECT ' + fieldApiString + ' FROM '+ objectAPI +' WHERE Id =: recordId LIMIT 1';
+                String dynamicQuery = 'SELECT ' + String.escapeSingleQuotes(fieldApiString) + ' FROM '+ String.escapeSingleQuotes(objectAPI) +' WHERE Id =: recordId LIMIT 1';
     
                 // userObj = Database.query(dynamicQuery, recordId);
                 sObject sObj = querySObject(dynamicQuery, recordId, objectAPI);
@@ -803,6 +803,7 @@ public with sharing class DataMappingControllerV2 {
      */
     public static sObject querySObject(String query, String recordId, String sourceObject){
         try {
+            System.debug('query :  ' + query);
             return Database.query(query);
         } catch (Exception e) {
             system.debug('exception in querySObject : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());

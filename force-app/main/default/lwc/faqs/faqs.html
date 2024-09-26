@@ -1,0 +1,45 @@
+<template>
+  <div class="faq-maindiv">
+
+    <template if:false={mobileView}>
+        <div class="all-btn">
+        <template for:each={faqs} for:item="faq" for:index="index">
+          <button key={faq.faqId} data-selected={faq.selected} class="faq-button" data-id={faq.faqId} onclick={showContent}>{faq.name}</button>
+        </template>
+      </div>
+    </template>
+    <template if:true={mobileView}>
+      <div class="faqSelection">
+        <div class="selectedFAQName">{selectedFAQName}</div>
+        <div class="selectFaqBtn" onclick={toggleFaqsBtn} data-selected={showSelectBtn}>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
+        </div>
+        <div lwc:if={showSelectBtn} class="selectFAQbtns">
+            <template for:each={faqs} for:item="faq" for:index="index">
+              <button key={faq.faqId} data-selected={faq.selected} class="faq-button-mobile" data-id={faq.faqId} onclick={showContent}>{faq.name}</button>
+            </template>
+        </div>
+      </div>
+    </template>
+    <hr>
+    <div class="content-container">
+      <div class="left-container">
+        <img id="link" src={faqImage} alt="error" width="90%" draggable="false">
+      </div>
+      <div class="right-container">
+        <template for:each={faqs} for:item="faq" for:index="index">
+          <div class="accordion-div" lwc:if={faq.selected} key={faq.faqId}>
+            <lightning-accordion allow-multiple-sections-open >
+                <template for:each={faq.questions} for:item="content" for:index="innerIndex">
+                  <lightning-accordion-section key={content.question} name={content.question} label={content.question}>
+                      <p>{content.answer}.</p>
+                  </lightning-accordion-section>
+                </template>
+            </lightning-accordion>
+          </div>
+        </template>
+      </div>
+    </div>
+
+  </div>
+</template>
