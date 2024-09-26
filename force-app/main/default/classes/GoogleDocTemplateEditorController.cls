@@ -257,7 +257,7 @@ public with sharing class GoogleDocTemplateEditorController {
     public static String getTemplate(string templateId) {
         try {
             List<MVDG__Template__c> template = new List<MVDG__Template__c>();
-            template = [SELECT MVDG__Template_Name__c, MVDG__Description__c, Id, MVDG__Template_Status__c, MVDG__Object_API_Name__c, MVDG__Template_Type__c, CreatedDate, LastModifiedDate, CreatedBy.Name, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id = :templateId WITH SECURITY_ENFORCED];
+            template = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c, MVDG__Template_Status__c, MVDG__Object_API_Name__c, MVDG__Template_Type__c, CreatedDate, LastModifiedDate, CreatedBy.Name, LastModifiedBy.Name FROM MVDG__Template__c WHERE Id = :templateId WITH SECURITY_ENFORCED];
             if (template.size() > 0) {
                 return JSON.serialize(template[0]);
             }
@@ -335,16 +335,25 @@ public with sharing class GoogleDocTemplateEditorController {
     * Change Description : 
     ***********************************************************************/
     @AuraEnabled
-    public static void editTemplate(String templateRecord) {
+    public static Boolean editTemplate(String templateRecord) {
         try {
-            MVDG__Template__c template = (MVDG__Template__c) JSON.deserialize(templateRecord, MVDG__Template__c.class);
-            if (Schema.sObjectType.MVDG__Template__c.isAccessible() && Schema.sObjectType.MVDG__Template__c.isUpdateable()) {
-                update as user template;
-            }
+            Map<String,String> templateRec = (Map<String,String>) JSON.deserialize(templateRecord, Map<String,String>.class);
+            MVDG__Template__c template = new MVDG__Template__c();
+
+            if (templateRec.containsKey('templateId')) {
+                template.Id = templateRec.get('templateId');
+                template.MVDG__Template_Name__c = templateRec.get('templateName');
+                template.MVDG__Template_Status__c = Boolean.valueOf(templateRec.get('templateStatus'));
+                template.MVDG__Description__c = templateRec.get('templateDescription');
+                update as user template; 
+                return true;
+            } 
+
         } catch (Exception e) {
             System.debug('Error In editTemplate ==> ' + e.getMessage());
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'editTemplate');
         }
+        return false;
     }
     
     /**

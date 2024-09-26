@@ -6,6 +6,7 @@ import editTemplate from "@salesforce/apex/GoogleDocTemplateEditorController.edi
 import createNewDocument from "@salesforce/apex/GoogleDocTemplateEditorController.createNewDocument";
 
 import new_template_bg from "@salesforce/resourceUrl/new_template_bg";
+
 import homePageImgs from "@salesforce/resourceUrl/homePageImgs";
 import { NavigationMixin } from "lightning/navigation";
 import { errorDebugger, nameSpace } from 'c/globalProperties';
@@ -86,7 +87,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 }
             }
 
-            this.template.host.style.setProperty("--background-image-url", `url(${new_template_bg})`);
+            this.template.host.style.setProperty("--background-image-url", `url(${homePageImgs}/HomBg.png)`);
             this.template.host.style.setProperty("--main-background-image-url", `url(${homePageImgs}/HomBg.png)`);
             if (this.initialRender && this.template.querySelector("c-key-mapping-container")) {
                 this.resizeFunction();
@@ -560,17 +561,32 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             console.log('editTemplateDetails');
             this.isSpinner = true;
             this.loaderLabel = "Saving Your Data";
-            editTemplate({ templateRecord: JSON.stringify(this.templateRecord) })
-                .then(() => {
+
+            let saveRecord = {
+                templateName: this.templateRecord.MVDG__Template_Name__c,
+                templateDescription: this.templateRecord.MVDG__Description__c,
+                templateStatus: this.templateRecord.MVDG__Template_Status__c,
+                templateId: this.templateId,
+            }
+            editTemplate({ templateRecord: JSON.stringify(saveRecord) })
+                .then((result) => {
                     console.log("Details Edited");
                     this.isSpinner = false;
-                    this.previousTemplateData = JSON.parse(JSON.stringify(this.templateRecord));
-                    const popup = this.template.querySelector("c-message-popup");
-                    popup.showMessageToast({
-                        title: "Template Data Saved",
-                        message: "Template data saved to backend succesfully.",
-                        status: "success"
-                    });
+                    if (result) {
+                        this.previousTemplateData = JSON.parse(JSON.stringify(this.templateRecord));
+                        const popup = this.template.querySelector("c-message-popup");
+                        popup.showMessageToast({
+                            title: "Template Data Saved",
+                            message: "Template data saved to backend succesfully.",
+                            status: "success"
+                        });
+                    } else {
+                        popup.showMessageToast({
+                            title: "Error Saving Template",
+                            message: "Error saving template data to backend. Please try again later.",
+                            status: "error"
+                        });
+                    }
                 })
                 .catch((error) => {
                     this.isSpinner = false;
