@@ -52,7 +52,6 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     global void execute(Database.BatchableContext bC, List < ContentVersion > scope) {
         try {
             String acctoken = getToken(activity);
-            
             if (!scope.isEmpty()) {
                 ContentVersion cv = scope[0];
                 String fileName = cv.Title;
@@ -89,7 +88,9 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
             emailUser('File size too large. Try uploading file with smaller size.\n\n Or Download it and then upload file manually.');
             System.debug('Error during Google file upload: heap size issue' + e.getMessage());
         }
-        update as user listMessage[0];
+        if (!listMessage.isEmpty()) {
+            update as user listMessage[0];
+        }
     }
 
 
