@@ -243,10 +243,6 @@ public class ChildRelationshipInfo {
                     fieldNames.add((String)fieldDetail.get('field'));
                 }
             }
-            System.debug('recordid'+recordId);
-            System.debug('objectName'+objectName);
-            System.debug('layout'+layout);
-            System.debug('recordid'+NameSpace);
 
 
             String soql = 'SELECT Id, ' + String.join(fieldNames, ', ') + ' FROM ' + objectName + ' WHERE Id = \''+ String.escapeSingleQuotes(recordId) +'\'';
