@@ -674,6 +674,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 }
                 [this.selectedFields[index], this.selectedFields[index-1]] = [this.selectedFields[index-1], this.selectedFields[index]]
             }
+            this.template.querySelector('.selected-item')?.scrollIntoView({ behavior: "smooth", block: "end"});
             this.isEditTabChanged = true;
         }catch(e) {
             errorDebugger('editCSVTemplate', 'handleUp', e, 'warn');
@@ -691,6 +692,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 }
                 [this.selectedFields[index], this.selectedFields[index+1]] = [this.selectedFields[index+1], this.selectedFields[index]]
             }
+            this.template.querySelector('.selected-item')?.scrollIntoView({ behavior: "smooth"});
             this.isEditTabChanged = true;
         }catch(e) {
             errorDebugger('editCSVTemplate', 'handleDown', e, 'warn');
@@ -699,6 +701,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleTop(){
         try{
+            this.template.querySelector('.field-li-to-selected')?.scrollIntoView({ behavior: "smooth", block: "end"});
             this.moveFieldsToPosition('top');
         }catch(e) {
             errorDebugger('editCSVTemplate', 'handleTop', e, 'warn');
@@ -707,6 +710,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleBottom(){
         try {
+            this.template.querySelectorAll('.field-li-to-selected')[this.selectedFields.length-1]?.scrollIntoView({ behavior: "smooth", block: "start"});
             this.moveFieldsToPosition('bottom');
         }catch(e) {
             errorDebugger('editCSVTemplate', 'handleBottom', e, 'warn');
