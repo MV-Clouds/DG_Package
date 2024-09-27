@@ -1728,8 +1728,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.completedSimTempPros = this.selectedChannels.length;
                 ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error In File Generation => '+ message.data.error?.message);
                 this.simpleTemplateFileDone();
-                this.showToast('error','Something went Wrong!', 'There was error creating document, please try again.', 5000);
-                
+                this.showWarningPopup('error', 'Something went wrong!', 'The Document could not be generated, please try again...');
+                this.isClosableError = true;
+                this.showSpinner = false;
             }
             else if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel !== 'unknown'){
                 
@@ -1747,13 +1748,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     if(cvId){
                         this.resultPromises.push(this.createFilesChatterEmail(cvId));
                         this.uploadToExternalStorage(cvId);
-                        this.handleGenerationResult();
                     }else{
                         ['Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = message.data.error?.message);
-                        this.showWarningPopup('error', 'Something went wrong!', 'The Document could not be generated, please try again...');
-                        this.isClosableError = true;
                         this.showSpinner = false;
                     }
+                    this.handleGenerationResult();
                 }
             }
         }catch(e){
