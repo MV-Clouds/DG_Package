@@ -243,9 +243,14 @@ public class ChildRelationshipInfo {
                     fieldNames.add((String)fieldDetail.get('field'));
                 }
             }
+            System.debug('recordid'+recordId);
+            System.debug('objectName'+objectName);
+            System.debug('layout'+layout);
+            System.debug('recordid'+NameSpace);
 
-            String soql = 'SELECT Id, ' + String.escapeSingleQuotes(String.join(fieldNames, ', ')) + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id = \''+String.escapeSingleQuotes(recordId)+'\'';
-            SObject record = Database.query(String.escapeSingleQuotes(soql));
+
+            String soql = 'SELECT Id, ' + String.join(fieldNames, ', ') + ' FROM ' + objectName + ' WHERE Id = \''+ String.escapeSingleQuotes(recordId) +'\'';
+            SObject record = Database.query(soql);
             
             Map<String, Object> recordFieldValues = new Map<String, Object>();
             for (String fieldName : fieldNames) {

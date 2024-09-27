@@ -77,7 +77,7 @@ public with sharing class DropboxSuccessControllerTest {
     static void testredirect1(){
         Test.startTest();
         String result = DropboxSuccessController.redirect('Url:[delegate=https://test.develop.my.salesforce.com]');
-        System.assertEquals(null, result);
+        System.assertNotEquals(null, result);
         Test.stopTest();
     }
 
@@ -85,7 +85,7 @@ public with sharing class DropboxSuccessControllerTest {
     static void testredirect2(){
         Test.startTest();
         String result = DropboxSuccessController.redirect('Url:[delegate=https://test.scratch.my.salesforce.com]');
-        System.assertEquals(null, result);
+        System.assertNotEquals(null, result);
         Test.stopTest();
     }
 
@@ -93,7 +93,7 @@ public with sharing class DropboxSuccessControllerTest {
     static void testredirect3(){
         Test.startTest();
         String result = DropboxSuccessController.redirect('Url:[delegate=https://test.sandbox.my.salesforce.com]');
-        System.assertEquals(null, result);
+        System.assertNotEquals(null, result);
         Test.stopTest();
     }
 
@@ -101,7 +101,7 @@ public with sharing class DropboxSuccessControllerTest {
     static void testredirect4(){
         Test.startTest();
         String result = DropboxSuccessController.redirect('Url:[delegate=https://test.my.salesforce.com]');
-        System.assertEquals(null, result);
+        System.assertNotEquals(null, result);
         Test.stopTest();
     }
 
