@@ -163,7 +163,7 @@
   .inputAreaCSS_2::placeholder, .placeHolderCSS{
     display: flex !important;
     align-items: center !important;
-    color: var(--placeHolderColor) !important;
+    color: gray !important;
     font-size: var(--placeHolderSize) !important;
   }
   .dropDownCSS{
