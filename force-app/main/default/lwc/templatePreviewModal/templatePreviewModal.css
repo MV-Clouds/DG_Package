@@ -5,6 +5,7 @@
   --ff_Montserrat : "Montserrat";
   --ff_Poppins : Poppins;
   --timeoutTime : 0s;
+  --maxWidth : min(60rem, calc(100% - 20rem));
 }
 
 
@@ -174,7 +175,6 @@
 
 .preview_rightSection {
   width: max-content;
-  --maxWidth : min(60rem, calc(100% - 20rem));
   max-width: var(--maxWidth);
   height: 100%;
   background: #f2f9ff;

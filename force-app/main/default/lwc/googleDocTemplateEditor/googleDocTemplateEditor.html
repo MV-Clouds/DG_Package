@@ -163,7 +163,8 @@
                         template-type-from-parent="Google Doc Template" 
                         template-id-from-parent={templateId} 
                         object-name-from-parent={objectName} 
-                        template-name-from-parent={templateRecord.MVDG__Template_Name__c}>
+                        template-name-from-parent={templateRecord.MVDG__Template_Name__c}
+                        onclose={handleDefaultsClose}>
                     </c-generate-document>
                 </div>
             </template>
@@ -209,7 +210,7 @@
                 <hr style="margin: 0 2%" />
                 <div class="documents" lwc:if={templates.length}>
                     <template for:each={templates} for:item="template">
-                        <div class="docs-container hover-effect" key={template.id} data-id={template.id} onclick={handleTemplateClick}>
+                        <div class="docs-container hover-effect" key={template.id} data-id={template.id} onclick={handleTemplateClick} title={template.name}>
                             <div class="docFirstRow">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 51" fill="none" class="small">
                                     <path d="M3.5625 0C1.59499 0 0 1.55683 0 3.47727V47.5227C0 49.4432 1.59499 51 3.5625 51H34.4375C36.405 51 38 49.4432 38 47.5227V13.9091L23.75 0H3.5625Z" fill="#4E8DF5" />
@@ -251,7 +252,7 @@
                             </div>
                             <div class="docThirdRow">
                                 <div class="size">{template.size}</div>
-                                <div class="date">Date: {template.createdTime}</div>
+                                <div class="date">{template.createdTime}</div>
                             </div>
                         </div>
                     </template>

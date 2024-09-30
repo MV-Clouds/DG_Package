@@ -339,6 +339,8 @@ export default class UserGuide extends LightningElement {
     @track docgenTab = false;
     @track tabList = ['btngenTab', 'awsTab', 'gdriveTab', 'odriveTab', 'dropboxTab', 'gdtempTab', 'stempTab', 'csvtempTab', 'dochomeTab', 'keysecTab', 'docgenTab'];
 
+    @track selectedTab = '';
+
     @track isOpen = true;
     @track showModal = false;
 
@@ -375,13 +377,18 @@ export default class UserGuide extends LightningElement {
                 if (element && this.isInViewport(element)) {
                     
                     let currentTab = this.template.querySelector('.selected-tab');
-                    if (currentTab) {
-                        currentTab.classList.remove('selected-tab');
-                    }
+                    currentTab?.classList.remove('selected-tab');
+
                     let tab = this.template.querySelector(`a.tabs[data-tab="${this.tabList[i].slice(0, -3)}"]`);
-                    if (tab) {
-                        tab.classList.add('selected-tab');
+                    tab?.classList.add('selected-tab');
+                            
+                    let currentTop = currentTab?.offsetTop;
+                    let tabTop = this.selectedTab?.offsetTop;
+                    let contentHeight = this.template.querySelector('.left-section')?.offsetHeight;
+
+                    if (Math.abs(tabTop - currentTop) < (contentHeight - 50)) {
                         tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+                        this.selectedTab = currentTab;
                     }
                     break;
                 }
@@ -394,13 +401,7 @@ export default class UserGuide extends LightningElement {
     // Switch Tabs
     handleTabSelection(event) {
         try {
-            if (window && window.innerWidth && window.innerWidth < 1024 ) {
-                this.closeTab();
-            }
-            let tabName = event.target.dataset.tab;
-            if (!tabName) {
-                tabName = event.target.parentElement.dataset.tab;
-            }
+            this.selectedTab = event.target;
         } catch (error) {
             errorDebugger("userGuide", 'handleTabSelection', error, 'error', 'Error in changing tabs. Please try again later');
         }

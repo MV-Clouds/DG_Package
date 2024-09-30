@@ -329,6 +329,11 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         }
     }
 
+    handleDefaultsClose() {
+        this.activeTabName = "contentTab";
+        this.setActiveTab();
+    }
+
     // When user navigates to home page
     cancel() {
         console.log('this.cancel');
@@ -351,7 +356,11 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         try {
             console.log('this.setDateAndSize');
             this.allTemplates = this.allTemplates.map((template) => {
-                template.createdTime = template.createdTime.split("T")[0];
+
+                let date = template.createdTime.split("T")[0];
+                let [year, month, day] = date.split("-");
+                template.createdTime = `${day}-${month}-${year}`;
+
                 if (template.size < 1024) {
                     template.size = Math.round(template.size) + "Byte";
                 } else if (template.size < 1024 * 1024) {

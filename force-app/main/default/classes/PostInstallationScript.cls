@@ -14,7 +14,7 @@ global class PostInstallationScript implements InstallHandler, UninstallHandler{
                     permissionSets.add(psa);
                 }
                 if (permissionSets.size() > 0) {
-                    insert as user permissionSets;
+                    insert permissionSets;
                 }
             }
 
@@ -30,7 +30,7 @@ global class PostInstallationScript implements InstallHandler, UninstallHandler{
             psassignment = [SELECT Id FROM PermissionSetAssignment WHERE PermissionSet.Name IN ('DocGenius_Standard_Permissions', 'DocGenius_Admin_Permissions', 'DocGenius_Basic_Permissions')];
 
             if (!psassignment.isEmpty()) {
-                delete as user psassignment;
+                delete psassignment;
             }
         } catch (Exception e) {
             System.debug('Exception in onUninstall==>' + e.getMessage() + e.getLineNumber());

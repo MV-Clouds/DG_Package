@@ -135,6 +135,18 @@ export default class TemplatePreviewModal extends LightningElement {
         }
     }
 
+    renderedCallback() {
+        try {
+            
+            console.log("this.isCalledFromGenerateDoc==>", this.isCalledFromGenerateDoc);
+            if (this.isCalledFromGenerateDoc) {
+                this.template.host.style.setProperty("--maxWidth", 'unset');
+            }
+        } catch (error) {
+            errorDebugger('TemplatePreviewModal', 'connectedCallback', error, warn);
+        }
+    }
+
     onRecordSelect(event){
         try {
             if(event.detail && event.detail.length){
