@@ -748,6 +748,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             });
             let uniqueFieldOptions = new Set([...this.fieldOptions, ...this.toRemoveSelected]);
             this.fieldOptions = Array.from(uniqueFieldOptions);
+            this.setSelectionFields();
             this.toRemoveSelected = [];
             this.isEditTabChanged = true;
         }catch(e) {
@@ -2217,6 +2218,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             if(!this.isListViewUpdated){
                 return;
             }
+            this.isListViewUpdated = false;
             if(!this.selectedListView){
                 this.showToast('error', 'Oops! No list view selected.', 'Please select a list view to proceed with a list view.', 5000);
             }else{
