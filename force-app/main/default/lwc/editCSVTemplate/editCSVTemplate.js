@@ -1888,6 +1888,15 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         }
     }
 
+    handleGenerateClose(){
+        try {
+            this.activeTab({currentTarget : {dataset: {name : 'editTab'}}});
+        } catch (e) {
+            errorDebugger('editCSVTemplate', 'handleGenerateClose', e, 'warn');
+        }
+    }
+
+
     closePreview(){
         this.showPreview = false;
     }

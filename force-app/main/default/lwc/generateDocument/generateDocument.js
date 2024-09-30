@@ -1150,12 +1150,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         window?.removeEventListener('message', this.simpleTempFileGenResponse);
         if(this.currentPageReference.type === "standard__quickAction"){
             this.dispatchEvent(new CloseActionScreenEvent())
-        }else if(this.showCloseButton){ 
-            if(this.isCalledFromPreview){
-                this.dispatchEvent(new CustomEvent('close'));
-            }else{
-                location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
-            }
+        }else if(this.isCalledFromPreview || this.isCalledFromDefaults){
+            this.dispatchEvent(new CustomEvent('close'));
+        }else{
+            location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
         }
     }
 
