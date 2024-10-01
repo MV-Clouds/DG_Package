@@ -400,7 +400,8 @@ public with sharing class GenerateDocumentController {
                 MVDG__Email_Addresses__c  = defaultData.get('emailAddresses'),
                 MVDG__Email_Subject__c  = defaultData.get('emailSubject'),
                 MVDG__Email_Body__c  = defaultData.get('emailBody'),
-                MVDG__Email_Template__c = defaultData.get('emailTemplate')
+                MVDG__Email_Template__c = defaultData.get('emailTemplate'),
+                MVDG__Template_Status__c = true
             );
             update as User template;
         } catch (Exception e) {

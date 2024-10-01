@@ -1897,6 +1897,14 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         }
     }
 
+    handleActivateTemplate(){
+        try {
+            this.newTemplateData.MVDG__Template_Status__c = true;
+            this.existingTemplateData.MVDG__Template_Status__c = true;
+        } catch (e) {
+            errorDebugger('editCSVTemplate', 'handleActivateTemplate', e, 'warn');
+        }
+    }
 
     closePreview(){
         this.showPreview = false;
