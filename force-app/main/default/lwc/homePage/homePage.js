@@ -509,7 +509,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     sortDisplayTemplates(){
         try {
-            var fieldToSort = this.filterOpts['fieldToSort'] ? this.filterOpts['fieldToSort'] : this.defaultFieldToSort;
+            this.filterOpts['fieldToSort'] = this.filterOpts['fieldToSort'] ? this.filterOpts['fieldToSort'] : this.defaultFieldToSort;
             // this.filterOpts.fieldToSort = fieldToSort;
             var sortAs = this.filterOpts['filterSortAS'] ? this.filterOpts['filterSortAS'] : this.defaultSortAS;
             this.filteredTemplateList = this.filteredTemplateList.sort((a, b) => {

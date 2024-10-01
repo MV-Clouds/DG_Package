@@ -989,10 +989,10 @@
                                 }
     
                                 // ...if file size in less then 37.5, store file in Salesforce Document Object ....
-                                if(fileSizeInByte < 37.5*1020*1020 && selectedChannels.includes('Files') ||
+                                if(fileSizeInByte < 37.5*1020*1020 && (selectedChannels.includes('Files') ||
                                     selectedChannels.includes('Chatter') || selectedChannels.includes('Email') ||
                                     selectedChannels.includes('Google Drive') || selectedChannels.includes('AWS') ||
-                                    selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox'))
+                                    selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox')))
                                 {
                                     createContentVersion(fileData);
                                 }

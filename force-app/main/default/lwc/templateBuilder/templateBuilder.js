@@ -1481,6 +1481,11 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         }
     }
 
+    moveToBasicDetail(){
+        this.currentTab = 'basicTab';
+        this.setActiveTab();
+    }
+
 
     handleSpinnerClose(){
         try {

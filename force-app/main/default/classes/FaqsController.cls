@@ -142,4 +142,48 @@ public with sharing class FaqsController {
         }
     }
 
+    @AuraEnabled
+    public static List<Knowledge__kav> getFAQKnowledge(){
+        try {
+            List<Knowledge__kav> faqs = [SELECT Id, Title, UrlName, FAQ_Question_Category__c, FAQ_Question__c, FAQ_Answer__c FROM Knowledge__kav WHERE RecordType.Name = 'FAQs' LIMIT 50000];
+            
+            return faqs;
+        } catch (Exception e) {
+            system.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            return null;
+        }
+    }
+
+    public static boolean createKnowladgeArtical(){
+        try {
+                List<FAQ> faqs = getAllFaqs();
+                List<Recordtype> recordTypes = [SELECT Id, Name, SobjectType FROM RecordType WHERE SobjectType = 'Knowledge__kav' AND Name = 'FAQs'];
+
+                List<Knowledge__kav> knowlagesToInset = new List<Knowledge__kav>();
+                for(FAQ f : faqs){
+                    for(FAQQustion fq : f.questions){
+                        Knowledge__kav newArticle = new Knowledge__kav();
+                        String name = f.name+'-'+fq.question;
+                        newArticle.Title = name;
+                        newArticle.UrlName = name.replace(' ','_').replaceAll('[^a-zA-Z0-9\\s+]', '');
+                        newArticle.FAQ_Question_Category__c = f.name;
+                        newArticle.FAQ_Question__c = fq.question;
+                        newArticle.FAQ_Answer__c = fq.answer;
+                        if(recordTypes.size() > 0){
+                                newArticle.RecordTypeId = recordTypes[0].Id;
+                        }
+                        knowlagesToInset.add(newArticle);
+                    }
+                }
+
+                insert knowlagesToInset; 
+
+
+                return true;
+        } catch (Exception e) {
+                system.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+                return false;
+        }
+    }
+
 }

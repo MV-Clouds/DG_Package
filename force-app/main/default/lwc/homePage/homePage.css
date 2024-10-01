@@ -672,7 +672,7 @@
       min-width: calc(100% - var(--searchIcon_Width) -2px) ;
       max-width: 100%;
       height: 2.25rem;
-      font-family: var(--ff_Poppins);
+      font-family: var(--ff_Bahnschrift);
       font-size: 14px;
       border: none;
       flex-grow: 1;
@@ -681,8 +681,9 @@
     .searchInput::placeholder{
       font-size: 18px;
       color: #ABB7C2;
-      font-family: var(--ff_Poppins);
-      padding-top: 4px;
+      font-family: var(--ff_Bahnschrift);
+      padding-top: 10px;
+      vertical-align: middle;
     }
     .searchInput:focus-visible{
       /* width: 20rem; */

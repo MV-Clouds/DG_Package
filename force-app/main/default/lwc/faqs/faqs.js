@@ -1,12 +1,13 @@
 import { LightningElement, track } from 'lwc';
 import faqImage from '@salesforce/resourceUrl/faqImage'
 import getAllFaqs from '@salesforce/apex/FaqsController.getAllFaqs';
+import getFAQKnowledge from '@salesforce/apex/FaqsController.getFAQKnowledge';
 
 export default class Faqs extends LightningElement {
 
 
     faqImage = faqImage
-    @track activeSection = 'integration';
+    @track activeSection = 'Integration';
     @track contentSections = [];
     @track faqs = [];
     initialRender = true;
@@ -60,11 +61,14 @@ export default class Faqs extends LightningElement {
 
     fetchFAQS(){
         try {
-            getAllFaqs()
+            // getAllFaqs()
+            getFAQKnowledge()
             .then(result => {
                 if(result) {
-                    this.faqs = JSON.parse(JSON.stringify(result));
-                    this.setActiveSection();
+                    console.log('result : ', result);
+                    if(result){
+                        this.setFAQs(result);
+                    }
                 }
                 else{
                     console.log('error to fetch faqs');
@@ -76,30 +80,116 @@ export default class Faqs extends LightningElement {
         }
     }
 
+    setFAQs(faqs_temp){
+        try {
+
+            var faqCategories = new Set();
+            faqs_temp?.forEach(ele => {
+                var cate = ele.FAQ_Question_Category__c ?? 'Other';
+                faqCategories.add(cate);
+            });
+
+            faqCategories?.forEach(ele => {
+                this.faqs.push({
+                    'faqId' : ele,
+                    'name' : ele,
+                    'questions' : []
+                });
+            });
+
+            faqs_temp?.forEach(ele => {
+                var cate = ele.FAQ_Question_Category__c ?? 'Other';
+                var faq = this.faqs.find(ele => ele.name === cate);
+                faq['selected'] = faq.name === this.activeSection;
+                faq.questions.push({
+                    'questionId' : ele.Id,
+                    'question' : this.extractTextFromHTMLTag(ele.FAQ_Question__c),
+                    'answer' :  this.extractTextFromHTMLTag(ele.FAQ_Answer__c),
+                    'opened' : false,
+                });
+            });
+
+            console.log('faq2 : ', this.faqs);
+            
+        } catch (error) {
+            console.log('error in setFAQs : ', error.message);
+        }
+    }
+
     @track showSelectBtn = false;
     toggleFaqsBtn(){
         this.showSelectBtn = !this.showSelectBtn
     }
 
-    showContent(event) {
+    handleContentChange(event) {
         try {
             const faqId = event.currentTarget.dataset.id;
             this.activeSection = faqId;
+            this.showSelectBtn = !this.showSelectBtn;
             this.setActiveSection();
-            
         } catch (error) {
-            console.log(`error in showContent : ${error.stack}`);
+            console.log(`error in handleContentChange : ${error.stack}`);
         }
     }
 
     setActiveSection(){
         try {
-            this.faqs.forEach(ele => {
+            this.faqs?.forEach(ele => {
                 ele['selected'] = ele.faqId === this.activeSection;
+                ele?.questions?.forEach(item => {
+                    item['opened'] = false;
+                })
             });
             this.selectedFAQName = this.faqs.find(ele => ele.faqId === this.activeSection).name;
+            
         } catch (error) {
             console.log(`error in setActiveSection : ${error.stack}`);
+        }
+    }
+
+    openAccordionContent(event){
+        try {
+            const faqId = event.currentTarget.dataset.faqid;
+            const question = event.currentTarget.dataset.id;
+
+            // this.faqs?.forEach(ele => {
+            //     if(ele.faqId === faqId){
+            //         ele.questions.find(item => item.question === question).opened = true;
+            //     }
+            // })
+
+            const targetFaqs = this.faqs?.find(faq => faq.faqId === faqId)?.questions;
+            targetFaqs?.forEach(ele => {
+                const targetDiv = this.template.querySelector(`[data-question-id="${ele.questionId}"]`);
+                if(ele.questionId === question){
+                    const maxHeight = ele.opened ? 0 : targetDiv?.scrollHeight;
+                    targetDiv.style = `--maxHeight : ${maxHeight}px`;
+                    ele.opened = !ele.opened
+                }
+                else{
+                    targetDiv.style = `--maxHeight : 0px`
+                    ele.opened = false;
+                }
+            })
+
+        } catch (error) {
+            console.log(`error in setActiveSection : ${error.stack}`);
+        }
+    }
+
+    extractTextFromHTMLTag(html){
+        try {
+            var temEle = document.createElement('div');
+            temEle.innerHTML = html;
+            const textarea = document.createElement('textarea');
+            textarea.innerText = temEle.innerText;
+            var returnValue =  textarea.value;
+            temEle.remove();
+            textarea.remove();
+            return returnValue;
+        } catch (error) {
+            console.log(`error in extractTextFromHTMLTag : ${error.stack}`);
+            return '';
         }
     }
 

@@ -8838,10 +8838,10 @@ Worker.prototype.toImg = function toImg() {
              * Do Not render page more than 20 pages...
              */
               if(page < 20){
-                if (page === nPages - 1 && pxFullHeight % pxPageHeight !== 0) {
-                  pageCanvas.height = pxFullHeight % pxPageHeight;
-                  pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
-                }
+                // if (page === nPages - 1 && pxFullHeight % pxPageHeight !== 0) {
+                //   pageCanvas.height = pxFullHeight % pxPageHeight;
+                //   pageHeight = (pageCanvas.height * this.prop.pageSize.inner.width / pageCanvas.width);
+                // }
 
                 // console.log('page : ', page);
                 // console.log('pageHeight : ', pageHeight);
