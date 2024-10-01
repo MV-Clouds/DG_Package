@@ -313,7 +313,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @track succeeded = [];
     @track failed = {};
     resultPromises = [];
-    // @track resultList = [];
 
     //Default Generation
     @track isDefaultGenerate = false;
@@ -366,7 +365,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     get hideOptionSelection(){
-        return this.showAllTemplates || this.showCSVPreview || this.isEditDisabled || this.showGDocPreview || this.showSimplePreview;
+        let theHideResult = this.showAllTemplates || this.showCSVPreview || this.isEditDisabled || this.showGDocPreview || this.showSimplePreview;
+        this.template.host.style.setProperty('--display-for-main-container', theHideResult ? 'none' : 'flex' );
+        return theHideResult;
     }
 
     get showBottomButtons(){
@@ -1761,7 +1762,6 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     simpleTemplateFileDone(){
         if(this.selectedChannels.length === this.completedSimTempPros){
             this.showSpinner = false;
-            // this.failed = this.selectedChannels.filter((item) => !this.succeeded.includes(item));
             this.simpleTemplate = false;
             this.completedSimTempPros = 0;
             this.handleGenerationResult();
