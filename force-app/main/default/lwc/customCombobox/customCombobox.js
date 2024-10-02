@@ -486,7 +486,7 @@ export default class CustomCombobox extends LightningElement {
 
             this.setErrorBorder();
             this.sortDisplayItems();
-            this.template.querySelector('input.inputAreaCSS_2').value = null;
+            // this.clearSearch();
 
         } catch (error) {
             errorDebugger('CustomCombobox', 'closeDropDown', error, 'warn');
