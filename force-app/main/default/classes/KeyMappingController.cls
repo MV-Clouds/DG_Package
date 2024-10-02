@@ -186,7 +186,7 @@ public with sharing class KeyMappingController {
                     if(objAPI != 'Group' && parentObjFieldApi != 'whatid' && parentObjFieldApi != 'whoid'){
                         objectFields.add(f);
                     }
-                    else if(polymorphismObjAllowdFields.contains(fieldAPI)){
+                    else if(polymorphismObjAllowdFields.contains(fieldAPI) || f.isCustom()){
                         System.debug('field name : ' + fieldAPI);
                         objectFields.add(f);
                     }

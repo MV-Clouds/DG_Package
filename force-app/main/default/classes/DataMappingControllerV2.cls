@@ -788,7 +788,7 @@ public with sharing class DataMappingControllerV2 {
                             fieldAPI = replationshipName == null ? fieldAPI : replationshipName +'.'+ fieldAPI;
                             fields.put(fieldAPI , (String)  String.valueOf(field.getType()));
                         }
-                        else if(KeyMappingController.polymorphismObjAllowdFields.contains(fieldAPI)){
+                        else if(KeyMappingController.polymorphismObjAllowdFields.contains(fieldAPI) || field.isCustom()){
                             fieldAPI = replationshipName == null ? fieldAPI : replationshipName +'.'+ fieldAPI;
                             fields.put(fieldAPI , (String)  String.valueOf(field.getType()));
                         }
