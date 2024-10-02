@@ -88,7 +88,9 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
                 this.fields = result.templateData.MVDG__CSV_Fields__c?.split(',');
                 this.additionalData['Name'] = result.templateData.MVDG__Template__r.MVDG__Template_Name__c;
                 this.additionalData['Object Api Name'] = result.templateData.MVDG__Template__r.MVDG__Object_API_Name__c;
-                this.additionalData['Description'] = result.templateData.MVDG__Template__r.MVDG__Description__c || 'No Description Available for this template';
+                let description = result.templateData.MVDG__Template__r.MVDG__Description__c || '-';
+                description = description.length > 50 ? description.slice(0,50)+'...' : description;
+                this.additionalData['Description'] = description;
                 this.isTemplateInactive = !result.templateData.MVDG__Template__r.MVDG__Template_Status__c;
                 this.additionalData['CSV Creation Time'] = new Date().toLocaleString().replace(',', ' ');
                 if(!this.fields || this.fields?.length < 1){
