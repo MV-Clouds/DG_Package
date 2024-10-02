@@ -10,7 +10,12 @@ public with sharing class KeyMappingController {
     public static string signatureKey = '{{Sign.DocGenius *Signature Key*}}';
     public static List<string> imgTyes = new List<string>{'png','jpg','jpeg','avif','webp','heic','ico','jfif','jps','jpe'};
     public static integer maxImageSize = 20*1000*1000;  // 20MB
-
+    public static list<string> polymorphismObjAllowdFields = new list<string>
+    {
+        'Alias', 'Email', 'FirstName', 'IsActive', 'LastName', 
+        'LastReferencedDate', 'LastViewedDate', 'MiddleName', 'Name', 'Phone', 
+        'Profile', 'Suffix', 'Title', 'Type', 'Username', 'UserRole', 'UserRoleId'
+    };
 
     /**
      * Method Name : getFieldMappingKeys
@@ -35,7 +40,7 @@ public with sharing class KeyMappingController {
 
 
             // add base (self) object in Object List...
-            List<Schema.DescribeFieldResult> objectFieldSelf = getObjectFields(sourceObjectName);
+            List<Schema.DescribeFieldResult> objectFieldSelf = getObjectFields(sourceObjectName, sourceObjectName);
             list<MappingFields> fieldMappingListSelf = new list<MappingFields>();
             for(Schema.DescribeFieldResult field : objectFieldSelf){
                 if((String)String.valueOf(field.getType()) != 'ADDRESS' && (String)String.valueOf(field.getType()) != 'LOCATION'){
@@ -98,6 +103,7 @@ public with sharing class KeyMappingController {
                         relatedObj.parentObjFieldApi = fieldName;
                         relatedObj.parentObjApi = string.valueOf(field.getReferenceTo()[0]);
                         relatedObj.isCustome = field.isCustom();
+                        System.debug('related Object  : ' + fieldName);
                         // System.debug('relatedObj : ' + fieldObj);
                         // System.debug('====== ======== ========= ======== ========= ========= ===========');
                         relatedObjs.add(relatedObj);
@@ -126,10 +132,11 @@ public with sharing class KeyMappingController {
     
         // get Object Information...
         Schema.SObjectType sobjType = Schema.getGlobalDescribe().get(relatedObj.parentObjApi);
+        if(relatedObj.parentObjApi == 'User') System.debug('object : ' + sobjType.getDescribe());
         String objLabel = sobjType.getDescribe().getLabel();
         String objName = relatedObj.parentObjApi;
 
-        List<Schema.DescribeFieldResult> objectField = getObjectFields(relatedObj.parentObjApi);
+        List<Schema.DescribeFieldResult> objectField = getObjectFields(relatedObj.parentObjApi, relatedObj.parentObjFieldApi);
         for(Schema.DescribeFieldResult field : objectField){
             // Does not incluse Compound fields...
             if((String)String.valueOf(field.getType()) != 'ADDRESS' && (String)String.valueOf(field.getType()) != 'LOCATION'){
@@ -153,7 +160,7 @@ public with sharing class KeyMappingController {
      * @return List<Schema.DescribeFieldResult>, list of Schema.DescribeFieldResult class
      * @description : Method to collect object field and its using schema class.
      */
-    public static List<Schema.DescribeFieldResult> getObjectFields(String objAPI){
+    public static List<Schema.DescribeFieldResult> getObjectFields(String objAPI, String parentObjFieldApi){
         try {
             List<Schema.DescribeFieldResult> objectFields = new List<Schema.DescribeFieldResult>();
 
@@ -162,12 +169,27 @@ public with sharing class KeyMappingController {
             Map<String, Schema.SObjectField> mapOfFields = r.fields.getMap();
             List<String> fieldsList = new List<String>(mapOfFields.keySet());
             fieldsList.sort();
-
+            
+            System.debug('objAPI : ' + objAPI);
             for(String fieldName : fieldsList){
                 Schema.SObjectField field = mapOfFields.get(fieldName);
                 Schema.DescribeFieldResult f = field.getDescribe();
+                String fieldAPI = f.getName();
+
                 if(String.valueOf(f.getType()) != 'BASE64'){
-                    objectFields.add(f);
+                    /**
+                     * Here we are checking Object is poymorphism Object or not
+                     * if user object is poymorphism then only add allowed field.
+                     * Please refre : https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_name.htm?_ga=2.58130601.2080047266.1727784915-1598596746.1726841271
+                     */
+                    
+                    if(objAPI != 'Group' && parentObjFieldApi != 'whatid' && parentObjFieldApi != 'whoid'){
+                        objectFields.add(f);
+                    }
+                    else if(polymorphismObjAllowdFields.contains(fieldAPI)){
+                        System.debug('field name : ' + fieldAPI);
+                        objectFields.add(f);
+                    }
                 }
             }
 
@@ -244,7 +266,7 @@ public with sharing class KeyMappingController {
             userObject.label = 'User Details';
             userObject.name = 'creationUser';
             list<MappingFields> userObjFields = new list<MappingFields>();
-            List<Schema.DescribeFieldResult> userObjFieldsSchema = getObjectFields('User');
+            List<Schema.DescribeFieldResult> userObjFieldsSchema = getObjectFields('User', 'user');
             for(Schema.DescribeFieldResult f : userObjFieldsSchema){
                 if((String)String.valueOf(f.getType()) != 'ADDRESS' && (String)String.valueOf(f.getType()) != 'LOCATION'){
                     MappingFields field = createMappingFieldInstance(f, 'User.', 'generalFields');
@@ -258,7 +280,7 @@ public with sharing class KeyMappingController {
             organizationObject.label = 'Organization Details';
             organizationObject.name = 'organization';
             list<MappingFields> organization = new list<MappingFields>();
-            List<Schema.DescribeFieldResult> organizationObjFieldsSchema = getObjectFields('Organization');
+            List<Schema.DescribeFieldResult> organizationObjFieldsSchema = getObjectFields('Organization', 'organization');
             for(Schema.DescribeFieldResult f : organizationObjFieldsSchema){
                 if((String)String.valueOf(f.getType()) != 'ADDRESS' && (String)String.valueOf(f.getType()) != 'LOCATION'){
                     MappingFields field = createMappingFieldInstance(f, 'Org.', 'generalFields');

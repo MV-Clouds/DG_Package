@@ -27,7 +27,7 @@ private class KeyMappingControllerTest {
         KeyMappingController.getFieldMappingKeys('sdasfd', false);
         KeyMappingController.getChildObjects('sdasfd');
         KeyMappingController.getRelatedObjects('sdasfd');
-        List<Schema.DescribeFieldResult> objectField = KeyMappingController.getObjectFields('sdasd');
+        List<Schema.DescribeFieldResult> objectField = KeyMappingController.getObjectFields('sdasd', 'faasd');
         KeyMappingController.createMappingFieldInstance(null, 'sadas0', 'sdasddas');
         KeyMappingController.updateSignatureInfo('qewrwqer', 10);
         Test.stopTest();

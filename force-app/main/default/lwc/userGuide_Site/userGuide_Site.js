@@ -11,11 +11,19 @@ export default class UserGuide_Site extends LightningElement {
     
     @track selectedImage;
 
-    @track isOpen = true;
+    @track isClose = false;
+    @track isSmallScreen = false;
     @track showModal = false;
+    initialRender = true;
 
     connectedCallback(){
         try {
+
+            if (typeof window !== 'undefined') {   
+                window?.addEventListener('resize', this.resizeFunction);
+                this.resizeFunction();
+            }
+
             getAllUserGuides()
             .then(result => {
                 if(result){
@@ -40,7 +48,37 @@ export default class UserGuide_Site extends LightningElement {
         } else {
             window.removeEventListener('keydown', this.handleKeyPress);
         }
+
+        if(this.initialRender){
+    
+            const mainDiv = this.template.querySelector('.mainDiv-userGuide');
+            if(mainDiv){
+                const style = document.createElement('style');
+                style.innerText =  `
+                        .slds-rich-text-editor__output img{
+                            margin-bottom : 0px !important;
+                        }
+                `;
+                mainDiv.appendChild(style);
+                this.initialRender = false;
+            }
+        }
+
+
+        
     }
+
+    // Use Arrow Function...
+    resizeFunction = () => {
+        
+        // resize screen from small screen to big screen... open selection bar
+        if(window.innerWidth >= 1120 && this.isSmallScreen && this.isClose) this.isClose = false;
+
+        // resize screen from big screen to small screen... close selection bar
+        if(window.innerWidth < 1120 && !this.isSmallScreen && !this.isClose) this.isClose = true;
+
+        this.isSmallScreen = window.innerWidth < 1120;
+    };
 
     setUserGuideStructure(guides_temp){
         try {
@@ -139,27 +177,8 @@ export default class UserGuide_Site extends LightningElement {
     }
 
     toggleTab() {
-        if(this.isOpen) {
-            this.closeTab();
-        } else if (!this.isOpen) {
-            this.openTab();
-        }
-    }
-
-    openTab() {
-        this.template.querySelector('.svg-arrow').style.transform = 'rotate3d(0, 1, 0, 180deg)';
-        this.template.querySelector('.left-section').style = '';
-        // this.template.querySelector('.container').style.gap = '20px';
-        this.isOpen = true;
-    } 
-    
-    closeTab() {
-        this.template.querySelector('.svg-arrow').style.transform = 'rotate3d(0, 0, 0, 180deg)';
-        this.template.querySelector('.left-section').style.width = '0';
-        this.template.querySelector('.left-section').style.paddingInline = '0';
-        // this.template.querySelector('.container').style.gap = '0';
-        this.isOpen = false;
-    }   
+        this.isClose = !this.isClose;
+    }  
 
 
     // ================ =============== ================= ================= ==================
