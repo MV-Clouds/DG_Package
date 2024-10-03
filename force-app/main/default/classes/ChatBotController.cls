@@ -194,8 +194,8 @@ public with sharing class ChatBotController {
             '"answer": "Ask system admins for permission if you want to change integration options or create buttons."' +
         '},' +
         '{' +
-            '"question": "Doc Genius",' +
-            '"answer": "We provide end to end solution to all your document generation problems."' +
+            '"question": "What is Doc Genius",' +
+            '"answer": "Doc Genius provide\'s end to end solution to all your document generation problems."' +
         '},' +
         '{' +
             '"question": "Email Us",' +
@@ -281,41 +281,114 @@ public with sharing class ChatBotController {
 
     @AuraEnabled
     public static void sendEmailWithAttachment(EmailDetails parameters) {
-        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(new String[] { parameters.toAddress });
-        mail.setSubject(parameters.subject);
-        mail.setPlainTextBody(parameters.body);
-
-        if (parameters.replyTo != null && parameters.replyTo != '') {
-            mail.setReplyTo(parameters.replyTo);
-        }
-        
-        // Prepare attachments
-        if (parameters.fileNames != null && parameters.fileContents != null && parameters.fileNames.size() == parameters.fileContents.size()) {
-            List<Messaging.EmailFileAttachment> attachments = new List<Messaging.EmailFileAttachment>();
-            for (Integer i = 0; i < parameters.fileNames.size(); i++) {
-                Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
-                attachment.setFileName(parameters.fileNames[i]);
-                attachment.setBody(EncodingUtil.base64Decode(parameters.fileContents[i]));
-                attachments.add(attachment);
+        try {
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(new String[] { parameters.toAddress });
+            mail.setSubject(parameters.subject);
+            mail.setPlainTextBody(parameters.body);
+    
+            if (parameters.replyTo != null && parameters.replyTo != '') {
+                mail.setReplyTo(parameters.replyTo);
             }
-            mail.setFileAttachments(attachments);
+            
+            // Prepare attachments
+            if (parameters.fileNames != null && parameters.fileContents != null && parameters.fileNames.size() == parameters.fileContents.size()) {
+                List<Messaging.EmailFileAttachment> attachments = new List<Messaging.EmailFileAttachment>();
+                for (Integer i = 0; i < parameters.fileNames.size(); i++) {
+                    Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+                    attachment.setFileName(parameters.fileNames[i]);
+                    attachment.setBody(EncodingUtil.base64Decode(parameters.fileContents[i]));
+                    attachments.add(attachment);
+                }
+                mail.setFileAttachments(attachments);
+            }
+            
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        } catch (Exception e) {
+            System.debug('Sending email with attachment --> '+e);
+            throw new AuraHandledException('exception'+e);
         }
-        
-        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
     }
+
+    
     
 
     @AuraEnabled
     public static void sendFeedbackEmail(String toAddress, String key, String feedback,String chats) {
-        String subject = 'Feedback for chatbot and chats';
-            String body = 'User\'s rating for chatbot is ' + key + ' out of 5.\n' +
-                  'Reason:- ' + feedback + '\n' +
-                  'chats:- ' + chats;
+        String name = UserInfo.getName();
+        String email = UserInfo.getUserEmail();
+        String subject = 'Feedback for chatbot';
+        List<Object> chatDataList = (List<Object>) JSON.deserializeUntyped(chats);
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         mail.setToAddresses(new String[] { toAddress });
         mail.setSubject(subject);
-        mail.setPlainTextBody(body);      
+        String emailBody = '<body style="font-family:Arial, sans-serif; background-color:#f4f4f9; padding:1rem; border-radius:0.5rem; border:1px solid #ddd;">';
+        emailBody += '<div style="max-width:600px; margin:auto; background-color:#fff; padding:20px; border-radius:8px;">';
+            
+        emailBody += '<p>Name: <strong>' + name + '</strong></p>';
+        emailBody += '<p>Email: ' + email + '</p>';
+        emailBody += '<hr>';
+            
+        emailBody += '<div style="margin-bottom:20px;">';
+        emailBody += '<strong>Chats:</strong>';
+        emailBody += '<div style="background-color:#f9f9f9; padding:10px; border-radius:5px; border:1px solid #ddd; max-height:fit-content; overflow-y:auto;">';
+            
+        // Use a flex container for chat messages
+        emailBody += '<div style="background-color:#ffffff; padding:10px; border-radius:5px; border:1px solid #ddd; max-height:fit-content; overflow-y:auto;">';
+            
+        for (Object obj : chatDataList) {
+            Map<String, Object> message = (Map<String, Object>) obj;
+        
+            // Start a message block
+            emailBody += '<div style="margin:10px 0; padding:10px; border-radius:20px;';
+            
+            // Apply specific styling based on whether it's a question or answer
+            if ((Boolean) message.get('isQuestion') == true || (Boolean) message.get('isSolution') == true) {
+                // Chatbot message styling
+                emailBody += 'background-color:#f1f1f1; color:#000; text-align:left; border: 1px solid #b0d0e0; display:inline-block; float:left; clear:both; max-width:70%;';
+            } else {
+                // User message styling
+                emailBody += 'background-color:#d1e7ff; color:#333; text-align:right; border: 1px solid #ddd; display:inline-block; float:right; clear:both; max-width:70%';
+            }
+        
+            emailBody += '">';
+            
+            // Insert the chat text
+            emailBody += (String) message.get('text');
+            
+            emailBody += '</div>'; // End of message block
+        }
+        
+        emailBody += '</div>'; // End of flex container for messages
+        emailBody += '</div>'; // End of chat container
+        emailBody += '</div>'; // End of chats section
+        
+        emailBody += '<div style="text-align:center; margin-top:20px; font-size: 20px">';
+        emailBody += '<strong>Feedback</strong>';
+        emailBody += '<div style="font-size:2em; color:gold;">';
+        
+        for (Integer i = 1; i <= 5; i++) {
+            if (i <= Integer.valueOf(key)) {
+                emailBody += '★ ';
+            } else {
+                emailBody += '☆ ';
+            }
+        }
+        
+        emailBody += '</div>';
+        emailBody += '</div>';
+        
+        if (feedback != null && feedback != '') {
+            emailBody += '<div style="text-align:center; margin-top:20px;">';
+            emailBody += '<p><strong>Reason: </strong>' + feedback + '</p>';
+            emailBody += '</div>';
+        }
+        
+        emailBody += '</div>';
+        emailBody += '</body>';
+        
+        mail.setHtmlBody(emailBody);
+
         
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
     }

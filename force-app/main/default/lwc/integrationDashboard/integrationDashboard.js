@@ -173,6 +173,10 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                  this.obj.dropboxKey = false;
              }
              else{
+                const dgSetup = this.template.querySelector('.text0');
+                if(dgSetup) dgSetup.style.display = 'none';
+
+                this.obj.googleKey = false;
                 this.obj.oneDriveKey = false;
                 this.obj.awsKey = false;
                 this.obj.dropboxKey = false;
@@ -210,14 +214,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        return `background-color: ${this.isRed ? this.redColor : this.lightRedColor}`;
    }
 
-//    get disbaleBtn(){
-//         if(!this.isAccess && this.activeTab == 'text1'){
-//             return true;
-//         }
-//         else{
-//             false
-//         }
-//    }
 
    renderedCallback() {
         console.log("Rendered callback called");
@@ -285,7 +281,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    checkingawsauth(){
        checkawsauth()
        .then(result =>{
-           if(result.bucket != null  && result.linkdate != null && result.name !=null){
+           if(result!= null && result.bucket != null  && result.linkdate != null && result.name !=null){
              
                this.awsNickname = result.name;
                this.awsbucket = result.bucket;
@@ -325,7 +321,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    }
 
    displaydetails(result, integrationname, cssname){
-       if(result.linkdate != null && result.email != null) {
+       if(result != null && result.linkdate != null && result.email != null) {
            if(result.name != null && result.name != ''){
                this[integrationname + 'name'] = result.name;
            }

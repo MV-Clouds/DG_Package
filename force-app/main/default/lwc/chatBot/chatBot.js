@@ -34,7 +34,11 @@ export default class ChatBot extends LightningElement {
     @track userFeedback;
     @track isSolution;
     @track hideChatBar = true;
+    @track emailErrorMessage = false;
+    @track attachmentError = false;
+    @track fileSizeError = false;
 
+    selectedFileSize = 0;
     currentTime = '09:48';
     rendered = false;
     acceptedFormats = ['.pdf', '.png', '.jpg', '.doc', '.docx'];
@@ -139,25 +143,25 @@ export default class ChatBot extends LightningElement {
     }
 
     handleFilesChange(event) {
+        this.attachmentError = false;
+        this.fileSizeError = false;
         const files = event.target.files;
         const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif'];
         const currentLength = this.uploadedFiles.length;
 
-        const existingErrorElement = this.template.querySelector('.error-message');
-        if (existingErrorElement) {
-            existingErrorElement.remove();
-        }
+        let totalFileSize = this.selectedFileSize;
+        const maxSize = 2.5 * 1024 * 1024;
 
         Array.from(files).forEach((file, index) => {
             if (!allowedTypes.includes(file.type)) {
-                this.errorMessage = 'Only image files (PNG, JPG, JPEG, GIF) are allowed.';
-                const field = this.template.querySelector('.mail-body');
-                const newParagraph = document.createElement('p');
-                newParagraph.className = 'error-message';
-                newParagraph.style.color = 'red';
-                newParagraph.textContent = 'Only image files (PNG, JPG, JPEG, GIF) are allowed.';
-                field.appendChild(newParagraph);
+                
+                this.attachmentError = true;
                 return; // Stop processing further files if an error occurs
+            }
+            if (totalFileSize + file.size > maxSize) {
+                
+                this.fileSizeError = true;
+                return; // Stop processing this file
             }
 
             const reader = new FileReader();
@@ -174,6 +178,8 @@ export default class ChatBot extends LightningElement {
                 };
 
                 this.uploadedFiles = [...this.uploadedFiles, fileInfo];
+                totalFileSize += file.size;
+                this.selectedFileSize = totalFileSize;
             };
             reader.readAsDataURL(file);
         });
@@ -194,8 +200,10 @@ export default class ChatBot extends LightningElement {
     }
 
     handleFeedbackChange(event){
-        const userfeedback = event.target.dataset.id;
+        const userfeedback = event.target.value;
+        console.log(event.target.value);
         this.userFeedback = userfeedback.trim();
+        
     }
 
     handleInputChange(event){
@@ -203,7 +211,8 @@ export default class ChatBot extends LightningElement {
         if(field === 'replyAddress'){
             this.replyAddress = event.target.value.trim();
             const field = this.template.querySelector('.mail-body input');
-            field.style.border = ''; 
+            field.style.border = '';
+            this.emailErrorMessage = false;
         }
         else if(field === 'body'){
             this.body = event.target.value.trim();
@@ -298,6 +307,8 @@ export default class ChatBot extends LightningElement {
     toggleFeedback(){
         
         this.isFeedbackPopup = this.isFeedbackPopup ? false : true;
+        this.isEmail = false;
+        this.selectedFileSize = 0;
         this.checkFeedbackActive();
         if (!this.isFeedbackPopup) {
             this.handleClearClose();
@@ -454,6 +465,8 @@ export default class ChatBot extends LightningElement {
 
     handleSendEmail() {
         // console.log('Chatbot mail invoked');
+        this.emailErrorMessage = false;
+
         if(this.replyAddress == ''){
            const field = this.template.querySelector('.mail-body input');
            field.style.border = '1px solid red'; 
@@ -465,12 +478,7 @@ export default class ChatBot extends LightningElement {
         else if(this.body && this.replyAddress){
         const fileNames = this.uploadedFiles.map(file => file.fileName);
         const fileContents = this.uploadedFiles.map(file => file.fileUrl);
-        // console.log(this.body);
-        // console.log(this.subject);
-        // console.log(this.toAddress);
-        // console.log(fileNames);
-        // console.log(fileContents);
-        // console.log('Sending email');
+
         sendEmailWithAttachment({ parameters: {
             toAddress: this.toAddress,
             replyTo: this.replyAddress,
@@ -479,28 +487,29 @@ export default class ChatBot extends LightningElement {
             fileNames: fileNames,
             fileContents: fileContents
         }})
-        .then(() => {
+        .then((result) => {
             // handle success, show a success message or toast
             // console.log('Email sent successfully');
+            console.log('This is result'+result);
+            
             this.mailSent = true;
             this.isEmail = false;
+            this.emailErrorMessage = false;
+            this.fileSizeError = false;
+            this.attachmentError = false;
+            this.selectedFileSize = 0;
         })
         .catch(error => {
             // handle error, show an error message or toast
+            console.log("this is error from catch",error);
+            
             const existingErrorElement = this.template.querySelector('.error-message');
             if (existingErrorElement) {
                 existingErrorElement.remove();
             }
             if(error.body && error.body.message && error.body.message.includes('INVALID_EMAIL_ADDRESS')){
-            const field = this.template.querySelector('.mail-body');
-            const newParagraph = document.createElement('p');
-            newParagraph.className = 'error-message'; // Assign a class for easier identification
-            newParagraph.style.color = 'red';
-            newParagraph.textContent = 'Invalid Email Address';
-            field.appendChild(newParagraph);
-            console.error('Error sending email: ', error);
-            // console.log(error.body);
-            // console.log(error.body.message);
+                console.log('Email not valid');
+                this.emailErrorMessage = true;
             }
 
         });
@@ -542,14 +551,13 @@ export default class ChatBot extends LightningElement {
         this.rendered = false;
         this.popupOpen = false;
         this.isFeedbackPopup = false;
+        this.uploadedFiles = [];
         
     }
 
     updateScroll(){
-        const scrollable = this.template.querySelector('.popupopen .message');
-        if (scrollable && scrollable.lastElementChild) {
-            scrollable.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
+        const scrollable = this.template.querySelector('.message');       
+        scrollable && (scrollable.scrollTop = scrollable.scrollHeight);
     }
 
     handleClick(event){      
@@ -586,12 +594,14 @@ export default class ChatBot extends LightningElement {
     handleChat(){
         this.isOnlyEmail = true;
         this.hideChatBar = true;
+        this.selectedFileSize = 0;
         // console.log('Inside handle chat');
         this.isIssue = false;
         this.isSol = false;
         this.issues = null;
         this.messages = [];
         this.solution = null;
+        this.uploadedFiles = [];
         this.notHelpful = false;
         this.Email
         this.isEmail = false;
@@ -619,6 +629,7 @@ export default class ChatBot extends LightningElement {
     }
 
     handleClearClose(){
+        this.uploadedFiles = null;
         this.rendered = false;
         this.popupOpen = false;
         this.handleChat();
@@ -793,9 +804,44 @@ export default class ChatBot extends LightningElement {
     }
 
     handleRemoveFile(event) {
-        // console.log('removing');
         const fileId = event.target.dataset.id;
-        this.uploadedFiles = this.uploadedFiles.filter(file => file.id !== parseInt(fileId, 10));
+        const fileToRemove = this.uploadedFiles.find(file => file.id === parseInt(fileId, 10));
+        console.log(fileToRemove);
+        
+    
+        if (fileToRemove) {
+            console.log("Removing Files");
+            
+            const fileSizeInBytes = this.convertFileSizeToBytes(fileToRemove.fileSize);
+            this.selectedFileSize -= fileSizeInBytes;
+            console.log(this.selectedFileSize);
+            
+            
+            this.uploadedFiles = this.uploadedFiles.filter(file => file.id !== parseInt(fileId, 10));
+        }
+    
+        this.fileSizeError = false;
+    }
+    
+    convertFileSizeToBytes(fileSize) {
+        // Assuming fileSize comes in formats like '2 MB', '500 KB', etc.
+        const sizeUnit = fileSize.slice(-2).toUpperCase(); // Get the unit (MB, KB)
+        const sizeValue = parseFloat(fileSize); // Get the numeric part
+    
+        let fileSizeInBytes = 0;
+        switch (sizeUnit) {
+            case 'MB':
+                fileSizeInBytes = sizeValue * 1024 * 1024; // Convert MB to bytes
+                break;
+            case 'KB':
+                fileSizeInBytes = sizeValue * 1024; // Convert KB to bytes
+                break;
+            case 'B':
+            default:
+                fileSizeInBytes = sizeValue; // Already in bytes
+                break;
+        }
+        return fileSizeInBytes;
     }
 
     toggleitem(event){
@@ -844,6 +890,7 @@ export default class ChatBot extends LightningElement {
         this.isChatStarted = true;
         this.isIssue = false;
         this.isEmail = true;
+        this.selectedFileSize = 0;
         this.mailSent = false;
         const windowsize = this.template.querySelector('.popupopen');
         const windowmessage = this.template.querySelector('.message');

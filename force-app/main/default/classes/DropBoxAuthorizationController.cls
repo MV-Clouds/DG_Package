@@ -13,11 +13,11 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkdropboxauth(){
         try{
-            MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+            List<MVDG__DropBoxAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
             Map<String, Object> result = new Map<String, Object>();
-            if (settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null && settings.MVDG__LinkedDate__c != null) {
+            if (!settingsList.isEmpty() && settingsList[0].MVDG__refresh_token__c != null && settingsList[0].MVDG__access_token__c != null && settingsList[0].MVDG__LinkedDate__c != null) {
                 Boolean working = verifyAuth();
-                settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+                MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
                 result.put('name', settings.MVDG__username__c);
                 result.put('email', settings.MVDG__email__c);
                 result.put('linkdate', settings.MVDG__LinkedDate__c);
@@ -36,7 +36,7 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean verifyAuth(){
         try {
-        MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+        MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
         String refresh = settings.MVDG__refresh_token__c;
         String clientid = settings.MVDG__ClientId__c;
         String clientsecret = settings.MVDG__ClientSecret__c;
@@ -102,7 +102,7 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+            MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
             if(settings != null){
                 settings.MVDG__ClientId__c = '';
                 settings.MVDG__ClientSecret__c = '';
@@ -112,34 +112,8 @@ public with sharing class DropBoxAuthorizationController {
                 settings.MVDG__refresh_token__c = '';
                 settings.MVDG__access_token__c = '';
                 settings.MVDG__WorkingStatus__c = false;
-                if(Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__ClientId__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__ClientSecret__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__username__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__LinkedDate__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__email__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__refresh_token__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__ClientId__c.isAccessible() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__ClientSecret__c.isAccessible() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__username__c.isAccessible() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__LinkedDate__c.isAccessible() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__email__c.isAccessible() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__refresh_token__c.isAccessible() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__access_token__c.isAccessible() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isAccessible() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__ClientId__c.isCreateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__ClientSecret__c.isCreateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__username__c.isCreateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__LinkedDate__c.isCreateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__email__c.isCreateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__refresh_token__c.isCreateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() &&
-                Schema.sObjectType.MVDG__DropBoxAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable())
-                {
-                    upsert settings;
-                    return true;
-                }
+                upsert as user settings;
+                return true;
             }
             return false;
         } catch (Exception e) {
@@ -157,8 +131,11 @@ public with sharing class DropBoxAuthorizationController {
                 System.debug('looks fishy');
                 return 'Both Client ID and Client Secret are required.';
             }
-            MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
-            if (settings == null) {
+            List<MVDG__DropBoxAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            MVDG__DropBoxAuthProviderSettings__c settings;
+            if (!settingsList.isEmpty()) {
+                settings = settingsList[0];
+            }else{
                 settings = new MVDG__DropBoxAuthProviderSettings__c();
             }
             settings.MVDG__ClientId__c = clientId;

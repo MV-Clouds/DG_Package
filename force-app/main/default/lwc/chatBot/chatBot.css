@@ -528,7 +528,7 @@ svg .slds-icon .slds-icon-text-default{
     border-radius: 8px;
     padding-block: 20px;
     display: inline-block;
-    height: fit-content;
+    height: 400px;
     margin-inline: 20px;
     margin-block: 35px;
     width: calc(100% - 40px);
@@ -595,6 +595,7 @@ input {
 textarea{
     padding-left: 10px;
     min-height: 80px;
+    max-height: 200px;
     border-radius: 8px;
     border: 0px solid white;
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.25);
@@ -635,6 +636,10 @@ label {
     color: #FFF;
     align-items: center;
     font-size: 16px;
+}
+
+.mail-sent{
+    background-color: #8bd894 !important;
 }
 
 .mail-body{
@@ -706,6 +711,7 @@ label {
 .file-icon {
     flex-shrink: 0;
     margin-left: 10px;
+    cursor: pointer;
 }
 
 .mail-body input:focus-visible {

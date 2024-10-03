@@ -89,7 +89,9 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
             System.debug('Error during Google file upload: heap size issue' + e.getMessage());
         }
         if (!listMessage.isEmpty()) {
-            update as user listMessage[0];
+            if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isAccessible() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isUpdateable()){
+                update as user listMessage[0];
+            }
         }
     }
 
@@ -107,6 +109,7 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 @return          : {String} - return Token if successful
 ********************************************************
 */
+
 @deprecated
 global static String getToken(){
     // try {

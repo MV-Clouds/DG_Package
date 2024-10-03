@@ -136,7 +136,9 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 updateActivityMessage(obj);
                 System.debug('Error during Dropbox file upload: ' + e.getMessage());
             }
-        update as user listMessage[0];
+            if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isAccessible() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isUpdateable()){
+                update as user listMessage[0];
+            }
     }
 
     global void finish(Database.BatchableContext bC) {

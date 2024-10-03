@@ -2,7 +2,7 @@
 * Name          : OneDriveSuccessController
 * Author        : Tirth
 * Create Date   : 17/04/2024
-* UsedBy        : MVDG__OneDriveSuccessPage
+* UsedBy        : MVDG__oneDriveSuccessPage
 * Test Class    : OneDriveSuccessControllerTest
 * Description   : Apex Class used for generating access and refresh token.
 * Company       : MV Clouds
@@ -225,9 +225,8 @@ public with sharing class OneDriveSuccessController {
 
    public static String extractCodeParameter(String url) {
        try {
-           String relativePath = url.replace(System.Url.getSalesforceBaseUrl().toExternalForm(), '');
             // Use the PageReference class to extract query parameters
-            PageReference pageRef = new PageReference(relativePath);
+            PageReference pageRef = new PageReference(url.replace(System.Url.getOrgDomainUrl().toExternalForm(), ''));
             String codeParameter = pageRef.getParameters().get('code');
             System.debug(codeParameter);
             return codeParameter;

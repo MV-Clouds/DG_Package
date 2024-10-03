@@ -140,7 +140,10 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
             obj.Id = activity; 
             updateActivityMessage(obj);
         }
-        update as user listMessage[0];
+        if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isAccessible() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isUpdateable()){
+            update as user listMessage[0];
+        }
+            
     }
 
     global void finish(Database.BatchableContext bC) {

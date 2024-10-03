@@ -164,7 +164,7 @@
                                                 </div>
 
                                             </template>
-                                            <button class="mail-submit" onclick={handleSendEmail} disabled>E-Mail Sent</button>
+                                            <button class="mail-submit mail-sent" onclick={handleSendEmail} disabled>Email Sent</button>
 
                                     </div></div>
                                     <div class="bot-icon" key={message}><img src={chatUser} alt="chatBot" height="35px" width="35px" style="border-radius: 50%">
@@ -188,6 +188,9 @@
                                     <div class="mail-body texts">
                                         <label for="email"><span class="required">*</span>Email</label>
                                         <input type="text" placeholder="Enter your Email" name="email" data-id="replyAddress" onchange={handleInputChange}>
+                                        <div if:true={emailErrorMessage}>
+                                            <label class="error-message" style="color: red;">Invalid Email Address</label>
+                                        </div>
                                         <label for="message"><span class="required">*</span>Message</label>
                                         <textarea name="message" data-id="body" onchange={handleInputChange}></textarea>
                                         <label for="fileUploader">Add Attachment</label>
@@ -206,15 +209,22 @@
                                                                 <div class="file-size">{file.fileSize}</div>
                                                             </div>
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="file-icon" data-id={file.id} onclick={handleRemoveFile}>
-                                                                <rect width="20" height="20" rx="10" fill="#94C4FE" data-id={file.id} />
-                                                                <path d="M15 7L8.125 13L5 10.2727" stroke="#E7F4FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-id={file.id} />
-                                                            </svg>
+                                                                <rect width="20" height="20" rx="10" fill="#ff7e4c" data-id={file.id} />
+                                                                <path d="M6 6L14 14" stroke="#E7F4FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-id={file.id} />
+                                                                <path d="M14 6L6 14" stroke="#E7F4FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-id={file.id} />
+                                                            </svg>                                                            
                                                         </li>
                                                     </template>
                                                 </ul>
                                             </div>
                                         </template>
+                                        <div if:true={fileSizeError}>
+                                            <label class="error-message" style="color: red;">Total file size must not exceed 2.5 MB.</label>
+                                        </div>
                                         <button class="mail-submit" onclick={handleSendEmail}>Submit</button>
+                                        <div if:true={attachmentError}>
+                                            <label class="error-message" style="color: red;">Only image files (PNG, JPG, JPEG, GIF) are allowed.</label>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
@@ -232,7 +242,7 @@
                                         </div>
                                         <div class="user-note">
                                             <label for="message">Feedback</label>
-                                            <textarea name="Feedback" data-id="feedback" onchange={handleFeedbackChange} placeholder="Your feedback is valuable to us"></textarea>
+                                            <textarea name="Feedback" data-id="feedback" onchange={handleFeedbackChange} onkeyup={handleFeedbackChange} placeholder="Your feedback is valuable to us"></textarea>
                                         </div>
                                     </div>
                                 </div>
