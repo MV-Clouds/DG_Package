@@ -11,13 +11,13 @@ hr{
 }
 .all-btn {
     display: flex;
-    width: fit-content;
+    width: 100%;
     align-items: center;
     justify-content: center;
     gap: 1rem;
     margin-block: 1rem;
     margin-inline: auto;
-    padding-inline: 1rem;
+    padding-inline: 2rem;
     flex-wrap: wrap;
 }
 
@@ -101,7 +101,7 @@ hr{
 
 .faq-button:hover {
     border: 0px;
-    scale: 1.05;
+    /* scale: 1.05; */
 }
 .faq-button[data-selected=true]{
     background-color: #00aeff;
@@ -124,7 +124,7 @@ hr{
     width: 50%;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .right-container {
@@ -136,7 +136,66 @@ hr{
     overflow: auto;
 }
 
+.accordion-div{
+    padding-right: 1rem;
+}
+.single-accordion{
+    margin-bottom: 1rem;
+    background: #ececec;
+    border-radius: 6px;
+    padding: 1rem 1rem;
+}
+.accordion-header{
+    display: flex;
+    justify-content: space-around;
+    /* border-bottom: 1px solid #9f9f9f;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem; */
+    cursor: pointer;
+}
+.accordion-heading-text{
+    flex-grow: 1;
+    padding-inline: 1rem;
+    line-height: 1.75rem;
+    font-size: 18px;
+}
+.accordion-heading-button{
+    min-width: 1.75rem;
+    height: 1.75rem;
+    padding: 1px;
+    border: 1px solid;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ececec;
+    outline: none;
+}
 
+.accordion-body-content{
+    padding-inline: 1rem;
+    --maxHeight : 0rem;
+    max-height: var(--maxHeight );
+    overflow: hidden;
+    transition: all linear 0.25s;
+}
+
+.accordion-header:hover,
+.accordion-header[data-opened=true]{
+    border-color: #00AEFF;
+}
+.accordion-header:hover > .accordion-heading-text,
+.accordion-header[data-opened=true] > .accordion-heading-text{
+    color: #00AEFF;
+}
+.accordion-header:hover > .accordion-heading-button,
+.accordion-header[data-opened=true] > .accordion-heading-button{
+    border-color: #00AEFF;
+}
+.accordion-header:hover > .accordion-heading-button,
+.accordion-header[data-opened=true] > .accordion-heading-button svg{
+   fill: #00AEFF;
+}
 
 @media only screen and (max-width: 800px){
     .left-container{

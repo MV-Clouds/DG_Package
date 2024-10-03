@@ -7,6 +7,7 @@ import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getTemplateData from '@salesforce/apex/TemplateBuilder_Controller.getTemplateData';
 import saveTemplateApex from '@salesforce/apex/TemplateBuilder_Controller.saveTemplateApex';
 import saveTempDataRecordsInBatch from '@salesforce/apex/TemplateBuilder_Controller.saveTempDataRecordsInBatch';
+import updateTemplate from '@salesforce/apex/HomePageController.updateTemplate';
 import { initializeSummerNote } from './editorConf.js';
 import {navigationComps, nameSpace, pageFormats, unitMultiplier, unitConverter, errorDebugger} from 'c/globalProperties';
 
@@ -225,7 +226,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                             $(document).on("keydown", function(event){
                                 // if user press clt + s on keyboard
                                 if ((event.key == 's' || event.key == 'S') && (event.ctrlKey || event.metaKey)){
-                                    self.saveTemplateData();
+                                    if(!self.isPreview && self.currentTab !== 'templateDefault'){
+                                        self.saveTemplateData();
+                                    }
                                 }
                             });
                         }
@@ -1481,7 +1484,6 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         }
     }
 
-
     handleSpinnerClose(){
         try {
             if(this.spinnerFor == 'preview'){
@@ -1490,6 +1492,21 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             }
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleSpinnerClose', error, 'warn');
+        }
+    }
+    
+    moveToBasicDetail(){
+        this.currentTab = 'basicTab';
+        this.setActiveTab();
+    }
+
+    updateTemplateStatus(){
+        // Update Template in Backend...
+        if(!this.templateRecord.MVDG__Template_Status__c){
+            updateTemplate({ templateId : this.templateRecord.Id, isActive : true})
+            .catch(error => {
+                errorDebugger('TemplateBuilder', 'updateTemplateStatus', error, 'warn', 'error in apex method updateTemplate');
+            })
         }
     }
 

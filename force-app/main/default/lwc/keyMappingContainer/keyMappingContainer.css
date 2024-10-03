@@ -524,6 +524,7 @@
     /* --placeHolderSize: 16px; */
     --inputOnFocusShadow: none;
     --inputOnFocusBorderColor: #00aeff;
+    --dropDownWidth : 16rem;
     /* position: relative; */
 
 }

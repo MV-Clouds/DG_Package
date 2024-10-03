@@ -770,6 +770,9 @@ public with sharing class DataMappingControllerV2 {
             List<String> fieldsList = new List<String>(mapOfFields.keySet());
             fieldsList.sort();
 
+            // replationshipName
+            system.debug('replationshipName : ' + replationshipName);
+
             for(String fieldName : fieldsList){
                 Schema.SObjectField f = mapOfFields.get(fieldName);
                 Schema.DescribeFieldResult field = f.getDescribe();
@@ -780,8 +783,15 @@ public with sharing class DataMappingControllerV2 {
                 else{
                     if((String)String.valueOf(field.getType()) != 'ADDRESS' && (String)String.valueOf(field.getType()) != 'LOCATION' && fieldType == 'normal'){
                         String fieldAPI = (String) String.valueOf(field.getName());
-                        fieldAPI = replationshipName == null ? fieldAPI : replationshipName +'.'+ fieldAPI;
-                        fields.put(fieldAPI , (String)  String.valueOf(field.getType()));
+                        
+                        if(objectAPI != 'Group' && replationshipName != 'What' && replationshipName != 'Who'){
+                            fieldAPI = replationshipName == null ? fieldAPI : replationshipName +'.'+ fieldAPI;
+                            fields.put(fieldAPI , (String)  String.valueOf(field.getType()));
+                        }
+                        else if(KeyMappingController.polymorphismObjAllowdFields.contains(fieldAPI) || field.isCustom()){
+                            fieldAPI = replationshipName == null ? fieldAPI : replationshipName +'.'+ fieldAPI;
+                            fields.put(fieldAPI , (String)  String.valueOf(field.getType()));
+                        }
                         // fields.put(fieldAPI, fieldType)
                     }
                 }

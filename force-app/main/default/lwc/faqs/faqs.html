@@ -4,7 +4,7 @@
     <template if:false={mobileView}>
         <div class="all-btn">
         <template for:each={faqs} for:item="faq" for:index="index">
-          <button key={faq.faqId} data-selected={faq.selected} class="faq-button" data-id={faq.faqId} onclick={showContent}>{faq.name}</button>
+          <button key={faq.faqId} data-selected={faq.selected} class="faq-button" data-id={faq.faqId} onclick={handleContentChange}>{faq.name}</button>
         </template>
       </div>
     </template>
@@ -16,7 +16,7 @@
         </div>
         <div lwc:if={showSelectBtn} class="selectFAQbtns">
             <template for:each={faqs} for:item="faq" for:index="index">
-              <button key={faq.faqId} data-selected={faq.selected} class="faq-button-mobile" data-id={faq.faqId} onclick={showContent}>{faq.name}</button>
+              <button key={faq.faqId} data-selected={faq.selected} class="faq-button-mobile" data-id={faq.faqId} onclick={handleContentChange}>{faq.name}</button>
             </template>
         </div>
       </div>
@@ -29,13 +29,27 @@
       <div class="right-container">
         <template for:each={faqs} for:item="faq" for:index="index">
           <div class="accordion-div" lwc:if={faq.selected} key={faq.faqId}>
-            <lightning-accordion allow-multiple-sections-open >
+            <!-- <lightning-accordion allow-multiple-sections-open >
                 <template for:each={faq.questions} for:item="content" for:index="innerIndex">
                   <lightning-accordion-section key={content.question} name={content.question} label={content.question}>
                       <p>{content.answer}.</p>
                   </lightning-accordion-section>
                 </template>
-            </lightning-accordion>
+            </lightning-accordion> -->
+            <template for:each={faq.questions} for:item="content" for:index="innerIndex">
+              <div class="single-accordion" key={content.questionId} >
+                <div class="accordion-header" data-opened={content.opened} data-faqid={faq.faqId} data-id={content.questionId} onclick={openAccordionContent}>
+                  <div class="accordion-heading-text">{content.question}</div>
+                  <button class="accordion-heading-button">
+                    <svg if:false={content.opened} viewBox="0 0 24 24"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
+                    <svg if:true={content.opened} viewBox="0 0 24 24" ><path d="M5 11V13H19V11H5Z"></path></svg>
+                  </button>
+                </div>
+                <div class="accordion-body-content" data-faqid={faq.faqId} data-question-id={content.questionId} >
+                  {content.answer}
+                </div>
+              </div>
+            </template>
           </div>
         </template>
       </div>

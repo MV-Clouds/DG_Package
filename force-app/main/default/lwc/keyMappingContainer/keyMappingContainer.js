@@ -523,6 +523,7 @@ export default class KeyMappingContainer extends LightningElement {
      */
     setMappingTab(event){
         try {
+            event.stopPropagation();
             if(event && event.currentTarget && this.activeMappingTabName !== event.currentTarget.dataset.name){
 
                 // clear combo-box search value
