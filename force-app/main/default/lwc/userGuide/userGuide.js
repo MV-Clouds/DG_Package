@@ -337,9 +337,7 @@ export default class UserGuide extends LightningElement {
     @track gdtempTab = false;
     @track keysecTab = false;
     @track docgenTab = false;
-    @track tabList = ['btngenTab', 'awsTab', 'gdriveTab', 'odriveTab', 'dropboxTab', 'gdtempTab', 'stempTab', 'csvtempTab', 'dochomeTab', 'keysecTab', 'docgenTab'];
-
-    @track selectedTab = '';
+    @track tabList = ['dochomeTab', 'btngenTab', 'awsTab', 'gdriveTab', 'odriveTab', 'dropboxTab', 'stempTab', 'csvtempTab', 'gdtempTab', 'keysecTab', 'docgenTab'];
 
     @track isOpen = true;
     @track showModal = false;
@@ -359,69 +357,44 @@ export default class UserGuide extends LightningElement {
     }
 
     renderedCallback() {
-        try {
-            if (this.showModal) {
-                window.addEventListener('keydown', this.handleKeyPress);
-            } else {
-                window.removeEventListener('keydown', this.handleKeyPress);
-            }
-        } catch (error) {
-            errorDebugger("userGuide", 'handleKeyPress', error, 'error', 'Error in handling keyboard events. Please try again later');
-        }
-    }
-
-    handleOnScroll() {
-        try {
-            for (let i = 0; i < this.tabList.length; i++) {
-                const element = this.template.querySelector(`[data-id="${this.tabList[i]}"]`);
-                if (element && this.isInViewport(element)) {
-                    
-                    let currentTab = this.template.querySelector('.selected-tab');
-                    currentTab?.classList.remove('selected-tab');
-
-                    let tab = this.template.querySelector(`a.tabs[data-tab="${this.tabList[i].slice(0, -3)}"]`);
-                    tab?.classList.add('selected-tab');
-                            
-                    let currentTop = currentTab?.offsetTop;
-                    let tabTop = this.selectedTab?.offsetTop;
-                    let contentHeight = this.template.querySelector('.left-section')?.offsetHeight;
-
-                    if (Math.abs(tabTop - currentTop) < (contentHeight - 50)) {
-                        tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-                        this.selectedTab = currentTab;
-                    }
-                    break;
-                }
-            }
-        } catch (error) {
-            errorDebugger("userGuide", 'handleOnScroll', error, 'error', 'Error in scrolling tabs. Please try again later');
+        if (this.showModal) {
+            window.addEventListener('keydown', this.handleKeyPress);
+        } else {
+            window.removeEventListener('keydown', this.handleKeyPress);
         }
     }
 
     // Switch Tabs
     handleTabSelection(event) {
         try {
-            this.selectedTab = event.target;
+            if (window && window.innerWidth && window.innerWidth < 1024 ) {
+                this.closeTab();
+            }
+            let tabName = event.target.dataset.tab;
+            if (!tabName) {
+                tabName = event.target.parentElement.dataset.tab;
+            }
+            this.tabList.forEach(tab => {
+                this[tab] = false;
+            });
+            this[tabName + 'Tab'] = true;
+            
+            let currentTab = this.template.querySelector('.selected-tab');
+            if (currentTab) {
+                currentTab.classList.remove('selected-tab');
+            }
+
+            let tab = this.template.querySelector(`div.tabs[data-tab="${tabName}"]`);
+            if (tab) {
+                tab.classList.add('selected-tab');
+            }
+
+            this.template.querySelector('.tab-content').scrollTop = 0;
+            this.template.querySelector('.content').scrollTop = 0;
+            this.template.querySelector('.white-background').scrollTop = 0;
         } catch (error) {
             errorDebugger("userGuide", 'handleTabSelection', error, 'error', 'Error in changing tabs. Please try again later');
         }
-    }
-
-    isInViewport(element) {
-        try {
-            var rect = element.getBoundingClientRect();
-            var parent = this.template.querySelector('.white-background');
-            var parentRect = parent.getBoundingClientRect();
-            
-            var isTallerThanParent = rect.height > parentRect.height;
-            if (isTallerThanParent) {
-                return (rect.bottom > parentRect.top && rect.top < parentRect.bottom);
-            }
-            return (rect.top >= parentRect.top && rect.left >= parentRect.left && rect.bottom <= parentRect.bottom && rect.right <= parentRect.right);
-        } catch (error) {
-            errorDebugger("userGuide", 'isInViewport', error, 'error', 'Error in checking if element is in viewport. Please try again later');
-        }
-        return false;
     }
 
     toggleTab() {
