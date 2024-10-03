@@ -108,7 +108,7 @@ public class ChatBotControllerTest {
         String toAddress = 'test@example.com';
         String key = '5';
         String feedback = 'Great chatbot!';
-        String chats = 'Sample chat history';
+        String chats = '[{"text":"What seems to be causing you trouble?","isQuestion":true,"time":"03 Oct 2024, 12:40 PM"},{"text":"Template","isAnswer":true,"time":"03 Oct 2024, 12:40 PM"},{"text":"What seems to be causing you trouble?","isQuestion":true,"time":"03 Oct 2024, 12:40 PM"},{"text":"Template Status","isAnswer":true,"time":"03 Oct 2024, 12:40 PM"},{"text":"Template\'s which you are not going to use you can keep them as inactive and that won\'t appear in generate template selection page.","isSolution":true,"time":"03 Oct 2024, 12:40 PM"}]';
 
         Test.startTest();
         ChatBotController.sendFeedbackEmail(toAddress, key, feedback, chats);

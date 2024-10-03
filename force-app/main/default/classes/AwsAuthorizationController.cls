@@ -39,12 +39,12 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkawsauth(){
         try{
-            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+            MVDG__AwsAuthProviderSettings__c settings = [SELECT Id,MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__AwsAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED];
 
             Map<String, Object> result = new Map<String, Object>();
             if (settings != null  && (settings.MVDG__BucketName__c != '' && settings.MVDG__LinkedDate__c != '' && settings.MVDG__NickName__c != '') || (settings.MVDG__NamedCredential__c != '' || settings.MVDG__NamedCredential__c != null)) {
                 Boolean working = verifyAuth();
-                settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+                settings = [SELECT MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__AwsAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
                 if(working){
                     result.put('bucket', settings.MVDG__BucketName__c);
                     result.put('linkdate', settings.MVDG__LinkedDate__c);
@@ -71,21 +71,23 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
-            if(settings != null){
-                settings.MVDG__BucketName__c = '';
-                settings.MVDG__ClientId__c = '';
-                settings.MVDG__ClientSecret__c = '';
-                settings.MVDG__LinkedDate__c = '';
-                settings.MVDG__WorkingStatus__c = false;
-                settings.MVDG__NickName__c = '';
-                settings.MVDG__NamedCredential__c = '';
-                if(!Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__NamedCredential__c.isUpdateable() || !Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() || !Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__NamedCredential__c.isCreateable() || !Schema.sObjectType.MVDG__AwsAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()){
-                    return null;
+            List<MVDG__AwsAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__AwsAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            MVDG__AwsAuthProviderSettings__c settings;
+            if(!settingsList.isEmpty()){
+                settings = settingsList[0];
+                if(settings != null){
+                    settings.MVDG__BucketName__c = '';
+                    settings.MVDG__ClientId__c = '';
+                    settings.MVDG__ClientSecret__c = '';
+                    settings.MVDG__LinkedDate__c = '';
+                    settings.MVDG__WorkingStatus__c = false;
+                    settings.MVDG__NickName__c = '';
+                    settings.MVDG__NamedCredential__c = '';
+                    upsert as user settings;
+                    return true;
                 }
-                upsert as user settings;
-                return true;
             }
+            
             return false;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsAuthorizationController', 'unauthorize');
@@ -104,15 +106,22 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Boolean verifyAuth(){
         try {
-            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults(); 
+            List<MVDG__AwsAuthProviderSettings__c> settingsList = [SELECT MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__AwsAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            MVDG__AwsAuthProviderSettings__c settings;
+            if(!settingsList.isEmpty()){
+                settings = settingsList[0];
+            }
+            else{
+                settings = new MVDG__AwsAuthProviderSettings__c();
+            }
             if(String.isBlank(settings.MVDG__NamedCredential__c) && String.isNotBlank(settings.MVDG__BucketName__c) && String.isNotBlank(settings.MVDG__ClientId__c) && String.isNotBlank(settings.MVDG__ClientSecret__c)){
                 if(testCallout(settings.MVDG__BucketName__c, settings.MVDG__ClientId__c, settings.MVDG__ClientSecret__c)){
                     settings.MVDG__WorkingStatus__c = true;
-                    update settings;
+                    update as user settings;
                     return true;
                 }      
                 settings.MVDG__WorkingStatus__c = false;
-                update settings;
+                update as user settings;
                 return false;
             }else if(string.isNotBlank(settings.MVDG__NamedCredential__c)){
                 HttpRequest req = new HttpRequest();
@@ -122,12 +131,12 @@ public with sharing class AwsAuthorizationController {
                 HttpResponse res = http.send(req);
                 if(res.getStatusCode() == 200){
                     settings.MVDG__WorkingStatus__c = true;
-                    update settings;
+                    update as user settings;
                     return true;
                 }
                 else{
                     settings.MVDG__WorkingStatus__c = false;
-                    update settings;
+                    update as user settings;
                     Response_Handler.store_Callout_Response(res, 'AwsAuthorizationController', 'verifyAuth');
                     return false;
                 }
@@ -154,7 +163,7 @@ public with sharing class AwsAuthorizationController {
                     checkNamed = 1;
                 }
                 if(checkNamed == 1){
-                    MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+                    MVDG__AwsAuthProviderSettings__c settings = [SELECT MVDG__WorkingStatus__c,MVDG__NamedCredential__c,MVDG__NickName__c,MVDG__BucketName__c,MVDG__LinkedDate__c FROM MVDG__AwsAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
                     if (settings == null) {
                         settings = new MVDG__AwsAuthProviderSettings__c();
                     }
@@ -202,9 +211,13 @@ public with sharing class AwsAuthorizationController {
             if (String.isBlank(clientId) || String.isBlank(clientSecret) || String.isBlank(bucket) || String.isBlank(awsNickname)) {
                 return 'All Details are compulsory';
             }
+            List<MVDG__AwsAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__AwsAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
 
-            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
-            if (settings == null) {
+            MVDG__AwsAuthProviderSettings__c settings;
+            if (!settingsList.isEmpty()) {
+                settings = settingsList[0];
+            }
+            else{
                 settings = new MVDG__AwsAuthProviderSettings__c();
             }
             settings.MVDG__ClientId__c = clientId;

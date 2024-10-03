@@ -93,22 +93,22 @@ public with sharing class DropboxSuccessController {
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            redirectUri = baseUrl + '--c.develop.vf.force.com/apex/MVDG__dropboxSuccessPage';
+            redirectUri = baseUrl + '--c.develop.vf.force.com/apex/dropboxSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                redirectUri = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__dropboxSuccessPage';
+                redirectUri = baseUrl + '--c.sandbox.vf.force.com/apex/dropboxSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                redirectUri = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__dropboxSuccessPage';
+                redirectUri = baseUrl + '--c.scratch.vf.force.com/apex/dropboxSuccessPage';
             }else {
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                redirectUri = baseUrl + '--c.vf.force.com/apex/MVDG__dropboxSuccessPage';
+                redirectUri = baseUrl + '--c.vf.force.com/apex/dropboxSuccessPage';
             }
             return redirectUri;
         } catch (Exception e) {
@@ -172,11 +172,10 @@ public with sharing class DropboxSuccessController {
 
     public static String extractCodeParameter(String url) {
         try {
-            String relativePath = url.replace(System.Url.getSalesforceBaseUrl().toExternalForm(), '');
             // Use the PageReference class to extract query parameters
-            PageReference pageRef = new PageReference(relativePath);
+            PageReference pageRef = new PageReference(url.replace(System.Url.getOrgDomainUrl().toExternalForm(), ''));
             String codeParameter = pageRef.getParameters().get('code');
-            System.debug(codeParameter);
+            System.debug('Tirth code parameter'+codeParameter);
             return codeParameter;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'extractCodeParameter');
