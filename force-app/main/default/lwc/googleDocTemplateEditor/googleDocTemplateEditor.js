@@ -311,7 +311,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     this.activeTabName = "contentTab";
                     this.setActiveTab();
                 }
-            } else if( this.warning == 'home') {
+            } else if(this.warning == 'home') {
                 this.warning = '';
                 if (event && event.detail) {
                     this.closePopup();
@@ -320,6 +320,8 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     this.activeTabName = "basicTab";
                     this.setActiveTab();
                 }
+            } else if (this.warning == 'save') {
+                // 
             } else {
                 this.closePopup();
                 this.navigateToComp("homePage", {});
@@ -327,6 +329,16 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         } catch(error) {
             errorDebugger('googleDocTemplateEditor', 'handleConfirmation', error, 'error', 'Error in handleConfirmation. Please try again later');
         }
+    }
+
+    handleDefaultsClose() {
+        this.activeTabName = "contentTab";
+        this.setActiveTab();
+    }
+
+    changeTemplateStatus() {
+        this.templateRecord.MVDG__Template_Status__c = true;
+        this.previousTemplateData.MVDG__Template_Status__c = true;
     }
 
     // When user navigates to home page
@@ -351,7 +363,11 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         try {
             console.log('this.setDateAndSize');
             this.allTemplates = this.allTemplates.map((template) => {
-                template.createdTime = template.createdTime.split("T")[0];
+
+                let date = template.createdTime.split("T")[0];
+                let [year, month, day] = date.split("-");
+                template.createdTime = `${day}-${month}-${year}`;
+
                 if (template.size < 1024) {
                     template.size = Math.round(template.size) + "Byte";
                 } else if (template.size < 1024 * 1024) {
@@ -580,6 +596,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                             message: "Template data saved to backend succesfully.",
                             status: "success"
                         });
+                        this.warning = 'save';
                     } else {
                         popup.showMessageToast({
                             title: "Error Saving Template",

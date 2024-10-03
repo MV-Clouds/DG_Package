@@ -1,6 +1,7 @@
 :host {
     --background-image-url: "default.jpg";
     --main-background-image-url: "default.jpg";
+    --default-font-family: Bahnschrift, "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;;
 }
 .body {
     margin-left: -0.75rem;
@@ -261,7 +262,7 @@ iframe {
 .searchInput::placeholder {
     /* font-size: 18px; */
     color: #abb7c2;
-    font-family: Poppins;
+    font-family: var(--default-font-family);
     line-height: 26px;
 }
 .searchInput:focus-visible {
@@ -421,21 +422,14 @@ iframe {
 
 /* 2line */
 .docName {
-    font-family:
-        Bahnschrift,
-        "Segoe UI",
-        "Segoe UI Web (West European)",
-        -apple-system,
-        BlinkMacSystemFont,
-        Roboto,
-        "Helvetica Neue",
-        sans-serif;
+    font-family: var(--default-font-family);
     font-size: 12px;
     font-weight: 500;
-    line-height: 13.2px;
+    line-height: 14px;
     text-align: left;
     width: 88%;
-    margin-left: 3%;
+    margin-left: 5%;
+    margin-block: auto;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -476,30 +470,14 @@ iframe {
     justify-content: space-between;
 }
 .size {
-    font-family:
-        Bahnschrift,
-        "Segoe UI",
-        "Segoe UI Web (West European)",
-        -apple-system,
-        BlinkMacSystemFont,
-        Roboto,
-        "Helvetica Neue",
-        sans-serif;
+    font-family: var(--default-font-family);
     font-size: 12px;
     font-weight: 400;
     line-height: 11px;
     text-align: left;
 }
 .date {
-    font-family:
-        Bahnschrift,
-        "Segoe UI",
-        "Segoe UI Web (West European)",
-        -apple-system,
-        BlinkMacSystemFont,
-        Roboto,
-        "Helvetica Neue",
-        sans-serif;
+    font-family: var(--default-font-family);
     font-size: 12px;
     font-weight: 400;
     line-height: 11px;
@@ -539,16 +517,7 @@ input:focus {
 .empty-text1 {
     width: 100%;
     margin-top: 1%;
-    font-family:
-        Bahnschrift,
-        "Segoe UI",
-        "Segoe UI Web (West European)",
-        -apple-system,
-        BlinkMacSystemFont,
-        Roboto,
-        "Helvetica Neue",
-        sans-serif;
-    /* font-family: Montserrat; */
+    font-family: var(--default-font-family);
     font-size: 18px;
     font-weight: 600;
     line-height: 25px;
@@ -557,16 +526,7 @@ input:focus {
 }
 .empty-text2 {
     width: 100%;
-    font-family:
-        Bahnschrift,
-        "Segoe UI",
-        "Segoe UI Web (West European)",
-        -apple-system,
-        BlinkMacSystemFont,
-        Roboto,
-        "Helvetica Neue",
-        sans-serif;
-    /* font-family: Montserrat; */
+    font-family: var(--default-font-family);
     font-size: 14px;
     font-weight: 400;
     line-height: 25px;
@@ -701,15 +661,7 @@ c-generate-document {
     justify-content: center;
     align-items: center;
     font-size: 12px;
-    font-family:
-        Bahnschrift,
-        "Segoe UI",
-        "Segoe UI Web (West European)",
-        -apple-system,
-        BlinkMacSystemFont,
-        Roboto,
-        "Helvetica Neue",
-        sans-serif;
+    font-family: var(--default-font-family);
     font-weight: 600;
     color: #595959;
     cursor: pointer;
@@ -772,15 +724,7 @@ c-generate-document {
 }
 .templateNameText {
     font-size: 14px;
-    font-family:
-        Bahnschrift,
-        "Segoe UI",
-        "Segoe UI Web (West European)",
-        -apple-system,
-        BlinkMacSystemFont,
-        Roboto,
-        "Helvetica Neue",
-        sans-serif;
+    font-family: var(--default-font-family);
     font-weight: 600;
     color: black;
     text-overflow: ellipsis;
@@ -998,15 +942,7 @@ c-generate-document {
     font-size: 14px;
     display: flex;
     justify-content: center;
-    font-family:
-        Bahnschrift,
-        "Segoe UI",
-        "Segoe UI Web (West European)",
-        -apple-system,
-        BlinkMacSystemFont,
-        Roboto,
-        "Helvetica Neue",
-        sans-serif;
+    font-family: var(--default-font-family);
     user-select: none;
     line-height: 22px;
     letter-spacing: 0.5px;
@@ -1030,6 +966,9 @@ c-generate-document {
     padding-inline: 0.25rem;
     color: #009ae1;
     font-family: var(--fontFamily1);
+}
+.previewLabel a {
+    padding: 4px;
 }
 .previewLabel abbr {
     color: red !important;

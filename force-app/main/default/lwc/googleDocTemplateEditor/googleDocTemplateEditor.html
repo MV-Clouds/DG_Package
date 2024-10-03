@@ -46,7 +46,7 @@
 
             <template lwc:if={webViewLink}>
                 <div class="main" if:true={showTemplateEditor}>
-                    <iframe src={webViewLink} onload={iframeLoaded}></iframe>
+                    <iframe src={webViewLink} onload={iframeLoaded} ></iframe>
                     <c-key-mapping-container 
                         class="key-mapping-container decision-container" 
                         data-name="fieldMappingContainer" 
@@ -110,10 +110,17 @@
                                         </div>
                                         <div class="previewTwise">
                                             <div class="previewField">
-                                                <div class="previewLabel">Google Doc Id</div>
+                                                <div class="previewLabel">
+                                                    Google Doc Id
+                                                    <a target="_blank" href={webViewLink}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 16 16" fill="none" height="12" width="12">
+                                                            <path stroke="#00aeff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.475574999999999 0.9022416666666665H2.4266666666666663C1.5847416666666665 0.9021833333333332 0.9022416666666665 1.5847416666666665 0.9022416666666665 2.4266666666666663V11.573333333333332C0.9022416666666665 12.415258333333332 1.5847416666666665 13.097758333333331 2.4266666666666663 13.097758333333331H11.573333333333332C12.415258333333332 13.097758333333331 13.097758333333331 12.415258333333332 13.097758333333331 11.573333333333332V8.524424999999999M6.999999999999999 6.999999999999999L13.097758333333331 0.9022416666666665M13.097758333333331 0.9022416666666665V4.713333333333333M13.097758333333331 0.9022416666666665H9.286666666666665"></path>
+                                                        </svg>
+                                                    </a>
+                                                </div>
                                                 <lightning-input type="text" class="nonEditInput" value={MVDG__Google_Doc_Template_Id__c} variant="label-hidden" disabled="true"></lightning-input>
                                             </div>
-                                            <div class="previewField">
+                                            <div class="previewField slds-hidden">
                                                 <div class="previewLabel">Template Id</div>
                                                 <lightning-input type="text" class="nonEditInput" value={templateId} variant="label-hidden" disabled="true"></lightning-input>
                                             </div>
@@ -163,7 +170,9 @@
                         template-type-from-parent="Google Doc Template" 
                         template-id-from-parent={templateId} 
                         object-name-from-parent={objectName} 
-                        template-name-from-parent={templateRecord.MVDG__Template_Name__c}>
+                        template-name-from-parent={templateRecord.MVDG__Template_Name__c}
+                        onclose={handleDefaultsClose}
+                        onactivate={changeTemplateStatus}>
                     </c-generate-document>
                 </div>
             </template>
@@ -209,7 +218,7 @@
                 <hr style="margin: 0 2%" />
                 <div class="documents" lwc:if={templates.length}>
                     <template for:each={templates} for:item="template">
-                        <div class="docs-container hover-effect" key={template.id} data-id={template.id} onclick={handleTemplateClick}>
+                        <div class="docs-container hover-effect" key={template.id} data-id={template.id} onclick={handleTemplateClick} title={template.name}>
                             <div class="docFirstRow">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 51" fill="none" class="small">
                                     <path d="M3.5625 0C1.59499 0 0 1.55683 0 3.47727V47.5227C0 49.4432 1.59499 51 3.5625 51H34.4375C36.405 51 38 49.4432 38 47.5227V13.9091L23.75 0H3.5625Z" fill="#4E8DF5" />
@@ -251,7 +260,7 @@
                             </div>
                             <div class="docThirdRow">
                                 <div class="size">{template.size}</div>
-                                <div class="date">Date: {template.createdTime}</div>
+                                <div class="date">{template.createdTime}</div>
                             </div>
                         </div>
                     </template>
