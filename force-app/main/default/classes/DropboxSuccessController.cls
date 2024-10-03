@@ -93,22 +93,22 @@ public with sharing class DropboxSuccessController {
             System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             baseUrl = baseUrl.substringAfter('Url:[delegate=');
-            redirectUri = baseUrl + '--c.develop.vf.force.com/apex/dropboxSuccessPage';
+            redirectUri = baseUrl + '--c.develop.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                redirectUri = baseUrl + '--c.sandbox.vf.force.com/apex/dropboxSuccessPage';
+                redirectUri = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                redirectUri = baseUrl + '--c.scratch.vf.force.com/apex/dropboxSuccessPage';
+                redirectUri = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else {
                 System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 baseUrl = baseUrl.substringAfter('Url:[delegate=');
-                redirectUri = baseUrl + '--c.vf.force.com/apex/dropboxSuccessPage';
+                redirectUri = baseUrl + '--c.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }
             return redirectUri;
         } catch (Exception e) {
