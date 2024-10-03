@@ -171,7 +171,8 @@
                         template-id-from-parent={templateId} 
                         object-name-from-parent={objectName} 
                         template-name-from-parent={templateRecord.MVDG__Template_Name__c}
-                        onclose={handleDefaultsClose}>
+                        onclose={handleDefaultsClose}
+                        onactivate={changeTemplateStatus}>
                     </c-generate-document>
                 </div>
             </template>

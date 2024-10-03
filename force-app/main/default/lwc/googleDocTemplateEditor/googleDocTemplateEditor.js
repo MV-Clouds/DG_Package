@@ -336,6 +336,11 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
         this.setActiveTab();
     }
 
+    changeTemplateStatus() {
+        this.templateRecord.MVDG__Template_Status__c = true;
+        this.previousTemplateData.MVDG__Template_Status__c = true;
+    }
+
     // When user navigates to home page
     cancel() {
         console.log('this.cancel');
