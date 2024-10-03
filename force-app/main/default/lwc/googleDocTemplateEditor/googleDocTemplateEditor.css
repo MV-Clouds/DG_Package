@@ -967,6 +967,9 @@ c-generate-document {
     color: #009ae1;
     font-family: var(--fontFamily1);
 }
+.previewLabel a {
+    padding: 4px;
+}
 .previewLabel abbr {
     color: red !important;
 }

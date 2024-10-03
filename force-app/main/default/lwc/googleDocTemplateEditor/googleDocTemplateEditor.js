@@ -311,7 +311,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     this.activeTabName = "contentTab";
                     this.setActiveTab();
                 }
-            } else if( this.warning == 'home') {
+            } else if(this.warning == 'home') {
                 this.warning = '';
                 if (event && event.detail) {
                     this.closePopup();
@@ -320,6 +320,8 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     this.activeTabName = "basicTab";
                     this.setActiveTab();
                 }
+            } else if (this.warning == 'save') {
+                // 
             } else {
                 this.closePopup();
                 this.navigateToComp("homePage", {});
@@ -589,6 +591,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                             message: "Template data saved to backend succesfully.",
                             status: "success"
                         });
+                        this.warning = 'save';
                     } else {
                         popup.showMessageToast({
                             title: "Error Saving Template",

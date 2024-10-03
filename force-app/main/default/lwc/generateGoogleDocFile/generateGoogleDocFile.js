@@ -126,9 +126,9 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     pattern = /\$([^:]+):([^$]+)\$/g;
                     while ((matcher = pattern.exec(stringBody)) != null) {
                         if (matcher[1] === "limit") {
-                            object.queryLimit = matcher[2];
+                            object.queryLimit = matcher[2].trim();
                         } else {
-                            object[matcher[1]] = matcher[2];
+                            object[matcher[1]] = matcher[2].trim();
                         }
                     }
 
@@ -207,7 +207,6 @@ export default class GenerateGoogleDocFile extends LightningElement {
                         } else if (element.table) {
                             // Process table one by one
                             let stringBody = JSON.stringify(element);
-                            let matchedBody = JSON.stringify(element);
 
                             // Checks for fields inside the table with keys
                             if (stringBody.match(/{{!(.*?)}}/g)) {
@@ -224,6 +223,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                 }
 
                                 let fieldName = this.substringBetween(stringBody, "$objApi:", "$");
+                                fieldName = fieldName.trim();
                                 let objFields = objectDetails.find((el) => el.objApi === fieldName && el.tableNo === tableNo);
                                 let IndexedFieldName = "";
 
@@ -308,6 +308,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                                 }
                             } else {
                                 // Checks for the signature key inside the table
+                                let matchedBody = JSON.stringify(element);
                                 if (matchedBody.includes(this.signatureKey)) {
                                     let splitMatchedBody = matchedBody.split(this.signatureKey);
                                     for (let i = 0; i < splitMatchedBody.length - 1; i++) {
