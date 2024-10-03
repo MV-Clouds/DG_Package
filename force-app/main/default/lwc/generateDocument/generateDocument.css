@@ -1,6 +1,7 @@
 :host{
     --width-of-main-generate-document-div : 100%;
     --height-of-main-generate-document-div : 90vh;
+    --display-for-main-container : none;
     --margin-of-main-container : 0.5rem 0;
     --border-color-of-main-container : transparent;
     --max-height-of-email-body-div : 100%;
@@ -134,7 +135,7 @@ li.info-topic {
 } */
 
 .main-container {
-    display: flex;
+    display: var(--display-for-main-container, none);
     flex-direction: column;
     /* height: calc(100% - 14rem); */
     flex-grow: 1;

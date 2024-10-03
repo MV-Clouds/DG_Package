@@ -269,6 +269,7 @@ input[type=number]::-webkit-outer-spin-button {
     --invalidInputBorderColor : red;
     --invalidInputShadow : none;
     --invalidLabelColor : red;
+    --placeHolderColor : gray;
 }
 
 @media only screen and (min-width: 48rem) and (max-width: 64rem) {

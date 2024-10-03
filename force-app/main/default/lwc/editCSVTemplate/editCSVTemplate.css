@@ -974,6 +974,7 @@ button:hover{
     --inputOnFocusBorderColor : #00aeff;
     --inputOnFocusShadow : none;
     flex-grow: 1;
+    --placeHolderColor : gray;
 }
 
 .object-select{

@@ -674,6 +674,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 }
                 [this.selectedFields[index], this.selectedFields[index-1]] = [this.selectedFields[index-1], this.selectedFields[index]]
             }
+            this.template.querySelector('.selected-item')?.scrollIntoView({ behavior: "smooth", block: "end"});
             this.isEditTabChanged = true;
         }catch(e) {
             errorDebugger('editCSVTemplate', 'handleUp', e, 'warn');
@@ -691,6 +692,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 }
                 [this.selectedFields[index], this.selectedFields[index+1]] = [this.selectedFields[index+1], this.selectedFields[index]]
             }
+            this.template.querySelector('.selected-item')?.scrollIntoView({ behavior: "smooth"});
             this.isEditTabChanged = true;
         }catch(e) {
             errorDebugger('editCSVTemplate', 'handleDown', e, 'warn');
@@ -699,6 +701,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleTop(){
         try{
+            this.template.querySelector('.field-li-to-selected')?.scrollIntoView({ behavior: "smooth", block: "end"});
             this.moveFieldsToPosition('top');
         }catch(e) {
             errorDebugger('editCSVTemplate', 'handleTop', e, 'warn');
@@ -707,6 +710,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
 
     handleBottom(){
         try {
+            this.template.querySelectorAll('.field-li-to-selected')[this.selectedFields.length-1]?.scrollIntoView({ behavior: "smooth", block: "start"});
             this.moveFieldsToPosition('bottom');
         }catch(e) {
             errorDebugger('editCSVTemplate', 'handleBottom', e, 'warn');
@@ -744,6 +748,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             });
             let uniqueFieldOptions = new Set([...this.fieldOptions, ...this.toRemoveSelected]);
             this.fieldOptions = Array.from(uniqueFieldOptions);
+            this.setSelectionFields();
             this.toRemoveSelected = [];
             this.isEditTabChanged = true;
         }catch(e) {
@@ -1884,6 +1889,23 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
         }
     }
 
+    handleGenerateClose(){
+        try {
+            this.activeTab({currentTarget : {dataset: {name : 'editTab'}}});
+        } catch (e) {
+            errorDebugger('editCSVTemplate', 'handleGenerateClose', e, 'warn');
+        }
+    }
+
+    handleActivateTemplate(){
+        try {
+            this.newTemplateData.MVDG__Template_Status__c = true;
+            this.existingTemplateData.MVDG__Template_Status__c = true;
+        } catch (e) {
+            errorDebugger('editCSVTemplate', 'handleActivateTemplate', e, 'warn');
+        }
+    }
+
     closePreview(){
         this.showPreview = false;
     }
@@ -2204,6 +2226,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             if(!this.isListViewUpdated){
                 return;
             }
+            this.isListViewUpdated = false;
             if(!this.selectedListView){
                 this.showToast('error', 'Oops! No list view selected.', 'Please select a list view to proceed with a list view.', 5000);
             }else{
