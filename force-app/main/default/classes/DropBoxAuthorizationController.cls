@@ -155,7 +155,7 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static String redirectUrl(){
         try {
-            String url = ''+System.Url.getOrgDomainUrl();
+            String url = ''+System.Url.getOrgDomainUrl().toExternalForm();
             String REDIRECT_URI = redirect(url);
             return REDIRECT_URI;
         } catch (Exception e) {

@@ -143,7 +143,7 @@ public with sharing class OneDriveAuthorizationController {
     @AuraEnabled
     public static String redirectUrl(){
         try {
-            String url = ''+System.URL.getOrgDomainUrl();
+            String url = ''+System.URL.getOrgDomainUrl().toExternalForm();
             String REDIRECT_URI = redirect(url);
             return REDIRECT_URI;
         } catch (Exception e) {
