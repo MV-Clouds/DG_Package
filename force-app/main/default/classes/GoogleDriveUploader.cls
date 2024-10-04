@@ -5,6 +5,8 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
     global static string googleFileName;
     global string activity;
     global static List<MVDG__Generate_Document_Activity__c> listMessage = new List<MVDG__Generate_Document_Activity__c>();
+    private static List<HttpResponse> responseList = new List<HttpResponse>();
+
 /*
 *********************************************************
 @description     : constructor to define values
@@ -334,6 +336,7 @@ global static String getToken(){
                     chunkBlob = null;
                     System.debug(Limits.getHeapSize());
                 }
+                Response_Handler.store_All_Callout_Response(responseList, 'GoogleDriveUploader', 'uploadChunk');
             }
             return true;
         } catch (Exception e) {
@@ -525,20 +528,21 @@ global static String getToken(){
                 obj.Id = parameters.activity; 
                 updateActivityMessage(obj);
             } else {
-                Response_Handler.store_Callout_Response(res, 'GoogleDriveUploader', 'uploadChunk');
+                responseList.add(res);
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Failure '+ res.getBody();
                 obj.Id = parameters.activity; 
                 updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
+                throw new AuraHandledException('exception' + res);
             }
             }
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'GoogleDriveUploader', 'uploadChunk', parameters.activity);
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = parameters.activity; 
                 updateActivityMessage(obj);
+                throw new AuraHandledException(''+e);
         }
     }
 

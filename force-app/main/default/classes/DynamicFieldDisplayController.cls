@@ -245,7 +245,7 @@ public class ChildRelationshipInfo {
             }
 
 
-            String soql = 'SELECT Id, ' + String.join(fieldNames, ', ') + ' FROM ' + objectName + ' WHERE Id = \''+ String.escapeSingleQuotes(recordId) +'\'';
+            String soql = 'SELECT Id, ' + String.join(fieldNames, ', ') + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id = \''+ String.escapeSingleQuotes(recordId) +'\'';
             SObject record = Database.query(soql);
             
             Map<String, Object> recordFieldValues = new Map<String, Object>();
