@@ -423,9 +423,7 @@ public with sharing class GoogleDocTemplateEditorController {
     ***********************************************************************/
     public static void insertRestResponses() {
         try {
-            for (String methodName: responseList.keySet()) {
-                Response_Handler.store_Callout_Response(responseList.get(methodName), 'GoogleDocTemplateEditorController', methodName);
-            }
+            Response_Handler.store_All_Callout_Response(responseList, 'GoogleDocTemplateEditorController');
         } catch (Exception e) {
             System.debug('Error In insertResponses ==> ' + e.getMessage());
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'insertResponses');
