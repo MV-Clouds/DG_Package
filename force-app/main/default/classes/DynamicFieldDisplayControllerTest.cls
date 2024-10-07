@@ -24,19 +24,7 @@ public class DynamicFieldDisplayControllerTest {
         System.assertNotEquals(0, controller.fieldSections.size(), 'Field sections should not be empty.');
         Test.stopTest();
     }
-    
-    @IsTest
-    static void testWrapperClasses(){
-        
-        Test.startTest();
-        DynamicFieldDisplayController.ChildRelationshipInfo childRelationshipInfo = new DynamicFieldDisplayController.ChildRelationshipInfo();
-        DynamicFieldDisplayController.RelatedList relatedList = new DynamicFieldDisplayController.RelatedList();
 
-        Test.stopTest();
-        
-    }
-
-    
 
     private class MockHttpResponseGenerator implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {

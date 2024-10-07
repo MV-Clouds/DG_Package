@@ -37,6 +37,7 @@ export default class ChatBot extends LightningElement {
     @track emailErrorMessage = false;
     @track attachmentError = false;
     @track fileSizeError = false;
+    @track emailWasActive = false;
 
     selectedFileSize = 0;
     currentTime = '09:48';
@@ -145,45 +146,56 @@ export default class ChatBot extends LightningElement {
     handleFilesChange(event) {
         this.attachmentError = false;
         this.fileSizeError = false;
-        const files = event.target.files;
+    
+        const files = Array.from(event.target.files);
         const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif'];
-        const currentLength = this.uploadedFiles.length;
-
+        const maxSize = 2.5 * 1024 * 1024; // 2.5 MB
+    
         let totalFileSize = this.selectedFileSize;
-        const maxSize = 2.5 * 1024 * 1024;
-
-        Array.from(files).forEach((file, index) => {
+        const currentLength = this.uploadedFiles.length;
+        let validFiles = [];
+    
+        // Validate all files synchronously
+        files.forEach((file) => {
             if (!allowedTypes.includes(file.type)) {
-                
                 this.attachmentError = true;
-                return; // Stop processing further files if an error occurs
-            }
-            if (totalFileSize + file.size > maxSize) {
-                
+            } else if (totalFileSize + file.size > maxSize) {
                 this.fileSizeError = true;
-                return; // Stop processing this file
+            } else {
+                validFiles.push(file); // Only keep valid files for further processing
+                totalFileSize += file.size; // Increment total file size
             }
-
+        });
+    
+        // If there are errors, stop further processing
+        if (this.attachmentError || this.fileSizeError) {
+            return;
+        }
+    
+        // Process valid files asynchronously
+        validFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = () => {
                 const fileInfo = {
-                    id: currentLength + index + 1, // Assign a unique id starting from 1
+                    id: currentLength + index + 1, // Assign a unique id
                     fileName: file.name,
                     fileNameShort: file.name.length > 16 ? `${file.name.substring(0, 13)}...` : file.name,
-                    fileNameExtraShort:file.name.length > 13 ? `${file.name.substring(0, 11)}...` : file.name,
+                    fileNameExtraShort: file.name.length > 13 ? `${file.name.substring(0, 11)}...` : file.name,
                     fileSize: this.formatFileSize(file.size),
-                    isImage: ['image/png', 'image/jpg', 'image/jpeg', 'image/gif'].includes(file.type),
+                    isImage: allowedTypes.includes(file.type),
                     displayUrl: reader.result,
-                    fileUrl: reader.result.split(',')[1]
+                    fileUrl: reader.result.split(',')[1],
                 };
-
-                this.uploadedFiles = [...this.uploadedFiles, fileInfo];
-                totalFileSize += file.size;
-                this.selectedFileSize = totalFileSize;
+    
+                this.uploadedFiles = [...this.uploadedFiles, fileInfo]; // Update uploaded files
             };
             reader.readAsDataURL(file);
         });
+    
+        // Update total size after processing all valid files
+        this.selectedFileSize = totalFileSize;
     }
+    
 
     showDiv() {
         const hiddenDiv = this.template.querySelector('.circle-active svg');
@@ -305,7 +317,9 @@ export default class ChatBot extends LightningElement {
     }
 
     toggleFeedback(){
-        
+        if(this.isEmail){
+            this.emailWasActive = true;
+        }
         this.isFeedbackPopup = this.isFeedbackPopup ? false : true;
         this.isEmail = false;
         this.selectedFileSize = 0;
@@ -546,12 +560,21 @@ export default class ChatBot extends LightningElement {
     }
 
     togglePopupClose(){
+        if(this.isFeedbackPopup && this.emailWasActive){
+            this.isEmail = true;
+        }
 
         // console.log('closing');
         this.rendered = false;
         this.popupOpen = false;
         this.isFeedbackPopup = false;
+        this.attachmentError = false;
+        this.fileSizeError = false;
+        this.replyAddress = '';
+        this.body = '';
+        this.emailErrorMessage = false;
         this.uploadedFiles = [];
+        
         
     }
 
@@ -595,6 +618,7 @@ export default class ChatBot extends LightningElement {
         this.isOnlyEmail = true;
         this.hideChatBar = true;
         this.selectedFileSize = 0;
+        this.emailWasActive = false;
         // console.log('Inside handle chat');
         this.isIssue = false;
         this.isSol = false;
@@ -611,6 +635,8 @@ export default class ChatBot extends LightningElement {
         this.isSolution = false;
         this.useful = false;
         this.isFeedbackPopup = false;
+        this.attachmentError = false;
+        this.fileSizeError = false;
         const windowsize = this.template.querySelector('.popupopen');
         const windowmessage = this.template.querySelector('.message');
         windowsize.style.height = '430px';
