@@ -3,7 +3,7 @@
   <div class="templateBuilder_Maindiv" lwc:ref="mainDiv" data-name="mainDiv" style={loadStyle}>
     <div class="contentSection">
       <div class="editorSection">
-        <div class="tabSection">
+        <div class="tabSection" data-hide-toolbar={hideToolbar}>
           <div class="tabSection_sub">
             <button class="homeBtn" title="Home" onclick={handleCloseEdit}>
               <svg viewBox="0 0 24 24">
@@ -16,7 +16,7 @@
                 </g>
               </svg>
             </button>
-            <div class="tab" data-name="contentTab" onclick={activeTab}>
+            <div class="tab" data-display={tabs.contentTab} data-name="contentTab" onclick={activeTab}>
               <svg viewBox="0 0 24 24">
                 <path
                   d="M1 2V5H3V4H5V9H3.5V11H8.5V9H7V4H9V5H11V2H1ZM21 3H14V5H20V19H4V14H2V20C2 20.5523 2.44772 21 3 21H21C21.5523 21 22 20.5523 22 20V4C22 3.44772 21.5523 3 21 3Z">
@@ -24,17 +24,17 @@
               </svg>
               <div>Template Content</div>
             </div>
-            <div class="tab" data-name="headerTab" onclick={activeTab}>
+            <div class="tab" data-display={tabs.headerTab} data-name="headerTab" onclick={activeTab}>
               <svg viewBox="0 0 92.344 92.344"><g  stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <g> <g> <path d="M9.932,0v92.344h72.48V0H9.932z M75.645,85.577H16.699V6.768h58.946V85.577L75.645,85.577z"></path><rect x="24.178" y="13.818" width="43.988" height="12.707"></rect> </g> </g> </g></svg>
               <div>Header</div>
             </div>
-            <div class="tab" data-name="footerTab" onclick={activeTab}>
+            <div class="tab" data-display={tabs.footerTab} data-name="footerTab" onclick={activeTab}>
               <svg viewBox="0 0 92.344 92.344"><g  stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <g> <g> <path d="M9.932,0v92.344h72.48V0H9.932z M75.645,85.577H16.699V6.768h58.946V85.577L75.645,85.577z"></path> <rect x="24.178" y="65.818" width="43.988" height="12.707"></rect></g> </g> </g></svg>
               <!-- <svg viewBox="0 0 24 24"><path d="M17 21V17H7V21H5V16C5 15.4477 5.44772 15 6 15H18C18.5523 15 19 15.4477 19 16V21H17ZM7 3V7H17V3H19V8C19 8.55228 18.5523 9 18 9H6C5.44772 9 5 8.55228 5 8V3H7ZM2 9L6 12L2 15V9ZM22 9V15L18 12L22 9Z"></path></svg> -->
               <div>Footer</div>
             </div>
              <!-- ====  Watermark is Disable and it is development... DO NOT Remove this commented code -->
-            <!-- <div class="tab" data-name="waterMarkTab" onclick={activeTab}>
+            <!-- <div class="tab" data-display={tabs.waterMarkTab} data-name="waterMarkTab" onclick={activeTab}>
               <svg viewBox="0 0 24 24">
                 <path
                   d="M15 8V4H5V20H19V8H15ZM3 2.9918C3 2.44405 3.44749 2 3.9985 2H16L20.9997 7L21 20.9925C21 21.5489 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5447 3 21.0082V2.9918ZM11 9.5C11 10.3284 10.3284 11 9.5 11C8.67157 11 8 10.3284 8 9.5C8 8.67157 8.67157 8 9.5 8C10.3284 8 11 8.67157 11 9.5ZM17.5 17L13.5 10L8 17H17.5Z">
@@ -42,7 +42,7 @@
               </svg>
               <div>Watermark</div>
             </div> -->
-            <div class="tab" data-name="basicTab" onclick={activeTab}>
+            <div class="tab" data-display={tabs.basicTab} data-name="basicTab" onclick={activeTab}>
               <svg viewBox="0 0 24 24">
                 <path
                   d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM19 20V4H5V20H19ZM7 6H11V10H7V6ZM7 12H17V14H7V12ZM7 16H17V18H7V16ZM13 7H17V9H13V7Z">
@@ -50,7 +50,7 @@
               </svg>
               <div>Basic Details</div>
             </div>
-            <div class="tab templateDefault" data-name="templateDefault" onclick={activeTab}>
+            <div class="tab templateDefault" data-display={tabs.templateDefault} data-name="templateDefault" onclick={activeTab}>
               <svg viewBox="0 0 24 24">
                 <g clip-path="url(#clip0_32_51)">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M5 5C5 4.73478 5.10536 4.48043 5.29289 4.29289C5.48043 4.10536 5.73478 4 6 4H15C15.2652 4 15.5196 4.10536 15.7071 4.29289C15.8946 4.48043 16 4.73478 16 5V12.0275C16.341 12.0653 16.6765 12.142 17 12.256V5C17 4.46957 16.7893 3.96086 16.4142 3.58579C16.0391 3.21071 15.5304 3 15 3H6C5.46957 3 4.96086 3.21071 4.58579 3.58579C4.21071 3.96086 4 4.46957 4 5V17C4 17.5304 4.21071 18.0391 4.58579 18.4142C4.96086 18.7893 5.46957 19 6 19H11.758C11.5497 18.6888 11.3811 18.3529 11.256 18H6C5.73478 18 5.48043 17.8946 5.29289 17.7071C5.10536 17.5196 5 17.2652 5 17V5Z" fill="black"/>
@@ -94,11 +94,11 @@
         <!-- === ==== ==== Main Editing Tab Section - Start - === ==== ==== -->
         <div class="editingSection">
           <!-- === ==== ==== ## Content Editor Tab Section === ==== ==== -->
-          <div class="tabArea" data-section="contentTab" data-key-mapping="true" data-toolbar="true">
+          <div class="tabArea" data-section="contentTab" data-display={tabs.contentTab} data-key-mapping="true" data-toolbar="true">
             <div data-name="templateContent"></div>
           </div>
            <!-- === ==== ==== ## Header Editor - === ==== ==== -->
-          <div class="headerSection tabArea deactiveTabs" data-section="headerTab" data-key-mapping="true" data-toolbar="true">
+          <div class="headerSection tabArea" data-display={tabs.headerTab} data-section="headerTab" data-key-mapping="true" data-toolbar="true">
             <div data-name="headerEditor"></div>
             <div class="footerConfigSection">
               <div class="headerConfig_sub">
@@ -114,7 +114,7 @@
             </div>
           </div>
           <!-- === ==== ====  ## Footer Editor === ==== ==== -->
-          <div class="footerSection tabArea deactiveTabs" data-section="footerTab" data-key-mapping="true" data-toolbar="true">
+          <div class="footerSection tabArea" data-display={tabs.footerTab} data-section="footerTab" data-key-mapping="true" data-toolbar="true">
             <div data-name="footerEditor"></div>
             <div class="headerConfigSection">
               <div class="footerConfig_sub">
@@ -132,6 +132,7 @@
           <!-- #fieldMapping... -->
           <c-key-mapping-container
               class="keyMappingContainer desicionContainer" 
+              data-display={showKeyMapping}
               object-name={objectName}
               template-id={templateId}
               save-button-label="Save" 
@@ -146,7 +147,7 @@
               >
             </c-key-mapping-container>
           <!-- === ==== ==== ## Watermark Tab Section === ==== ==== -->
-          <div class="waterMarkSection tabArea deactiveTabs" data-section="waterMarkTab" data-key-mapping="false" data-toolbar="true" >
+          <div class="waterMarkSection tabArea" data-display={tabs.waterMarkTab} data-section="waterMarkTab" data-key-mapping="false" data-toolbar="true" >
             <div class="nonEditor_toobar_outer">
               <div class="nonEditor_toobar">
                 <div class="watermarkOptionSection">
@@ -300,7 +301,7 @@
             </div>
           </div>
            <!-- === ==== ==== ## Basic Detail Edit Tab Section === ==== ==== -->
-          <div class="basicDetailSetion tabArea deactiveTabs" data-section="basicTab" data-key-mapping="false" data-toolbar="false">
+          <div class="basicDetailSetion tabArea" data-display={tabs.basicTab} data-section="basicTab" data-key-mapping="false" data-toolbar="false">
             <!-- <div class="nonEditor_toobar_outer">
               <div class="nonEditor_toobar">
                 <div class="toolBarHeaderText">
@@ -495,18 +496,20 @@
             </div>
           </div>
           <!-- === ==== ==== ## Set Default Tab Section === ==== ==== -->
-           <div class="templateDefaultSection tabArea deactiveTabs" data-section="templateDefault" data-key-mapping="false" data-toolbar="false">
+           <div class="templateDefaultSection tabArea" data-display={tabs.templateDefault} data-section="templateDefault" data-key-mapping="false" data-toolbar="false">
             <template lwc:if={templateRecord.Id}>
-              <c-generate-document
-                  object-api-name={templateRecord.MVDG__Object_API_Name__c}
-                  called-from-where="defaults"
-                  template-type-from-parent="Simple Template"
-                  template-id-from-parent={templateRecord.Id}
-                  object-name-from-parent={templateRecord.MVDG__Object_API_Name__c}
-                  template-name-from-parent={templateRecord.MVDG__Template_Name__c}
-                  onclose={moveToBasicDetail}
-                  onactivate={updateTemplateStatus}
-              ></c-generate-document>
+              <template lwc:if={tabs.templateDefault}>
+                <c-generate-document
+                    object-api-name={templateRecord.MVDG__Object_API_Name__c}
+                    called-from-where="defaults"
+                    template-type-from-parent="Simple Template"
+                    template-id-from-parent={templateRecord.Id}
+                    object-name-from-parent={templateRecord.MVDG__Object_API_Name__c}
+                    template-name-from-parent={templateRecord.MVDG__Template_Name__c}
+                    onclose={moveToBasicDetail}
+                    onactivate={updateTemplateStatus}
+                ></c-generate-document>
+              </template>
             </template>
            </div>
         </div>
