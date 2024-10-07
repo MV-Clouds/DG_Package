@@ -4,6 +4,8 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     global static string fullFileName;
     global string activity;
     global static List<MVDG__Generate_Document_Activity__c> listMessage = new List<MVDG__Generate_Document_Activity__c>();
+    private static List<HttpResponse> responseList = new List<HttpResponse>();
+
 
 
     /*
@@ -331,6 +333,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                     chunkdetail.activity = fileDetails[2];
                     uploadChunk(chunkdetail);
                 }
+                Response_Handler.store_All_Callout_Response(responseList, 'OneDriveUploader', 'uploadChunk');
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveUploader', 'uploadLargeFileInChunks', fileDetails[2]);
@@ -450,20 +453,21 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 updateActivityMessage(obj);
             }else {
                 System.debug('Everything was in else' + res.getStatusCode() + res.getBody());
-                Response_Handler.store_Callout_Response(res, 'OneDriveUploader', 'uploadChunk');
+                responseList.add(res);
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure'+ res.getStatusCode() + res.getBody();
                 obj.Id = parameters.activity; 
                 updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
+                throw new AuraHandledException('exception' + res);
             }
         }
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'OneDriveUploader', 'uploadChunk', parameters.activity);
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
                 obj.Id = parameters.activity; 
                 updateActivityMessage(obj);
+                throw new AuraHandledException(''+e);
         }
     }
 

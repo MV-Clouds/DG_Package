@@ -249,7 +249,7 @@ public with sharing class ChatBotController {
         }
         List<MVDG__ChatBotData__c> checkData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
         if(!checkData.isEmpty()){
-            delete checkData;
+            delete as user checkData;
         }
     }
 

@@ -6,7 +6,6 @@ public with sharing class DynamicFieldDisplayController {
     public String layoutName { get; set; }
     public string RecordTypeId { get; set;}
     public List<FieldSection> fieldSections { get; set; }
-    public List<RelatedList> relatedLists { get; set; }
 
     public DynamicFieldDisplayController() {
         this.recordId = ApexPages.currentPage().getParameters().get('id');
@@ -17,9 +16,7 @@ public with sharing class DynamicFieldDisplayController {
             this.RecordTypeId = getRecordTypeId(this.recordId, this.objectName);
             this.layoutName = getObjectLayout(this.objectID, this.RecordTypeId)[0]; // Change this to the desired layout
             this.fieldSections = new List<FieldSection>();
-            this.relatedLists = new List<RelatedList>();
             fetchRecordFieldValues();
-            // fetchRelatedLists(this.objectName, this.layoutName, this.recordId);
         }
 
     }
@@ -106,12 +103,7 @@ public with sharing class DynamicFieldDisplayController {
         return String.join(addressParts, ', ');
     }
 
-   
 
-public class ChildRelationshipInfo {
-    public String childObjectName { get; set; }
-    public String relationshipName { get; set; }
-}
 
 
    
@@ -139,19 +131,6 @@ public class ChildRelationshipInfo {
             this.fieldName = fieldName;
             this.fieldValue = fieldValue;
             this.fieldLabel = fieldLabel;
-        }
-    }
-
-    public class RelatedList {
-        public String sObjectType { get; set; }
-        public String sObjectName { get; set; }
-        public List<String> sObjectLabel { get; set; }
-
-        public List<SObject> records { get; set; }
-        
-        public RelatedList() {
-            this.records = new List<SObject>();
-            this.sObjectLabel = new List<String>();
         }
     }
 
@@ -245,7 +224,7 @@ public class ChildRelationshipInfo {
             }
 
 
-            String soql = 'SELECT Id, ' + String.join(fieldNames, ', ') + ' FROM ' + objectName + ' WHERE Id = \''+ String.escapeSingleQuotes(recordId) +'\'';
+            String soql = 'SELECT Id, ' + String.join(fieldNames, ', ') + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id = \''+ String.escapeSingleQuotes(recordId) +'\'';
             SObject record = Database.query(soql);
             
             Map<String, Object> recordFieldValues = new Map<String, Object>();
