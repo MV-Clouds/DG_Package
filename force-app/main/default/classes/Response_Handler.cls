@@ -34,7 +34,6 @@ public with sharing class Response_Handler{
                 response.MVDG__Response_Status_Code__c = String.valueOf(res.getStatusCode());
                 response.MVDG__Class_Name__c = classname;
                 response.MVDG__Method_Name__c = methodname;
-
                 allResponseList.add(response);
             }
             

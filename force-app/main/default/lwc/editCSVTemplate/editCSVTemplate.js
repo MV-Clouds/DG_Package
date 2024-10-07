@@ -2151,6 +2151,14 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                         this.existingTemplateData.MVDG__Description__c = this.newTemplateData.MVDG__Description__c;
                         this.existingTemplateData.MVDG__List_View__c = this.selectedListView;
                         this.isBasicTabChanged = false;
+                        if(this.selectedListView && this.isListViewUpdated){
+                            this.handleListView();
+                            this.isBasicTabChanged = false;
+                        }else{
+                            this.showSpinner = false;
+                            this.showToast('success', 'Action Performed!', 'The Template Details are updated successfully!', 5000);
+                            this.isBasicTabChanged = false;
+                        }
                     }else{
                         errorDebugger('editCSVTemplate', 'handleUpdateTemplate > updateTemplate > failure', result, 'warn');
                         this.showToast('error', 'Oops! Couldn\'t save changes!' , 'Please try updating the data again...', 5000);
@@ -2160,17 +2168,6 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     errorDebugger('editCSVTemplate', 'handleUpdateTemplate > updateTemplate', e, 'warn');
                     this.showToast('error', 'Oops! Couldn\'t save changes!' , 'Please try updating the data again...', 5000);
                 })
-                .finally(()=>{
-                    if(!this.selectedListView || !this.isListViewUpdated){
-                        this.showSpinner = false;
-                        this.showToast('success', 'Action Performed!', 'The Template Details are updated successfully!', 5000);
-                        this.isBasicTabChanged = false;
-                    }
-                })
-            }
-            if(this.selectedListView){
-                this.handleListView();
-                this.isBasicTabChanged = false;
             }
         }catch(e) {
             errorDebugger('editCSVTemplate', 'handleUpdateTemplate', e, 'warn');
