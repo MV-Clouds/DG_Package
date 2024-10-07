@@ -50,6 +50,8 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     @track doneButtonLabel = 'Okay';
     @track spinnerFor = null                        // To define spinner is running for which action
 
+    @track currentTab = '';
+
     /**
      * variable to store page configuration to display on UI, used in HTML
      * value into this variable assigned from MVDG__Template_Page__c record fetched from backed..
@@ -172,6 +174,25 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             this.isSpinner = false;
         }
         this._resolvedPromise = value;
+    }
+
+    get tabs(){
+        return {
+            contentTab : this.currentTab === 'contentTab',
+            headerTab : this.currentTab === 'headerTab',
+            footerTab : this.currentTab === 'footerTab',
+            waterMarkTab : this.currentTab === 'waterMarkTab',
+            basicTab : this.currentTab === 'basicTab',
+            templateDefault : this.currentTab === 'templateDefault',
+        }
+    }
+
+    get hideToolbar(){
+        return !(this.currentTab === 'contentTab' || this.currentTab === 'headerTab' || this.currentTab === 'footerTab');
+    }
+
+    get showKeyMapping(){
+        return (this.currentTab === 'contentTab' || this.currentTab === 'headerTab' || this.currentTab === 'footerTab');
     }
 
     connectedCallback(){
@@ -660,54 +681,13 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     setActiveTab(){
         try {
             const activeTabBar = this.template.querySelector(`.activeTabBar`);
-            const tabS = this.template.querySelectorAll('.tab');
-
-            tabS.forEach(ele => {
-                if(ele.dataset.name == this.currentTab){
-                    ele.classList.add('activeT');
-                    activeTabBar.style = ` transform: translateX(${ele.offsetLeft}px);
-                                    width : ${ele.clientWidth}px;`;
-                }
-                else{
-                    ele.classList.remove('activeT');
-                }
-            })
-
-            const sections = this.template.querySelectorAll('.tabArea');
-            sections.forEach(ele => {
-                if(ele.dataset.section == this.currentTab){
-                    ele.classList.remove('deactiveTabs');
-                    this.setKeyMappingVisibility(JSON.parse(ele.dataset.keyMapping.toLowerCase()));
-                    this.setToolbarAreaVisibility(JSON.parse(ele.dataset.toolbar.toLowerCase()));
-                }
-                else{
-                    ele.classList.add('deactiveTabs');
-                }
-            });
+            const activeTab = this.template.querySelector(`[data-name="${this.currentTab}"]`);
+            activeTabBar.style = `  transform: translateX(${activeTab.offsetLeft}px);
+                                    width : ${activeTab.clientWidth}px;`;
 
             // this.currentTab === 'basicTab' && this.setDummyPageSize();
         } catch (error) {
             errorDebugger('TemplateBuilder', 'setActiveTab', error, 'warn');
-        }
-    }
-
-    setKeyMappingVisibility(isTrue){
-        const keyMappingSection = this.template.querySelector('c-key-mapping-container');
-        if(isTrue){
-            keyMappingSection?.classList.add('displayFieldMappings');
-        }
-        else{
-            keyMappingSection?.classList.remove('displayFieldMappings');
-        }
-    }
-
-    setToolbarAreaVisibility(isTrue){
-        const tabSection = this.template.querySelector('.tabSection');
-        if(isTrue){
-            tabSection?.classList.remove('hideToolbar');
-        }
-        else{
-            tabSection?.classList.add('hideToolbar');
         }
     }
     // ==== Toggle Tabs Methods - END - ========
@@ -1504,6 +1484,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         // Update Template in Backend...
         if(!this.templateRecord.MVDG__Template_Status__c){
             updateTemplate({ templateId : this.templateRecord.Id, isActive : true})
+            .then(result => {
+                if(result === 'updated'){
+                    this.templateRecord['MVDG__Template_Status__c'] = true;
+                    this.tempRecordSaved = JSON.parse(JSON.stringify(this.templateRecord));
+                }
+                else{
+                    this.showMessageToast('error', 'Something Went Wrong!', 'we are facing issue to update template status.')
+                }
+            })
             .catch(error => {
                 errorDebugger('TemplateBuilder', 'updateTemplateStatus', error, 'warn', 'error in apex method updateTemplate');
             })

@@ -89,10 +89,10 @@ input[type=number]::-webkit-outer-spin-button {
       z-index: 0;
       box-shadow: rgb(0 0 0 / 12%) 0px 0px 4px, rgba(0, 0, 0, 0.095) 0px 3px 4px;
     }
-    .tabSection.hideToolbar{
+    .tabSection[data-hide-toolbar=true]{
       border-radius: 6px;
     }
-    .tabSection.hideToolbar::before{
+    .tabSection[data-hide-toolbar=true]::before{
       display: none;
     }
     .tabSection_sub{
@@ -148,7 +148,8 @@ input[type=number]::-webkit-outer-spin-button {
         /* background: linear-gradient(0deg, rgba(0, 174, 255, 0.106) 0%, rgba(0, 255, 187, 0.106) 100%); */
       }
     }
-    .activeT{
+
+    .tab[data-display=true]{
       background: linear-gradient(0deg, #00aeff27 0%, transparent 117%);
       color: black;
       /* color: #06aeff; */
@@ -189,7 +190,7 @@ input[type=number]::-webkit-outer-spin-button {
 
       height: fit-content;
     }
-    .deactiveTabs{
+    .tabArea[data-display=false]{
       display: none;
     }
     .headerConfigSection, .footerConfigSection{
@@ -316,7 +317,7 @@ input[type=number]::-webkit-outer-spin-button {
       border-radius: 6px;
       background: white;
     }
-    .displayFieldMappings{
+    .keyMappingContainer[data-display=true]{
       display: flex !important;
     }
     .waterMarkOptsContainer.desicionContainer,
