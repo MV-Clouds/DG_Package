@@ -47,13 +47,17 @@ public with sharing class Response_Handler{
 
     public static void store_All_Callout_Response_Map(Map<String, HttpResponse> httpResponses,String classname) {
         try{
+
             list<MVDG__API_Responses__c> allResponseList = new list<MVDG__API_Responses__c>();
-            for (HttpResponse res : httpResponses) {   
+            for (String responseKey : httpResponses.keySet()) {
+                HttpResponse res = httpResponses.get(responseKey);
+
                 MVDG__API_Responses__c response = new MVDG__API_Responses__c();
                 response.MVDG__Response_Body__c = res.getBody();
                 response.MVDG__Response_Status_Code__c = String.valueOf(res.getStatusCode());
                 response.MVDG__Class_Name__c = classname;
-                response.MVDG__Method_Name__c = methodname;
+                response.MVDG__Method_Name__c = responseKey;
+
                 allResponseList.add(response);
             }
             
