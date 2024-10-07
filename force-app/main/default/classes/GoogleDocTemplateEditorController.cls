@@ -423,7 +423,7 @@ public with sharing class GoogleDocTemplateEditorController {
     ***********************************************************************/
     public static void insertRestResponses() {
         try {
-            Response_Handler.store_All_Callout_Response(responseList, 'GoogleDocTemplateEditorController');
+            Response_Handler.store_All_Callout_Response_Map(responseList, 'GoogleDocTemplateEditorController');
         } catch (Exception e) {
             System.debug('Error In insertResponses ==> ' + e.getMessage());
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'insertResponses');

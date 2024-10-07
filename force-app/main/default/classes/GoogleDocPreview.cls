@@ -645,7 +645,7 @@ public with sharing class GoogleDocPreview {
     ***********************************************************************/
     public static void insertResponses() {
         try {
-            Response_Handler.store_All_Callout_Response(responseList, 'GoogleDocPreview');
+            Response_Handler.store_All_Callout_Response_Map(responseList, 'GoogleDocPreview');
         } catch (Exception e) {
             System.debug('Error In insertResponses ==>'+ e.getMessage() + e.getLineNumber());
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'insertResponses');

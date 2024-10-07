@@ -25,7 +25,7 @@ public with sharing class Response_Handler{
         }
     } 
 
-    public static void store_All_Callout_Response(Map<String, HttpResponse> httpResponses,String classname) {
+    public static void store_All_Callout_Response_Map(Map<String, HttpResponse> httpResponses,String classname) {
         try{
 
             list<MVDG__API_Responses__c> allResponseList = new list<MVDG__API_Responses__c>();
