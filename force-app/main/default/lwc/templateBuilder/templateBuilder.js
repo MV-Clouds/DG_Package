@@ -1484,6 +1484,15 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
         // Update Template in Backend...
         if(!this.templateRecord.MVDG__Template_Status__c){
             updateTemplate({ templateId : this.templateRecord.Id, isActive : true})
+            .then(result => {
+                if(result === 'updated'){
+                    this.templateRecord['MVDG__Template_Status__c'] = true;
+                    this.tempRecordSaved = JSON.parse(JSON.stringify(this.templateRecord));
+                }
+                else{
+                    this.showMessageToast('error', 'Something Went Wrong!', 'we are facing issue to update template status.')
+                }
+            })
             .catch(error => {
                 errorDebugger('TemplateBuilder', 'updateTemplateStatus', error, 'warn', 'error in apex method updateTemplate');
             })
