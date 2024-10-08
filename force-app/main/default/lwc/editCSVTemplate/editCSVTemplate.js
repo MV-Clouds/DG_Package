@@ -1881,8 +1881,8 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     
     handleClose(){
         try {
-            if(this.isChild && typeof window !== 'undefined'){
-                this.dispatchEvent(new CustomEvent('close'));
+            if(this.isChild){
+                if(typeof window !== 'undefined') this.dispatchEvent(new CustomEvent('close'));
             }else if(this.isEditTabChanged || this.isBasicTabChanged){
                 this.isClose = true;
                 this.showWarningPopup('warning', 'Are you sure, you want to close?', 'Your unsaved changes will be discarded once you leave the this page.');
@@ -2254,10 +2254,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     headers: myHeaders,
                     redirect: "follow"
                     };
-                    if (typeof window === 'undefined') {
-                        return;
+                    let domainURL;
+                    if (typeof window !== 'undefined') {
+                        domainURL = location?.origin;
                     }
-                    let domainURL = location?.origin;
                     if(!domainURL){
                         this.showToast('error', 'Something went wrong!', 'Some error occurred!, please try again.', 5000);
                     }
