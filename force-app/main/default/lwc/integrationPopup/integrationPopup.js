@@ -27,13 +27,14 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
     @track authorizationCode = '';
     @track isRedirectUri = false;
     @track redirectText = '';
+    @track showModelTrack = this.showModel;
     
     isImageLoaded;
     isDataInvalid = false;
 
     connectedCallback(){
         this.redirectUrl = this.redirecturi;
-        this.showModel = true;
+        this.showModelTrack = true;
         this.showSpinner = true;
         this.isImageLoaded = false;
         if(this.draggedkey == 'dropbox'){

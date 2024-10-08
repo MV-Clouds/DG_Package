@@ -111,7 +111,7 @@ public with sharing class ChatBotController {
                 '},' +
                 '{' +
                     '"question": "Adding Image",' +
-                    '"answer": "You can add images upto 30 MB for more details read limitations."' +
+                    '"answer": "You can add images upto 20 MB for more details read limitations."' +
                 '},' +
                 '{' +
                     '"question": "Header and Footer",' +

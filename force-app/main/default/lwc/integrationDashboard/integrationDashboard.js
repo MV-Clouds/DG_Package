@@ -256,7 +256,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    checkinggoogleauth(){
        checkgoogleauth()
        .then(result =>{
-           this.displaydetails(result, 'google', 'gc');
+           this.displaydetails(result, 'google');
            this.loaded();
        })
    }
@@ -264,7 +264,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    checkingorggoogleauth(){
        checkorggoogleauth()
        .then(result =>{
-           this.displaydetails(result, 'orggoogle', 'gc');
+           this.displaydetails(result, 'orggoogle');
            this.loaded();
        })
    }
@@ -307,7 +307,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    checkingonedriveauth(){
        checkOneDriveAuth()
        .then(result =>{
-           this.displaydetails(result, 'onedrive', 'oc')
+           this.displaydetails(result, 'onedrive')
            this.loaded();
        })
    }
@@ -315,12 +315,12 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    checkingdropboxauth(){
        checkDropBoxAuth()
        .then(result =>{
-           this.displaydetails(result, 'dropbox', 'dc')
+           this.displaydetails(result, 'dropbox')
            this.loaded();
        })
    }
 
-   displaydetails(result, integrationname, cssname){
+   displaydetails(result, integrationname){
        if(result != null && result.linkdate != null && result.email != null) {
            if(result.name != null && result.name != ''){
                this[integrationname + 'name'] = result.name;
@@ -564,7 +564,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                // console.log('going for integration');
                // console.log(this.isOrg);
                // console.log(typeof(this.isOrg));
-               authorizeGoogle({ authcode: this.authcode, isOrg: this.isOrg })
+               authorizeGoogle({ authcode: this.authcode, isOrg: this.isOrg, isAccess: this.isAccess})
                .then(result =>{
                    if(result === 'success'){
                       
@@ -707,7 +707,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                         message : 'Are you sure you want to unlink integration',
                     });
         }
-    else if(this.isPartialAccess && event.target.dataset.key){
+    else if(this.isPartialAccess && event.target.dataset.key == 'google'){
         this.invoke = event.target.dataset.key;
         const messageContainer = this.template.querySelector('c-message-popup')
                 messageContainer.showMessagePopup({

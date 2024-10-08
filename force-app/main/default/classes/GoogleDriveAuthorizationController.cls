@@ -227,7 +227,7 @@ public with sharing class GoogleDriveAuthorizationController {
   public static String authcode(String clientId, String clientSecret){
       try{
           String authorizeUrl = 'https://accounts.google.com/o/oauth2/auth';
-          String redirectUri = System.label.AuthCode;  //REPLACE IT WITH force.com site URL
+          String redirectUri = System.label.MVDG.AuthCode;  //REPLACE IT WITH force.com site URL
           String googleDriveScope = 'https://www.googleapis.com/auth/drive.file';
           String authUrl = authorizeUrl + '?response_type=code' +
                           '&client_id=' + clientId +
@@ -255,7 +255,7 @@ public with sharing class GoogleDriveAuthorizationController {
 ********************************************************
 */
   @AuraEnabled
-  public static String authorizeGoogle(String authcode, Boolean isOrg){
+  public static String authorizeGoogle(String authcode, Boolean isOrg, Boolean isAccess){
       try{
           List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
 
@@ -270,7 +270,7 @@ public with sharing class GoogleDriveAuthorizationController {
           MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
           String clientId;
           String clientSecret;
-          String redirectUri = System.Label.AuthCode;
+          String redirectUri = System.Label.MVDG.AuthCode;
           List<String> credentials = new List<String>();
 
           if(Test.isRunningTest()){
@@ -316,7 +316,7 @@ public with sharing class GoogleDriveAuthorizationController {
               defsettings.MVDG__WorkingStatus__c = true;
             
           }
-          if(isOrg){
+          if(isOrg && isAccess){
               defsettings.SetupOwnerId = UserInfo.getOrganizationId();
               upsert as user defsettings;
               settings.SetupOwnerId = UserInfo.getUserId();

@@ -41,7 +41,6 @@ export default class ChatBot extends LightningElement {
 
     selectedFileSize = 0;
     currentTime = '09:48';
-    rendered = false;
     acceptedFormats = ['.pdf', '.png', '.jpg', '.doc', '.docx'];
     userId = Id;
     isIssue = false; //used to track if any active issue is there
@@ -63,6 +62,7 @@ export default class ChatBot extends LightningElement {
     @track item5;
     @track question = 'What seems to be causing you trouble?';
     selectedJSON;
+    customTimeout;
 
     static captureCurrentTime() {
         const date = new Date();
@@ -118,8 +118,10 @@ export default class ChatBot extends LightningElement {
     }
 
     renderedCallback() {
-        // console.log('rendered');
         this.updateScroll();
+        if(!this.customTimeout){
+            this.customTimeout = this.template.querySelector('c-custom-timeout');
+        }
     }
 
 
@@ -552,30 +554,27 @@ export default class ChatBot extends LightningElement {
         if(this.isChatStarted && this.oldChats){
             this.fetchingMainFAQS();
         }
-        setTimeout(() =>{
+        
+        this.customTimeout?.setCustomTimeoutMethod(() => {
             this.checkEmailActive();
             this.checkFeedbackActive();
-        },300);
-        // console.log('checked');
+        }, 300);
     }
 
     togglePopupClose(){
         if(this.isFeedbackPopup && this.emailWasActive){
             this.isEmail = true;
         }
-
-        // console.log('closing');
-        this.rendered = false;
-        this.popupOpen = false;
         this.isFeedbackPopup = false;
-        this.attachmentError = false;
-        this.fileSizeError = false;
-        this.replyAddress = '';
-        this.body = '';
-        this.emailErrorMessage = false;
-        this.uploadedFiles = [];
-        
-        
+        if(!this.mailSent){
+            this.attachmentError = false;
+            this.fileSizeError = false;
+            this.replyAddress = '';
+            this.body = '';
+            this.emailErrorMessage = false;
+            this.uploadedFiles = [];
+        }
+        this.popupOpen = false;
     }
 
     updateScroll(){
@@ -656,9 +655,18 @@ export default class ChatBot extends LightningElement {
 
     handleClearClose(){
         this.uploadedFiles = null;
-        this.rendered = false;
         this.popupOpen = false;
         this.handleChat();
+    }
+
+    handleTimeout(event){
+        try {
+            if(event?.detail?.function){
+                event?.detail?.function();
+            }
+        } catch (error) {
+            errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+        }
     }
 
 
@@ -670,7 +678,7 @@ export default class ChatBot extends LightningElement {
     }
 
     checkSpinnerDuration(callback){
-        setTimeout(()=>{
+        this.customTimeout?.setCustomTimeoutMethod(() => {
             callback('success');
         }, this.getRandomTime());
     }

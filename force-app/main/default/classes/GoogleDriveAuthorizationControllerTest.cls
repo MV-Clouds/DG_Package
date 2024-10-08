@@ -209,8 +209,8 @@ public class GoogleDriveAuthorizationControllerTest {
         String authcode = '5465sf5sd6f46d5f4';
         Test.setMock(HttpCalloutMock.class, new GoogleCalloutMock());
         Test.startTest();
-        String result = GoogleDriveAuthorizationController.authorizeGoogle(authcode, true);
-        String result1 = GoogleDriveAuthorizationController.authorizeGoogle(authcode, false);
+        String result = GoogleDriveAuthorizationController.authorizeGoogle(authcode, true, true);
+        String result1 = GoogleDriveAuthorizationController.authorizeGoogle(authcode, false, true);
         Test.stopTest();
         System.assertNotEquals('fail', result, 'Result cannot be fail');
     }
@@ -235,7 +235,7 @@ public class GoogleDriveAuthorizationControllerTest {
         String client_secret = 'Mock';
         String authcode = '5465sf5sd6f46d5f4';
         Test.startTest();
-        String result = GoogleDriveAuthorizationController.authorizeGoogle(authcode,false);
+        String result = GoogleDriveAuthorizationController.authorizeGoogle(authcode,false, false);
         Test.stopTest();
         System.assertNotEquals(null, result, 'Result cannot be null');
 
