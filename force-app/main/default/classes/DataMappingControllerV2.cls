@@ -40,11 +40,11 @@ public with sharing class DataMappingControllerV2 {
     
                 // Collect and Store mapping keys in to set of string from keys stored in field...
                 Set<String> extractedKeys = collectMappingKeys(extractedKeyMap);
+
                 // collect mapping key values for object field and general fields....
                 Map<String, String> mappigKeysValue = getMappingKeyVsValue(new List<String>(extractedKeys), sourceObjectAPI, recordId);
                 mapingKeyVsValuesGroup?.get('objectNGeneral')?.putAll(mappigKeysValue);
-                
-    
+
                 // collect mapping key values for child object table info from keys stored in field....
                 Object childRecordTables = extractedKeyMap?.get('childRecordTables') != null ? extractedKeyMap?.get('childRecordTables') : (Object) JSON.deserializeUntyped('[]');
                 String childTableString = JSON.serialize(childRecordTables);
@@ -660,6 +660,12 @@ public with sharing class DataMappingControllerV2 {
             List<KeyMappingController.MappingFields> objectWithFields = new List<KeyMappingController.MappingFields>();
             Map<String, String> validFields = getValidFields(startingSymbol, sourceObjectAPI);
 
+            // System.debug('validFields : ' + validFields);
+            // for(String fieldAPI : validFields.keySet()){
+            //     System.debug('validFields : ' + fieldAPI);
+            // }
+
+
             for(String key : mappingKeyList){
                 String subMapping = key.substringBetween('{{','}}');
                 // Used Switch instead of if/else to avoid pmd error of congantive complexity....
@@ -676,6 +682,7 @@ public with sharing class DataMappingControllerV2 {
                             fieldAPI = subString.trim();
                         }
 
+                        System.debug('fieldAPI : ' + fieldAPI);
                         if(validFields.keySet().contains(fieldAPI)){
                             ExtractedKeys ext = new ExtractedKeys();
                             ext.fieldAPI = fieldAPI;
@@ -740,9 +747,9 @@ public with sharing class DataMappingControllerV2 {
                 }
 
                 // get all the fields from the parent object
-                for(String parentAPI : parentObject.keyset()){
-                    relationShipName = parentObject.get(parentAPI);
-                    objectFields.putAll(fetchObjectFields(parentAPI, 'normal', relationShipName));
+                for(String relation : parentObject.keyset()){
+                    String parentAPI = parentObject.get(relation);
+                    objectFields.putAll(fetchObjectFields(parentAPI, 'normal', relation));
                 }
 
             return objectFields;
@@ -770,21 +777,20 @@ public with sharing class DataMappingControllerV2 {
             List<String> fieldsList = new List<String>(mapOfFields.keySet());
             fieldsList.sort();
 
-            // replationshipName
-            system.debug('replationshipName : ' + replationshipName);
-
             for(String fieldName : fieldsList){
                 Schema.SObjectField f = mapOfFields.get(fieldName);
                 Schema.DescribeFieldResult field = f.getDescribe();
                 if(field.getType() == Schema.DisplayType.REFERENCE && fieldType == 'reference'){
-                    fields.put(string.valueOf(field.getReferenceTo()[0]), field.getRelationshipName());
+                    fields.put(field.getRelationshipName(), string.valueOf(field.getReferenceTo()[0]));
                     // fields.put(parentAPI, parentReplationshipName)
                 }
                 else{
                     if((String)String.valueOf(field.getType()) != 'ADDRESS' && (String)String.valueOf(field.getType()) != 'LOCATION' && fieldType == 'normal'){
                         String fieldAPI = (String) String.valueOf(field.getName());
+
                         
                         if(objectAPI != 'Group' && replationshipName != 'What' && replationshipName != 'Who'){
+
                             fieldAPI = replationshipName == null ? fieldAPI : replationshipName +'.'+ fieldAPI;
                             fields.put(fieldAPI , (String)  String.valueOf(field.getType()));
                         }
