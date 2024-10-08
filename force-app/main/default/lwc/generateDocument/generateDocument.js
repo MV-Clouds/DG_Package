@@ -172,6 +172,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         MVDG__Documents__c : null,
         MVDG__Related_Record_Id__c : null,
     }
+    customTimeout;
 
     get showCloseButton(){
         return this.isCSVOnly || this.isDefaultGenerate || this.isCalledFromPreview;
@@ -284,7 +285,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     connectedCallback() {
         this.showSpinner = true;
         try{
-            window?.addEventListener('message', this.simpleTempFileGenResponse);
+            if (typeof window !== 'undefined') {
+                window.addEventListener('message', this.simpleTempFileGenResponse);
+            }
             this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
@@ -337,125 +340,132 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     disconnectedCallback(){
-        window?.removeEventListener('message', this.simpleTempFileGenResponse);
+        if (typeof window !== 'undefined') {
+            window.removeEventListener('message', this.simpleTempFileGenResponse);
+        }
     }
 
     renderedCallback() {
         try{
             if(this.isInitialStyleLoaded) return;
-            let updatedStyle = document.createElement('style');
-            updatedStyle.innerText = `
-
-                :host{
-                    --border-color-of-email-body: darkgray;
-                }
-
-                .slds-modal__container{
-                    padding:0;
-                }
-                .slds-modal__content{
-                    border-radius: 0.5rem !important;
-                }
-                .modal-container.slds-modal__container {
-                    width: 100%;
-                    max-width: 100%;
-                }
-
-                .modal-container {
-                    width: 100%;
-                    padding: 0 15%;
-                    min-width : unset;
-                    max-width : unset;
-                }
-                .body-div .fix-slds-input_faux {
-                    height: unset !important;
-                }
-                    
-                .body-div button.slds-button.slds-color-picker__summary-button.slds-button_icon.slds-button_icon-more {
-                    border: 1px solid darkgray;
-                }
-
-                .body-div .slds-rich-text-editor__textarea:last-child .slds-rich-text-area__content {
-                    resize: vertical;
-                    max-height: fit-content;
-                    border-radius : 0.5rem;
-                }
-                    
-                .body-div .slds-textarea {
-                    min-height: 10rem;
-                    height: 10rem;
-                    border-radius: 0.5rem;
-                    border: 1px solid darkgray;
-                    box-shadow: none;
-                }
-
-                .body-div .slds-textarea:focus{
-                    border-color: #00aeff;
-                }
-
-                .body-div .slds-rich-text-editor{
-                    border: 1px solid var(--border-color-of-email-body, darkgray) !important;
-                }
-
-                .body-div .slds-rich-text-editor__toolbar.slds-shrink-none {
-                    background-color: white;
-                }
-                .body-div .slds-has-focus{
-                    box-shadow:none;
-                    --border-color-of-email-body : #00aeff;
-                }
-                
-                .body-div .slds-rich-text-editor__toolbar{
-                    border-bottom: 1px solid darkgray;
-                }
-                
-                .body-div :focus-visible{
-                    outline : none;
-                    box-shadow:none;
-                }
+            if (typeof window !== 'undefined') {
+                let updatedStyle = document.createElement('style');
+                updatedStyle.innerText = `
     
-                .body-div .slds-button_icon-border-filled{
-                    border: 1px solid darkgray;
-                    border-radius: 0.25rem;
-                }
-                .body-div .slds-button--icon-border-filled{
-                    border: 1px solid darkgray;
-                    border-radius: 0.25rem;
-                }
-                .body-div .slds-button_icon-border{
-                    border: 1px solid darkgray;
-                    border-radius: 0.25rem;
-                }
-                .body-div .slds-button--icon-border{
-                    border: 1px solid darkgray;
-                    border-radius: 0.25rem;
-                }
-                .body-div .slds-input_faux{
-                    border: 1px solid darkgray;
-                    border-radius: 0.25rem;
-                }
-
-
-                @media (max-width: 1440px) {
+                    :host{
+                        --border-color-of-email-body: darkgray;
+                    }
+    
+                    .slds-modal__container{
+                        padding:0;
+                    }
+                    .slds-modal__content{
+                        border-radius: 0.5rem !important;
+                    }
+                    .modal-container.slds-modal__container {
+                        width: 100%;
+                        max-width: 100%;
+                    }
+    
                     .modal-container {
                         width: 100%;
-                        padding: 0 10%;
+                        padding: 0 15%;
                         min-width : unset;
                         max-width : unset;
                     }
-                }
-                @media (max-width: 1024px) {
-                    .modal-container {
-                        width: 100%;
-                        padding: 0 5%;
-                        min-width : unset;
-                        max-width : unset;
-                        margin : 0;
+                    .body-div .fix-slds-input_faux {
+                        height: unset !important;
                     }
-                }
-            `;
+                        
+                    .body-div button.slds-button.slds-color-picker__summary-button.slds-button_icon.slds-button_icon-more {
+                        border: 1px solid darkgray;
+                    }
     
-            this.template.querySelector('.main-generate-document-div').appendChild(updatedStyle);
+                    .body-div .slds-rich-text-editor__textarea:last-child .slds-rich-text-area__content {
+                        resize: vertical;
+                        max-height: fit-content;
+                        border-radius : 0.5rem;
+                    }
+                        
+                    .body-div .slds-textarea {
+                        min-height: 10rem;
+                        height: 10rem;
+                        border-radius: 0.5rem;
+                        border: 1px solid darkgray;
+                        box-shadow: none;
+                    }
+    
+                    .body-div .slds-textarea:focus{
+                        border-color: #00aeff;
+                    }
+    
+                    .body-div .slds-rich-text-editor{
+                        border: 1px solid var(--border-color-of-email-body, darkgray) !important;
+                    }
+    
+                    .body-div .slds-rich-text-editor__toolbar.slds-shrink-none {
+                        background-color: white;
+                    }
+                    .body-div .slds-has-focus{
+                        box-shadow:none;
+                        --border-color-of-email-body : #00aeff;
+                    }
+                    
+                    .body-div .slds-rich-text-editor__toolbar{
+                        border-bottom: 1px solid darkgray;
+                    }
+                    
+                    .body-div :focus-visible{
+                        outline : none;
+                        box-shadow:none;
+                    }
+        
+                    .body-div .slds-button_icon-border-filled{
+                        border: 1px solid darkgray;
+                        border-radius: 0.25rem;
+                    }
+                    .body-div .slds-button--icon-border-filled{
+                        border: 1px solid darkgray;
+                        border-radius: 0.25rem;
+                    }
+                    .body-div .slds-button_icon-border{
+                        border: 1px solid darkgray;
+                        border-radius: 0.25rem;
+                    }
+                    .body-div .slds-button--icon-border{
+                        border: 1px solid darkgray;
+                        border-radius: 0.25rem;
+                    }
+                    .body-div .slds-input_faux{
+                        border: 1px solid darkgray;
+                        border-radius: 0.25rem;
+                    }
+    
+    
+                    @media (max-width: 1440px) {
+                        .modal-container {
+                            width: 100%;
+                            padding: 0 10%;
+                            min-width : unset;
+                            max-width : unset;
+                        }
+                    }
+                    @media (max-width: 1024px) {
+                        .modal-container {
+                            width: 100%;
+                            padding: 0 5%;
+                            min-width : unset;
+                            max-width : unset;
+                            margin : 0;
+                        }
+                    }
+                `;
+                this.template.querySelector('.main-generate-document-div').appendChild(updatedStyle);
+            }
+
+            if(!this.customTimeout){
+                this.customTimeout = this.template.querySelector('c-custom-timeout');
+            }
             this.isInitialStyleLoaded = true;
         }catch (e) {
             errorDebugger('generateDocument', 'renderedCallback', e, 'error');
@@ -501,6 +511,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         }
         this.isClosableError = false;
         this.isButtonGeneration = false;
+    }
+
+    handleTimeout(event){
+        try {
+            if(event?.detail?.function){
+                event?.detail?.function();
+            }
+        } catch (error) {
+            errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+        }
     }
 
     handleAutoGeneration() {
@@ -980,13 +1000,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     //Bottom Button Controls
 
     handleClose(){
-        window?.removeEventListener('message', this.simpleTempFileGenResponse);
-        if(this.currentPageReference.type === "standard__quickAction"){
-            this.dispatchEvent(new CloseActionScreenEvent())
-        }else if(this.isCalledFromPreview || this.isCalledFromDefaults){
-            this.dispatchEvent(new CustomEvent('close'));
-        }else{
-            location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
+        if (typeof window !== 'undefined') {
+            window?.removeEventListener('message', this.simpleTempFileGenResponse);
+            if(this.currentPageReference.type === "standard__quickAction"){
+                this.dispatchEvent(new CloseActionScreenEvent())
+            }else if(this.isCalledFromPreview || this.isCalledFromDefaults){
+                this.dispatchEvent(new CustomEvent('close'));
+            }else{
+                location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
+            }
         }
     }
 
@@ -1105,6 +1127,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 .then(data => {
                     if (!data) {
                         this.showToast('error', 'Something went wrong!', 'Nothing to generate, Please Update the Template...', 5000);
+                        return;
+                    }
+                    if(data.error?.includes('Insufficient Access')){
+                        this.showWarningPopup('error', 'Insufficient Access', data.error);
+                        this.isClosableError = true;
                         return;
                     }
                     let fieldNames = data?.fields?.split(',');
@@ -1233,7 +1260,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 redirect: "follow"
             };
 
-            let domainURL = location.origin;
+            let domainURL;
+            if (typeof window !== 'undefined') {
+                domainURL = location.origin;
+            }
             domainURL = domainURL.replace('lightning.force.com', 'my.salesforce.com');
 
             return fetch(encodeURI(domainURL + queryURL), requestOptions)
@@ -1371,14 +1401,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }else if(this.selectedExtension === '.xls'){
                 element = 'data:application/vnd.ms-excel,' + encodeURIComponent(csvContent);
             }
-            let link = document.createElement('a');
-            link.href = element;
-            link.target = '_self';
-            link.download = this.fileName+ this.selectedExtension;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            this.succeeded.push('Download');
+            if (typeof window !== 'undefined') {
+                let link = document.createElement('a');
+                link.href = element;
+                link.target = '_self';
+                link.download = this.fileName+ this.selectedExtension;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                this.succeeded.push('Download');
+            }
         }catch(e){
             this.failed['Download'] = e?.message;
             this.showSpinner = false;
@@ -1403,16 +1435,18 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
     downloadGDocTemplate(){
         try{
-            this.showSpinner = true;
-            this.labelOfLoader = 'Downloading...';
-            const link = document.createElement('a');
-            link.href = "data:application/pdf;base64,"+this.googleDocData;
-            link.download = this.fileName+this.selectedExtension;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            this.labelOfLoader = 'Loading ...';
-            this.succeeded.push('Download');
+            if (typeof window !== 'undefined') {
+                this.showSpinner = true;
+                this.labelOfLoader = 'Downloading...';
+                const link = document.createElement('a');
+                link.href = "data:application/pdf;base64,"+this.googleDocData;
+                link.download = this.fileName+this.selectedExtension;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                this.labelOfLoader = 'Loading ...';
+                this.succeeded.push('Download');
+            }
         }catch(e){
             this.failed['Download'] = e?.message;
             this.showSpinner = false;
@@ -1541,10 +1575,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
             else{
                 this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
-                setTimeout(() => {
-                    this.vfGeneratePageSRC = newSRC;
-                    this.simpleTemplate = true;
-                }, 300)
+                this.customTimeout?.setCustomTimeoutMethod(() => {
+                        this.vfGeneratePageSRC = newSRC;
+                        this.simpleTemplate = true;
+                  }, 300);
+
+                // setTimeout(() => {
+                //     this.vfGeneratePageSRC = newSRC;
+                //     this.simpleTemplate = true;
+                // }, 300)
             }
         }
         catch(e){
@@ -1621,6 +1660,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         throw new Error('Session ID not obtained');
                     }
 
+                    if (typeof window === 'undefined') {
+                        return;
+                    }
                     const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                     const myHeaders = new Headers();
                     myHeaders.append("Authorization", "Bearer " + sessionId);
@@ -1679,6 +1721,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         throw new Error('Session ID not obtained'); 
                     }
     
+                    if (typeof window === 'undefined') {
+                        return;
+                    }
                     const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                     const myHeaders = new Headers();
                     myHeaders.append("Authorization", "Bearer " + sessionId);
@@ -1857,6 +1902,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     throw new Error('Session ID not obtained');
                 }
     
+                if (typeof window === 'undefined') {
+                    return;
+                }
                 const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                 const myHeaders = new Headers();
                 myHeaders.append("Authorization", "Bearer " + sessionId);
@@ -2087,6 +2135,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }else{
                         getSessionId()
                         .then((data) => {
+                            if (typeof window === 'undefined') {
+                                return;
+                            }
                             let domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                             let endpoint = domainURL + '/services/data/v61.0/tooling/sobjects/QuickActionDefinition';
     
@@ -2140,7 +2191,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
                 if(changeStatus){
                     this.allTemplates.find(temp => temp.Id === this.templateIdFromParent).MVDG__Template_Status__c = true;
-                    this.dispatchEvent(new CustomEvent('activate'));
+                    if (typeof window !== 'undefined') {
+                        this.dispatchEvent(new CustomEvent('activate'));
+                    }
                 }
             })
             .catch(e => {

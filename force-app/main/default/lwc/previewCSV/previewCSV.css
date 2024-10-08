@@ -74,6 +74,10 @@
     justify-content: center;
 }
 
+.no-results p {
+    max-width: 70%;
+}
+
 .no-result-svg{
     width: 50% !important;
     height: 50% !important;
