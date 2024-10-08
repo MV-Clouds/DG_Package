@@ -82,14 +82,14 @@ export default class ButtonGenerator extends LightningElement {
                     this.template.querySelector('.quick-action-generator').value = this.selectedQAObjects.length > 0 ? this.selectedQAObjects : null;
                     this.template.querySelector('.basic-print-generator').value = this.selectedBPObjects.length > 0 ? this.selectedBPObjects : null;
                 }else{
-                    errorDebugger('buttonGenerator', 'getCombinedData > not success', e, 'warn');
+                    errorDebugger('buttonGenerator', 'getCombinedData > not success', 'Error in Getting Combined Data.', 'warn');
                     this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
                 }
                 this.showSpinner = false;
             })
             .catch((e) => {
                 this.showSpinner = false;
-                errorDebugger('buttonGenerator', 'getCombinedData', 'Error in Getting Combined Data.', 'warn');
+                errorDebugger('buttonGenerator', 'getCombinedData', e, 'warn');
                 this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
             })
         }catch(e){
