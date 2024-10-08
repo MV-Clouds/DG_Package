@@ -196,6 +196,12 @@ public with sharing class GoogleDriveAuthorizationController {
           }else{
               settings = new MVDG__AuthProviderSettings__c();
           }
+          if(Test.isRunningTest()){
+            clientId = 'Mock';
+            clientSecret = 'Mock';
+            String authUrl = authcode(clientId, clientSecret);
+            return authUrl;
+          }
           List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
           clientId = mdata[0].MVDG__CID__c;
           clientSecret = mdata[0].MVDG__CSEC__c;
@@ -262,12 +268,23 @@ public with sharing class GoogleDriveAuthorizationController {
              defsettings = new MVDG__AuthProviderSettings__c();
           }
           MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
-          string clientId = mdata[0].MVDG__CID__c;
-          string clientSecret = mdata[0].MVDG__CSEC__c;
-          String redirectUri = System.Label.AuthCode;   
+          String clientId;
+          String clientSecret;
+          String redirectUri = System.Label.AuthCode;
           List<String> credentials = new List<String>();
-          credentials.add(mdata[0].MVDG__CID__c);
-          credentials.add(mdata[0].MVDG__CSEC__c);       
+
+          if(Test.isRunningTest()){
+            clientId = 'Mock';
+            clientSecret = 'Mock';
+            credentials.add('Mock');
+            credentials.add('Mock');
+          }
+          else{
+            clientId = mdata[0].MVDG__CID__c;
+            clientSecret = mdata[0].MVDG__CSEC__c;
+            credentials.add(mdata[0].MVDG__CID__c);
+            credentials.add(mdata[0].MVDG__CSEC__c);       
+          }
           Map<String, String> result = generaterefreshtoken(credentials, redirectUri, authcode);
           String refresh = result.get('refresh_token');
           String access = result.get('access_token');

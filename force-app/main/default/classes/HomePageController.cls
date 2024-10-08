@@ -22,7 +22,7 @@ public with sharing class HomePageController {
 
             List<MVDG__Template__c> tempList = [  SELECT Id, IsDeleted, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, CreatedDate, CreatedBy.Name,LastModifiedDate
                                             FROM MVDG__Template__c WITH SECURITY_ENFORCED
-                                            ORDER BY LastModifiedDate DESC, MVDG__Template_Name__c ASC, MVDG__Object_API_Name__c ASC];
+                                            ORDER BY LastModifiedDate DESC, MVDG__Template_Name__c ASC, MVDG__Object_API_Name__c ASC LIMIT 50000];
 
             if (tempList.size() > 0) {
                 // Store Object API Name of create Templates...

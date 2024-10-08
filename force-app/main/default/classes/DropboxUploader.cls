@@ -5,6 +5,7 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     global static string dropFileName;
     global string activity;
     global static List<MVDG__Generate_Document_Activity__c> listMessage = new List<MVDG__Generate_Document_Activity__c>();
+    private static List<HttpResponse> responseList = new List<HttpResponse>();
 
     public static String tokenPermanent(String activity) {
         try {
@@ -295,6 +296,7 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 System.debug(Limits.getHeapSize());
     
             }
+            Response_Handler.store_All_Callout_Response(responseList, 'DropboxUploader', 'uploadChunk');
             // After uploading all chunks, complete the upload session‸
             Blob lastChunk = getFileData(contentVersion.VersionData, (totalChunks - 1) * chunkSize, chunkSize);
             completeUploadSession(sessionId, lastChunk, offset, activity);
@@ -357,20 +359,20 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             HttpResponse res = http.send(req);
     
             if (res.getStatusCode() != 200) {
-                Response_Handler.store_Callout_Response(res, 'DropboxUploader', 'uploadChunk');
+                responseList.add(res);
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Dropbox__c = 'Failure '+ res.getBody();
                 obj.Id = activity; 
                 updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
-                throw new CalloutException('Error uploading Dropbox chunk: ' + res.getBody());
+                throw new AuraHandledException('exception' + res);
             }
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'DropboxUploader', 'uploadChunk', activity);
             MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 updateActivityMessage(obj);
+                throw new AuraHandledException(''+e);
         }
     }
 

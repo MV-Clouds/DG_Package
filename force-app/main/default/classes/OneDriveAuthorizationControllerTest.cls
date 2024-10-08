@@ -84,7 +84,7 @@ public class OneDriveAuthorizationControllerTest {
     static void testRedirectUrl1() {
         // Test for develop.my.salesforce.com
         Test.startTest();
-        String redirectUrl = OneDriveAuthorizationController.redirect('Url:[delegate=https://testorg.develop.my.salesforce.com]');
+        String redirectUrl = OneDriveAuthorizationController.redirect('https://testorg.develop.my.salesforce.com]');
         Test.stopTest();
         System.assertEquals('https://testorg--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage', redirectUrl);
 
@@ -96,7 +96,7 @@ public class OneDriveAuthorizationControllerTest {
 
         // Test for sandbox.my.salesforce.com
         Test.startTest();
-        String redirectUrl = OneDriveAuthorizationController.redirect('Url:[delegate=https://testorg.sandbox.my.salesforce.com]');
+        String redirectUrl = OneDriveAuthorizationController.redirect('https://testorg.sandbox.my.salesforce.com]');
         Test.stopTest();
         System.assertEquals('https://testorg--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage', redirectUrl);
 
@@ -107,7 +107,7 @@ public class OneDriveAuthorizationControllerTest {
         
         // Test for scratch.my.salesforce.com
         Test.startTest();
-        String redirectUrl = OneDriveAuthorizationController.redirect('Url:[delegate=https://testorg.scratch.my.salesforce.com]');
+        String redirectUrl = OneDriveAuthorizationController.redirect('https://testorg.scratch.my.salesforce.com]');
         Test.stopTest();
         System.assertEquals('https://testorg--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage', redirectUrl);
 
@@ -118,7 +118,7 @@ public class OneDriveAuthorizationControllerTest {
 
         // Test for default case
         Test.startTest();
-        String redirectUrl = OneDriveAuthorizationController.redirect('Url:[delegate=https://testorg.my.salesforce.com]');
+        String redirectUrl = OneDriveAuthorizationController.redirect('https://testorg.my.salesforce.com]');
         Test.stopTest();
         System.assertEquals('https://testorg--c.vf.force.com/apex/MVDG__oneDriveSuccessPage', redirectUrl);
     }

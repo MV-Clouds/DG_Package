@@ -247,8 +247,12 @@ public with sharing class TemplateBuilder_Controller {
                     }
                 }
                 
-                update recordToUpdate;
-                insert recordToInsert;
+                if(recordToUpdate.size() < 1000) {
+                    update recordToUpdate;
+                }
+                if(recordToInsert.size() < 1000) {
+                    insert recordToInsert;
+                }
             }
             else if(Schema.sObjectType.MVDG__Template_Data__c.isCreateable()){
                 for(integer i = startOrderNumber; i <= endOrderNumber; i++){
@@ -260,7 +264,9 @@ public with sharing class TemplateBuilder_Controller {
                     recordToInsert.add(dt);
                 }
 
-                insert recordToInsert;
+                if(recordToInsert.size() < 1000) {
+                    insert recordToInsert;
+                }
             }
 
             Integer totalStoredDataRecords = Database.countQuery('SELECT Count() FROM MVDG__Template_Data__c WHERE MVDG__Template__c =: tempId AND MVDG__Value_Type__c =: valueType');
@@ -276,7 +282,10 @@ public with sharing class TemplateBuilder_Controller {
                                                                         AND MVDG__Order_No_Simple__c <= :totalStoredDataRecords
                                                                         AND MVDG__Value_Type__c =: valueType WITH SECURITY_ENFORCED
                                                                         ORDER BY MVDG__Order_No_Simple__c ASC LIMIT 50000];
-                delete as user templateDataToDelete;
+                
+                if(templateDataToDelete.size() < 1000) {
+                    delete as user templateDataToDelete;
+                }
             }
 
             return isLastBatch ? 'last batch update succesfully' : 'batch update succesfully';
