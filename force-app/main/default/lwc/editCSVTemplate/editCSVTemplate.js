@@ -1919,6 +1919,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     this.isListViewUpdated = true;
                 }else if(this.isCancelTemplate){
                     this.handleCancelChanges();
+                    this.template.querySelector('.details-name-input').classList.remove("slds-has-error");
                 }else if(this.isReset){
                     this.handleResetSection();
                 }else if(this.isClear){
