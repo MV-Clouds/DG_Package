@@ -172,6 +172,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         MVDG__Documents__c : null,
         MVDG__Related_Record_Id__c : null,
     }
+    customTimeout;
 
     get showCloseButton(){
         return this.isCSVOnly || this.isDefaultGenerate || this.isCalledFromPreview;
@@ -284,7 +285,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     connectedCallback() {
         this.showSpinner = true;
         try{
-            window?.addEventListener('message', this.simpleTempFileGenResponse);
+            if (typeof window === 'undefined') {
+                return;
+            }
+            window.addEventListener('message', this.simpleTempFileGenResponse);
             this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
             if(isAutoGeneration){
@@ -337,12 +341,18 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
 
     disconnectedCallback(){
-        window?.removeEventListener('message', this.simpleTempFileGenResponse);
+        if (typeof window === 'undefined') {
+            return;
+        }
+        window.removeEventListener('message', this.simpleTempFileGenResponse);
     }
 
     renderedCallback() {
         try{
             if(this.isInitialStyleLoaded) return;
+            if (typeof window === 'undefined') {
+                return;
+            }
             let updatedStyle = document.createElement('style');
             updatedStyle.innerText = `
 
@@ -454,6 +464,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }
                 }
             `;
+
+            if(!this.customTimeout){
+                this.customTimeout = this.template.querySelector('c-custom-timeout');
+            }
     
             this.template.querySelector('.main-generate-document-div').appendChild(updatedStyle);
             this.isInitialStyleLoaded = true;
@@ -501,6 +515,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         }
         this.isClosableError = false;
         this.isButtonGeneration = false;
+    }
+
+    handleTimeout(event){
+        try {
+            if(event?.detail?.function){
+                event?.detail?.function();
+            }
+        } catch (error) {
+            errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+        }
     }
 
     handleAutoGeneration() {
@@ -980,13 +1004,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     //Bottom Button Controls
 
     handleClose(){
-        window?.removeEventListener('message', this.simpleTempFileGenResponse);
-        if(this.currentPageReference.type === "standard__quickAction"){
-            this.dispatchEvent(new CloseActionScreenEvent())
-        }else if(this.isCalledFromPreview || this.isCalledFromDefaults){
-            this.dispatchEvent(new CustomEvent('close'));
-        }else{
-            location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
+        if (typeof window !== 'undefined') {
+            window?.removeEventListener('message', this.simpleTempFileGenResponse);
+            if(this.currentPageReference.type === "standard__quickAction"){
+                this.dispatchEvent(new CloseActionScreenEvent())
+            }else if(this.isCalledFromPreview || this.isCalledFromDefaults){
+                this.dispatchEvent(new CustomEvent('close'));
+            }else{
+                location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
+            }
         }
     }
 
@@ -1238,6 +1264,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 redirect: "follow"
             };
 
+            if (typeof window === 'undefined') {
+                return;
+            }
             let domainURL = location.origin;
             domainURL = domainURL.replace('lightning.force.com', 'my.salesforce.com');
 
@@ -1376,14 +1405,16 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }else if(this.selectedExtension === '.xls'){
                 element = 'data:application/vnd.ms-excel,' + encodeURIComponent(csvContent);
             }
-            let link = document.createElement('a');
-            link.href = element;
-            link.target = '_self';
-            link.download = this.fileName+ this.selectedExtension;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            this.succeeded.push('Download');
+            if (typeof window !== 'undefined') {
+                let link = document.createElement('a');
+                link.href = element;
+                link.target = '_self';
+                link.download = this.fileName+ this.selectedExtension;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                this.succeeded.push('Download');
+            }
         }catch(e){
             this.failed['Download'] = e?.message;
             this.showSpinner = false;
@@ -1408,16 +1439,18 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     }
     downloadGDocTemplate(){
         try{
-            this.showSpinner = true;
-            this.labelOfLoader = 'Downloading...';
-            const link = document.createElement('a');
-            link.href = "data:application/pdf;base64,"+this.googleDocData;
-            link.download = this.fileName+this.selectedExtension;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            this.labelOfLoader = 'Loading ...';
-            this.succeeded.push('Download');
+            if (typeof window !== 'undefined') {
+                this.showSpinner = true;
+                this.labelOfLoader = 'Downloading...';
+                const link = document.createElement('a');
+                link.href = "data:application/pdf;base64,"+this.googleDocData;
+                link.download = this.fileName+this.selectedExtension;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                this.labelOfLoader = 'Loading ...';
+                this.succeeded.push('Download');
+            }
         }catch(e){
             this.failed['Download'] = e?.message;
             this.showSpinner = false;
@@ -1546,10 +1579,15 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             }
             else{
                 this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
-                setTimeout(() => {
-                    this.vfGeneratePageSRC = newSRC;
-                    this.simpleTemplate = true;
-                }, 300)
+                this.customTimeout?.setCustomTimeoutMethod(() => {
+                        this.vfGeneratePageSRC = newSRC;
+                        this.simpleTemplate = true;
+                  }, 300);
+
+                // setTimeout(() => {
+                //     this.vfGeneratePageSRC = newSRC;
+                //     this.simpleTemplate = true;
+                // }, 300)
             }
         }
         catch(e){
@@ -1626,6 +1664,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         throw new Error('Session ID not obtained');
                     }
 
+                    if (typeof window === 'undefined') {
+                        return;
+                    }
                     const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                     const myHeaders = new Headers();
                     myHeaders.append("Authorization", "Bearer " + sessionId);
@@ -1684,6 +1725,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         throw new Error('Session ID not obtained'); 
                     }
     
+                    if (typeof window === 'undefined') {
+                        return;
+                    }
                     const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                     const myHeaders = new Headers();
                     myHeaders.append("Authorization", "Bearer " + sessionId);
@@ -1862,6 +1906,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     throw new Error('Session ID not obtained');
                 }
     
+                if (typeof window === 'undefined') {
+                    return;
+                }
                 const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                 const myHeaders = new Headers();
                 myHeaders.append("Authorization", "Bearer " + sessionId);
@@ -2092,6 +2139,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }else{
                         getSessionId()
                         .then((data) => {
+                            if (typeof window === 'undefined') {
+                                return;
+                            }
                             let domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                             let endpoint = domainURL + '/services/data/v61.0/tooling/sobjects/QuickActionDefinition';
     
@@ -2145,6 +2195,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
                 if(changeStatus){
                     this.allTemplates.find(temp => temp.Id === this.templateIdFromParent).MVDG__Template_Status__c = true;
+                    if (typeof window === 'undefined') {
+                        return;
+                    }
                     this.dispatchEvent(new CustomEvent('activate'));
                 }
             })

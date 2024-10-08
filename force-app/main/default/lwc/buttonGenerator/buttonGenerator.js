@@ -89,7 +89,7 @@ export default class ButtonGenerator extends LightningElement {
             })
             .catch((e) => {
                 this.showSpinner = false;
-                errorDebugger('buttonGenerator', 'getCombinedData', e, 'warn');
+                errorDebugger('buttonGenerator', 'getCombinedData', 'Error in Getting Combined Data.', 'warn');
                 this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
             })
         }catch(e){

@@ -268,8 +268,11 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             if(this.initialRender){
                 // To OverRider standard slds css properties...
                 let mainFilterDiv = this.template.querySelector('.main-div');
-                let styleEle = document.createElement('style');
-                styleEle.innerText = `
+                let styleEle;
+                if (typeof window !== 'undefined') {
+                    styleEle = document.createElement('style');
+                }
+                if(styleEle) styleEle.innerText = `
                     .override-css-from-js .slds-input:not(c-custom-combobox .slds-input){
                         height: calc( 2.5rem - 2px );
                         border-radius: 0.43rem;
@@ -1807,7 +1810,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 let fields = this.selectedFields.map(field => {return field.apiName}).join(',');
                 if(this.isChild){
                     this.showSpinner = false;
-                    this.dispatchEvent(new CustomEvent('save', {detail : {selectedFields: this.selectedFields , query: this.generatedQuery, generatedData : {fields : fields, filters :this.separatedData }}}));
+                    if (typeof window !== 'undefined') {
+                        this.dispatchEvent(new CustomEvent('save', {detail : {selectedFields: this.selectedFields , query: this.generatedQuery, generatedData : {fields : fields, filters :this.separatedData }}}));
+                    }
                 }
                 else{
                     this.saveTemplate(isPreview);
@@ -1876,7 +1881,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     
     handleClose(){
         try {
-            if(this.isChild){
+            if(this.isChild && typeof window !== 'undefined'){
                 this.dispatchEvent(new CustomEvent('close'));
             }else if(this.isEditTabChanged || this.isBasicTabChanged){
                 this.isClose = true;
@@ -2128,6 +2133,8 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             this.initialFilters = true;
             this.filtersCount = this.filters.length;
             this.isBasicTabChanged = false;
+            this.showBasicDetailTab = false;
+            this.activeTab({currentTarget : {dataset: {name : 'editTab'}}});
         }catch(e){
             errorDebugger('editCSVTemplate', 'handleCancelChanges', e, 'warn');
         }
@@ -2247,6 +2254,9 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                     headers: myHeaders,
                     redirect: "follow"
                     };
+                    if (typeof window === 'undefined') {
+                        return;
+                    }
                     let domainURL = location?.origin;
                     if(!domainURL){
                         this.showToast('error', 'Something went wrong!', 'Some error occurred!, please try again.', 5000);
