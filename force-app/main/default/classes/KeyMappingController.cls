@@ -187,7 +187,7 @@ public with sharing class KeyMappingController {
                         objectFields.add(f);
                     }
                     else if(polymorphismObjAllowdFields.contains(fieldAPI) || f.isCustom()){
-                        System.debug('field name : ' + fieldAPI);
+                        System.debug('from Group, whatid or whoid object');
                         objectFields.add(f);
                     }
                 }
