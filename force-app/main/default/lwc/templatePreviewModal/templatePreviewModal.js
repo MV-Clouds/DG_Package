@@ -131,19 +131,18 @@ export default class TemplatePreviewModal extends LightningElement {
             // this.vfPageMessageHandler();
 
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'connectedCallback', error, warn);
+            errorDebugger('TemplatePreviewModal', 'connectedCallback', error, 'warn');
         }
     }
 
     renderedCallback() {
         try {
-            
             console.log("this.isCalledFromGenerateDoc==>", this.isCalledFromGenerateDoc);
             if (this.isCalledFromGenerateDoc) {
                 this.template.host.style.setProperty("--maxWidth", 'unset');
             }
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'connectedCallback', error, warn);
+            errorDebugger('TemplatePreviewModal', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -156,12 +155,12 @@ export default class TemplatePreviewModal extends LightningElement {
                 this.selectedRecordId = null;
             }
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'onRecordSelect', error, warn);
+            errorDebugger('TemplatePreviewModal', 'onRecordSelect', error, 'warn');
         }
     }
 
     handleRecordPickerError(event){
-        errorDebugger('TemplatePreviewModal', 'handleRecordPickerError', {'message' : event.detail}, warn);
+        errorDebugger('TemplatePreviewModal', 'handleRecordPickerError', {'message' : event.detail}, 'warn');
     }
 
     generatePreview(){
@@ -222,15 +221,15 @@ export default class TemplatePreviewModal extends LightningElement {
             else if(this.templateType === 'Google Doc Template'){
                  this.isSpinner = false;
                 this.showPreview = true;
-                setTimeout(() => {
-                    this.generateGoogleDocPreview();
-                }, 300)
-                // this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod( () => {
-                //     this.generateGoogleDocPreview()
-                // }, 300);
+                // setTimeout(() => {
+                //     this.generateGoogleDocPreview();
+                // }, 300)
+                this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod( () => {
+                    this.generateGoogleDocPreview()
+                }, 300);
             }
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'previewData', error, warn);
+            errorDebugger('TemplatePreviewModal', 'previewData', error, 'warn');
         }
     }
 
@@ -261,7 +260,7 @@ export default class TemplatePreviewModal extends LightningElement {
                 }, 5000);
             }
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'updateSpinnerLabel', error, warn);
+            errorDebugger('TemplatePreviewModal', 'updateSpinnerLabel', error, 'warn');
         }
     }
 

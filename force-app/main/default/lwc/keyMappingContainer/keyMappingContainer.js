@@ -102,6 +102,7 @@ export default class KeyMappingContainer extends LightningElement {
     signatureAnyWhereLink = "https://appexchange.salesforce.com/appxListingDetail?listingId=a0N4V00000FguvFUAR";
     @track signatureSize;
     savedSignatureSize = this.signatureSize;
+    customTimeout;
 
     /**
      * boolean to set showFulbrightButtonFor based on template type.
@@ -302,6 +303,10 @@ export default class KeyMappingContainer extends LightningElement {
         if(this.isInit){
             this.resizeFunction();
             this.isInit = false;
+        }
+
+        if(!this.customTimeout){
+            this.customTimeout = this.template.querySelector('c-custom-timeout');
         }
     }
 
@@ -871,7 +876,11 @@ export default class KeyMappingContainer extends LightningElement {
             fieldKeyTD.forEach(ele => {
                 if(ele.dataset.fieldname == fieldName){
                     ele.classList.add('copied');
-                    setTimeout(() => {
+                    // setTimeout(() => {
+                    //     ele.classList.remove('copied');
+                    // }, 1001);
+
+                    this.customTimeout?.setCustomTimeoutMethod(() => {
                         ele.classList.remove('copied');
                     }, 1001);
                 }
@@ -1255,7 +1264,11 @@ export default class KeyMappingContainer extends LightningElement {
             mappingImgContainer.forEach(ele => {
                 if(ele.dataset.imgid == imgID){
                     ele.classList.add('copied');
-                    setTimeout(() => {
+                    // setTimeout(() => {
+                    //     ele.classList.remove('copied');
+                    // }, 1001);
+
+                    this.customTimeout?.setCustomTimeoutMethod(() => {
                         ele.classList.remove('copied');
                     }, 1001);
                 }
@@ -1409,5 +1422,15 @@ export default class KeyMappingContainer extends LightningElement {
             return null;
         }
     }
+
+    handleTimeout(event){
+		try {
+			if(event?.detail?.function){
+				event?.detail?.function();
+			}
+		} catch (error) {
+			errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+		}
+	}
 
 }
