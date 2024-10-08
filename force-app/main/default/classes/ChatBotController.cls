@@ -317,6 +317,7 @@ public with sharing class ChatBotController {
     public static void sendFeedbackEmail(String toAddress, String key, String feedback,String chats) {
         String name = UserInfo.getName();
         String email = UserInfo.getUserEmail();
+        String fname = UserInfo.getFirstName();
         String subject = 'Feedback for chatbot';
         List<Object> chatDataList = (List<Object>) JSON.deserializeUntyped(chats);
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
@@ -352,6 +353,13 @@ public with sharing class ChatBotController {
             }
         
             emailBody += '">';
+            if ((Boolean) message.get('isQuestion') == true || (Boolean) message.get('isSolution') == true) {
+                // Chatbot message styling
+                emailBody += '<b>Bot Genius</b> <br/>';
+            }
+            else{
+                emailBody += '<b>'+fname+'</b><br/>';
+            }
             
             // Insert the chat text
             emailBody += (String) message.get('text');
