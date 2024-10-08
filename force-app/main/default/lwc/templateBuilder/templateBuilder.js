@@ -530,6 +530,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let totalProcesses = totalBatches + 1;
             let completedProcess = 0;
 
+            console.log('templateValuePortion : ', templateValuePortion);
+            
+
             // Call Apex Method to save Template...
             saveTemplateApex({templateRecord : this.templateRecord, templateValues : templateValuePortion, pageConfigs : this.pageConfigRecord})
             .then((result) => {
