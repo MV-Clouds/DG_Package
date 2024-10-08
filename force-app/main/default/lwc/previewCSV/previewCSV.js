@@ -73,14 +73,7 @@ export default class previewCSV extends NavigationMixin(LightningElement) {
             .then((result) =>{
                 this.noResultsFound = true;
                 if(result.errorMessage){
-                    this.noDataFoundText = 'There was some error fetching preview data, please try again...';
-                    let regex = /No such column '(\w+)' on entity '(\w+)'/;
-                    let match = result.errorMessage.match(regex);
-                    let fieldName = match ? match[1] : null;
-                    let entityName = match ? match[2] : null;
-                    if(match && fieldName && entityName){
-                        this.noDataFoundText = 'Please check permission of the field \''+ fieldName + '\' on object \'' + entityName + '\'.';
-                    }
+                    this.noDataFoundText = result.errorMessage.includes('Insufficient Access') ? result.errorMessage : 'There was some error fetching preview data, please try again...';
                     this.showSpinner = false;
                     return;
                 }

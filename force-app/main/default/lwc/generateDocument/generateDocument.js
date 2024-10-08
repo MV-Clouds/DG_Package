@@ -1107,6 +1107,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.showToast('error', 'Something went wrong!', 'Nothing to generate, Please Update the Template...', 5000);
                         return;
                     }
+                    if(data.error?.includes('Insufficient Access')){
+                        this.showWarningPopup('error', 'Insufficient Access', data.error);
+                        this.isClosableError = true;
+                        return;
+                    }
                     let fieldNames = data?.fields?.split(',');
                     let query = data?.query;
                     this.sessionId = data?.sessionId;

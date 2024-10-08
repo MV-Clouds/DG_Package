@@ -114,7 +114,7 @@ public with sharing class GenerateDocumentControllerTest {
         MVDG__Template_Data__c td= new MVDG__Template_Data__c(
             MVDG__Template__c = t.Id,
             MVDG__CSV_Query__c = 'SELECT Id FROM Account',
-            MVDG__CSV_Fields__c = 'Id, Name'
+            MVDG__CSV_Fields__c = 'Id,Name'
         );
         insert td;
 
