@@ -305,8 +305,14 @@ public with sharing class ChatBotController {
             
             Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
         } catch (Exception e) {
-            System.debug('Sending email with attachment --> '+e);
-            throw new AuraHandledException('exception'+e);
+            if(e.getMessage().contains('INVALID_EMAIL_ADDRESS')){
+                System.debug('Sending email with attachment --> '+e);
+                throw new AuraHandledException('exception'+e);
+            }
+            else{
+                Log_Handler.store_Exception(e, 'ChatBotController', 'sendEmailWithAttachment');
+            }
+
         }
     }
 
