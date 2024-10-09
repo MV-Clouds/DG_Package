@@ -588,7 +588,9 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 .then((result) => {
                     console.log("Details Edited");
                     this.isSpinner = false;
+                    this.loaderLabel = 'Loading... Please wait a while';
                     const popup = this.template.querySelector("c-message-popup");
+
                     if (result) {
                         this.previousTemplateData = JSON.parse(JSON.stringify(this.templateRecord));
                         popup.showMessageToast({
@@ -607,6 +609,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 })
                 .catch((error) => {
                     this.isSpinner = false;
+                    this.loaderLabel = 'Loading... Please wait a while';
                     const popup = this.template.querySelector("c-message-popup");
                     popup.showMessageToast({
                         title: "Error Saving Template",

@@ -641,7 +641,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                    messageContainer.showMessageToast({
                        status: 'error',
                        title: 'Integration failed',
-                       message : 'Aws details are wrong',
+                       message : 'Remote site or Aws details are wrong',
                        duration : 5000
                    });
                }
