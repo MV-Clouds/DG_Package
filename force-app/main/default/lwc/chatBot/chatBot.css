@@ -3,7 +3,7 @@
     position: fixed;
     bottom: 15px;
     right: 15px;
-    z-index: 10;
+    z-index: 7001;
 }
 
 .circle-active svg{
@@ -515,7 +515,7 @@ svg .slds-icon .slds-icon-text-default{
     padding: 0px 20px; /* Padding inside the popup */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds a shadow for better visibility */
     border-radius: 8px; /* Rounded corners */
-    z-index: 1000;
+    z-index: 7002;
     box-sizing: border-box;
 }
 .feedback_main[data-display=true]{
@@ -534,7 +534,7 @@ svg .slds-icon .slds-icon-text-default{
     width: calc(100% - 40px);
     background-color: #F2FBFF; /* Background color for the popup */
     border-radius: 8px; /* Rounded corners */
-    z-index: 1000;
+    z-index: 7002;
     box-sizing: border-box;
 }
 
