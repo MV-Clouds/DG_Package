@@ -1278,7 +1278,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     let fieldName = match ? match[1] : null;
                     let entityName = match ? match[2] : null;
                     if(match && fieldName && entityName){
-                        errorMessage = 'Please check permission of the field \''+ fieldName + '\' on object \'' + entityName + '\'.';
+                        errorMessage = 'Insufficient Access - You do not have access to field \''+ fieldName + '\' on object \'' + entityName + '\'.';
                     }
                     this.showWarningPopup('error', result[0].errorCode.replaceAll('_', ' '), errorMessage);
                     this.isClosableError = true;
