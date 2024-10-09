@@ -1,4 +1,6 @@
 import { LightningElement, api, track } from "lwc";
+import { errorDebugger } from "c/globalProperties";
+
 // import { CloseActionScreenEvent } from 'lightning/actions';
 export default class MessagePopup extends LightningElement {
     @track type;
@@ -75,6 +77,13 @@ export default class MessagePopup extends LightningElement {
 
     isInitial = true;
 
+    customTimeout;
+    renderedCallback(){
+        if(!this.customTimeout){
+            this.customTimeout = this.template.querySelector('c-custom-timeout');
+        }
+    }
+
     @api
     showMessagePopup(messageData){
         try {
@@ -104,9 +113,13 @@ export default class MessagePopup extends LightningElement {
             this.template.host.style.setProperty('--duration', duration + 'ms');
 
             this.showPopup = true;
-            this.timeoutInstance = setTimeout(() => {
+            // this.timeoutInstance = setTimeout(() => {
+            //     this.showPopup = false;
+            // }, duration);
+
+            this.customTimeout?.setCustomTimeoutMethod(() => {
                 this.showPopup = false;
-            }, duration);
+			}, duration);
             
         } catch (error) {
             errorDebugger('MessagePopup', 'showMessageToast', error, 'warn');
@@ -161,5 +174,15 @@ export default class MessagePopup extends LightningElement {
             errorDebugger('MessagePopup', 'closeModal', error, 'warn');
         }
     }
+
+    handleTimeout(event){
+		try {
+			if(event?.detail?.function){
+				event?.detail?.function();
+			}
+		} catch (error) {
+			errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+		}
+	}
 
 }

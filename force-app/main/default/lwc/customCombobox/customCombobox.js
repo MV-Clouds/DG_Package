@@ -414,6 +414,7 @@ export default class CustomCombobox extends LightningElement {
                 }
                 else{
                     
+                    this.clearSearch();
                     this.selectedOptionLabel = event.currentTarget.dataset.label;
                     
                     this.selectedItems = [currentOption];

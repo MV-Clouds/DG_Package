@@ -2298,6 +2298,14 @@ a.note-dropdown-item:hover {
                     page-break-before: always;
                 }
             }
+            .note-modal-footer input[value="Insert Image"]{
+                display: none !important;
+            }
+            .note-modal .note-modal-body label{
+                display: flex !important;
+                align-items: center;
+                gap: 0.5rem;
+            }
 
 
 

@@ -130,45 +130,60 @@ public with sharing class TemplateBuilder_Controller {
                 //         saveTempDataRecordsInBatch( templateValuesMap , new Map<String, String>{temp[0].Id => valueType}, true);
                 //     }
 
-                    if(templateValues?.get('Body Value')?.size() > 0){
-                        Map<String ,String> bodyValuesMap = new Map<String ,String>();
-                        for(Integer i = 1; i <= templateValues.get('Body Value').size(); i++){
-                            bodyValuesMap.put(String.valueOf(i), templateValues.get('Body Value')[i-1]);
+                    Map<String ,String> bodyValuesMap = new Map<String ,String>();
+                        if(templateValues?.get('Body Value')?.size() > 0){
+                            for(Integer i = 1; i <= templateValues.get('Body Value').size(); i++){
+                                bodyValuesMap.put(String.valueOf(i), templateValues.get('Body Value')[i-1]);
+                            }
                         }
-                        saveTempDataRecordsInBatch( bodyValuesMap , new Map<String, String>{temp[0].Id => 'Body Value'}, true);
-                    }
+                        else{
+                            bodyValuesMap.put('1', '');
+                        }
+                    saveTempDataRecordsInBatch( bodyValuesMap , new Map<String, String>{temp[0].Id => 'Body Value'}, true);
 
-                    if(templateValues?.get('Header Value')?.size() > 0){
-                        Map<String ,String> headerValuesMap = new Map<String ,String>();
-                        for(Integer i = 1; i <= templateValues.get('Header Value').size(); i++){
-                            headerValuesMap.put(String.valueOf(i), templateValues.get('Header Value')[i-1]);
+                    Map<String ,String> headerValuesMap = new Map<String ,String>();
+                        if(templateValues?.get('Header Value')?.size() > 0){
+                            for(Integer i = 1; i <= templateValues.get('Header Value').size(); i++){
+                                headerValuesMap.put(String.valueOf(i), templateValues.get('Header Value')[i-1]);
+                            }
                         }
-                        saveTempDataRecordsInBatch( headerValuesMap , new Map<String, String>{temp[0].Id => 'Header Value'}, true);
-                    }
+                        else{
+                            headerValuesMap.put('1', '');
+                        }
+                    saveTempDataRecordsInBatch( headerValuesMap , new Map<String, String>{temp[0].Id => 'Header Value'}, true);
 
-                    if(templateValues?.get('Footer Value')?.size() > 0){
-                        Map<String ,String> footerValuesMap = new Map<String ,String>();
-                        for(Integer i = 1; i <= templateValues.get('Footer Value').size(); i++){
-                            footerValuesMap.put(String.valueOf(i), templateValues.get('Footer Value')[i-1]);
+                    Map<String ,String> footerValuesMap = new Map<String ,String>();
+                        if(templateValues?.get('Footer Value')?.size() > 0){
+                            for(Integer i = 1; i <= templateValues.get('Footer Value').size(); i++){
+                                footerValuesMap.put(String.valueOf(i), templateValues.get('Footer Value')[i-1]);
+                            }
                         }
-                        saveTempDataRecordsInBatch( footerValuesMap , new Map<String, String>{temp[0].Id => 'Footer Value'}, true);
-                    }
+                        else{
+                            footerValuesMap.put('1', '');
+                        }
+                    saveTempDataRecordsInBatch( footerValuesMap , new Map<String, String>{temp[0].Id => 'Footer Value'}, true);
 
-                    if(templateValues?.get('Watermark Value')?.size() > 0){
-                        Map<String ,String> watermarkValuesMap = new Map<String ,String>();
-                        for(Integer i = 1; i <= templateValues.get('Watermark Value').size(); i++){
-                            watermarkValuesMap.put(String.valueOf(i), templateValues.get('Watermark Value')[i-1]);
+                    Map<String ,String> watermarkValuesMap = new Map<String ,String>();
+                        if(templateValues?.get('Watermark Value')?.size() > 0){
+                            for(Integer i = 1; i <= templateValues.get('Watermark Value').size(); i++){
+                                watermarkValuesMap.put(String.valueOf(i), templateValues.get('Watermark Value')[i-1]);
+                            }
                         }
-                        saveTempDataRecordsInBatch( watermarkValuesMap , new Map<String, String>{temp[0].Id => 'Watermark Value'}, true);
-                    }
-
-                    if(templateValues?.get('Extracted Mapping Keys')?.size() > 0){
-                        Map<String ,String> extractedKeyMap = new Map<String ,String>();
-                        for(Integer i = 1; i <= templateValues.get('Extracted Mapping Keys').size(); i++){
-                            extractedKeyMap.put(String.valueOf(i), templateValues.get('Extracted Mapping Keys')[i-1]);
+                        else{
+                            watermarkValuesMap.put('1', '');
                         }
-                        saveTempDataRecordsInBatch( extractedKeyMap , new Map<String, String>{temp[0].Id => 'Extracted Mapping Keys'}, true);
-                    }
+                    saveTempDataRecordsInBatch( watermarkValuesMap , new Map<String, String>{temp[0].Id => 'Watermark Value'}, true);
+                    
+                    Map<String ,String> extractedKeyMap = new Map<String ,String>();
+                        if(templateValues?.get('Extracted Mapping Keys')?.size() > 0){
+                            for(Integer i = 1; i <= templateValues.get('Extracted Mapping Keys').size(); i++){
+                                extractedKeyMap.put(String.valueOf(i), templateValues.get('Extracted Mapping Keys')[i-1]);
+                            }
+                        }
+                        else{
+                            extractedKeyMap.put('1', '');
+                        }
+                    saveTempDataRecordsInBatch( extractedKeyMap , new Map<String, String>{temp[0].Id => 'Extracted Mapping Keys'}, true);
                     
                 }
                 

@@ -530,6 +530,9 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let totalProcesses = totalBatches + 1;
             let completedProcess = 0;
 
+            console.log('templateValuePortion : ', templateValuePortion);
+            
+
             // Call Apex Method to save Template...
             saveTemplateApex({templateRecord : this.templateRecord, templateValues : templateValuePortion, pageConfigs : this.pageConfigRecord})
             .then((result) => {
@@ -1445,7 +1448,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                 this.closeEditTemplate();
             }
             else if(!this.isLoadedSuccessfully){
-                location.reload();
+                window?.globalThis?.location.reload();
             }
             else if(!this.templateRecord.MVDG__Template_Name__c && !this.noTemplateFound){
                 // ... Popup Message Appear when user try to save without filling template name...

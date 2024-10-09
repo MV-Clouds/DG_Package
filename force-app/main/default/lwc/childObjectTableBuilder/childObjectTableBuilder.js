@@ -1,4 +1,5 @@
 import { LightningElement, track, api } from 'lwc';
+import { errorDebugger } from "c/globalProperties";
 
 export default class ChildObjectTableBuilder extends LightningElement {
 
@@ -14,6 +15,13 @@ export default class ChildObjectTableBuilder extends LightningElement {
 
     get noChildTable(){
         return this.childTableQuery ? false : true;
+   }
+
+   customTimeout;
+   renderedCallback(){
+       if(!this.customTimeout){
+           this.customTimeout = this.template.querySelector('c-custom-timeout');
+       }
    }
 
      // #Child Object Table Method....
@@ -172,9 +180,13 @@ export default class ChildObjectTableBuilder extends LightningElement {
             // Show animation on copy...
             const copyBtn = event.currentTarget;
             copyBtn.classList.add('copied');
-            setTimeout(() => {
+            // setTimeout(() => {
+            //     copyBtn.classList.remove('copied');
+            // }, 1001);
+
+            this.customTimeout?.setCustomTimeoutMethod(() => {
                 copyBtn.classList.remove('copied');
-            }, 1001);
+			}, 1001)
 
             document.body.removeChild(table); 
 
@@ -183,4 +195,14 @@ export default class ChildObjectTableBuilder extends LightningElement {
 
         }
     }
+
+	handleTimeout(event){
+		try {
+			if(event?.detail?.function){
+				event?.detail?.function();
+			}
+		} catch (error) {
+			errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+		}
+	}
 }

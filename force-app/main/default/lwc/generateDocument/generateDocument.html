@@ -18,7 +18,7 @@
                 <li class="info-topic">Button Creation</li>
                 <li>
                     <ul class="slds-list_dotted">
-                        <li>You Can Name your button as you want.</li>
+                        <li>You can name your button as you want.</li>
                         <li>The Button label can not be modified from here once it's created. but, you can update it from the setup.</li>
                         <li>You can add the created buttons to the page layout anytime after it's been created. </li>
                     </ul>
@@ -385,6 +385,7 @@
         </div>
     </div>
     <c-message-popup onconfirmation={handleConfirmation}></c-message-popup>
+    <c-custom-timeout ontimeoutmethod={handleTimeout}></c-custom-timeout>
     <c-document-loader display={showSpinner} label={labelOfLoader} full-size="true" ></c-document-loader>
     <c-generate-google-doc-file oncomplete={handleGoogleDocFile} onchangespinnerlabel={changeLabelForGDoc} oninternalerror={handleGDocError}></c-generate-google-doc-file>
 </template>

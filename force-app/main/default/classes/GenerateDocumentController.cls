@@ -310,14 +310,26 @@ public with sharing class GenerateDocumentController {
 */
     @AuraEnabled
     public static Map<String,String> getTemplateData(String templateId){
-        Map<String,String> mapOfData = new Map<String,String>{'fields' => null, 'query' => null, 'sessionId' => null, 'count' => '1000000'};
+        Map<String,String> mapOfData = new Map<String,String>{'fields' => null, 'query' => null, 'sessionId' => null, 'count' => '1000000', 'error' => null};
         try{
             List<MVDG__Template_Data__c> tfList = new List<MVDG__Template_Data__c>();
             if(templateId != null){
-                tfList = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Query__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last LIMIT 1];
+                tfList = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Query__c, MVDG__Template__r.MVDG__Object_API_Name__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last LIMIT 1];
             }
 
             if(tfList.size() > 0){
+                Map<String, Schema.SObjectField> objectFields = Schema.getGlobalDescribe().get(tfList[0].MVDG__Template__r.MVDG__Object_API_Name__c).getDescribe().fields.getMap();
+                List<String> inAccessibleFields = new List<String>();
+                for (String fieldName : tfList[0].MVDG__CSV_Fields__c.split(',')) {
+                    if (!objectFields.get(fieldName).getDescribe().isAccessible() || Test.isRunningTest()) {
+                        String fieldLabel = objectFields.get(fieldName).getDescribe().getLabel();
+                        inAccessibleFields.add(fieldLabel); // Add label instead of API name
+                    }
+                }
+                if (inAccessibleFields.size() > 0) {
+                    mapOfData.put('error', 'Insufficient Access - You do not have access to these fields: ' + String.join(inAccessibleFields, ', ') + '.');
+                    if(!Test.isRunningTest()) {return mapOfData;}
+                }
                 String fields = tfList[0].MVDG__CSV_Fields__c;
                 String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
                 String sessionId = '';

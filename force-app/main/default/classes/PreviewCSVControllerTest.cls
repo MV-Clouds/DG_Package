@@ -20,7 +20,7 @@ public with sharing class PreviewCSVControllerTest {
         MVDG__Template_Data__c td= new MVDG__Template_Data__c(
             MVDG__Template__c = template.Id,
             MVDG__CSV_Query__c = 'SELECT Id FROM Account LIMIT 222',
-            MVDG__CSV_Fields__c = 'Id, Name'
+            MVDG__CSV_Fields__c = 'Id,Name'
         );
         insert td;
 

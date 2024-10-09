@@ -589,9 +589,10 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     console.log("Details Edited");
                     this.isSpinner = false;
                     this.loaderLabel = 'Loading... Please wait a while';
+                    const popup = this.template.querySelector("c-message-popup");
+
                     if (result) {
                         this.previousTemplateData = JSON.parse(JSON.stringify(this.templateRecord));
-                        const popup = this.template.querySelector("c-message-popup");
                         popup.showMessageToast({
                             title: "Template Data Saved",
                             message: "Template data saved to backend succesfully.",

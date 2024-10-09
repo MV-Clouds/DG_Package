@@ -764,6 +764,7 @@ c-generate-document {
 }
 
 .buttonSection {
+    margin: auto;
     display: flex;
     justify-content: center;
     align-items: center;
