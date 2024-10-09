@@ -321,7 +321,7 @@ public with sharing class GenerateDocumentController {
                 Map<String, Schema.SObjectField> objectFields = Schema.getGlobalDescribe().get(tfList[0].MVDG__Template__r.MVDG__Object_API_Name__c).getDescribe().fields.getMap();
                 List<String> inAccessibleFields = new List<String>();
                 for (String fieldName : tfList[0].MVDG__CSV_Fields__c.split(',')) {
-                    if (!objectFields.get(fieldName).getDescribe().isAccessible() || Test.isRunningTest()) {
+                    if (!fieldName.contains('.') && (!objectFields.get(fieldName).getDescribe().isAccessible() || Test.isRunningTest())) {
                         String fieldLabel = objectFields.get(fieldName).getDescribe().getLabel();
                         inAccessibleFields.add(fieldLabel); // Add label instead of API name
                     }

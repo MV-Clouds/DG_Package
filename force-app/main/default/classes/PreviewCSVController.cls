@@ -24,27 +24,26 @@ public with sharing class PreviewCSVController {
             if(templateId != null){
                 queryData = [SELECT Id, MVDG__CSV_Query__c, MVDG__CSV_Fields__c, MVDG__Template__r.MVDG__Template_Name__c, MVDG__Template__r.MVDG__Template_Status__c, MVDG__Template__r.MVDG__Description__c, MVDG__Template__r.MVDG__Object_API_Name__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last];
             }
-            if(queryData.size() > 0){
-                Map<String, Schema.SObjectField> objectFields = Schema.getGlobalDescribe().get(queryData[0].MVDG__Template__r.MVDG__Object_API_Name__c).getDescribe().fields.getMap();
-                List<String> inAccessibleFields = new List<String>();
-                for (String fieldName : queryData[0].MVDG__CSV_Fields__c.split(',')) {
-                    if (!objectFields.get(fieldName).getDescribe().isAccessible() || Test.isRunningTest()) {
-                        String fieldLabel = objectFields.get(fieldName).getDescribe().getLabel();
-                        inAccessibleFields.add(fieldLabel); // Add label instead of API name
-                    }
+            if(queryData.size() < 1){ return listOfPDW;}
+            Map<String, Schema.SObjectField> objectFields = Schema.getGlobalDescribe().get(queryData[0].MVDG__Template__r.MVDG__Object_API_Name__c).getDescribe().fields.getMap();
+            List<String> inAccessibleFields = new List<String>();
+            for (String fieldName : queryData[0].MVDG__CSV_Fields__c.split(',')) {
+                if (!fieldName.contains('.') && (!objectFields.get(fieldName).getDescribe().isAccessible() || Test.isRunningTest())) {
+                    String fieldLabel = objectFields.get(fieldName).getDescribe().getLabel();
+                    inAccessibleFields.add(fieldLabel); // Add label instead of API name
                 }
-                if (inAccessibleFields.size() > 0) {
-                    listOfPDW.errorMessage = 'Insufficient Access - You do not have access to these fields: ' + String.join(inAccessibleFields, ', ') + '.';
-                    if(!Test.isRunningTest()) {return listOfPDW;}
-                }
-                String query = queryData[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
-                if(Integer.valueOf(query.substringAfterLast('LIMIT ')) > 25){
-                    query = query.substringBeforeLast('LIMIT') + ' LIMIT 25';
-                }
-                previewRecords = Database.query(query, AccessLevel.USER_MODE);
-                listOfPDW.records = previewRecords;
-                listOfPDW.templateData = queryData[0];
             }
+            if (inAccessibleFields.size() > 0) {
+                listOfPDW.errorMessage = 'Insufficient Access - You do not have access to these fields: ' + String.join(inAccessibleFields, ', ') + '.';
+                if(!Test.isRunningTest()) {return listOfPDW;}
+            }
+            String query = queryData[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
+            if(Integer.valueOf(query.substringAfterLast('LIMIT ')) > 25){
+                query = query.substringBeforeLast('LIMIT') + ' LIMIT 25';
+            }
+            previewRecords = Database.query(query, AccessLevel.USER_MODE);
+            listOfPDW.records = previewRecords;
+            listOfPDW.templateData = queryData[0];
         } catch (Exception e) {
             listOfPDW.errorMessage = e.getMessage();
             log_Handler.store_Exception(e, 'PreviewCSVController', 'fetchPreviewData');
