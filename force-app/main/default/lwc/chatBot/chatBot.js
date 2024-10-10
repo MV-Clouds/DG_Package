@@ -482,7 +482,6 @@ export default class ChatBot extends LightningElement {
 
 
     handleSendEmail() {
-        // console.log('Chatbot mail invoked');
         this.emailErrorMessage = false;
 
         if(this.replyAddress == ''){
@@ -494,19 +493,12 @@ export default class ChatBot extends LightningElement {
             field.style.border = '1px solid red'; 
         }
         else if(this.body && this.replyAddress){
-            console.log("Reached to checkpoint 1");
             
         const fileNames = this.uploadedFiles.map(file => file.fileName);
         const fileContents = this.uploadedFiles.map(file => file.fileUrl);
         const btn = this.template.querySelector('.mail-submit');
         btn.style.background = 'grey';
         btn.setAttribute('disabled', true);
-        console.log(this.toAddress);
-        console.log(this.replyAddress);
-        console.log(this.subject);
-        console.log(this.body);
-        console.log(fileNames);
-
         
 
         sendEmailWithAttachment({ parameters: {
@@ -519,9 +511,7 @@ export default class ChatBot extends LightningElement {
         }})
         .then((result) => {
             // handle success, show a success message or toast
-            // console.log('Email sent successfully');
-            console.log('This is result'+result);
-            
+            // console.log('Email sent successfully');            
             this.mailSent = true;
             this.isEmail = false;
             this.emailErrorMessage = false;
