@@ -424,10 +424,11 @@ public with sharing class GoogleDocPreview {
                     generalFieldValues.put('General Fields', DataMappingControllerV2.getMappingKeyVsValue(obj.fieldName, objectApiName, recordId));
                     returnList.add(generalFieldValues);
 
-                } else if (obj.objApi == objectApiName) {
+                } else if (obj.objApi == objectApiName && obj.tableNo == null) {
 
-                    Map<String, Map<String, String>> objectFieldValues = new Map<String, Map<String, String>>();
+                    Map<String, Object> objectFieldValues = new Map<String, Object>();
                     objectFieldValues.put(objectApiName, DataMappingControllerV2.getMappingKeyVsValue(obj.fieldName, objectApiName, recordId));
+                    objectFieldValues.put('Object Fields', true);
                     returnList.add(objectFieldValues);
                     
                 } else if (obj.objApi == 'Signature Image') {
@@ -459,7 +460,7 @@ public with sharing class GoogleDocPreview {
                         if (obj.filter != null) {
                             subQuery += ' ' + String.escapeSingleQuotes(obj.filter);
                         }
-                        if (obj.queryLimit != null && obj.queryLimit < 50) {
+                        if (obj.queryLimit != null && obj.queryLimit < 50 && obj.queryLimit > 0) {
                             subQuery += ' LIMIT ' + String.valueOf(obj.queryLimit);
                         } else {
                             subQuery += ' LIMIT 50';

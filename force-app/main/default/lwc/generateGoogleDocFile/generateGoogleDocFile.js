@@ -328,7 +328,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
                     let actualStringBody = JSON.stringify(content);
 
-                    let parentFieldvalues = this.resultSet.find((el) => el[this.objectname] != null);
+                    let parentFieldvalues = this.resultSet.find((el) => el[this.objectname] != null && el["Object Fields"] == true);
                     let generalFieldvalues = this.resultSet.find((el) => el["General Fields"] != null);
                     // Replace all the object and general fields
                     if (parentFieldvalues) {

@@ -373,6 +373,12 @@ export default class KeyMappingContainer extends LightningElement {
                     result.fieldMappingsWithObj.forEach(ele =>{
                         this.relatedChildObjects.push({label : ele.label, value : ele.name, description : ele.additionalInfo, childObjApi : ele.objectAPI});
                     });
+                    
+                    this.relatedChildObjects.sort(function(a, b) {
+                        if (a.label < b.label) return -1;
+                        if (a.label > b.label) return 1;
+                        return 0;
+                    });
                 }
                 else{
                     errorDebugger('FieldMappingKey', 'fetchChildObjects', null, 'warn', `error in getChildObjects apex call : ${result.returnMessage}`);
