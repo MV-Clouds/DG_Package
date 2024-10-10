@@ -317,31 +317,30 @@ public with sharing class GenerateDocumentController {
                 tfList = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Query__c, MVDG__Template__r.MVDG__Object_API_Name__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last LIMIT 1];
             }
 
-            if(tfList.size() > 0){
-                Map<String, Schema.SObjectField> objectFields = Schema.getGlobalDescribe().get(tfList[0].MVDG__Template__r.MVDG__Object_API_Name__c).getDescribe().fields.getMap();
-                List<String> inAccessibleFields = new List<String>();
-                for (String fieldName : tfList[0].MVDG__CSV_Fields__c.split(',')) {
-                    if (!fieldName.contains('.') && (!objectFields.get(fieldName).getDescribe().isAccessible() || Test.isRunningTest())) {
-                        String fieldLabel = objectFields.get(fieldName).getDescribe().getLabel();
-                        inAccessibleFields.add(fieldLabel); // Add label instead of API name
-                    }
+            if(tfList.size() > 0){ return null;}
+            Map<String, Schema.SObjectField> objectFields = Schema.getGlobalDescribe().get(tfList[0].MVDG__Template__r.MVDG__Object_API_Name__c).getDescribe().fields.getMap();
+            List<String> inAccessibleFields = new List<String>();
+            for (String fieldName : tfList[0].MVDG__CSV_Fields__c.split(',')) {
+                if (!fieldName.contains('.') && (!objectFields.get(fieldName).getDescribe().isAccessible() || Test.isRunningTest())) {
+                    String fieldLabel = objectFields.get(fieldName).getDescribe().getLabel();
+                    inAccessibleFields.add(fieldLabel); // Add label instead of API name
                 }
-                if (inAccessibleFields.size() > 0) {
-                    mapOfData.put('error', 'Insufficient Access - You do not have access to these fields: ' + String.join(inAccessibleFields, ', ') + '.');
-                    if(!Test.isRunningTest()) {return mapOfData;}
-                }
-                String fields = tfList[0].MVDG__CSV_Fields__c;
-                String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
-                String sessionId = '';
-                String countableQuery = 'SELECT count() FROM' + (query.contains('ORDER BY') ? (query.substringBeforeLast('ORDER BY').substringAfterLast('FROM') + ' LIMIT ' + query.substringAfterLast('LIMIT')) : query.substringAfterLast('FROM'));
-                Integer count = database.countQuery(String.valueOf(countableQuery));
-                sessionId = getSessionId();
-                mapOfData.put('fields', fields);
-                mapOfData.put('query', query);
-                mapOfData.put('sessionId', sessionId);
-                mapOfData.put('count', String.valueOf(count)!=null ? String.valueOf(count) : query.substringAfterLast('LIMIT'));
-                System.debug('All the Data to be Sent is :: ' + mapOfData);
             }
+            if (inAccessibleFields.size() > 0) {
+                mapOfData.put('error', 'Insufficient Access - You do not have access to these fields: ' + String.join(inAccessibleFields, ', ') + '.');
+                if(!Test.isRunningTest()) {return mapOfData;}
+            }
+            String fields = tfList[0].MVDG__CSV_Fields__c;
+            String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
+            String sessionId = '';
+            String countableQuery = 'SELECT count() FROM' + (query.contains('ORDER BY') ? (query.substringBeforeLast('ORDER BY').substringAfterLast('FROM') + ' LIMIT ' + query.substringAfterLast('LIMIT')) : query.substringAfterLast('FROM'));
+            Integer count = database.countQuery(String.valueOf(countableQuery));
+            sessionId = getSessionId();
+            mapOfData.put('fields', fields);
+            mapOfData.put('query', query);
+            mapOfData.put('sessionId', sessionId);
+            mapOfData.put('count', String.valueOf(count)!=null ? String.valueOf(count) : query.substringAfterLast('LIMIT'));
+            System.debug('All the Data to be Sent is :: ' + mapOfData);
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateData');
             return null;

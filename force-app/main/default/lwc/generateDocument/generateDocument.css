@@ -161,6 +161,7 @@ li.info-topic {
     --invalidLabelColor : red;
     --asteriskColor : red;
     --inputOnFocusShadow : none;
+    --placeHolderColor : gray;
 }
 
 
@@ -628,6 +629,7 @@ svg:not(.bottom-btn svg){
     --inputAreaBorderRadius : 0.5rem;
     --dropDownWidth : 10rem;
     --inputOnFocusBorderColor: #00aeff;
+    --placeHolderColor : gray;
 }
 
 .main-email-preview-div {
