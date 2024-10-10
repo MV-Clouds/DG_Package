@@ -221,9 +221,12 @@
                                         <div if:true={fileSizeError}>
                                             <label class="error-message" style="color: red;">Total file size must not exceed 2.5 MB.</label>
                                         </div>
-                                        <button class="mail-submit" onclick={handleSendEmail}>Submit</button>
+                                        <button class="mail-submit sent" onclick={handleSendEmail}>Submit</button>
                                         <div if:true={attachmentError}>
                                             <label class="error-message" style="color: red;">Only image files (PNG, JPG, JPEG, GIF) are allowed.</label>
+                                        </div>
+                                        <div if:true={unknownError}>
+                                            <label class="error-message" style="color: red;">Error, Try again later.</label>
                                         </div>
                                     </div>
                                 </div>

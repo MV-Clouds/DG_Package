@@ -21,7 +21,7 @@ export default class ChatBot extends LightningElement {
     @track isClearPopup = false;
     @track isFeedbackPopup = false;
     @track isEmail = false;
-    @track toAddress = 'support-dg@mvclouds.com';
+    @track toAddress = 'tirth.s@mvclouds.com';
     @track replyAddress = '';
     @track subject = 'Issue in Docgenius';
     @track body = '';
@@ -39,6 +39,7 @@ export default class ChatBot extends LightningElement {
     @track attachmentError = false;
     @track fileSizeError = false;
     @track emailWasActive = false;
+    @track unknownError = false;
 
     selectedFileSize = 0;
     currentTime = '09:48';
@@ -493,8 +494,20 @@ export default class ChatBot extends LightningElement {
             field.style.border = '1px solid red'; 
         }
         else if(this.body && this.replyAddress){
+            console.log("Reached to checkpoint 1");
+            
         const fileNames = this.uploadedFiles.map(file => file.fileName);
         const fileContents = this.uploadedFiles.map(file => file.fileUrl);
+        const btn = this.template.querySelector('.mail-submit');
+        btn.style.background = 'grey';
+        btn.setAttribute('disabled', true);
+        console.log(this.toAddress);
+        console.log(this.replyAddress);
+        console.log(this.subject);
+        console.log(this.body);
+        console.log(fileNames);
+
+        
 
         sendEmailWithAttachment({ parameters: {
             toAddress: this.toAddress,
@@ -513,6 +526,7 @@ export default class ChatBot extends LightningElement {
             this.isEmail = false;
             this.emailErrorMessage = false;
             this.fileSizeError = false;
+            this.unknownError = false;
             this.attachmentError = false;
             this.selectedFileSize = 0;
         })
@@ -527,6 +541,12 @@ export default class ChatBot extends LightningElement {
             if(error.body && error.body.message && error.body.message.includes('INVALID_EMAIL_ADDRESS')){
                 console.log('Email not valid');
                 this.emailErrorMessage = true;
+                const btn = this.template.querySelector('.mail-submit');
+                btn.style.background = '#00AEFF';
+                btn.removeAttribute('disabled');
+            }
+            else{
+                this.unknownError = true;
             }
 
         });
@@ -570,6 +590,7 @@ export default class ChatBot extends LightningElement {
         if(!this.mailSent){
             this.attachmentError = false;
             this.fileSizeError = false;
+            this.unknownError = false;
             this.replyAddress = '';
             this.body = '';
             this.emailErrorMessage = false;
@@ -637,6 +658,7 @@ export default class ChatBot extends LightningElement {
         this.isFeedbackPopup = false;
         this.attachmentError = false;
         this.fileSizeError = false;
+        this.unknownError = false;
         const windowsize = this.template.querySelector('.popupopen');
         const windowmessage = this.template.querySelector('.message');
         windowsize.style.height = '430px';
