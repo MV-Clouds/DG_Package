@@ -282,8 +282,11 @@ public with sharing class ChatBotController {
     @AuraEnabled
     public static void sendEmailWithAttachment(EmailDetails parameters) {
         try {
+
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-            mail.setToAddresses(new String[] { parameters.toAddress });
+            List<String> elist = new List<String>();
+            elist.add('support-dg@mvclouds.com');
+            mail.setToAddresses(elist);
             mail.setSubject(parameters.subject);
             mail.setPlainTextBody(parameters.body);
     
@@ -292,7 +295,7 @@ public with sharing class ChatBotController {
             }
             
             // Prepare attachments
-            if (parameters.fileNames != null && parameters.fileContents != null && parameters.fileNames.size() == parameters.fileContents.size()) {
+            if (parameters.fileNames != null && parameters.fileContents != null && parameters.fileNames.size() != 0) {
                 List<Messaging.EmailFileAttachment> attachments = new List<Messaging.EmailFileAttachment>();
                 for (Integer i = 0; i < parameters.fileNames.size(); i++) {
                     Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
@@ -300,10 +303,13 @@ public with sharing class ChatBotController {
                     attachment.setBody(EncodingUtil.base64Decode(parameters.fileContents[i]));
                     attachments.add(attachment);
                 }
+                System.debug('Found attachment here');
                 mail.setFileAttachments(attachments);
             }
-            
-            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+            System.debug('mail body'+mail);
+            Messaging.SendEmailResult[] result = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+            System.debug(result);
+
         } catch (Exception e) {
             if(e.getMessage().contains('INVALID_EMAIL_ADDRESS')){
                 System.debug('Sending email with attachment --> '+e);
@@ -311,6 +317,7 @@ public with sharing class ChatBotController {
             }
             else{
                 Log_Handler.store_Exception(e, 'ChatBotController', 'sendEmailWithAttachment');
+                throw new AuraHandledException('exception'+e);
             }
 
         }
