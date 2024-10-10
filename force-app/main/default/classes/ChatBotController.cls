@@ -285,14 +285,12 @@ public with sharing class ChatBotController {
 
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             List<String> elist = new List<String>();
-            elist.add('tirthshah045@gmail.com');
+            elist.add('support-dg@mvclouds.com');
             mail.setToAddresses(elist);
             mail.setSubject(parameters.subject);
             mail.setPlainTextBody(parameters.body);
     
             if (parameters.replyTo != null && parameters.replyTo != '') {
-                // OrgWideEmailAddress[] owea = [SELECT Id FROM OrgWideEmailAddress LIMIT 1];
-                // mail.setOrgWideEmailAddressId(owea.get(0).Id);
                 mail.setReplyTo(parameters.replyTo);
             }
             
