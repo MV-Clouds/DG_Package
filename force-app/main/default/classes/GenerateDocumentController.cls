@@ -317,7 +317,7 @@ public with sharing class GenerateDocumentController {
                 tfList = [SELECT Id, MVDG__CSV_Fields__c, MVDG__CSV_Query__c, MVDG__Template__r.MVDG__Object_API_Name__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c =:templateId WITH SECURITY_ENFORCED ORDER BY MVDG__Order_No_Simple__c asc NULLS Last LIMIT 1];
             }
 
-            if(tfList.size() > 0){ return null;}
+            if(tfList.size() < 1){ return null;}
             Map<String, Schema.SObjectField> objectFields = Schema.getGlobalDescribe().get(tfList[0].MVDG__Template__r.MVDG__Object_API_Name__c).getDescribe().fields.getMap();
             List<String> inAccessibleFields = new List<String>();
             for (String fieldName : tfList[0].MVDG__CSV_Fields__c.split(',')) {
