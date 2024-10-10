@@ -21,7 +21,7 @@ export default class ChatBot extends LightningElement {
     @track isClearPopup = false;
     @track isFeedbackPopup = false;
     @track isEmail = false;
-    @track toAddress = 'tirth.s@mvclouds.com';
+    @track toAddress = 'support-dg@mvclouds.com';
     @track replyAddress = '';
     @track subject = 'Issue in Docgenius';
     @track body = '';
