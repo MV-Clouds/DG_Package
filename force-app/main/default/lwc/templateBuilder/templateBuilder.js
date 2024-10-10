@@ -610,7 +610,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
     handleCloseEdit(){
         try {
             this.isCloseConfirmation = true;
-            this.showMessagePopup('Warning', 'Are You Want to Leave?', `Your unsaved changes will be discarded once you leave the this page.`);
+            this.showMessagePopup('Warning', 'Are you sure, you want to leave?', `Your unsaved changes will be discarded once you leave the this page.`);
 
         } catch (error) {
             errorDebugger('TemplateBuilder', 'handleCloseEdit', error, 'warn');
