@@ -94,7 +94,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
     get isFilterApplied(){
-        return Object.keys(this.filterOpts)?.length !== 0 && JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
+        return (Object.keys(this.filterOpts)?.length > 1 || (Object.keys(this.filterOpts)?.length === 1 && this.filterOpts.fieldToSort !== 'LastModifiedDate')) && JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
     }
 
     get disabledFilterApplyBtn(){
@@ -499,7 +499,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 this.displayedTemplateList = this.filteredTemplateList.slice(0, 50);
 
                 this.previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts));
-
                 this.toggleFilterOptions();
             }
         } catch (error) {
