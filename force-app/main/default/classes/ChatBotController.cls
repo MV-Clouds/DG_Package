@@ -384,7 +384,7 @@ public static void sendEmailWithAttachment(Map<String, Object> parameters) {
             emailBody += '">';
             if ((Boolean) message.get('isQuestion') == true || (Boolean) message.get('isSolution') == true) {
                 // Chatbot message styling
-                emailBody += '<b>Bot Genius</b> <br/>';
+                emailBody += '<b>BotGenius</b> <br/>';
             }
             else{
                 emailBody += '<b>'+fname+'</b><br/>';
