@@ -4,6 +4,74 @@
     width: 100%;
     position: relative;
     height: calc(100% - 4.5rem);
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #00aeff transparent;
+}
+
+.prerequisites-div {
+    padding-top: 1rem;
+}
+
+.checklist-div {
+    display: flex;
+}
+
+.checklist-header{
+    background: #d5ebff;
+    margin-block: 0.5rem;
+    border-radius: 0.3rem;
+    padding: 0.2rem 0.5rem;
+    max-width: fit-content;
+    color: #00aeff;
+    font-size: 14px;
+    font-weight: 500;
+    height: 32px;
+    display: flex;
+    align-items: center;
+}
+
+.prerequisites-info-div {
+    padding: 0.5rem 1rem;
+    border: 1px dashed #00aeff;
+    border-radius: 0.5rem;
+    background-color: white;
+    margin: 0.5rem 0.5rem 0 0.5rem;
+    box-shadow: 0 0 5px 1px lightgray;
+}
+
+.instruction-div {
+    flex-grow: 1;
+}
+
+.instruction-div b {
+    user-select: text;
+}
+
+.check-div {
+    margin-top: 0.5rem;
+}
+
+.verify-btn{
+    width: max-content;
+    min-width: 6rem;
+    height: 32px;
+    border: none;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background: #00aeff;
+    border-radius: 6px;
+    padding-inline: 1rem;
+    transition: all linear 0.1s;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.verify-btn:hover{
+    background: #0084c1;
 }
 
 .create-buttons-div {
@@ -31,6 +99,42 @@
     align-items: center;
     gap: 0.5rem;
 }
+
+.spinner {
+    animation: rotate 2s linear infinite;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    
+    & .path {
+      stroke: #00aeff;
+      stroke-linecap: round;
+      animation: dash 1.5s ease-in-out infinite;
+    }
+    
+  }
+  
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 150;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -35;
+    }
+    100% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -124;
+    }
+  }
+  
 
 /* ------------------------------------------------------------ For the DG Setup Tab (END) ------------------------------------------------------------ */
 /* ------------------------------------------------------------ For the Userguide Tab (START) ------------------------------------------------------------ */
@@ -205,7 +309,7 @@ h2{
     overflow: hidden;
 }
 
-.switch a{
+.switch div{
     padding-block: 10px;
     padding-left: 20px;
     font-size: 1.2rem;
@@ -221,7 +325,7 @@ h2{
 
 }
 
-.switch a::before {
+.switch div::before {
     top: auto;
     bottom: -22px;
     border-radius: 0 8px 0 0 !important;

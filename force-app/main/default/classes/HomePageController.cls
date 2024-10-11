@@ -63,6 +63,7 @@ public with sharing class HomePageController {
                 returnValue.returnMessage = 'No Template Found';
             }
 
+            returnValue.isTrustedUrl = checkTrustedUrl();
             return returnValue;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'docGeniusHomePageController', 'getTempalaterecords');
@@ -73,6 +74,25 @@ public with sharing class HomePageController {
             return returnValue;
         }
     }
+
+        /**
+     * @return isTrustedUrl : Boolean value specifying if there is required trusted url available or not
+     * @Description methof to check if the required trusted url is available or not
+     */
+    @AuraEnabled
+    public static Boolean checkTrustedUrl(){
+        List<TemFieldInstance> templateField = new List<TemFieldInstance>();
+        try {
+            List<CspTrustedSite> sites= new List<CspTrustedSite>();
+            String domainURL = URL.getOrgDomainURL().toExternalForm();
+            sites = [SELECT Id, EndpointUrl FROM CspTrustedSite WHERE IsActive = true AND IsApplicableToImgSrc = true AND IsApplicableToConnectSrc = true AND IsApplicableToFontSrc = true AND IsApplicableToFrameSrc = true AND IsApplicableToMediaSrc = true AND IsApplicableToStyleSrc = true AND EndpointUrl IN ('*.my.salesforce.com', :domainURL) WITH SECURITY_ENFORCED];
+            return (sites.size()>0) ? true : false;
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'HomePageController', 'checkTrustedUrl');
+            return false;
+        }
+    }
+
     /**
      * @preturn List<TemFieldInstance> : List of tempalte type
      * @Description method to get picklist value of template type field.
@@ -183,6 +203,7 @@ public with sharing class HomePageController {
         @AuraEnabled public String returnMessage;
         @AuraEnabled public boolean isGoogleDocEnable;
         @AuraEnabled public list<TemFieldInstance> templateTypes;
+        @AuraEnabled public Boolean isTrustedUrl;
     }
 
     /**

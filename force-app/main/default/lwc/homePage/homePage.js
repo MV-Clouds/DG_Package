@@ -198,6 +198,8 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
+    isSetUpRedirect = false;
+
     // Fetch Template Records From Apex..
     fetchTemplateRecords(){
         try {
@@ -206,6 +208,11 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             .then(result => {
                 if(result.isSuccess === true){
                     this.templateTypeList = result.templateTypes;
+                    if(!result.isTrustedUrl){
+                        this.showMessagePopup('info', 'Complete Prerequisites', 'Please complete the prerequisites to have a great experience with DocGenius!', 'DG Setup');
+                        this.isSetUpRedirect = true;
+                    }
+                    
                     if(result.returnMessage !== 'No Template Found'){
                         var templateList = result.templateList;
                         // Add additional keys for logic implementation...
@@ -847,6 +854,12 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                     this.isDeleteTemplate = false;
                 }
             }
+            if(this.isSetUpRedirect){
+                if(typeof window !== undefined){
+                    window.location.replace('/lightning/n/DEV_UC#isSetup');
+                }
+            }
+            this.isSetUpRedirect = false;
         } catch (error) {
             errorDebugger('HomePage', 'handleConfirmation', error, 'warn');
         }
@@ -905,12 +918,13 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
         // ====== ======= ====== Generic Method to test Message Popup and Toast... ==== ==== ==== ==== ==== ==== ====
-        showMessagePopup(Status, Title, Message){
+        showMessagePopup(Status, Title, Message, DoneButtonLabel){
             const messageContainer = this.template.querySelector('c-message-popup')
             messageContainer?.showMessagePopup({
                 status: Status,
                 title: Title,
                 message : Message,
+                doneButtonLabel : DoneButtonLabel ? DoneButtonLabel : null
             });
         }
 
