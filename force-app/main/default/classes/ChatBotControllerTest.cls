@@ -87,15 +87,15 @@ public class ChatBotControllerTest {
     @isTest
     static void testSendEmailWithAttachment() {
         // Test sending email with attachment
-        ChatBotController.EmailDetails emailDetails = new ChatBotController.EmailDetails();
-        emailDetails.toAddress = 'test@example.com';
-        emailDetails.subject = 'Test Subject';
-        emailDetails.body = 'Test Body';
-        emailDetails.fileNames = new List<String>{'test.txt'};
-        emailDetails.fileContents = new List<String>{EncodingUtil.base64Encode(Blob.valueOf('Test Content'))};
 
         Test.startTest();
-        ChatBotController.sendEmailWithAttachment(emailDetails);
+        Map<String, Object> parameters = new Map<String, Object>();
+        parameters.put('toAddress', 'tirth.s@mvclouds.com');
+        parameters.put('subject', 'Test Subject');
+        parameters.put('body', 'This is a test email.');
+        parameters.put('replyTo', 'rachit.s@mvclouds.com');
+
+        ChatBotController.sendEmailWithAttachment(parameters);
         System.assertEquals(1, Limits.getEmailInvocations());
         Test.stopTest();
 
