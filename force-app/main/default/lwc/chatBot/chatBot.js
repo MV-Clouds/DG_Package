@@ -23,7 +23,7 @@ export default class ChatBot extends LightningElement {
     @track isEmail = false;
     @track toAddress = 'support-dg@mvclouds.com';
     @track replyAddress = '';
-    @track subject = 'Issue in Docgenius';
+    @track subject = 'User is facing issue in DocGenius';
     @track body = '';
     @track mailSent = false;
     @track hideCircle = false;
