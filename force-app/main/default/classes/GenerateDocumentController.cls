@@ -362,7 +362,7 @@ public with sharing class GenerateDocumentController {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
             if(templateId != null){
-                templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Status__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+                templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Status__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
             }
             if(templates.size() > 0){
                 ddw.templateId = templates[0].Id;
@@ -372,6 +372,7 @@ public with sharing class GenerateDocumentController {
                 ddw.buttonName = templates[0].MVDG__Button_Api_Name__c;
                 ddw.docType = templates[0].MVDG__Document_Type__c;
                 ddw.iStorage = templates[0].MVDG__Internal_Storage__c;
+                ddw.folderId = templates[0].MVDG__Selected_Document_Folder__c;
                 ddw.eStorage = templates[0].MVDG__External_Storage__c;
                 ddw.oChannel = templates[0].MVDG__Output_Channel__c;
                 ddw.emailAddresses = templates[0].MVDG__Email_Addresses__c;
@@ -406,6 +407,7 @@ public with sharing class GenerateDocumentController {
                 MVDG__Button_Api_Name__c  = defaultData.get('buttonName'),
                 MVDG__Document_Type__c  = defaultData.get('docType'),
                 MVDG__Internal_Storage__c  = defaultData.get('iStorage'),
+                MVDG__Selected_Document_Folder__c = defaultData.get('folderId'),
                 MVDG__External_Storage__c  = defaultData.get('eStorage'),
                 MVDG__Output_Channel__c  = defaultData.get('oChannel'),
                 MVDG__Email_Addresses__c  = defaultData.get('emailAddresses'),
@@ -486,6 +488,7 @@ public with sharing class GenerateDocumentController {
 @param           : buttonName {String} - Api Name of the Button for default creation
 @param           : docType {String} - Id of generated content version from API
 @param           : iStorage {String} - comma saperated internal storages
+@param           : folderId {String} - Id of the folder to save the document in
 @param           : eStorage {String} - comma saperated external storages
 @param           : oChannel {String} - comma saperated output channel
 @param           : emailAddresses {String} - Saperated String for  To, Cc and Bcc email addresses
@@ -503,6 +506,7 @@ public with sharing class GenerateDocumentController {
         @AuraEnabled public String buttonName;
         @AuraEnabled public String docType;
         @AuraEnabled public String iStorage;
+        @AuraEnabled public String folderId;
         @AuraEnabled public String eStorage;
         @AuraEnabled public String oChannel;
         @AuraEnabled public String emailAddresses;

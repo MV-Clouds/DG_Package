@@ -542,6 +542,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
                     this.template.querySelector('.email-create-div').style.display = this.showEmailSection ? 'unset' : 'none';
                     data?.iStorage?.split(', ')?.forEach((option) => {this.internalStorageOptions.find(item => item.name === option).isSelected = true});
+                    if(this.internalStorageOptions.find(item => item.name === 'Documents')?.isSelected){
+                        this.selectedFolder = data?.folderId;
+                        if(this.isCalledFromDefaults && !this.allFolders.find(item => item.value === this.selectedFolder)){
+                            this.showWarningPopup('info', 'Folder not found!', 'The folder you selected to save documents does not exist, please select the folder.');
+                            this.selectedFolder = null;
+                        }
+                        this.showFolderSelection = true;
+                    } 
                     data?.eStorage?.split(', ')?.forEach((option) => {
                         const storageOption = this.externalStorageOptions.find(item => item.name === option);
                         if (storageOption) storageOption.isSelected = !storageOption.isDisabled;
@@ -1652,6 +1660,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             this.labelOfLoader = 'Saving in Internal Storage...';
 
+            if(!this.allFolders.find(item => item.value === this.selectedFolder)){
+                this.failed['Documents'] ='The Selected folder (Id: ' + this.selectedFolder + ') to store documents does not exists.';
+                return;
+            }
+
             getSessionId()
                 .then(sessionId => {
                     if (!sessionId) {
@@ -2099,6 +2112,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 buttonName: this.buttonName ? this.buttonName : this.buttonLabel.trim().replace(/[^a-zA-Z0-9_]+/g, '_'),
                 docType : this.selectedExtension?.slice(1,).toUpperCase(),
                 iStorage : iStorages,
+                folderId: this.selectedFolder,
                 eStorage : eStorages,
                 oChannel : oChannels,
                 emailAddresses : allEmailsString,
