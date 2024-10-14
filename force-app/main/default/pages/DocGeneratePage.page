@@ -398,10 +398,10 @@
                         const pageWidth = pageFormats()[pageSize][0];
                         const pageHeight = pageFormats()[pageSize][1];
     
-                        const marginTop = toPx(parseInt(mArray[0]));
-                        const marginBottom = toPx(parseInt(mArray[1]));
-                        const marginLeft = toPx(parseInt(mArray[2]));
-                        const marginRight = toPx(parseInt(mArray[3]));
+                        const marginTop = toPx(parseFloat(mArray[0]));
+                        const marginBottom = toPx(parseFloat(mArray[1]));
+                        const marginLeft = toPx(parseFloat(mArray[2]));
+                        const marginRight = toPx(parseFloat(mArray[3]));
     
                         let bodyHtml = '{!JSENCODE(bodyHtml)}';
                         let headerHtml = '{!JSENCODE(headerHtml)}';
@@ -1382,7 +1382,7 @@
                                     }
                                 });
                             }
-    
+
                             // ************** ToolBar Methods -- START -- ***************
                             function setZoomLevel(event){
                                 const clickedButton = event.currentTarget.dataset.name
@@ -1414,9 +1414,10 @@
     
                             function onscroll(){
                                 let scrollHeight = content.scrollHeight;
-                                const singlePageHeight = content.scrollHeight / pdfPages;
+                                const addon = currentPage === 1 ? 8 : 4;
+                                const singlePageHeight = (content.scrollHeight / pdfPages) - addon;
     
-                                currentPage =  Math.floor((content.scrollTop / (singlePageHeight-8)) + 1);
+                                currentPage =  Math.floor((content.scrollTop / (singlePageHeight)) + 1);
     
                                 const pageToSetInut = document.querySelector('[data-name="pageToSet"]');
                                 pageToSetInut.value = currentPage;
@@ -1452,15 +1453,16 @@
                                 else{
                                     if(pageNoToSet != currentPage && pageNoToSet != ''){
                                         const singlePageHeight = content.scrollHeight / pdfPages;
-                                        content.scrollTop = singlePageHeight * (pageNoToSet - 1);
+                                        content.scrollTop = (singlePageHeight) * (pageNoToSet - 1);
                                         currentPage = pageNoToSet;
                                     }
+                                    pageToSet.value = currentPage;
                                 }
 
-                                const pageToSetInut = document.querySelector('[data-name="pageToSet"]');
-                                pageToSetInut.value = currentPage;
+                                // const pageToSetInut = document.querySelector('[data-name="pageToSet"]');
     
                                 setPageBtnStatus();
+
                             }
     
                             function setPageBtnStatus(){
@@ -1489,7 +1491,7 @@
                 } 
                 catch (error) {
                     console.error('error in docGenerate JS : ', error.stack);
-                    sendInfoToLWC('unknown', false, error)
+                    sendInfoToLWC('unknown', false, error);
                 }
 
         </script>

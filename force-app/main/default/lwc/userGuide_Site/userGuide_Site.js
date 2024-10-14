@@ -133,9 +133,8 @@ export default class UserGuide_Site extends LightningElement {
     // Switch Tabs
     handleTabSelection(event) {
         try {
-            event.preve
+            event.preventDefault();
             const targetedGuide = event.currentTarget.dataset.guide;
-            let contentToDisplay = '';
 
             let userGuides = [];
             this.userGuides?.forEach(item => {
@@ -153,7 +152,11 @@ export default class UserGuide_Site extends LightningElement {
                 }
             });
 
+            const scrollContent = this.template.querySelector('.white-background');
+            console.log('scrollContent : ', scrollContent?.scrollTop);
+            if(scrollContent) scrollContent.scrollTop = 0;
             this.addEventListenerToImages();
+
 
             // const guideContent = this.template.querySelector('.tab-content');
             // guideContent && (guideContent.innerHTML = this.contentToDisplay);
