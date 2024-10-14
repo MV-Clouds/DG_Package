@@ -1,4 +1,4 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, track, wire } from 'lwc';
 
 import homePageImgs from '@salesforce/resourceUrl/homePageImgs';
 import DocGeniusLogo from "@salesforce/resourceUrl/docGeniusLogoSvg";
@@ -25,8 +25,10 @@ import oneDriveAuthorization from "@salesforce/apex/OneDriveAuthorizationControl
 import authorizeNamed from "@salesforce/apex/AwsAuthorizationController.authorizeNamed";
 import dropboxAuthorization from "@salesforce/apex/DropBoxAuthorizationController.authorize";
 import checkAccess from '@salesforce/apex/GoogleDriveAuthorizationController.checkAccess';
-import { NavigationMixin } from 'lightning/navigation';
-
+import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
+// for trusted Url Verification
+import checkTrustedUrl from '@salesforce/apex/HomePageController.checkTrustedUrl';
+import {errorDebugger} from 'c/globalProperties';
 
 
 export default class IntegrationDashborad extends NavigationMixin(LightningElement) {
@@ -36,6 +38,11 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    dropable;
    popupimg;
    nointegration = noconnection;
+
+   @track restApiTrustedUrl;
+   @track isTrustedUrlVerified = false;
+   @track onInit = true;
+   @track isVerifying = false;
 
    @track loadedResources = 0;
    @track ispopup = false;
@@ -54,8 +61,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    @track bucket;
    @track nickname;
    @track redirectUri;
-   @track activeTab = 'text1';
-   isIntegration = true;
+   @track activeTab = 'isIntegration';
+   isIntegration = false;
    isLimitations = false;
    isUserguide = false;
    isFaq = false;
@@ -143,17 +150,64 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    }
 
 
+   @wire(CurrentPageReference)
+   currentPageReference;
   
    connectedCallback() {
+        if (this.currentPageReference.state && this.currentPageReference.state.fragment) {
+            this[this.currentPageReference.state.fragment] = true;
+            this.activeTab = this.currentPageReference.state.fragment;
+            this.isSpinner = false;
+            if (!['isSetup', 'isIntegration', 'isLimitations', 'isUserguide','isFaq'].includes(this.activeTab)) this.activeTab = 'isIntegration';
+        } else {
+            this.isIntegration = true;
+        }
        this.bgimg = homePageImgs + '/HomBg.png';
        this.logo = DocGeniusLogo;
        this.dropable = Dropablearea;
        this.popupimg = Popupimg;
+       this.getTrustedUrlStatus();
        this.checkauth();
        this.checkAccess();
+       if(typeof window !== 'undefined'){
+            this.restApiTrustedUrl = location?.origin?.replace('lightning.force.com', 'my.salesforce.com');
+       }else{
+        this.restApiTrustedUrl = '[instance].my.salesforce.com';
+       }
    }
 
+    getTrustedUrlStatus(event){
+        this.isVerifying = true;
+        try {
+            checkTrustedUrl()
+            .then((result) => {
+                this.isTrustedUrlVerified = result ? result : false;
+                this.isVerifying = false;
+                if(!this.isTrustedUrlVerified && event){
+                    this.showToast('error', 'Missed a Step?','Please follow all the steps correctly!');
+                }
+            })
+            .catch((e) => {
+                errorDebugger('IntegrationDashborad', 'getTrustedUrlStatus > checkTrustedUrl > failure', e, 'warn');
+                this.isVerifying = false;
+                
+            })
+        } catch (e) {
+            errorDebugger('IntegrationDashborad', 'getTrustedUrlStatus', e, 'warn');
+            this.isVerifying = false;
+        }
+    }
 
+    showToast(status, title, message){
+        this.isSpinner = false;
+        const messageContainer = this.template.querySelector('c-message-popup')
+        messageContainer.showMessageToast({
+            status: status,
+            title: title,
+            message : message,
+            duration : 5000
+        });
+    }
    checkAccess(){
     try {
         
@@ -226,12 +280,12 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                    const awsbucket = this.template.querySelector('.hide-bucket');
                    // console.log('inawsbucket'+awsbucket);
 
-                   awsbucket.style.display = 'none';
+                   if(awsbucket) awsbucket.style.display = 'none';
                }
                this.awsuserdata = false;
            }
 
-        if(!this.isAccess && this.activeTab == 'text1'){
+        if(!this.isAccess && this.activeTab == 'isIntegration'){
             if(this.isPartialAccess){
                 const unlink = this.template.querySelectorAll('.partial-btn');
                 unlink?.forEach(ele => {
@@ -250,6 +304,12 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                     ele.removeAttribute('draggable');
                 })
             }
+        }
+        let activeEl = this.template.querySelector(`[data-name="${this.activeTab}"]`);
+        if (activeEl && this.onInit) {
+            activeEl.classList.add('enable');
+            this.onInit = false;
+
         }
    }
 
@@ -272,7 +332,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    loaded(){
        this.loadedResources++;
        // console.log(this.loadedResources);
-       if(this.loadedResources >= 8){
+       if(this.loadedResources >= 8 || this.activeTab!='isIntegration'){
            this.isSpinner = false;
        }
    }
@@ -296,7 +356,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                 this.isActiveAwsAuth = false;
                 this.obj.awsKey = true;
                 const awsintegrationhover = this.template.querySelector('.ac');
-                awsintegrationhover.style.pointerEvents = "auto";
+                if(awsintegrationhover) awsintegrationhover.style.pointerEvents = "auto";
             }
            }
            this.loaded();
@@ -489,6 +549,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
    handleSetActive(event){
        const tabName = event.currentTarget.dataset.name;
+       if(this.activeTab == 'isSetup') this.getTrustedUrlStatus();
        if(this.activeTab != tabName){
            this.isSpinner = true;
            this.loadedResources = 0;
@@ -500,7 +561,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            this.isFaq = false;
            const cursor = this.template.querySelectorAll('.cursor');
            cursor?.forEach(ele => {
-                if(ele.dataset.name == tabName && tabName == 'text0' && this.isPartialAccess == true){
+                if(ele.dataset.name == tabName && tabName == 'isSetup' && this.isPartialAccess == true){
                     this.isSpinner = false;
                     const messageContainer = this.template.querySelector('c-message-popup')
                        messageContainer.showMessageToast({
@@ -511,25 +572,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                 }
                else if(ele.dataset.name == tabName){
                    ele.classList.add('enable');
-                   if(tabName == 'text0'){
-                       this.isSetup = true;
-                       this.isSpinner = false;
-                   }
-                   else if(tabName == "text1"){
-                       this.isIntegration  = true;
-                       this.connectedCallback();
-                   }
-                   else if(tabName == "text2"){
-                       this.isLimitations = true;
-                       this.isSpinner = false;
-                   }
-                   else if(tabName == "text3"){
-                       this.isUserguide = true;
-                       this.isSpinner = false;
-                   }
-                   else if(tabName == "text4"){
-                       this.isFaq = true;
-                   }
+                   this[tabName] = true;
+                   this.isSpinner = false;
                }
                else{
                    ele.classList.remove('enable');

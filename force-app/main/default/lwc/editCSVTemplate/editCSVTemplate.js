@@ -2032,10 +2032,14 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
             }else if(this.resetSection === "orders"){
                 this.sorts = JSON.parse(JSON.stringify(this.existingSorts));
                 this.sortsCount = this.sorts.length;
+                this.sorts.forEach((sort, i) => {
+                    this.handleSortFieldChange({detail:[sort.field],target:{dataset:{index:i}}});
+                })
                 this.initialSorts = true;
             }else if(this.resetSection === "limit"){
                 this.limit = this.existingLimit;
                 this.showLimitInput = this.existingShowLimitInput;
+                this.handleLimitInputBlur();
             }
             this.resetSection = '';
             this.isEditTabChanged = true;
