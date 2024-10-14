@@ -94,7 +94,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
     get isFilterApplied(){
-        return (Object.keys(this.filterOpts)?.length > 1 || (Object.keys(this.filterOpts)?.length === 1 && this.filterOpts.fieldToSort !== 'LastModifiedDate')) && JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
+        return (Object.keys(this.filterOpts)?.length > 1 || (Object.keys(this.filterOpts)?.length === 1 && this.filterOpts.fieldToSort !== this.defaultFieldToSort)) && JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
     }
 
     get disabledFilterApplyBtn(){
@@ -106,7 +106,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
     get sortByField(){
-        return Object.prototype.hasOwnProperty.call(this.filterOpts, 'fieldToSort') ? this.filterOpts.fieldToSort : this.defaultFieldToSort;
+        return Object.prototype.hasOwnProperty.call(this.filterOpts, 'fieldToSort') ? this.filterOpts.fieldToSort : null;
     }
 
     get clearRangeDates(){
@@ -229,7 +229,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                         this.filteredTemplateList = this.setSerialNumber(this.filteredTemplateList);
                         // Load only first 50 template in HTML on initial render...
                         this.maxTempToDisplay = this.filteredTemplateList.length;
-                        this.displayedTemplateList = this.filteredTemplateList.slice(0, 50);
+                        this.displayedTemplateList = this.filteredTemplateList;
                         this.dataLoaded = true;
                         this.isSpinner = false;
                     }
@@ -496,7 +496,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
                 // Load only first 50 template in HTML on after apply filters...
                 this.maxTempToDisplay = this.filteredTemplateList.length;
-                this.displayedTemplateList = this.filteredTemplateList.slice(0, 50);
+                this.displayedTemplateList = this.filteredTemplateList;
 
                 this.previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts));
                 this.toggleFilterOptions();
@@ -699,7 +699,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
             // Load only first 50 template in HTML after searching...
             this.maxTempToDisplay = filteredTemplateList.length;
-            this.displayedTemplateList = filteredTemplateList.slice(0, 50);
+            this.displayedTemplateList = filteredTemplateList;
 
             this.displayedTemplateList = this.setSerialNumber(this.displayedTemplateList);
             
