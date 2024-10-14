@@ -261,11 +261,11 @@ export default class ButtonGenerator extends LightningElement {
                         .then(response => response.json())
                         .then(result => {
                             if(i == requestBodyExpanded.length - 1){
-                                this.operationCounter--;
-                                this.fetchAlreadyCreatedObjects();
                                 if(failedButtonsNumber > 0){
                                     this.showToast('error','Something went Wrong!','There was error creating '+ failedButtonsNumber + (failedButtonsNumber==1?' button,' : ' buttons,') + 'please try again...', 5000);
                                 }
+                                this.operationCounter--;
+                                this.fetchAlreadyCreatedObjects();
                             }
                             if(!result?.success){
                                 failedButtonsNumber++;
@@ -289,10 +289,14 @@ export default class ButtonGenerator extends LightningElement {
                 this.showSpinner = false;
                 this.showToast('error','Something went Wrong!','Buttons couldn\'t be created please try again.', 5000);
                 errorDebugger('buttonGenerator', 'handleCreateQuickAction > getSessionId', e, 'warn');
+                this.operationCounter--;
+                this.fetchAlreadyCreatedObjects();
             })
         } catch (e) {
             this.showSpinner = false;
             errorDebugger('buttonGenerator', 'handleCreateQuickAction', e, 'warn');
+            this.operationCounter--;
+            this.fetchAlreadyCreatedObjects();
         }
     }
 
