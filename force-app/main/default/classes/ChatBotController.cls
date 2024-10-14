@@ -280,48 +280,64 @@ public with sharing class ChatBotController {
     }
 
     @AuraEnabled
-    public static void sendEmailWithAttachment(EmailDetails parameters) {
-        try {
-
-            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-            List<String> elist = new List<String>();
-            elist.add('support-dg@mvclouds.com');
-            mail.setToAddresses(elist);
-            mail.setSubject(parameters.subject);
-            mail.setPlainTextBody(parameters.body);
-    
-            if (parameters.replyTo != null && parameters.replyTo != '') {
-                mail.setReplyTo(parameters.replyTo);
-            }
-            
-            // Prepare attachments
-            if (parameters.fileNames != null && parameters.fileContents != null && parameters.fileNames.size() != 0) {
-                List<Messaging.EmailFileAttachment> attachments = new List<Messaging.EmailFileAttachment>();
-                for (Integer i = 0; i < parameters.fileNames.size(); i++) {
-                    Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
-                    attachment.setFileName(parameters.fileNames[i]);
-                    attachment.setBody(EncodingUtil.base64Decode(parameters.fileContents[i]));
-                    attachments.add(attachment);
+public static void sendEmailWithAttachment(Map<String, Object> parameters) {
+    try {
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        List<String> toAddresses = new List<String>();
+        if (parameters.containsKey('toAddress') && parameters.get('toAddress') != null) {
+            System.debug(parameters.get('toAddress'));
+            toAddresses.add((String) parameters.get('toAddress'));
+        } else {
+            toAddresses.add('support-dg@mvclouds.com');
+        }
+        mail.setToAddresses(toAddresses);
+        System.debug(parameters.get('subject'));
+        System.debug(parameters.get('body'));
+        mail.setSubject((String) parameters.get('subject'));
+        mail.setPlainTextBody((String) parameters.get('body'));
+        if (parameters.containsKey('replyTo') && parameters.get('replyTo') != null && parameters.get('replyTo') != '') {
+            System.debug(parameters.get('replyTo'));
+            mail.setReplyTo((String) parameters.get('replyTo')); // Cast to String
+        }
+        // Handle attachments
+        List<Object> fileNamesObj = (List<Object>) parameters.get('fileNames');
+        List<Object> fileContentsObj = (List<Object>) parameters.get('fileContents');
+        if (fileNamesObj != null && fileContentsObj != null && !fileNamesObj.isEmpty() && !fileContentsObj.isEmpty()) {
+            List<String> fileNames = new List<String>();
+            List<String> fileContents = new List<String>();
+            // Cast each element safely to String
+            for (Object fileName : fileNamesObj) {
+                if (fileName instanceof String) {
+                    fileNames.add((String) fileName);
                 }
-                System.debug('Found attachment here');
-                mail.setFileAttachments(attachments);
             }
-            System.debug('mail body'+mail);
-            Messaging.SendEmailResult[] result = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-            System.debug(result);
-
-        } catch (Exception e) {
-            if(e.getMessage().contains('INVALID_EMAIL_ADDRESS')){
-                System.debug('Sending email with attachment --> '+e);
-                throw new AuraHandledException('exception'+e);
+            for (Object fileContent : fileContentsObj) {
+                if (fileContent instanceof String) {
+                    fileContents.add((String) fileContent);
+                }
             }
-            else{
-                Log_Handler.store_Exception(e, 'ChatBotController', 'sendEmailWithAttachment');
-                throw new AuraHandledException('exception'+e);
+            List<Messaging.EmailFileAttachment> attachments = new List<Messaging.EmailFileAttachment>();
+            for (Integer i = 0; i < fileNames.size(); i++) {
+                Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+                attachment.setFileName(fileNames[i]);
+                attachment.setBody(EncodingUtil.base64Decode(fileContents[i]));
+                attachments.add(attachment);
             }
-
+            mail.setFileAttachments(attachments);
+        }
+        // Send the email
+        Messaging.SendEmailResult[] result = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+        System.debug(result);
+    } catch (Exception e) {
+        if (e.getMessage().contains('INVALID_EMAIL_ADDRESS')) {
+            System.debug('Sending email with attachment error --> ' + e);
+            throw new AuraHandledException('Invalid email address: ' + e.getMessage());
+        } else {
+            Log_Handler.store_Exception(e, 'ChatBotController', 'sendEmailWithAttachment');
+            throw new AuraHandledException('An error occurred: ' + e.getMessage());
         }
     }
+}
 
     
     
@@ -368,7 +384,7 @@ public with sharing class ChatBotController {
             emailBody += '">';
             if ((Boolean) message.get('isQuestion') == true || (Boolean) message.get('isSolution') == true) {
                 // Chatbot message styling
-                emailBody += '<b>Bot Genius</b> <br/>';
+                emailBody += '<b>BotGenius</b> <br/>';
             }
             else{
                 emailBody += '<b>'+fname+'</b><br/>';
