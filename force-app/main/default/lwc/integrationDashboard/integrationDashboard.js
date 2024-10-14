@@ -28,6 +28,7 @@ import checkAccess from '@salesforce/apex/GoogleDriveAuthorizationController.che
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 // for trusted Url Verification
 import checkTrustedUrl from '@salesforce/apex/HomePageController.checkTrustedUrl';
+import {errorDebugger} from 'c/globalProperties';
 
 
 export default class IntegrationDashborad extends NavigationMixin(LightningElement) {
@@ -168,7 +169,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        this.getTrustedUrlStatus();
        this.checkauth();
        this.checkAccess();
-       if(typeof window !== undefined){
+       if(typeof window !== 'undefined'){
             this.restApiTrustedUrl = location?.origin?.replace('lightning.force.com', 'my.salesforce.com');
        }else{
         this.restApiTrustedUrl = '[instance].my.salesforce.com';

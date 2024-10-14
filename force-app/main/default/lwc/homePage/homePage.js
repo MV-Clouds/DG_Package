@@ -855,7 +855,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 }
             }
             if(this.isSetUpRedirect){
-                if(typeof window !== undefined){
+                if(typeof window !== 'undefined'){
                     window.location.replace('/lightning/n/MVDG__User_Configuration#isSetup');
                 }
             }
