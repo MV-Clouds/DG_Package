@@ -1155,7 +1155,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         let csvContent = '';
                         if (this.isAdditionalInfo) {
                             const thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                            thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || 'No Description Available for this template';
+                            thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || '-';
                             csvContent += 'Name : ,"' + thisTemplate.MVDG__Template_Name__c + '"\n'
                                 + 'Description : ,"' + thisTemplate.MVDG__Description__c + '"\n'
                                 + 'Object Api Name : ,' + thisTemplate.MVDG__Object_API_Name__c + '\n'
@@ -1200,7 +1200,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         if (this.isAdditionalInfo) {
                             const thisTemplate = this.allTemplates.find(opt => opt.Id === this.selectedTemplate);
-                            thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || 'No Description Available for this template';
+                            thisTemplate.MVDG__Description__c = thisTemplate.MVDG__Description__c || '-';
                             xlsContent += '<tr> <th> Name : </th><td> ' + thisTemplate.MVDG__Template_Name__c + '</td></tr>'
                                 + '<tr> <th> Description : </th><td> ' + thisTemplate.MVDG__Description__c + '</td></tr>'
                                 + '<tr> <th> Object Api Name : </th><td> ' + thisTemplate.MVDG__Object_API_Name__c + '</td></tr>'
