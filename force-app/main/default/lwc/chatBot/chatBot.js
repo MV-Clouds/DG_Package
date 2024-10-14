@@ -509,7 +509,7 @@ export default class ChatBot extends LightningElement {
             fileNames: fileNames,
             fileContents: fileContents
         }})
-        .then((result) => {
+        .then(() => {
             // handle success, show a success message or toast
             // console.log('Email sent successfully');            
             this.mailSent = true;
