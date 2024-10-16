@@ -44,12 +44,20 @@ export default class CustomCombobox extends LightningElement {
     // ***************************************************************************** //
 
     /**
-     * labe : defined the label for combobox, 
+     * label : defined the label for combobox, 
      * if label is null manse combo-box is label-hidden
      */
     _label;
     @api get label(){ return this._label }
     set label(value){ this._label = value }
+
+    /**
+     * No Options Label : defined the label for combobox, 
+     * if label is null manse combo-box is label-hidden
+     */
+    _noOptLabel;
+    @api get noOptLabel(){ return this._noOptLabel }
+    set noOptLabel(value){ this._noOptLabel = value }
 
     /**
      * API to defined weather comboBox is multi-select or not.
@@ -207,7 +215,7 @@ export default class CustomCombobox extends LightningElement {
             return 'couldn\'t find any matches';
         }
         else{
-            return 'options are not available';
+            return this.noOptLabel? this.noOptLabel : 'options are not available';
         }
     }
 

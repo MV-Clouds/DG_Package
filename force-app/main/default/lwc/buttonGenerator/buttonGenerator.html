@@ -18,13 +18,14 @@
                     <c-custom-combobox
                         data-type="listView"
                         class="object-select-combobox list-view-generator"
-                        label="Select objects"
+                        label="Select Objects"
                         options={objOptionsForLVButton}
                         onselect={handleObjectSelection}
                         multiselect="true"
                         searchable="true"
                         placeholder="Select objects to create buttons on it..."
                         dropdown-position="right"
+                        no-opt-label="No objects remain to create list view buttons"
                     ></c-custom-combobox>
                 </div>
                 <div class="btn-div">
@@ -59,13 +60,14 @@
                     <c-custom-combobox
                         data-type="quickAction"
                         class="object-select-combobox quick-action-generator"
-                        label="Select objects"
+                        label="Select Objects"
                         options={objOptionsForQAButton}
                         onselect={handleObjectSelection}
                         multiselect="true"
                         searchable="true"
                         placeholder="Select objects to create buttons on it..."
                         dropdown-position="right"
+                        no-opt-label="No objects remain to create quick action buttons"
                     ></c-custom-combobox>
                 </div>
                 <div class="btn-div">
@@ -100,13 +102,14 @@
                     <c-custom-combobox
                         data-type="basicPrint"
                         class="object-select-combobox basic-print-generator"
-                        label="Select objects"
+                        label="Select Objects"
                         options={objOptionsForBPButton}
                         onselect={handleObjectSelection}
                         multiselect="true"
                         searchable="true"
                         placeholder="Select objects to create buttons on it..."
                         dropdown-position="right"
+                        no-opt-label="No objects remain to create basic print buttons"
                     ></c-custom-combobox>
                 </div>
                 <div class="btn-div">
