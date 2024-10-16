@@ -13,8 +13,8 @@
                         <div class="text0 cursor" onclick={handleSetActive} data-name="isSetup" id="setup" draggable="false">DG Setup</div>
                         <div class="text1 cursor" onclick={handleSetActive} data-name="isIntegration" id="integration" draggable="false">Integration</div>
                         <div class="text2 cursor" onclick={handleSetActive} data-name="isLimitations" id="limitations" draggable="false">Limitations</div>
-                        <div class="text3 cursor" onclick={handleSetActive} data-name="isUserguide" id="userguide" draggable="false">User Guide</div>
-                        <div class="text4 cursor" onclick={handleSetActive} data-name="isFaq" id="faqs" draggable="false">FAQs</div>
+                        <div class="text3 cursor" onclick={handleSetActive} data-name="isUserguide" id="userguide" draggable="false">User Guide / FAQs</div>
+                        <!-- <div class="text4 cursor" onclick={handleSetActive} data-name="isFaq" id="faqs" draggable="false">FAQs</div> -->
                     </div>
                     <div class="company-info">
                         <p>
@@ -312,10 +312,22 @@ Integration</h3>
                 </template>
                 <template if:true={isUserguide}>
                     <div class="heading">
-                        <h3 draggable="false">User Guide</h3>
+                        <h3 draggable="false">User Guide / FAQs</h3>
                     </div>   
-                    <div class="main-limit-div">
+                    <!-- <div class="main-limit-div">
                         <iframe src="https://mvclouds.com/docgenius/user-guide/" frameborder="0" height="100%" width="100%" onload={handleIframeLoad}></iframe>
+                    </div> -->
+                    <div class="nav-container">
+                        <div class="p-1">
+                            <div class="text-grow" id="button">
+                                <a href="https://mvclouds.com/docgenius/user-guide/" class="buttonCSS buttonCSS-blue buttonCSS-bg-userguide"><p>User Guide</p></a>
+                            </div>
+                        </div>
+                        <div class="p-1">
+                            <div class="text-grow" id="button1">
+                                <a href="https://mvclouds.com/docgenius/faqs/" class="buttonCSS buttonCSS-blue buttonCSS-bg-faqs"><p>FAQs</p></a>
+                            </div>
+                        </div>
                     </div>
                 </template>
                 <template if:true={isFaq}>
