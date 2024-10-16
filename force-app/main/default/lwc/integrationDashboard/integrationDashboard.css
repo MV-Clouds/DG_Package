@@ -1,12 +1,15 @@
 /* ----------------------------------------------------------- For the DG Setup Tab (START) ------------------------------------------------------------ */
+:host{
+    --height-for-create-button-div : 100%;
+    --visibility-for-create-button-div : visible;
+}
 
 .main-setup-div {
     width: 100%;
     position: relative;
     height: calc(100% - 4.5rem);
     overflow-y: scroll;
-    scrollbar-width: thin;
-    scrollbar-color: #00aeff transparent;
+    scrollbar-width: none;
 }
 
 .prerequisites-div {
@@ -15,10 +18,15 @@
 
 .checklist-div {
     display: flex;
+    border: 1px solid #00aeff;
+    border-radius: 0.5rem;
+    position: relative;
+    padding: 1rem 1rem;
+    margin-block: 1rem;
 }
 
 .checklist-header{
-    background: #d5ebff;
+    background: white;
     margin-block: 0.5rem;
     border-radius: 0.3rem;
     padding: 0.2rem 0.5rem;
@@ -29,10 +37,36 @@
     height: 32px;
     display: flex;
     align-items: center;
+    position: absolute;
+    top: -24px;
+}
+
+.trusted-url-copy-div{
+    border: 1px dotted green;
+    border-radius: 0.2rem;
+    padding-inline: 0.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none !important;
+    cursor: pointer;
+}
+
+.trusted-url-copy-div:hover {
+    background: #90ee9045;
+}
+
+.trusted-url-copy-div:active{
+    color: green;
+}
+
+.trusted-url-copy-div:active .copy-trusted-url-svg {
+    stroke : green !important;
+    stroke-width: 2;
 }
 
 .prerequisites-info-div {
-    padding: 0.5rem 1rem;
+    padding: 0rem 1rem;
     border: 1px dashed #00aeff;
     border-radius: 0.5rem;
     background-color: white;
@@ -49,7 +83,9 @@
 }
 
 .check-div {
-    margin-top: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .verify-btn{
@@ -76,7 +112,9 @@
 
 .create-buttons-div {
     padding: 1rem 0;
-    height: 100%;
+    height: var(--height-for-create-button-div, 0%);
+    visibility: var(--visibility-for-create-button-div, collapse);
+    transition: 1s all ease-in-out;
 }
 
 .button-creation {
@@ -134,7 +172,51 @@
       stroke-dashoffset: -124;
     }
   }
-  
+
+.checkmark__circle{
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 5px;
+    stroke-miterlimit: 10;
+    stroke: green;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards
+}
+.checkmark{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 2;
+    stroke: #fff;
+    stroke-miterlimit: 10;
+    margin: 10% auto;
+    box-shadow: inset 0px 0px 0px green;
+    animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both
+}
+.checkmark__check{
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke-width: 4px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards
+}
+@keyframes stroke{
+    100%{stroke-dashoffset: 0}
+}
+@keyframes scale{
+    0%, 100%{
+        transform: none
+    }
+    50%{
+        transform: scale3d(1.1, 1.1, 1)
+    }
+}
+@keyframes fill{
+    100%{box-shadow: inset 0px 0px 0px 30px green}
+}  
 
 /* ------------------------------------------------------------ For the DG Setup Tab (END) ------------------------------------------------------------ */
 /* ------------------------------------------------------------ For the Userguide Tab (START) ------------------------------------------------------------ */

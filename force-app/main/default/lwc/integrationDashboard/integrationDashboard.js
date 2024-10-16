@@ -157,7 +157,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
         if (this.currentPageReference.state && this.currentPageReference.state.fragment) {
             this[this.currentPageReference.state.fragment] = true;
             this.activeTab = this.currentPageReference.state.fragment;
-            this.isSpinner = false;
+            // this.isSpinner = false;
             if (!['isSetup', 'isIntegration', 'isLimitations', 'isUserguide','isFaq'].includes(this.activeTab)) this.activeTab = 'isIntegration';
         } else {
             this.isIntegration = true;
@@ -182,6 +182,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             checkTrustedUrl()
             .then((result) => {
                 this.isTrustedUrlVerified = result ? result : false;
+                this.template.host.style.setProperty('--height-for-create-button-div', this.isTrustedUrlVerified ? '100%' : '0%');
+                this.template.host.style.setProperty('--visibility-for-create-button-div', this.isTrustedUrlVerified ? 'Visible' : 'Collapse');
                 this.isVerifying = false;
                 if(!this.isTrustedUrlVerified && event){
                     this.showToast('error', 'Missed a Step?','Please follow all the steps correctly!');
@@ -207,6 +209,14 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             message : message,
             duration : 5000
         });
+    }
+
+    handleCopyTrustedUrl(){
+        try {
+            navigator.clipboard.writeText(this.restApiTrustedUrl);
+        } catch (e) {
+            console.log('Error in function handleCopyTrustedUrl:::', e.message);
+        }
     }
    checkAccess(){
     try {
@@ -235,6 +245,19 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                 this.obj.awsKey = false;
                 this.obj.dropboxKey = false;
              }
+             if (this.activeTab == 'isSetup' && !this.isAccess) {
+                const messageContainer = this.template.querySelector('c-message-popup')
+                messageContainer.showMessageToast({
+                    status: 'error',
+                    title: 'error',
+                    message : 'Error you don\'t have access to DG Setup',
+                });
+                let activeEl = this.template.querySelector(`[data-name="isIntegration"]`);
+                if (activeEl) {
+                    activeEl.classList.add('enable');
+                }
+                this.handleSetActive({currentTarget: {dataset: {name: 'isIntegration'}}})
+            }
  
         });
     } catch (error) {
@@ -549,7 +572,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
    handleSetActive(event){
        const tabName = event.currentTarget.dataset.name;
-       if(this.activeTab == 'isSetup') this.getTrustedUrlStatus();
+       if(this.activeTab == 'isSetup' && this.isAccess) this.getTrustedUrlStatus();
        if(this.activeTab != tabName){
            this.isSpinner = true;
            this.loadedResources = 0;
@@ -561,7 +584,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            this.isFaq = false;
            const cursor = this.template.querySelectorAll('.cursor');
            cursor?.forEach(ele => {
-                if(ele.dataset.name == tabName && tabName == 'isSetup' && this.isPartialAccess == true){
+                if(ele.dataset.name == tabName && tabName == 'isSetup' && !this.isAccess){
                     this.isSpinner = false;
                     const messageContainer = this.template.querySelector('c-message-popup')
                        messageContainer.showMessageToast({
