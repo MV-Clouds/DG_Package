@@ -227,6 +227,79 @@ c-user-guide {
     display: flex;
     padding-top: 1rem;
 }
+
+.buttonCSS {
+    border-radius: 5px;
+    padding: 10rem 0;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: #fff;
+    position: relative;
+    display: inline-block;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;   
+}
+.buttonCSS:active {
+    transform: translate(0px, 5px);
+    -webkit-transform: translate(0px, 5px);
+    box-shadow: 0px 1px 0px 0px;
+}
+.buttonCSS-blue {
+    /* box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.15); */
+    text-decoration: none;
+    border: 1px solid #00AEFF;
+    backdrop-filter: blur(4px);
+}
+.buttonCSS-blue p {
+    visibility: hidden;
+    text-shadow: 1px 2px 2px rgba(0,0,0,0.1);
+    font-size: 1.75rem;
+    text-decoration: none;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    color: #f8f8ff;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+/* .text-grow:hover p{
+    visibility: visible;
+} */
+.buttonCSS-blue:hover {
+    box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.6);
+    text-shadow: 0 1px 1px rgba(33, 33, 33, 0.2), 0 3px 10px rgba(33, 33, 33, 0.2), 0 3px 20px rgba(33, 33, 33, 0.4);
+    color: #f8f8ff;
+}
+
+.buttonCSS-blue:hover p {
+    visibility: visible !important;
+}
+.buttonCSS-bg-userguide {
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url('https://mvclouds.com/wp-content/uploads/2024/10/user-guide.png');
+}
+.buttonCSS-bg-faqs {
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url('https://mvclouds.com/wp-content/uploads/2024/09/FAQimage.jpg');
+}
+.nav-container {
+    display: flex;
+    /* margin-bottom: 1rem; */
+    margin-top: 4rem;
+}
+.p-1 {
+    width: -webkit-fill-available;
+    padding: 0 4rem;
+}
+
 /* ------------------------------------------------------------ For the Userguide Tab (END) ------------------------------------------------------------ */
 
 /* ------------------------------------------------------------ For the Faq & Limitation Tab (START) ------------------------------------------------------------ */
