@@ -28,7 +28,7 @@ export default class PreviewGoogleDocument extends LightningElement {
     renderedCallback() {
         try {
             loadScript(this, pdfLibs + "/pdfJS/web/pdf.js").then(() => {
-                console.log("pdfjsDistBuildPdf");
+                
             });
 
             if (this.initalLoad) {
@@ -55,7 +55,7 @@ export default class PreviewGoogleDocument extends LightningElement {
             this.pdf_content.replaceChildren();
 
             let generator = this.template.querySelector("c-generate-google-doc-file");
-            console.log("generator==>", generator);
+            
             if (generator) {
                 this.spinnerLabel = "Fetching records... Please wait";
                 this.isSpinner = true;
@@ -105,7 +105,7 @@ export default class PreviewGoogleDocument extends LightningElement {
 
     handleError(event) {
         try {
-            console.log('this.handleError');
+            
             
             this.isSpinner = false;
             let messagePopup = this.template.querySelector("c-message-popup");
@@ -115,7 +115,7 @@ export default class PreviewGoogleDocument extends LightningElement {
                 message: event.detail.desc
             });
 
-            console.log("messagePopup==>", messagePopup);
+            
         } catch (error) {
             errorDebugger("PreviewGoogleDocument", "handleError", error, 'error', 'Error in handleError. Please try again later');
         }
@@ -123,7 +123,7 @@ export default class PreviewGoogleDocument extends LightningElement {
 
     handleFileProcess(event) {
         try {
-            console.log('this.handleFileProcess');
+            
             let file = event.detail.blob;
             this.blobFile = atob(file);
 
@@ -141,7 +141,7 @@ export default class PreviewGoogleDocument extends LightningElement {
     displayPDF(pdfBlob) {
         var loadingTask = window.pdfjsDistBuildPdf.getDocument({ data: pdfBlob });
         try {
-            console.log('displayPDF');
+            
             loadingTask.promise.then((pdf) => {
                 const totalPagesInput = this.template.querySelector('[data-name="totalPages"]');
                 if (totalPagesInput) {
@@ -182,7 +182,7 @@ export default class PreviewGoogleDocument extends LightningElement {
                         };
 
                         let renderTask = page.render(renderContext);
-                        console.log("renderTask==>", renderTask);
+                        
                     });
                 }
                 this.isSpinner = false;
@@ -196,7 +196,7 @@ export default class PreviewGoogleDocument extends LightningElement {
     setZoomLevel(event) {
         var zoomOffset = 10;
         try {
-            console.log('setZoomLevel');
+            
             const clickedButton = event.currentTarget.dataset.name;
             
             if (this.zoomLevel <= 25) {
@@ -257,7 +257,7 @@ export default class PreviewGoogleDocument extends LightningElement {
     }
 
     onPageChange(event) {
-        console.log('this.onPageChange');
+        
         
         var pageNoToSet = this.currentPage;
         try {
@@ -307,7 +307,7 @@ export default class PreviewGoogleDocument extends LightningElement {
     }
 
     scrollToTop() {
-        console.log('this.scrollToTop');
+        
         
         this.content.scrollTop = 0;
         this.onscroll();

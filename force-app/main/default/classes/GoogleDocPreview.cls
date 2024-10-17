@@ -43,7 +43,7 @@ public with sharing class GoogleDocPreview {
             }
 
         } catch (Exception e) {
-            System.debug('Error In doPreview ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocPreview', 'doPreview');
         } finally {
             //delete cloned google doc
@@ -80,7 +80,7 @@ public with sharing class GoogleDocPreview {
             // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
-            System.debug('Response of refreshAccessToken: ' + response.getBody());
+            
             if (response.getStatusCode() == 200) {
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 String newToken = (String) jsonResponse.get('access_token');
@@ -93,7 +93,7 @@ public with sharing class GoogleDocPreview {
             // return 'error:Access Token Error:Error in getting access token:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
 
         } catch (Exception e) {
-            System.debug('Error In refreshAccessToken ==> ' + e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_Exception(e, 'GoogleDocPreview', 'refreshAccessToken');
             // return 'error:Access Token Error:Error in getting access token:' + e.getMessage();
         }
@@ -153,7 +153,7 @@ public with sharing class GoogleDocPreview {
             return 'error:Get Document Error:Error in getting document:' + String.valueOf(response.getStatusCode()) + ' - ' + response.getStatus();
             
         } catch (Exception e) {
-            System.debug('Error In getDocument ==> ' + e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_Exception(e, 'GoogleDocPreview', 'getDocument');
             return 'error:Get Document Error:Error in getting document:' + e.getMessage();
         }
@@ -207,7 +207,7 @@ public with sharing class GoogleDocPreview {
             request.setTimeout(120000);
             Http http = new Http();
             HttpResponse response = http.send(request);
-            System.debug('Response of copyGoogleDoc==>' + response);
+            
             if (response.getStatusCode() == 200) {
 
                 Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
@@ -236,7 +236,7 @@ public with sharing class GoogleDocPreview {
             responseWrapper.error = 'error:Copy Google Doc:Error in processing the document:' + e.getMessage();
             Log_Handler.store_Exception(e, 'GoogleDocPreview', 'copyGoogleDoc');
             
-            System.debug('Error In copyGoogleDoc ==> ' + e.getMessage() + e.getLineNumber());
+            
         }
         return responseWrapper;
     }
@@ -270,7 +270,7 @@ public with sharing class GoogleDocPreview {
             
             Http http = new Http();
             HttpResponse response = http.send(request);
-            System.debug('Response of UpdateGoogleDoc==>' + response.getBody());
+            
 
             if (response.getStatusCode() == 401) {
                 String refreshToken = refreshAccessToken();
@@ -286,7 +286,7 @@ public with sharing class GoogleDocPreview {
                 responseList.put('updateGoogleDoc', response);
             }
         } catch (Exception e) {
-            System.debug('Error In updateDoc ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e,'GoogleDocPreview','updateGoogleDoc');
         }
     }
@@ -342,7 +342,7 @@ public with sharing class GoogleDocPreview {
             return null;
             // return Blob.valueOf('error: Get PDF error: Unable to fetch the PDF from Google Drive: ' + String.valueOf(response.getStatusCode()));
         } catch (Exception e) {
-            System.debug('Error In updateDoc ==> ' + e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'getPDF');
             return null;
             // return Blob.valueOf('errorL Get PDF error: Unable to fetch the PDF from Google Drive: ' + e.getMessage());
@@ -372,7 +372,7 @@ public with sharing class GoogleDocPreview {
             request.setTimeout(120000);
             Http http = new Http();
             HttpResponse response = http.send(request);
-            System.debug('ResponseBody of delete google doc=>' + response.getBody());
+            
             if (response.getStatusCode() == 204) {
                 //document deleted
                 return true;
@@ -387,7 +387,7 @@ public with sharing class GoogleDocPreview {
             responseList.put('deleteGoogleDoc', response);
             return false;
         } catch (Exception e) {
-            System.debug('Error In deleteGoogleDoc ==> ' + e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'deleteGoogleDoc');
             return false;
         }
@@ -411,7 +411,7 @@ public with sharing class GoogleDocPreview {
     @AuraEnabled
     public static List<Object> mapFieldValues(String queryObject, String objectApiName, String recordId) {
         List<Object> returnList = new List<Object>();
-        System.debug('templateData==>' + templateData);
+        
         try {
             List<OriginalObjectWrapper> jsObject = new List<OriginalObjectWrapper>();
             jsObject = (List<OriginalObjectWrapper>) JSON.deserialize(queryObject, List<OriginalObjectWrapper>.class);
@@ -481,7 +481,7 @@ public with sharing class GoogleDocPreview {
                 }
             }
         } catch (Exception e) {
-            System.debug('Error In mapFieldValues ==> ' + e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'mapFieldValues');
             returnList.add(new Map<String,String>{'Error' => e.getMessage()});
         }
@@ -543,7 +543,7 @@ public with sharing class GoogleDocPreview {
                 }
             }
         } catch (Exception e) {
-            System.debug('Error In getSignatureImage ==> ' + e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'getSignatureImage');
         }
         return salesforceImageValues;
@@ -567,7 +567,7 @@ public with sharing class GoogleDocPreview {
         try {
             return Database.query(String.escapeSingleQuotes(query));
         } catch (Exception e) {
-            System.debug('Error In queryChildObject ==>'+ e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'queryChildObject');
         }
         return null;
@@ -598,7 +598,7 @@ public with sharing class GoogleDocPreview {
                 return aps[0];
             }
         } catch (Exception e) {
-            System.debug('Error in getAuthProviderSettings==>' + e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'getAuthProviderSettings');
         }
         return authProvider;
@@ -628,7 +628,7 @@ public with sharing class GoogleDocPreview {
                 }
             }
         } catch (Exception e) {
-            System.debug('Error in updateAuthProvider==>' + e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'updateAuthProvider');
         }
     }
@@ -648,7 +648,7 @@ public with sharing class GoogleDocPreview {
         try {
             Response_Handler.store_All_Callout_Response_Map(responseList, 'GoogleDocPreview');
         } catch (Exception e) {
-            System.debug('Error In insertResponses ==>'+ e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_exception(e, 'GoogleDocPreview', 'insertResponses');
         }
     }
