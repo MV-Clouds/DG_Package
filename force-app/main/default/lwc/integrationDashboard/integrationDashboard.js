@@ -66,7 +66,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    isIntegration = false;
    isLimitations = false;
    isUserguide = false;
-   isFaq = false;
    isSetup = false;
    //used for displaying orggoogledate
    @track orggooglename;
@@ -159,7 +158,10 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             this[this.currentPageReference.state.fragment] = true;
             this.activeTab = this.currentPageReference.state.fragment;
             this.isSpinner = false;
-            if (!['isSetup', 'isIntegration', 'isLimitations', 'isUserguide','isFaq'].includes(this.activeTab)) this.activeTab = 'isIntegration';
+            if (!['isSetup', 'isIntegration', 'isLimitations', 'isUserguide'].includes(this.activeTab)) {
+                this.activeTab = 'isIntegration';
+                this.isIntegration = true;
+            }
         } else {
             this.isIntegration = true;
         }
@@ -587,7 +589,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            this.isSetup = false;
            this.isUserguide = false;
            this.isLimitations = false;
-           this.isFaq = false;
            const cursor = this.template.querySelectorAll('.cursor');
            cursor?.forEach(ele => {
                 if(ele.dataset.name == tabName && tabName == 'isSetup' && !this.isAccess){
