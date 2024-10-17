@@ -43,6 +43,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    @track isTrustedUrlVerified = false;
    @track onInit = true;
    @track isVerifying = false;
+   @track clipBoardTooltip = 'Copy to Clipboard';
 
    @track loadedResources = 0;
    @track ispopup = false;
@@ -157,7 +158,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
         if (this.currentPageReference.state && this.currentPageReference.state.fragment) {
             this[this.currentPageReference.state.fragment] = true;
             this.activeTab = this.currentPageReference.state.fragment;
-            // this.isSpinner = false;
+            this.isSpinner = false;
             if (!['isSetup', 'isIntegration', 'isLimitations', 'isUserguide','isFaq'].includes(this.activeTab)) this.activeTab = 'isIntegration';
         } else {
             this.isIntegration = true;
@@ -214,9 +215,14 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
     handleCopyTrustedUrl(){
         try {
             navigator.clipboard.writeText(this.restApiTrustedUrl);
+            this.clipBoardTooltip = 'Copied!';
         } catch (e) {
             console.log('Error in function handleCopyTrustedUrl:::', e.message);
         }
+    }
+
+    updateCopyTooltip(){
+        this.clipBoardTooltip = 'Copy to Clipboard';
     }
    checkAccess(){
     try {

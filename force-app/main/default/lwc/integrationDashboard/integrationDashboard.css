@@ -64,6 +64,43 @@
     stroke : green !important;
     stroke-width: 2;
 }
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 140px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -75px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
 
 .prerequisites-info-div {
     padding: 0rem 1rem;
@@ -229,7 +266,7 @@ c-user-guide {
 }
 
 .buttonCSS {
-    border-radius: 5px;
+    border-radius: 6px;
     padding: 10rem 0;
     width: 100%;
     height: 100%;
@@ -250,55 +287,143 @@ c-user-guide {
 .buttonCSS-blue {
     /* box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.15); */
     text-decoration: none;
-    border: 1px solid #00AEFF;
+    border: 1px solid #00838d;
     backdrop-filter: blur(4px);
 }
-.buttonCSS-blue p {
+.buttonCSS-blue p, .buttonCSS-blue h3 {
     visibility: hidden;
-    text-shadow: 1px 2px 2px rgba(0,0,0,0.1);
-    font-size: 1.75rem;
-    text-decoration: none;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    color: #f8f8ff;
     -webkit-transition: all 0.1s ease-in-out;
     -moz-transition: all 0.1s ease-in-out;
     transition: all 0.1s ease-in-out;
+    text-align: center;
+    /* text-shadow: 1px 2px 2px rgba(0,0,0,0.1);
+    font-size: 1.75rem;
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    color: #00aeff; */
 }
 /* .text-grow:hover p{
     visibility: visible;
 } */
 .buttonCSS-blue:hover {
-    box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.6);
-    text-shadow: 0 1px 1px rgba(33, 33, 33, 0.2), 0 3px 10px rgba(33, 33, 33, 0.2), 0 3px 20px rgba(33, 33, 33, 0.4);
-    color: #f8f8ff;
+    box-shadow: inset 0 0 0 1000px #d5ebffdd;
 }
 
-.buttonCSS-blue:hover p {
+.buttonCSS-blue:hover p, .buttonCSS-blue:hover h3 {
     visibility: visible !important;
 }
 .buttonCSS-bg-userguide {
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url('https://mvclouds.com/wp-content/uploads/2024/10/user-guide.png');
+    background-image: url('/resource/DG_UserGuide');
 }
 .buttonCSS-bg-faqs {
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url('https://mvclouds.com/wp-content/uploads/2024/09/FAQimage.jpg');
+    background-image: url('/resource/DG_FAQs');
 }
 .nav-container {
     display: flex;
-    /* margin-bottom: 1rem; */
-    margin-top: 4rem;
+    align-items: center;
+    justify-content: space-evenly;
+    height: calc( 100% - 4.5rem);
 }
 .p-1 {
-    width: -webkit-fill-available;
-    padding: 0 4rem;
+    width: 45%;
 }
+
+  .card-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  h3 {
+    font-size: 24px;
+    line-height: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  
+  p {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 20px;
+  
+    &.small {
+      font-size: 14px;
+    }
+  }
+  
+  .go-corner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    background-color: #00838d;
+    border-radius: 0 4px 0 32px;
+  }
+  
+  .go-arrow {
+    margin-top: -9px;
+    margin-right: -9px;
+    rotate: -45deg;
+    
+  }
+  
+  .card-redirect {
+    display: block;
+    position: relative;
+    text-decoration: none;
+    z-index: 0;
+    overflow: hidden;
+  
+    &:before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: -16px;
+      right: -16px;
+      background: #00838d;
+      height: 36px;
+      width: 36px;
+      border-radius: 36px;
+      transform: scale(1);
+      transform-origin: 50% 50%;
+      transition: transform 0.35s ease-out;
+
+      svg{
+        rotate: -40deg;
+      }
+    }
+  
+    &:hover:before {
+      transform: scale(60);
+    }
+  }
+  
+  .card-redirect:hover {
+    p {
+      transition: all 0.3s ease-out;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    h3 {
+      transition: all 0.3s ease-out;
+      color: #ffffff;
+    }
+  }
+  
 
 /* ------------------------------------------------------------ For the Userguide Tab (END) ------------------------------------------------------------ */
 
