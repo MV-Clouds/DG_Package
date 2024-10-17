@@ -72,11 +72,9 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
                         maxSize = 800;
                     } 
                     if (fileSize < maxSize) { // 5 MB threshold
-                        System.debug('Uploading small file directly to googledrive');
                         Boolean result = uploadToGoogleDrive(cv, fileName, fileDetails);
 
                     } else {
-                        System.debug('Uploading large file in chunks to googledrive');
                         Boolean result = uploadLargeFileInChunks(cv, fileSizeEncoded, fileDetails);
                     }
                 }
@@ -88,7 +86,6 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
             obj.Id = activity; 
             updateActivityMessage(obj);
             emailUser('File size too large. Try uploading file with smaller size.\n\n Or Download it and then upload file manually.');
-            System.debug('Error during Google file upload: heap size issue' + e.getMessage());
         }
         if (!listMessage.isEmpty()) {
             if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isAccessible() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isUpdateable()){
@@ -100,7 +97,6 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 
 
     global void finish(Database.BatchableContext bC) {
-        System.debug('GoogleDrive file upload batch finished');
     }
 
 
@@ -304,7 +300,6 @@ global static String getToken(){
         try {
             String result = initiateUploadSession(fileDetails[0], contentVersion, fileDetails[1]);
             if (result != 'failure') {
-                System.debug('Initiated successfully');
                 Decimal filesizedec = Decimal.valueOf(fileSize);
                 Integer offset;
     
@@ -316,13 +311,11 @@ global static String getToken(){
                 for (Integer i = 0; i < totalChunks; i++) {
                     Integer start = i * chunkSize;
                     Integer ending = Math.min((i + 1) * 1572864 - 1, Integer.valueOf(contentVersion.VersionData.size()) - 1);
-                    System.debug('Chunk Start Byte: ' + start);
                     Blob chunkBlob = getFileData(contentVersion.VersionData, start, chunkSize);
                     offset = Integer.valueOf(Math.floor(start / 1.3333333333));
                     if (start != 0) {
                         start = start - (i * 524288);
                     }
-                    System.debug('Chunk Offset: ' + offset);
                     ChunkDetails chunkDetail = new ChunkDetails();
                     chunkDetail.chunk = chunkBlob;
                     chunkDetail.start = start;
@@ -334,7 +327,6 @@ global static String getToken(){
                     chunkDetail.activity = fileDetails[1];
                     uploadChunk(chunkDetail);
                     chunkBlob = null;
-                    System.debug(Limits.getHeapSize());
                 }
                 Response_Handler.store_All_Callout_Response(responseList, 'GoogleDriveUploader', 'uploadChunk');
             }
@@ -466,7 +458,6 @@ global static String getToken(){
             HttpResponse res = http.send(req);
 
             if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
-                System.debug(res.getHeader('Location'));
                 return (String) res.getHeader('Location');
             } else {
                 Response_Handler.store_Callout_Response(res, 'GoogleDriveUploader', 'initiateUploadSession');
@@ -475,7 +466,6 @@ global static String getToken(){
                 obj.Id = activity; 
                 updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
-                System.debug('Error initiating upload session: ' + res.getStatusCode() + res.getHeader('Location'));
                 return 'failure';
             }
         } catch (Exception e) {
@@ -519,10 +509,8 @@ global static String getToken(){
 
 
             if (res.getStatusCode() == 201 || res.getStatusCode() == 202 || res.getStatusCode() == 308) {
-                System.debug('Half was success' + res.getStatusCode() + res.getBody() + res.getHeader('Range'));
             }
             else if(res.getStatusCode() == 200){
-                System.debug('Everything was succes'+ res.getStatusCode() + res.getBody());
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Google_Drive__c = 'Success';
                 obj.Id = parameters.activity; 
@@ -581,9 +569,6 @@ global static String getToken(){
         String userEmail = UserInfo.getUserEmail();
         if (userEmail != null && userEmail.contains('@')) {
             mail.setToAddresses(new List<String>{userEmail});
-        } else {
-            // Handle the case when email is null or invalid
-            System.debug('Invalid user email: ' + userEmail);
         }
         mail.setSubject(subject);
         mail.setPlainTextBody(message);

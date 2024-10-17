@@ -28,14 +28,12 @@ public with sharing class OneDriveAuthorizationController {
             return result;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveAuthorizationController', 'checkonedriveauth');
-            System.debug('Exception of checkonedriveauth got invoked');
             return null;
         }
     }
 
     public static Boolean getToken(){
         MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id,MVDG__access_token__c,MVDG__access_token1__c,MVDG__access_token2__c,MVDG__access_token3__c,MVDG__access_token4__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__username__c,MVDG__refresh_token__c,MVDG__refresh_token1__c,MVDG__email__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-        // System.debug('generating new token');
         HttpRequest request = new HttpRequest();
         request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
         request.setMethod('POST');
@@ -47,8 +45,6 @@ public with sharing class OneDriveAuthorizationController {
         Http http1 = new Http();
         HttpResponse response1 = http1.send(request);
         Map < String, String > result1 = new Map < String, String > ();
-        // System.debug('api call for generating token-->' + response1.getStatusCode());
-        // System.debug(response1.getBody());
         if (response1.getStatusCode() == 200) {
             Map < String, Object > jsonResponse = (Map < String, Object > ) JSON.deserializeUntyped(response1.getBody());
             String newtoken = (String) jsonResponse.get('access_token');
@@ -102,7 +98,6 @@ public with sharing class OneDriveAuthorizationController {
         }
         else {
             Response_Handler.store_Callout_Response(response1, 'OneDriveAuthorizationController', 'getToken');
-            System.debug('No token generated');
             settings.MVDG__WorkingStatus__c = false;
             update as user settings;
             return false;
@@ -134,7 +129,6 @@ public with sharing class OneDriveAuthorizationController {
             return false;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveAuthorizationController', 'unauthorize');
-            System.debug('Exception of unauthorize got invoked');
             return null;
         }
     }
@@ -148,7 +142,6 @@ public with sharing class OneDriveAuthorizationController {
             return REDIRECT_URI;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveAuthorizationController', 'redirectUrl');
-            System.debug('Exception of redirecturl got invoked');
             return null;
         }      
     }
@@ -158,26 +151,21 @@ public with sharing class OneDriveAuthorizationController {
         try{
             String REDIRECT_URI = '';
             if(url.contains('develop.my.salesforce.com')) {
-            System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
-                System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
-                System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }else {
-                System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/MVDG__oneDriveSuccessPage';
             }
             return REDIRECT_URI;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveAuthorizationController', 'redirect');
-            System.debug('Exception of redirect got invoked');
             return null;
         }   
     }
@@ -201,11 +189,9 @@ public with sharing class OneDriveAuthorizationController {
             settings.MVDG__ClientSecret__c = clientSecret;
             String durl = authcode(clientId, clientSecret);
             upsert as user settings;
-            System.debug(durl);
             return durl;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveAuthorizationController', 'authorize');
-            System.debug('Exception of authorize got invoked');
             return null;
         }   
     }
@@ -227,7 +213,6 @@ public with sharing class OneDriveAuthorizationController {
             return authUrl;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveAuthorizationController', 'authcode');
-            System.debug('Exception of authcode got invoked');
             return null;
         }   
     }

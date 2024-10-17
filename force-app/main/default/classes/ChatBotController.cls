@@ -263,7 +263,6 @@ public with sharing class ChatBotController {
     public static String getProfileUrl(String cid) {
         if(cid != null){
         User cuser = [SELECT Id, FullPhotoUrl FROM User WHERE Id=:cid WITH SECURITY_ENFORCED];
-        System.debug(cuser.FullPhotoUrl);
         return cuser.FullPhotoUrl;
         }
         return 'null';
@@ -285,18 +284,14 @@ public static void sendEmailWithAttachment(Map<String, Object> parameters) {
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         List<String> toAddresses = new List<String>();
         if (parameters.containsKey('toAddress') && parameters.get('toAddress') != null) {
-            System.debug(parameters.get('toAddress'));
             toAddresses.add((String) parameters.get('toAddress'));
         } else {
             toAddresses.add('support-dg@mvclouds.com');
         }
         mail.setToAddresses(toAddresses);
-        System.debug(parameters.get('subject'));
-        System.debug(parameters.get('body'));
         mail.setSubject((String) parameters.get('subject'));
         mail.setPlainTextBody((String) parameters.get('body'));
         if (parameters.containsKey('replyTo') && parameters.get('replyTo') != null && parameters.get('replyTo') != '') {
-            System.debug(parameters.get('replyTo'));
             mail.setReplyTo((String) parameters.get('replyTo')); // Cast to String
         }
         // Handle attachments
@@ -327,10 +322,8 @@ public static void sendEmailWithAttachment(Map<String, Object> parameters) {
         }
         // Send the email
         Messaging.SendEmailResult[] result = Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-        System.debug(result);
     } catch (Exception e) {
         if (e.getMessage().contains('INVALID_EMAIL_ADDRESS')) {
-            System.debug('Sending email with attachment error --> ' + e);
             throw new AuraHandledException('Invalid email address: ' + e.getMessage());
         } else {
             Log_Handler.store_Exception(e, 'ChatBotController', 'sendEmailWithAttachment');
