@@ -32,7 +32,7 @@ public with sharing class KeyMappingController {
             list<MappingObjects> objWithFields = new list<MappingObjects>();
 
             Obj_Label_API objLabelAPI = new Obj_Label_API();
-            System.debug('sourceObjectAPI : '+ sourceObjectAPI);
+            // System.debug('sourceObjectAPI : '+ sourceObjectAPI);
             String sourceObjectName = Schema.getGlobalDescribe().get(sourceObjectAPI).getDescribe().getName();
             String sourceObjectLabel = Schema.getGlobalDescribe().get(sourceObjectAPI).getDescribe().getLabel();
             objLabelAPI.name = sourceObjectName;
@@ -72,7 +72,7 @@ public with sharing class KeyMappingController {
             return retrunWrapper;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'KeyMappingController', 'getFieldMappingKeys');
-            system.debug('exception in getFieldMappingKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getFieldMappingKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
 
             retrunWrapper.isSuccess = false;
             retrunWrapper.returnMessage = e.getMessage();
@@ -103,9 +103,9 @@ public with sharing class KeyMappingController {
                         relatedObj.parentObjFieldApi = fieldName;
                         relatedObj.parentObjApi = string.valueOf(field.getReferenceTo()[0]);
                         relatedObj.isCustome = field.isCustom();
-                        System.debug('related Object  : ' + fieldName);
-                        // System.debug('relatedObj : ' + fieldObj);
-                        // System.debug('====== ======== ========= ======== ========= ========= ===========');
+                        // System.debug('related Object  : ' + fieldName);
+                        // // System.debug('relatedObj : ' + fieldObj);
+                        // // System.debug('====== ======== ========= ======== ========= ========= ===========');
                         relatedObjs.add(relatedObj);
                         parentObjects.add(string.valueOf(field.getReferenceTo()[0]));
                     // } 
@@ -115,7 +115,7 @@ public with sharing class KeyMappingController {
             return relatedObjs;
             // return new List<String>(parentObjects);
         } catch (Exception e) {
-            system.debug('exception in getRelatedObjects : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getRelatedObjects : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }
@@ -132,7 +132,7 @@ public with sharing class KeyMappingController {
     
         // get Object Information...
         Schema.SObjectType sobjType = Schema.getGlobalDescribe().get(relatedObj.parentObjApi);
-        if(relatedObj.parentObjApi == 'User') System.debug('object : ' + sobjType.getDescribe());
+        // if(relatedObj.parentObjApi == 'User') // System.debug('object : ' + sobjType.getDescribe());
         String objLabel = sobjType.getDescribe().getLabel();
         String objName = relatedObj.parentObjApi;
 
@@ -170,7 +170,7 @@ public with sharing class KeyMappingController {
             List<String> fieldsList = new List<String>(mapOfFields.keySet());
             fieldsList.sort();
             
-            System.debug('objAPI : ' + objAPI);
+            // System.debug('objAPI : ' + objAPI);
             for(String fieldName : fieldsList){
                 Schema.SObjectField field = mapOfFields.get(fieldName);
                 Schema.DescribeFieldResult f = field.getDescribe();
@@ -187,7 +187,7 @@ public with sharing class KeyMappingController {
                         objectFields.add(f);
                     }
                     else if(polymorphismObjAllowdFields.contains(fieldAPI) || f.isCustom()){
-                        System.debug('from Group, whatid or whoid object');
+                        // System.debug('from Group, whatid or whoid object');
                         objectFields.add(f);
                     }
                 }
@@ -196,7 +196,7 @@ public with sharing class KeyMappingController {
             return objectFields;
 
         } catch (Exception e) {
-            system.debug('exception in getObjectFields : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getObjectFields : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }
@@ -240,7 +240,7 @@ public with sharing class KeyMappingController {
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'KeyMappingController', 'getChildObjects');
 
-            system.debug('exception in getChildObjects : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getChildObjects : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             retrunWrapper.isSuccess = false;
 
             return retrunWrapper;
@@ -296,7 +296,7 @@ public with sharing class KeyMappingController {
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'KeyMappingController', 'getGeneralFields');
 
-            system.debug('exception in getGeneralFields : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getGeneralFields : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             retrunWrapper.isSuccess = false;
             retrunWrapper.returnMessage = e.getMessage();
             return retrunWrapper;
@@ -337,7 +337,7 @@ public with sharing class KeyMappingController {
             dateMapping.fieldMappings = dateFields;
             return dateMapping;
         } catch (Exception e) {
-            system.debug('exception in getCreationDateMappings : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getCreationDateMappings : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return dateMapping;
         }
     }
@@ -406,7 +406,7 @@ public with sharing class KeyMappingController {
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'KeyMappingController', 'getMerginTemplateKeys');
 
-            system.debug('exception in getMerginTemplateKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getMerginTemplateKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             retrunWrapper.isSuccess = false;
             retrunWrapper.returnMessage = e.getMessage();
             return retrunWrapper;
@@ -446,7 +446,7 @@ public with sharing class KeyMappingController {
                     cDocIds.add(cv.ContentDocumentId);
                 }
 
-                System.debug('total images : ' + cDocIds.size());
+                // System.debug('total images : ' + cDocIds.size());
 
                 // ...Get All ContentDistribution for existing ContentVersion...
                 List<ContentDistribution> allICDs = [SELECT Id, ContentVersionId, ContentDocumentId FROM ContentDistribution WHERE ContentDocumentId IN :cDocIds WITH SECURITY_ENFORCED];
@@ -490,7 +490,7 @@ public with sharing class KeyMappingController {
                     for (Integer i = 0; i < results.size(); i++) {
                         if (results[i].isSuccess()) {
                             // Record was successfully inserted
-                            System.debug('Successfully inserted record: ' + cdToCreate[i].Id);
+                            // System.debug('Successfully inserted record: ' + cdToCreate[i].Id);
                             cdWithPublicSharing.add(cdToCreate[i].Id);
                         } else {
                             // Record failed to insert, Mease Image does not have public char option...
@@ -499,10 +499,10 @@ public with sharing class KeyMappingController {
                     }
                 }
 
-                System.debug('cdAvilabeFor : ' + cdAvilabeFor.size());
-                System.debug('cdTocreatefor : ' + cdTocreatefor.size());
-                System.debug('images with sharing option created : ' + cdWithPublicSharing.size());
-                System.debug('images without sharing option not created: ' + cdWithoutPublicSharing.size());
+                // System.debug('cdAvilabeFor : ' + cdAvilabeFor.size());
+                // System.debug('cdTocreatefor : ' + cdTocreatefor.size());
+                // System.debug('images with sharing option created : ' + cdWithPublicSharing.size());
+                // System.debug('images without sharing option not created: ' + cdWithoutPublicSharing.size());
 
                 // Agian Quuery all ContentDistribution with ContentDownloadUrl...
                 // At this time we have ContentDistribution for all ContentVersion that have public sharing....
@@ -527,7 +527,7 @@ public with sharing class KeyMappingController {
             return retrunWrapper;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'KeyMappingController', 'getMerginTemplateKeys');
-            system.debug('exception in getMerginTemplateKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getMerginTemplateKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             retrunWrapper.isSuccess = false;
             retrunWrapper.returnMessage = e.getMessage();
             return retrunWrapper;
@@ -562,7 +562,7 @@ public with sharing class KeyMappingController {
     */
     @AuraEnabled 
     public static boolean updateSignatureInfo(String templateId, Decimal signatureSize){
-        System.debug('signatureSize : '+ signatureSize);
+        // System.debug('signatureSize : '+ signatureSize);
         try {
             
             MVDG__Template__c temp = new MVDG__Template__c(
@@ -581,7 +581,7 @@ public with sharing class KeyMappingController {
             return true;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'KeyMappingController', 'KeyMappingController');
-            system.debug('exception in getMerginTemplateKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getMerginTemplateKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return false;
         }
     }
@@ -635,7 +635,7 @@ public with sharing class KeyMappingController {
 
             return fieldMapping;
         } catch (Exception e) {
-            system.debug('exception in createMappingFieldInstance : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in createMappingFieldInstance : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }

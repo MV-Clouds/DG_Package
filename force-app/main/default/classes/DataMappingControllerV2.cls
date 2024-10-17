@@ -69,7 +69,7 @@ public with sharing class DataMappingControllerV2 {
                 
                 // this varibale will be FALSE when it call from "getKeyNValueFromMergeTemps" Method...
                 if(includeMergTemKeys == true){
-                    System.debug(' ---- ---- ---- Merge Template keys Starts ---- ---- '+ temp.Id);
+                    // System.debug(' ---- ---- ---- Merge Template keys Starts ---- ---- '+ temp.Id);
                     // collect merge template key from keys stored in field ...
                     set<String> mergTemplateKeys = collectMergeTemplateKeys(extractedKeyMap);
 
@@ -89,7 +89,7 @@ public with sharing class DataMappingControllerV2 {
             return mapingKeyVsValuesGroup;
         } catch (Exception e) {
             // Log_Handler.store_Exception(e, 'DataMappingControllerV2', 'getMappingsKeyValues');
-            system.debug('exception in getMappingsKeyValues : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            // System.debug('exception in getMappingsKeyValues : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
             return mapingKeyVsValuesGroup;
         }
     }
@@ -119,7 +119,7 @@ public with sharing class DataMappingControllerV2 {
 
             return extractedKeys;
         } catch (Exception e) {
-            system.debug('exception in collectMappingKeys : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            // System.debug('exception in collectMappingKeys : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
             return extractedKeys;
         }
     }
@@ -141,7 +141,7 @@ public with sharing class DataMappingControllerV2 {
 
             return mergTemplateKeys;
         } catch (Exception e) {
-            system.debug('exception in collectMergeTemplateKeys : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            // System.debug('exception in collectMergeTemplateKeys : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
             return mergTemplateKeys;
         }
     }
@@ -169,11 +169,11 @@ public with sharing class DataMappingControllerV2 {
                 tableInfo.queryFilters = infoRow.substringBetween('$filter:', '$');
                 tableInfo.queryLimit = infoRow.substringBetween('$limit:', '$');
                 // If user enter Invalid (Non numberic) limit string... handle it...
-                system.debug('orginal limit : ' + tableInfo.queryLimit);
+                // System.debug('orginal limit : ' + tableInfo.queryLimit);
                 tableInfo.queryLimit = tableInfo.queryLimit.isNumeric() == true ? tableInfo.queryLimit : '50';
-                system.debug('before set 50 limit : ' + tableInfo.queryLimit);
+                // System.debug('before set 50 limit : ' + tableInfo.queryLimit);
                 tableInfo.queryLimit = Integer.valueOf(tableInfo.queryLimit) > 50 ? '50' : tableInfo.queryLimit;
-                system.debug('after set 50 limit : ' + tableInfo.queryLimit);
+                // System.debug('after set 50 limit : ' + tableInfo.queryLimit);
 
 
                 // ==> validate each field... and add into field's list to create query....
@@ -184,23 +184,23 @@ public with sharing class DataMappingControllerV2 {
                 }
 
                 List<map<string, Object>> childRecords = getChildRecordsAsMap(validChildObjFields, tableInfo, recordId);
-                System.debug('---- ------ child record.size() ----- ------ : ' + childRecords.size());
-                System.debug('modifiedKeyRow  before : ' + tableInfo.keyRow);
+                // System.debug('---- ------ child record.size() ----- ------ : ' + childRecords.size());
+                // System.debug('modifiedKeyRow  before : ' + tableInfo.keyRow);
                 modifiedKeyRow = createRowsWithChildRecords(childRecords, ExtractedKeys, tableInfo);
             }
             
             if(modifiedKeyRow != null){
-                System.debug('modifiedKeyRow after : ' + modifiedKeyRow);
-                System.debug('modifiedTableHTML before : ' + modifiedTableHTML);
+                // System.debug('modifiedKeyRow after : ' + modifiedKeyRow);
+                // System.debug('modifiedTableHTML before : ' + modifiedTableHTML);
                 modifiedTableHTML = modifiedTableHTML.replace(tableInfo.keyRow, modifiedKeyRow);
                 modifiedTableHTML = modifiedTableHTML.replace(infoRow, '');
-                System.debug('modifiedTableHTML after : ' + modifiedTableHTML);
+                // System.debug('modifiedTableHTML after : ' + modifiedTableHTML);
             }
 
             return new Map<String, String>{tableInfo.tableHTML => modifiedTableHTML};
             
         } catch (Exception e) {
-            system.debug('exception in modifyChildObjectTables : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in modifyChildObjectTables : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return new Map<String, String>{tableInfo.tableHTML => tableInfo.tableHTML};
         }
     }
@@ -254,7 +254,7 @@ public with sharing class DataMappingControllerV2 {
             }
             return childRecordList;
         } catch (Exception e) {
-            system.debug('exception in getChildRecordsAsMap : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getChildRecordsAsMap : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return childRecordList;
         }
     }
@@ -301,7 +301,7 @@ public with sharing class DataMappingControllerV2 {
             
             return String.join(childRecordRows, '');
         } catch (Exception e) {
-            system.debug('exception in createRowsWithChildRecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in createRowsWithChildRecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }
@@ -326,7 +326,7 @@ public with sharing class DataMappingControllerV2 {
 
             return sfImages;
         } catch (Exception e) {
-            system.debug('exception in getSFimageVsId : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            // System.debug('exception in getSFimageVsId : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
             return sfImages;
         }
     }
@@ -353,7 +353,7 @@ public with sharing class DataMappingControllerV2 {
             return signatureImage;
             
         } catch (Exception  e) {
-            system.debug('exception in getSFimageVsId : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            // System.debug('exception in getSFimageVsId : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
             return signatureImage;
         }
     }
@@ -404,7 +404,7 @@ public with sharing class DataMappingControllerV2 {
 
             return mapKeysWithValue(fieldLists, extractedKeys, new list<String>{recordId, sourceObjectAPI});
         } catch (Exception e) {
-            system.debug('exception in getMappingKeyVsValue : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getMappingKeyVsValue : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return extractedKeyWithData;
         }
     }
@@ -471,7 +471,7 @@ public with sharing class DataMappingControllerV2 {
 
             return extractedKeyWithData;
         } catch (Exception e) {
-            system.debug('exception in mapKeysWithValue : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in mapKeysWithValue : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return extractedKeyWithData;
         }
     }
@@ -504,7 +504,7 @@ public with sharing class DataMappingControllerV2 {
             return sobjectAsMap;
 
         } catch (Exception e) {
-            system.debug('exception in getSobjectAsMap : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getSobjectAsMap : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return sobjectAsMap;
         }
     }
@@ -551,7 +551,7 @@ public with sharing class DataMappingControllerV2 {
 
             return keyWithValuesGroup;
         } catch (Exception e) {
-            system.debug('exception in getKeyNValueFromMergeTemps : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            // System.debug('exception in getKeyNValueFromMergeTemps : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
             return keyWithValuesGroup;
         }
     }
@@ -577,7 +577,7 @@ public with sharing class DataMappingControllerV2 {
 
             return templateIds;
         } catch (Exception e) {
-            system.debug('exception in extractMergeTemplateIds : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            // System.debug('exception in extractMergeTemplateIds : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
             return new Map<String, String>();
         }
     }
@@ -637,11 +637,11 @@ public with sharing class DataMappingControllerV2 {
             }
 
             ext.value = fieldValue;
-            System.debug('---- fieldValue ---- : '+fieldValue + ' ----- ext ----- '+ ext);
+            // System.debug('---- fieldValue ---- : '+fieldValue + ' ----- ext ----- '+ ext);
 
             return fieldValue;
         } catch (Exception e) {
-            system.debug('exception in getFieldValue : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getFieldValue : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return ext.mappingKey;
         }
     }
@@ -660,9 +660,9 @@ public with sharing class DataMappingControllerV2 {
             List<KeyMappingController.MappingFields> objectWithFields = new List<KeyMappingController.MappingFields>();
             Map<String, String> validFields = getValidFields(startingSymbol, sourceObjectAPI);
 
-            // System.debug('validFields : ' + validFields);
+            // // System.debug('validFields : ' + validFields);
             // for(String fieldAPI : validFields.keySet()){
-            //     System.debug('validFields : ' + fieldAPI);
+            //     // System.debug('validFields : ' + fieldAPI);
             // }
 
 
@@ -682,7 +682,7 @@ public with sharing class DataMappingControllerV2 {
                             fieldAPI = subString.trim();
                         }
 
-                        System.debug('fieldAPI : ' + fieldAPI);
+                        // System.debug('fieldAPI : ' + fieldAPI);
                         if(validFields.keySet().contains(fieldAPI)){
                             ExtractedKeys ext = new ExtractedKeys();
                             ext.fieldAPI = fieldAPI;
@@ -696,7 +696,7 @@ public with sharing class DataMappingControllerV2 {
             }
             return extractedKeys;
         } catch (Exception e) {
-            system.debug('exception in getValidKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getValidKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return extractedKeys;
         }
     }
@@ -724,7 +724,7 @@ public with sharing class DataMappingControllerV2 {
             }
             return validFields;
         } catch (Exception e) {
-            system.debug('exception in getValidKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getValidKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return validFields;
         }
     }
@@ -755,7 +755,7 @@ public with sharing class DataMappingControllerV2 {
             return objectFields;
 
         } catch (Exception e) {
-            system.debug('exception in getValidKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getValidKeys : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return objectFields;
         }
     }
@@ -805,7 +805,7 @@ public with sharing class DataMappingControllerV2 {
 
             return fields;
         } catch (Exception e) {
-            system.debug('exception in fetchObjectFields : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in fetchObjectFields : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return fields;
         }
     }
@@ -819,10 +819,10 @@ public with sharing class DataMappingControllerV2 {
      */
     public static sObject querySObject(String query, String recordId, String sourceObject){
         try {
-            System.debug('query :  ' + query);
+            // System.debug('query :  ' + query);
             return Database.query(query);
         } catch (Exception e) {
-            system.debug('exception in querySObject : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in querySObject : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(sourceObject);
             return  sObjectType.newSObject();
         }

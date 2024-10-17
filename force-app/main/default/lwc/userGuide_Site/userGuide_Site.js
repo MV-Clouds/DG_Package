@@ -38,7 +38,7 @@ export default class UserGuide_Site extends LightningElement {
                 }
             })
         } catch (error) {
-            console.log('error in connectedCallback : ', error.stack);
+            errorDebugger("userGuide", 'connectedCallback', error, 'error');
         }
     }
 

@@ -10,7 +10,7 @@ public without sharing class UserGuideController {
             
             return userGuides;
         } catch (Exception e) {
-            system.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }

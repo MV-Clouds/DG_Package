@@ -56,7 +56,7 @@ public with sharing class TemplateBuilder_Controller {
             return retrunWrapper;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'TemplateBuilderController', 'getTemplateData');
-            system.debug('exception in getTemplateData : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getTemplateData : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
 
             retrunWrapper.isSuccess = false;
             retrunWrapper.returnMessage = e.getMessage();
@@ -109,7 +109,7 @@ public with sharing class TemplateBuilder_Controller {
                                                 (SELECT Id FROM MVDG__Template_Pages__r)
                                                 FROM MVDG__Template__c WHERE Id =: templateRecord.Id WITH SECURITY_ENFORCED LIMIT 1];
 
-            System.debug('templateValues : '+ templateValues);
+            // System.debug('templateValues : '+ templateValues);
 
             if(temp.size() > 0 && Schema.sObjectType.MVDG__Template__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Page__c.isUpdateable()){
                 MVDG__Template__c templateToUpdate = temp[0];
@@ -198,7 +198,7 @@ public with sharing class TemplateBuilder_Controller {
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'TemplateBuilderController', 'saveTemplateApex');
-            system.debug('exception in saveTemplateApex : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in saveTemplateApex : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
 
             return null;
         }
@@ -220,9 +220,9 @@ public with sharing class TemplateBuilder_Controller {
             String tempId = new List<String>(tempIdVsValueType.keySet())[0];
             String valueType = tempIdVsValueType.get(tempId);
             
-            System.debug('isLastBatch : '+ isLastBatch);
-            System.debug('startOrderNumber : '+ startOrderNumber);
-            System.debug('endOrderNumber : '+ endOrderNumber);
+            // System.debug('isLastBatch : '+ isLastBatch);
+            // System.debug('startOrderNumber : '+ startOrderNumber);
+            // System.debug('endOrderNumber : '+ endOrderNumber);
 
             List<MVDG__Template_Data__c> storedTempDataRecords = [SELECT Id, MVDG__Order_No_Simple__c, MVDG__Template_Value_Simple__c, MVDG__Value_Type__c
                                                                 FROM MVDG__Template_Data__c
@@ -241,8 +241,8 @@ public with sharing class TemplateBuilder_Controller {
             if(batchedStoredRecords > 0 && Schema.sObjectType.MVDG__Template_Data__c.isCreateable() && Schema.sObjectType.MVDG__Template_Data__c.isUpdateable()){
                 
                 for(Integer i = startOrderNumber; i <= endOrderNumber; i++){
-                    System.debug('i : '+ i);
-                    System.debug('(batchedStoredRecords + startOrderNumber) : '+ (batchedStoredRecords + startOrderNumber - 1));
+                    // System.debug('i : '+ i);
+                    // System.debug('(batchedStoredRecords + startOrderNumber) : '+ (batchedStoredRecords + startOrderNumber - 1));
                     // If recieved data records  is lesser than or equal to total stored record...
                     // Update All Record as per order number....
                     if(i <= (batchedStoredRecords + startOrderNumber - 1)){
@@ -285,7 +285,7 @@ public with sharing class TemplateBuilder_Controller {
             }
 
             Integer totalStoredDataRecords = Database.countQuery('SELECT Count() FROM MVDG__Template_Data__c WHERE MVDG__Template__c =: tempId AND MVDG__Value_Type__c =: valueType');
-            System.debug('totalStoredDataRecords : '+ totalStoredDataRecords);
+            // System.debug('totalStoredDataRecords : '+ totalStoredDataRecords);
 
             if(isLastBatch && endOrderNumber < totalStoredDataRecords && Schema.sObjectType.MVDG__Template_Data__c.isDeletable()){
                 // if it is last batch and endOrderNumber is lesser than totalStoredDataRecords...
@@ -306,7 +306,7 @@ public with sharing class TemplateBuilder_Controller {
             return isLastBatch ? 'last batch update succesfully' : 'batch update succesfully';
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'TemplateBuilderController', 'saveTempDataRecordsInBatch');
-            system.debug('exception in saveTempDataRecordsInBatch : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in saveTempDataRecordsInBatch : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }

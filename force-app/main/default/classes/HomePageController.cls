@@ -67,7 +67,7 @@ public with sharing class HomePageController {
             return returnValue;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'docGeniusHomePageController', 'getTempalaterecords');
-            system.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             // Set False in case of Exception
             returnValue.isSuccess = false;          
             returnValue.returnMessage = 'Error in getTempalaterecords : ' + e.getMessage();
@@ -118,7 +118,7 @@ public with sharing class HomePageController {
             return templateTypes;
 
         } catch (Exception e) {
-            system.debug('exception in createTempFieldInstance : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in createTempFieldInstance : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return templateTypes;
         }
     }
@@ -145,7 +145,7 @@ public with sharing class HomePageController {
                 }
             return templateField;
         } catch (Exception e) {
-            system.debug('exception in createTempFieldInstance : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in createTempFieldInstance : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return templateField;
         }
     }
