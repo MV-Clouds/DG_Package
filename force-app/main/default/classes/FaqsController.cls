@@ -231,7 +231,7 @@ public with sharing class FaqsController {
         
                 return faqs;
             } catch (Exception e) {
-                system.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+                // System.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
                 return null;
             }
         }
@@ -267,7 +267,7 @@ public with sharing class FaqsController {
                 
                 return faqs;
             } catch (Exception e) {
-                system.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+                // System.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
                 return null;
             }
         }
@@ -298,7 +298,7 @@ public with sharing class FaqsController {
     
                     return true;
             } catch (Exception e) {
-                    system.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+                    // System.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
                     return false;
             }
         }

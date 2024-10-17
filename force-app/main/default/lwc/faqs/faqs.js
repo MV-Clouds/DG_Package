@@ -23,7 +23,7 @@ export default class Faqs extends LightningElement {
             }
             this.resizeFunction();
       } catch (error) { 
-        console.log(`error in connectedCallback : ${error.stack}`);
+        console.log(`error in connectedCallback : ${error.message}`);
       }
     }
 
@@ -127,7 +127,7 @@ export default class Faqs extends LightningElement {
             this.showSelectBtn = !this.showSelectBtn;
             this.setActiveSection();
         } catch (error) {
-            console.log(`error in handleContentChange : ${error.stack}`);
+            console.log(`error in handleContentChange : ${error.message}`);
         }
     }
 
@@ -142,7 +142,7 @@ export default class Faqs extends LightningElement {
             this.selectedFAQName = this.faqs.find(ele => ele.faqId === this.activeSection).name;
             
         } catch (error) {
-            console.log(`error in setActiveSection : ${error.stack}`);
+            console.log(`error in setActiveSection : ${error.message}`);
         }
     }
 
@@ -172,7 +172,7 @@ export default class Faqs extends LightningElement {
             })
 
         } catch (error) {
-            console.log(`error in setActiveSection : ${error.stack}`);
+            console.log(`error in setActiveSection : ${error.message}`);
         }
     }
 
@@ -187,7 +187,7 @@ export default class Faqs extends LightningElement {
             textarea.remove();
             return returnValue;
         } catch (error) {
-            console.log(`error in extractTextFromHTMLTag : ${error.stack}`);
+            console.log(`error in extractTextFromHTMLTag : ${error.message}`);
             return '';
         }
     }

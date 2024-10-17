@@ -237,7 +237,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
                     ])
                     .then(() => {
                         this.isInitialRender = false;
-                        console.log('library loaded SuccessFully');
+                        // console.log('library loaded SuccessFully');
                         this.initialize_Content_Editor();
                         this.initialize_Header_Editor();
                         this.initialize_Footer_Editor();
@@ -530,7 +530,7 @@ export default class TemplateBuilder extends NavigationMixin(LightningElement) {
             let totalProcesses = totalBatches + 1;
             let completedProcess = 0;
 
-            console.log('templateValuePortion : ', templateValuePortion);
+            // console.log('templateValuePortion : ', templateValuePortion);
             
 
             // Call Apex Method to save Template...

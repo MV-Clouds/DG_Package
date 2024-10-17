@@ -74,7 +74,7 @@ function setFontSize(event, note){
       }
       //When User Chnage Value Of Font-Size Input...         
       else if(event.type == 'change'){
-        console.log('changes');
+        // console.log('changes');
           var inputValue = event.target.value;
           if(inputValue > 100){
               inputValue = 100;

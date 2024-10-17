@@ -658,7 +658,7 @@ export default class CustomCombobox extends LightningElement {
     @api 
     clearSearch(){
         try {
-            console.log('clearing value');
+            // console.log('clearing value');
             if(this.searchable){
                 const searchInput = this.template.querySelector('[data-id="search-input"]');
                 searchInput && (searchInput.value = '');

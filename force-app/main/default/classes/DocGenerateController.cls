@@ -55,13 +55,13 @@ global with sharing class DocGenerateController {
      */
     public static void getTemplateDetails(){
         try {
-                System.debug('paraData before : ' + ApexPages.currentPage().getParameters().get('paraData'));
+                // System.debug('paraData before : ' + ApexPages.currentPage().getParameters().get('paraData'));
 
                 if(ApexPages.currentPage().getParameters().get('paraData') != null){
                     String paraData = ApexPages.currentPage().getParameters().get('paraData');
                     Map<String, Object> rawData = (Map<String, Object>)JSON.deserializeUntyped(paraData);
     
-                    System.debug('paraData : ' + paraData);
+                    // System.debug('paraData : ' + paraData);
         
                     selectedExtension = (String)rawData.get('selectedExtension');
                     selectedChannels = (String)rawData.get('selectedChannels');
@@ -103,7 +103,7 @@ global with sharing class DocGenerateController {
         }
         catch (Exception e){
             apexError = e.getMessage();
-            system.debug('exception in getTemplateDetails : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            // System.debug('exception in getTemplateDetails : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
         }
     }
 
@@ -183,7 +183,7 @@ global with sharing class DocGenerateController {
 
         } catch (Exception e) {
             apexError = e.getMessage();
-            system.debug('exception in setTemplateDatas : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
+            // System.debug('exception in setTemplateDatas : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
         }
     }
 
