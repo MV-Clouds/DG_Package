@@ -111,7 +111,7 @@ export default class ButtonGenerator extends LightningElement {
             this.handleCreateQuickAction();
         } catch (e) {
             this.showSpinner = false;
-            console.log('Error in function handleInitialCreate:::', e.message);
+            errorDebugger('buttonGenerator', 'handleInitialCreate', e, 'warn');
         }
     }
 
