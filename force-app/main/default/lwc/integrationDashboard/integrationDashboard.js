@@ -43,6 +43,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    @track isTrustedUrlVerified = false;
    @track onInit = true;
    @track isVerifying = false;
+   @track clipBoardTooltip = 'Copy to Clipboard';
 
    @track loadedResources = 0;
    @track ispopup = false;
@@ -65,7 +66,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    isIntegration = false;
    isLimitations = false;
    isUserguide = false;
-   isFaq = false;
    isSetup = false;
    //used for displaying orggoogledate
    @track orggooglename;
@@ -157,8 +157,11 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
         if (this.currentPageReference.state && this.currentPageReference.state.fragment) {
             this[this.currentPageReference.state.fragment] = true;
             this.activeTab = this.currentPageReference.state.fragment;
-            // this.isSpinner = false;
-            if (!['isSetup', 'isIntegration', 'isLimitations', 'isUserguide','isFaq'].includes(this.activeTab)) this.activeTab = 'isIntegration';
+            this.isSpinner = false;
+            if (!['isSetup', 'isIntegration', 'isLimitations', 'isUserguide'].includes(this.activeTab)) {
+                this.activeTab = 'isIntegration';
+                this.isIntegration = true;
+            }
         } else {
             this.isIntegration = true;
         }
@@ -214,9 +217,14 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
     handleCopyTrustedUrl(){
         try {
             navigator.clipboard.writeText(this.restApiTrustedUrl);
+            this.clipBoardTooltip = 'Copied!';
         } catch (e) {
-            console.log('Error in function handleCopyTrustedUrl:::', e.message);
+            errorDebugger('IntegrationDashborad', 'handleCopyTrustedUrl', e, 'warn');
         }
+    }
+
+    updateCopyTooltip(){
+        this.clipBoardTooltip = 'Copy to Clipboard';
     }
    checkAccess(){
     try {
@@ -261,9 +269,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
  
         });
     } catch (error) {
-        console.log('error in checkAccess : ', error.message);
-        
-        
+        errorDebugger('IntegrationDashborad', 'checkAccess > checkAccess > failure', error, 'warn');
     }
    }
 
@@ -293,16 +299,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
 
    renderedCallback() {
-        console.log("Rendered callback called");
-        
        if(this.awsuserdata){
-           // console.log('inaws');
-           // console.log('bucket'+this.awsbucket);
                if (this.template.querySelector('.hide-bucket') && this.awsbucket == 'Unknown') { // Check if all filters are rendered
-                   // console.log('inawsbucket'+this.awsbucket);
                    const awsbucket = this.template.querySelector('.hide-bucket');
-                   // console.log('inawsbucket'+awsbucket);
-
                    if(awsbucket) awsbucket.style.display = 'none';
                }
                this.awsuserdata = false;
@@ -316,8 +315,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                 })
             }
             else{
-                console.log('Going in else');
-                
                 const unlink = this.template.querySelectorAll('.unauthorize');
                 unlink?.forEach(ele => {
                     ele.disabled = true;
@@ -354,7 +351,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
    loaded(){
        this.loadedResources++;
-       // console.log(this.loadedResources);
        if(this.loadedResources >= 8 || this.activeTab!='isIntegration'){
            this.isSpinner = false;
        }
@@ -477,7 +473,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    handleDragStart(event){
        const key = event.target.dataset.key;
        event.dataTransfer.setData('key', key);
-       // console.log(key);
        this.template.querySelector('.dragbackground').style.opacity = '0.5';
        this.template.querySelector('.dropandstatus').style.opacity = '0.5';
 
@@ -489,7 +484,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
    handleNickname(event){
        this.nickname = event.target.value.trim();
-       // console.log(this.nickname);
    }
 
 
@@ -554,19 +548,16 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
    handleClientId(event) {
        this.clientId = event.target.value.trim();
-       // console.log(this.clientId);
    }
 
 
    handleClientSecret(event) {
        this.clientSecret = event.target.value.trim();
-       // console.log(this.clientSecret);
    }
 
 
    handleBucket(event){
        this.bucket = event.target.value.trim();
-       // console.log(this.bucket);
    }
 
 
@@ -581,7 +572,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            this.isSetup = false;
            this.isUserguide = false;
            this.isLimitations = false;
-           this.isFaq = false;
            const cursor = this.template.querySelectorAll('.cursor');
            cursor?.forEach(ele => {
                 if(ele.dataset.name == tabName && tabName == 'isSetup' && !this.isAccess){
@@ -611,9 +601,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
    copyToClipboard() {
        this.isSpinner = true;
-       // console.log('Invoked clipboard');
        var copyText = this.template.querySelector(".clipboard");
-       // console.log(copyText);
        copyText.select();
        copyText.setSelectionRange(0, 99999); // For mobile devices
        navigator.clipboard.writeText(copyText.value);
@@ -624,18 +612,13 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    handleGoogleAuthorization(){
        try{
            if (!this.authcode) {
-               // console.log('All details are compulsory');
                return;
            }
            else{
-               // console.log('going for integration');
-               // console.log(this.isOrg);
-               // console.log(typeof(this.isOrg));
                authorizeGoogle({ authcode: this.authcode, isOrg: this.isOrg, isAccess: this.isAccess})
                .then(result =>{
                    if(result === 'success'){
                       
-                       // console.log('success');
                        this.isSpinner = false;
                        const messageContainer = this.template.querySelector('c-message-popup')
                        messageContainer.showMessageToast({
@@ -661,18 +644,16 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                    })
                }
            } catch(error){
-           console.log(error.getMessage);
            this.isSpinner = false;
            this.ispopup = false;
-           console.error('this is error'+JSON.stringify(error));
+           errorDebugger('IntegrationDashborad', 'handleGoogleAuthorization', error, 'warn');
        }
    }
 
 
    handleAuthCode() {
-       // console.log('inside parent');
        if(!this.clientId || !this.clientSecret){
-           console.log('both client id and secret are compulsary');
+           null;
        }
        else{
            getAuthCode({ clientId: this.clientId, clientSecret: this.clientSecret})
@@ -682,7 +663,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                 }
            })
            .catch(error =>{
-               console.error('Error:', error);
+                errorDebugger('IntegrationDashborad', 'handleAuthCode > getAuthCode > failure', error, 'warn');
            })
        }
    }
@@ -691,7 +672,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        if(this.namedCredential != ''){
            authorizeNamed({ named: this.namedCredential })
            .then(result =>{
-               // console.log(result);
                this.isSpinner = false;
                if(result === 'Success'){
                const messageContainer = this.template.querySelector('c-message-popup')
@@ -725,7 +705,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            }
        })
        if (!this.clientId || !this.clientSecret || !this.bucket) {
-           // console.log('All details are compulsory');
            return;
        }
        else{
@@ -733,7 +712,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            this.isAws = false;
            awsAuthorization({ clientId: this.clientId, clientSecret: this.clientSecret, bucket: this.bucket, awsNickname: this.nickname })
            .then(result =>{
-               console.log(result);
                this.isSpinner = false;
                if(result === 'Success'){
                const messageContainer = this.template.querySelector('c-message-popup')
@@ -787,15 +765,11 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
    }
 
    handleConfimation(event){
-       console.log('handleConfimation : ', event.detail);
-       // console.log(this.invoke);
        if(event.detail == true && this.invoke =='google'){
            this.isSpinner = true;
            unauth()
            .then(result =>{
-               // console.log(result);
                if(result){
-                   // console.log('inside');
                    this.isActiveGoogleAuth = false;
                    this.checkinggoogleauth();
                    this.isSpinner = false;
@@ -844,7 +818,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            this.isSpinner = true;
            awsunauth()
            .then(result =>{
-               // console.log(result);
                if(result){
                    this.isActiveAwsAuth = false;
                    this.checkingawsauth();
@@ -856,7 +829,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                        message : 'Aws integration deleted successfully',
                        duration : 5000
                    });
-                   // console.log('inside');
                    this.isActiveAwsAuth = false;
                    this.checkingawsauth();
                }
@@ -873,7 +845,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            this.isSpinner = true;
            onedriveunauth()
            .then(result =>{
-               // console.log(result);
                if(result){
                    this.isActiveOnedriveAuth = false;
                    this.checkingonedriveauth();
@@ -885,7 +856,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
                        message : 'Onedrive integration deleted successfully',
                        duration : 5000
                    });
-                   // console.log('inside');        
                }
                else{
                    this.isSpinner = false;
@@ -934,11 +904,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            }
        })
        if (!this.clientId || !this.clientSecret) {
-           // console.log('both client id and secret are compulsary');
            return;
        }
        else{
-       // console.log('Going for authorization');
        this.ispopup = false;
        this.isOneDrive = false;
        oneDriveAuthorization({clientId: this.clientId, clientSecret: this.clientSecret})
@@ -948,8 +916,8 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
             }
        })
        .catch(error => {
-        this.isSpinner = false;
-           console.error('Error:', error);
+            this.isSpinner = false;
+            errorDebugger('IntegrationDashborad', 'handleOneDriveAuthorization > oneDriveAuthorization', error, 'warn');
        });
        this.clientId = '';
        this.clientSecret = '';
@@ -967,11 +935,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
            }
        })
        if (!this.clientId || !this.clientSecret) {
-           // console.log('both client id and secret are compulsary');
            return;
        }
        else{
-       // console.log('Going for authorization');
        this.ispopup = false;
        this.isDropBox = false;
        dropboxAuthorization({clientId: this.clientId, clientSecret: this.clientSecret})
@@ -982,7 +948,7 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        })
        .catch(error => {
             this.isSpinner = false;
-           console.error('Error:', error);
+            errorDebugger('IntegrationDashborad', 'handleDropboxAuthorization > dropboxAuthorization > failure', error, 'warn');
        });
        this.clientId = '';
        this.clientSecret = '';
@@ -1004,7 +970,6 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
 
    handleAfterSave(event){
        this.isSpinner = true;
-       // console.log('parent1');
        const { clientId, clientSecret, bucket, nickname, draggedkey, named, isOrg, authcode } = event.detail;
        if(!this.isGoogle){
        this.clientId = clientId;
@@ -1016,28 +981,22 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
        this.namedCredential = named;
        this.authcode = authcode;
        this.isOrg = isOrg;
-       // console.log(isOrg);
-       // console.log(this.isOrg);
        if(this.isAws){
-           // console.log('1');
            this.handleAwsAuthorization();
            this.ispopup = false;
            this.isAws = false;
        }
        else if(this.isGoogle){
-           // console.log('2');
            this.handleGoogleAuthorization();
            this.isGoogle = false;
        }
        else if(this.isDropBox){
-           // console.log('3');
            this.handleDropboxAuthorization();
            this.isDropBox = false;
            this.ispopup = false;
 
        }
        else if(this.isOneDrive){
-           // console.log('4');
            this.handleOneDriveAuthorization();
            this.isOneDrive = false;
            this.ispopup = false;

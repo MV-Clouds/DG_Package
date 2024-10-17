@@ -135,7 +135,6 @@ public with sharing class DocGenActivityTriggerHandler {
             emailBody += '<img width="150" alt="DocGenius-Logo" src="'+ logoUrl +'" >';
             emailBody += '</body>';
 
-            System.debug('The Email HTMl Body ::'+ emailBody);
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             mail.setToAddresses(new String[] {UserInfo.getUserEmail()});
             mail.setSubject(resultStatus +' - DocGenius Generation Status');

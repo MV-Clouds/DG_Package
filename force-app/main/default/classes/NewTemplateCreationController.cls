@@ -80,7 +80,6 @@ public with sharing class NewTemplateCreationController {
             }
             return templateId;
         } catch (Exception e) {
-            System.debug('Error in saving Template =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'NewTemplateCreationController', 'saveTemplate');
             return 'Error Creating Template : ' + e.getMessage();
         } 

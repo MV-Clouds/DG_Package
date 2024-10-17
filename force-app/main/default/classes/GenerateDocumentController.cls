@@ -28,7 +28,6 @@ public with sharing class GenerateDocumentController {
             Integer countOfPermission = [SELECT Count() FROM PermissionSetAssignment WHERE PermissionSet.Name IN ('DocGenius_Standard_Permissions', 'DocGenius_Admin_Permissions') AND AssigneeId =:userInfo.getUserId() WITH SECURITY_ENFORCED];
             combinedData.isEditorAccess = countOfPermission > 0 ? true : false;
             combinedData.isSuccess = combinedData.folderWrapper != null && combinedData.integrationWrapper != null && combinedData.templates != null && combinedData.isEditorAccess != null ? true : false;
-            System.debug('Combined Data::'+ combinedData);
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'fetchCombinedData');
         }
@@ -77,7 +76,6 @@ public with sharing class GenerateDocumentController {
             }
             return listOfStatus;
         } catch (Exception e) {
-            System.debug('Error in getIntegrationStatus =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getIntegrationStatus');
             return null;
         }
@@ -108,7 +106,6 @@ public with sharing class GenerateDocumentController {
             }
             return listOfFW;
         } catch (Exception e) {
-            System.debug('Error in getFolders =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getFolders');
             return null;
         }
@@ -139,7 +136,6 @@ public with sharing class GenerateDocumentController {
             insert as User cdl;
             return 'success';
         }catch (Exception e) {
-            System.debug('Error in storeInFiles =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'storeInFiles', combinedData.get('activityId'));
             return e.getMessage();
         }
@@ -159,7 +155,6 @@ public with sharing class GenerateDocumentController {
             String recordId = combinedData.get('recordId');
             String body = combinedData.get('body');
             String activityId = combinedData.get('activityId');
-            System.debug('Combined Data ::' + combinedData);
             FeedItem feed = new FeedItem();
             if(recordId == null || recordId == ''){
                 feed.ParentId = UserInfo.getUserId();
@@ -171,7 +166,6 @@ public with sharing class GenerateDocumentController {
             insert as User feed;
             return 'success';
         }catch (Exception e) {
-            System.debug('Error in postToChatter =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'postToChatter', combinedData.get('activityId'));
             return e.getMessage();
         }
@@ -202,17 +196,14 @@ public with sharing class GenerateDocumentController {
             Messaging.SendEmailResult[] result = Messaging.sendEmail(
                 new Messaging.SingleEmailMessage[] { mail });
             if (result[0].isSuccess()) {
-                System.debug('Email sent successfully');
             }
             else {
-                System.debug('The following errors occurred: ' + result[0].getErrors());  
                 if(Test.isRunningTest() == false){
                     throw new AuraHandledException('Email send was unsuccessfull');     
                 }
             }
             return 'success';
         }catch (Exception e) {
-            System.debug('Error in storeFilesAndSendEmail =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'sendEmail', activityId);
             return e.getMessage();
         }
@@ -235,7 +226,6 @@ public with sharing class GenerateDocumentController {
                 sessionId = Page.UserSessionIdPage.getContent().toString();
             }
         }catch(Exception e){
-            System.debug('Error in getSessionId =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getSessionId');
         }
         return sessionId;
@@ -258,7 +248,6 @@ public with sharing class GenerateDocumentController {
             }
             return null;
         }catch(Exception e){
-            System.debug('Error in upsertActivity =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'upsertActivity');
             return null;
         }
@@ -291,7 +280,6 @@ public with sharing class GenerateDocumentController {
                 }
             }
         }catch(Exception e){
-            System.debug('Error in getButtonNames =>' + e.getMessage());
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getButtonNames');
         }
         return buttonNames;
@@ -340,7 +328,6 @@ public with sharing class GenerateDocumentController {
             mapOfData.put('query', query);
             mapOfData.put('sessionId', sessionId);
             mapOfData.put('count', String.valueOf(count)!=null ? String.valueOf(count) : query.substringAfterLast('LIMIT'));
-            System.debug('All the Data to be Sent is :: ' + mapOfData);
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateData');
             return null;
@@ -419,7 +406,6 @@ public with sharing class GenerateDocumentController {
             update as User template;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'setDefaultOptions');
-            system.debug('exception in setDefaultOptions : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
         }
     }
 

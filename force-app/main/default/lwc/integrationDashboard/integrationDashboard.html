@@ -45,7 +45,7 @@
                                                 <ul class="slds-list_ordered">
                                                     <li>Go to <b>Setup > </b> <a target="_blank" href="/lightning/setup/SecurityCspTrustedSite/home"><b>Trusted URLs</b></a> and click <b>New Trusted URL</b>.</li>
                                                     <li>Add <b>sf_rest_api</b> in the API Name.</li>
-                                                    <li>Add <b class="trusted-url-copy-div" onclick={handleCopyTrustedUrl}>{restApiTrustedUrl} <svg class="copy-trusted-url-svg" stroke-width="1px"  xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round" height="16" width="16"><path d="M5.625 1.25h3.75s0.625 0 0.625 0.625v1.25s0 0.625 -0.625 0.625H5.625S5 3.75 5 3.125V1.875s0 -0.625 0.625 -0.625"></path><path d="M5 2.5H3.75a1.25 1.25 0 0 0 -1.25 1.25v8.75a1.25 1.25 0 0 0 1.25 1.25h7.5a1.25 1.25 0 0 0 1.25 -1.25v-1.25"></path><path d="M10 2.5h1.25a1.25 1.25 0 0 1 1.25 1.25v2.5"></path><path d="M13.125 8.75H6.875"></path><path d="m9.375 6.25 -2.5 2.5 2.5 2.5"></path></svg></b>  in the URL.</li>
+                                                    <li>Add <b class="trusted-url-copy-div tooltip" onclick={handleCopyTrustedUrl} onmouseout={updateCopyTooltip}>{restApiTrustedUrl} <svg class="copy-trusted-url-svg" stroke-width="1px"  xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round" height="16" width="16"><path d="M5.625 1.25h3.75s0.625 0 0.625 0.625v1.25s0 0.625 -0.625 0.625H5.625S5 3.75 5 3.125V1.875s0 -0.625 0.625 -0.625"></path><path d="M5 2.5H3.75a1.25 1.25 0 0 0 -1.25 1.25v8.75a1.25 1.25 0 0 0 1.25 1.25h7.5a1.25 1.25 0 0 0 1.25 -1.25v-1.25"></path><path d="M10 2.5h1.25a1.25 1.25 0 0 1 1.25 1.25v2.5"></path><path d="M13.125 8.75H6.875"></path><path d="m9.375 6.25 -2.5 2.5 2.5 2.5"></path></svg><span class="tooltiptext">{clipBoardTooltip}</span></b> in the URL.</li>
                                                     <li>Select all the CSP Directives and Save.</li>
                                                     <li>Trusted URL takes a while to get in effect, try logging out and logging in back after some time.</li>
                                                 </ul>
@@ -320,24 +320,44 @@ Integration</h3>
                     <div class="nav-container">
                         <div class="p-1">
                             <div class="text-grow" id="button">
-                                <a href="https://mvclouds.com/docgenius/user-guide/" class="buttonCSS buttonCSS-blue buttonCSS-bg-userguide"><p>User Guide</p></a>
+                                <div class="card-container">
+                                    <a target="_blank" class="buttonCSS buttonCSS-blue buttonCSS-bg-userguide card-redirect" href="https://mvclouds.com/docgenius/user-guide/">
+                                      <h3>User Guide</h3>
+                                      <p class="small">Let's learn how to get the most out of the DocGenius!</p>
+                                      <div class="go-corner">
+                                        <div class="go-arrow">
+                                          <svg viewBox="-0.5 -0.5 16 16" fill="white" stroke-width="1" xmlns="http://www.w3.org/2000/svg" height="16" width="16"><path d="m2.8109125 13.021875000000001 10.3185875 -4.6015625c0.8273125000000001 -0.36893750000000003 0.8273125000000001 -1.4716874999999998 0 -1.840625L2.8109125 1.9781000000000002c-0.93489375 -0.41691875 -1.904625 0.5088625 -1.4415437500000001 1.37620625l1.97001875 3.68981875c0.15321875000000001 0.287 0.153225 0.62475 0 0.9117500000000001l-1.97001875 3.6898125c-0.463075 0.867375 0.50665 1.793125 1.4415437500000001 1.3761875000000001Z" ></path></svg>
+                                        </div>
+                                      </div>
+                                    </a>
+                                </div>
+                                <!-- <a href="https://mvclouds.com/docgenius/user-guide/" class="buttonCSS buttonCSS-blue buttonCSS-bg-userguide"><p>User Guide</p></a> -->
                             </div>
                         </div>
                         <div class="p-1">
                             <div class="text-grow" id="button1">
-                                <a href="https://mvclouds.com/docgenius/faqs/" class="buttonCSS buttonCSS-blue buttonCSS-bg-faqs"><p>FAQs</p></a>
+                                <div class="card-container">
+                                    <a target="_blank" class="buttonCSS buttonCSS-blue buttonCSS-bg-faqs card-redirect" href="https://mvclouds.com/docgenius/faqs/">
+                                      <h3>Frequently Asked Questions</h3>
+                                      <p class="small">Let's find answers for your questions and queries!</p>
+                                      <div class="go-corner">
+                                          <svg class="go-arrow" viewBox="-0.5 -0.5 16 16" fill="white" stroke-width="1" xmlns="http://www.w3.org/2000/svg" height="16" width="16"><path d="m2.8109125 13.021875000000001 10.3185875 -4.6015625c0.8273125000000001 -0.36893750000000003 0.8273125000000001 -1.4716874999999998 0 -1.840625L2.8109125 1.9781000000000002c-0.93489375 -0.41691875 -1.904625 0.5088625 -1.4415437500000001 1.37620625l1.97001875 3.68981875c0.15321875000000001 0.287 0.153225 0.62475 0 0.9117500000000001l-1.97001875 3.6898125c-0.463075 0.867375 0.50665 1.793125 1.4415437500000001 1.3761875000000001Z" ></path></svg>
+                                      </div>
+                                    </a>
+                                </div>
+                                <!-- <a href="https://mvclouds.com/docgenius/faqs/" class="buttonCSS buttonCSS-blue buttonCSS-bg-faqs"><p>FAQs</p></a> -->
                             </div>
                         </div>
                     </div>
                 </template>
-                <template if:true={isFaq}>
+                <!-- <template if:true={isFaq}>
                     <div class="heading">
                         <h3 draggable="false">FAQs</h3>
                     </div>
                     <div class="main-limit-div">
                         <iframe src="https://mvclouds.com/docgenius/faqs/" frameborder="0" height="100%" width="100%" onload={handleIframeLoad}></iframe>
                     </div>
-                </template>
+                </template> -->
 
             </div>
             </div>
