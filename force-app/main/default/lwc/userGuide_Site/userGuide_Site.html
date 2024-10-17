@@ -19,7 +19,12 @@
                 User Guide
             </div>
             <div class="headerLogo">
+                <a class="hyperLink" href="https://mvclouds.com/docgenius/faqs/">
+                    <div>FAQs</div>
+                </a>
+                <a href="https://mvclouds.com/docgenius">
                 <img src={docGeniusLogoSvg} alt="logo">
+                </a>
             </div>
         </div>
         <div class="bodyContainer">
@@ -27,7 +32,7 @@
                 <div class="left-section" data-close={isClose}>
                     <template for:each={userGuides} for:item="guideCategory">
                         <div class="guideType" data-opened={guideCategory.opened} key={guideCategory.category}>
-                            <div class="guideTitle" onclick={openGuideTypes} data-category={guideCategory.category}> 
+                            <div class="guideTitle" onclick={openGuideTypesAccordion} data-category={guideCategory.category}> 
                                 <h1>{guideCategory.category}</h1>
                                 <div class="accordion-icon">
                                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg>

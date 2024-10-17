@@ -91,7 +91,8 @@ export default class UserGuide_Site extends LightningElement {
             guideCategory?.forEach((ele, index) => {
                 this.userGuides.push({
                     'category' : ele,
-                    'opened' : index === 0,
+                    // 'opened' : index === 0,
+                    'opened' : false,
                     'guides' : []
                 });
             });
@@ -107,16 +108,18 @@ export default class UserGuide_Site extends LightningElement {
                 });
             });
 
-            console.log('this.userGuides : ', this.userGuides);
-            
-
             setTimeout(() => {
                 // Set first  user guide content to display...
                 const guide1 = this.userGuides[0];
                 this.setContentToDisplay(guide1?.guides[0].content);
 
-                // Open first category accordion and select first user guide tab...
-                this.openGuideTypesHelper(this.userGuides[0]?.category);
+                // // Open first category accordion at initial loading...
+                // this.openGuideTypesHelper(this.userGuides[0]?.category);
+
+                // Open all category accordion at initial loading...
+                this.userGuides?.forEach(ele => {
+                    this.openGuideTypesHelper(ele?.category);
+                })
             }, 500);
 
         } catch (error) {
@@ -202,7 +205,6 @@ export default class UserGuide_Site extends LightningElement {
      * To Open Content Image in popup
      */
     openImagesModal = (event) => {
-        console.log('open image in popup : ', event.target.src);
         this.showImageModal = true;
         this.selectedImage = event.target.src;
     }
@@ -218,7 +220,7 @@ export default class UserGuide_Site extends LightningElement {
 
     // ================ =============== ================= ================= ==================
 
-    openGuideTypes(event){
+    openGuideTypesAccordion(event){
         this.openGuideTypesHelper(event.currentTarget.dataset.category);
     }
 

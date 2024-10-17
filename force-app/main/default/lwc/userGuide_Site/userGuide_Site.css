@@ -1,4 +1,3 @@
-
 :host(){
     --headerHeight : 5rem;
     --fontFamily1 : Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif
@@ -25,16 +24,35 @@
     background: #feffff;
 }
 .headerTitle{
-    font-size: 26px;
+    font-size: 36px;
     letter-spacing: 1px;
     font-family: var(--fontFamily1);
-    font-weight: 900;
+    font-weight: 500;
     color: #004d7a;
 }
 .headerLogo{
-    max-width: 15rem;
+    max-width: 20rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
 }
-
+.hyperLink{
+    font-size: 18px;
+    color: #004d7a !important;
+    border-right: 1px solid #004d7a;
+    padding-right: 1rem;
+    width: max-content;
+    font-weight: 700;
+    transition: all 0.3s ease-out 0s;
+    text-decoration: none !important;
+}
+.hyperLink div{
+    white-space: pre;
+}
+.hyperLink:hover{  
+    color: #06aeff !important;
+}
 
 .bodyContainer {
     display: flex;
@@ -384,6 +402,9 @@ lightning-accordion-section {
 }
 
 @media only screen and (max-width: 880px){
+    .headerTitle{
+        font-size: 28px;
+    }
     .tab-content{
         margin-block: 0rem;
         border: none;
@@ -399,9 +420,23 @@ lightning-accordion-section {
     }
     .headerTitle{
         font-size : 22px;
-        white-space: pre;
     }
     .bodyContainer{
         scrollbar-width: none;
+    }
+
+}
+
+@media only screen and (max-width: 400px){
+    .headerTitle{
+        font-weight: bold;
+    }
+    .headerLogo{
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .hyperLink{
+        border-right: none;
+        padding-right: 0rem;
     }
 }
