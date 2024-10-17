@@ -62,7 +62,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     connectedCallback() {
         try {
-            console.log('Connected Callback');
+            
 
             // Added for keyMappingContainer...
             // window.addEventListener("resize", this.resizeFunction());
@@ -75,11 +75,11 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     renderedCallback() {
         try {
-            console.log("renderedCallback");
+            
 
             if (this.selectedTemplate && this.selectedTemplate.id) {
                 let template = this.template.querySelector(`[data-id='${this.selectedTemplate.id}']`);
-                console.log("template==>", template);
+                
 
                 if (template) {
                     template.classList.add("selected");
@@ -119,16 +119,16 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     getAllRelatedData() {
         try {
-            console.log('this.getAllRelatedData');
+            
 
             this.isSpinner = true;
             getAllData({ templateId: this.templateId, objectName: this.objectName })
                 .then((result) => {
-                    console.log("result==>", result);
+                    
 
                     if (result.error) {
                         let errorList = result.error.split(":");
-                        console.log("Error in getAllRelatedData : ", errorList);
+                        
                         const popup = this.template.querySelector("c-message-popup");
                         popup.showMessagePopup({
                             title: "Error",
@@ -197,7 +197,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
                 })
                 .catch((error) => {
-                    console.log("Error in getAllData:", error);
+                    
                     this.isSpinner = false;
                 });
         } catch (error) {
@@ -207,7 +207,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     resizeFunction = () => {
         // Added for keyMappingContainer...
-        console.log("OUTPUT : resizeFunction1");
+        
         // To Open/close keyMapping Container...
         if (window.innerWidth > 1435) {
             this.template.querySelector("c-key-mapping-container")?.toggleMappingContainer(false);
@@ -217,18 +217,18 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     };
 
     closePopup() {
-        console.log('this.closePopup');
+        
         this.showPopup = false;
     }
 
     openPopup() {
-        console.log('this.openPopup');
+        
         this.showPopup = true;
     }
 
     handleTemplateClick(event) {
         try {
-            console.log('handleTemplateClick');
+            
             let selected = this.template.querySelector(".selected");
             if (selected) {
                 selected.classList.remove("selected");
@@ -251,7 +251,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     refreshDocs() {
         try {
-            console.log('this.refreshDocs');
+            
             this.isSpinner = true;
             this.getAllRelatedData();
         } catch (error) {
@@ -275,7 +275,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 })
                 .catch((error) => {
                     this.isSpinner = false;
-                    console.log("Error in newDocument:", error);
+                    
                 });
         } catch (error) {
             this.isSpinner = false;
@@ -285,7 +285,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     next() {
         try {
-            console.log('this.next');
+            
             this.loaderLabel = 'Loading... Please wait a while';
             this.webViewLink = this.selectedTemplate.webViewLink;
             this.MVDG__Google_Doc_Template_Id__c = this.selectedTemplate.id;
@@ -301,7 +301,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     handleConfirmation(event) {
         try {
 
-            console.log('this.cancel');
+            
             if (this.warning == 'cancel') {
                 this.warning = '';
                 if (event && event.detail) {
@@ -343,7 +343,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     // When user navigates to home page
     cancel() {
-        console.log('this.cancel');
+        
         if (this.previousTemplateData.MVDG__Template_Name__c != this.templateRecord.MVDG__Template_Name__c || this.previousTemplateData.MVDG__Description__c != this.templateRecord.MVDG__Description__c || 
             this.previousTemplateData.MVDG__Template_Status__c != this.templateRecord.MVDG__Template_Status__c) {
                 const popup = this.template.querySelector("c-message-popup");
@@ -361,7 +361,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     setDateAndSize() {
         try {
-            console.log('this.setDateAndSize');
+            
             this.allTemplates = this.allTemplates.map((template) => {
 
                 let date = template.createdTime.split("T")[0];
@@ -384,7 +384,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     handleSearch(event) {
         try {
-            console.log('handleSearch');
+            
             if (this.templates) {
                 this.searchString = event.target.value;
                 if (this.searchString) {
@@ -402,7 +402,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     save() {
         try {
-            console.log('save');
+            
             saveTemplateData({
                 templateId: this.templateId,
                 googleDocId: this.selectedTemplate.id,
@@ -410,11 +410,11 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             })
                 .then((response) => {
                     if (response === "success") {
-                        console.log("Template Data Saved");
+                        
                     }
                 })
                 .catch((error) => {
-                    console.log("Error saving template data ==> ", error);
+                    
                 });
         } catch (error) {
             errorDebugger('googleDocTemplateEditor','save', error, 'error', 'Error in save. Please try again later');
@@ -424,7 +424,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     // -=-=- Used to navigate to the other Components -=-=-
     navigateToComp(componentName, paramToPass) {
         try {
-            console.log("navigateToComp : ", componentName, paramToPass);
+            
             let cmpDef;
             if (paramToPass && Object.keys(paramToPass).length > 0) {
                 cmpDef = {
@@ -438,7 +438,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             }
 
             let encodedDef = btoa(JSON.stringify(cmpDef));
-            console.log("encodedDef : ", encodedDef);
+            
             this[NavigationMixin.Navigate]({
                 type: "standard__webPage",
                 attributes: {
@@ -451,7 +451,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     }
 
     handlePreview() {
-        console.log('this.handlePreview');
+        
         this.isPreview = true;
     }
 
@@ -467,14 +467,14 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     //             }
     //         }
     //     } catch (error) {
-    //         console.log("error in showHideMappingContainer : ", error.stack);
+    //         
     //     }
     // }
 
     openGenChildTablePopup(event) {
 
         const childObjectTableBuilder = this.template.querySelector("c-child-object-table-builder");
-        console.log("event==>", event);
+        
         if (childObjectTableBuilder) {
             childObjectTableBuilder.openPopup(event);
         }
@@ -490,7 +490,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     // ==== Toggle Tab Methods - START - ========
     activeTabName = "contentTab";
     activeTab(event) {
-        console.log('this.activeTab');
+        
 
         try {
             this.resizeFunction();
@@ -508,7 +508,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     setActiveTab() {
         try {
-            console.log("activeTabName : ", this.activeTabName);
+            
             // this.templateRecord = JSON.parse(JSON.stringify(this.previousTemplateData));
 
             let activeTabBar = this.template.querySelector(`.activeTabBar`);
@@ -547,7 +547,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     handleEditDetail(event) {
         try {
-            console.log('this.handleEditDetail');
+            
 
             const targetInput = event.currentTarget.dataset.name;
             if (targetInput === "MVDG__Template_Name__c") {
@@ -564,7 +564,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             if (event.target.type !== "checkbox") {
                 this.templateRecord[targetInput] = event.target.value;
             } else {
-                console.log("Status=>" + event.target.checked);
+                
                 this.templateRecord[targetInput] = !event.target.checked;
             }
         } catch (error) {
@@ -574,7 +574,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
     editTemplateDetails() {
         try {
-            console.log('editTemplateDetails');
+            
             this.isSpinner = true;
             this.loaderLabel = "Saving Your Data";
 
@@ -586,7 +586,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
             }
             editTemplate({ templateRecord: JSON.stringify(saveRecord) })
                 .then((result) => {
-                    console.log("Details Edited");
+                    
                     this.isSpinner = false;
                     this.loaderLabel = 'Loading... Please wait a while';
                     const popup = this.template.querySelector("c-message-popup");
@@ -626,8 +626,8 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
     cancelEditTemplate() {
         try {
             this.warning = 'cancel';
-            console.log('cancelEditTemplate');
-            console.log(this.previousTemplateData);
+            
+            
 
             if (this.previousTemplateData.MVDG__Template_Name__c != this.templateRecord.MVDG__Template_Name__c || this.previousTemplateData.MVDG__Description__c != this.templateRecord.MVDG__Description__c || 
                 this.previousTemplateData.MVDG__Template_Status__c != this.templateRecord.MVDG__Template_Status__c) {

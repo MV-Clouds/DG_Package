@@ -36,7 +36,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             this.tableOffset = 0;
             this.changeRequests = [];
             this.allFields = [];
-            console.log("Called when the preview button is pressed");
+            
 
             // Make apex callout to copy the document and get the JSON of the Google Document
             copyGoogleDoc({ templateId: this.templateid })
@@ -54,7 +54,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
 
                         // Get the field values from the record
                         this.responseBody = JSON.parse(result.document);
-                        console.log("this.responseBody==>", this.responseBody);
+                        
 
                         this.documentId = this.responseBody.documentId;
                         this.docPageSize.pageSize = this.responseBody.documentStyle.pageSize;
@@ -72,7 +72,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     }
                 })
                 .catch((error) => {
-                    console.log("error in copyGoogleDoc - LWC", error);
+                    
                     this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error , desc: "Something went wrong. Please refresh the page and try again." } }));
                 });
         } catch (error) {
@@ -86,7 +86,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
         var objectDetails = [];
         var tableNo = 0;
         try {
-            console.log("content \n", content);
+            
             content.forEach((element) => {
                 if (element.table) {
                     let object = {};
@@ -168,7 +168,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
             }
             objectDetails.push({ objApi: "Signature Image", fieldName: Array.from(signatureImage) });
 
-            console.log("objectDetails \n", objectDetails);
+            
             this.mapFieldValues(content, objectDetails);
 
         } catch (error) {
@@ -185,10 +185,10 @@ export default class GenerateGoogleDocFile extends LightningElement {
             mapFieldValues({ queryObject: JSON.stringify(objectDetails), objectApiName: this.objectname, recordId: this.recordId })
                 .then((result) => {
                     this.resultSet = result;
-                    console.log("this.resultSet==>", this.resultSet);
+                    
 
                     let signatureImageValues = this.resultSet.find((el) => el["Signature Image"] != null);
-                    console.log("signatureImageValues==>", signatureImageValues);
+                    
                     content.forEach((element) => {
                         if (element.paragraph) {
                             // Replace all the signature anywhere texts with the content document image
@@ -339,11 +339,11 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     }
                     this.SignatureKeyReplaceRequest();
 
-                    console.log("this.changeRequests==>", this.changeRequests);
+                    
                     this.doPreview();
                 })
                 .catch((error) => {
-                    console.log("error in mapFieldValues==>", error);
+                    
                     this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error, desc: "Something went wrong. Please refresh the page and try again" } }));
                 });
         } catch (error) {
@@ -533,7 +533,7 @@ export default class GenerateGoogleDocFile extends LightningElement {
                     }
                 })
                 .catch((error) => {
-                    console.log("error in doPreview - LWC", error);
+                    
                     this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error, desc: "Something went wrong. Please refresh the page and try again" } }));
                 });
         } catch (error) {

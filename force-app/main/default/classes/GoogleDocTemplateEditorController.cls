@@ -38,10 +38,10 @@ public with sharing class GoogleDocTemplateEditorController {
             response.templateData = getTemplateData(templateId);
             response.profileData = getGoogleProfile();
             response.objectLabel = getLabel(objectName);
-            System.debug('response==>' + response);
+            
 
         } catch (Exception e) {
-            System.debug('Error: '+e.getMessage());
+            
             response.error = e.getMessage();
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getAllData');
         }
@@ -94,7 +94,7 @@ public with sharing class GoogleDocTemplateEditorController {
                 Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 return JSON.serialize(responseMap.get('files'));
             } else if (response.getStatusCode() == 401) {
-                System.debug('Here is some error 401');
+                
                 response = refreshAccessToken(authProvider[0], request);
                 if (response.getStatusCode() == 200) {
                     Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
@@ -103,7 +103,7 @@ public with sharing class GoogleDocTemplateEditorController {
             }
             return null;
         } catch (Exception e) {
-            System.debug('Error In get all Docs ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getAllDocs');
             return null;
         }
@@ -153,7 +153,7 @@ public with sharing class GoogleDocTemplateEditorController {
             }
             return null;
         } catch (Exception e) {
-            System.debug('Error In createNewDocument ==> ' + e.getMessage() + e.getLineNumber());
+            
             Log_Handler.store_exception(e, 'GoogleDocTemplateEditorController', 'createNewDocument');
             return null;
         }
@@ -174,7 +174,7 @@ public with sharing class GoogleDocTemplateEditorController {
     public static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
         try {
             
-            System.debug('Refresh Access token');
+            
             List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
             // List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
             String endpoint = 'https://oauth2.googleapis.com/token';
@@ -204,10 +204,10 @@ public with sharing class GoogleDocTemplateEditorController {
                 }
             }
             
-            System.debug('Token refresh failed. Status Code: ' + response.getStatusCode());
-            System.debug('Response Body: ' + response.getBody());
+            
+            
         } catch (Exception e) {
-            System.debug('Error In get refreshAccessToken ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'refreshAccessToken');
         }
         return null;
@@ -235,7 +235,7 @@ public with sharing class GoogleDocTemplateEditorController {
                 return JSON.serialize(templateData[0]);
             }
         } catch (Exception e) {
-            System.debug('Error In getTemplateData ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getTemplateData');
         }
         return null;
@@ -262,7 +262,7 @@ public with sharing class GoogleDocTemplateEditorController {
                 return JSON.serialize(template[0]);
             }
         } catch (Exception e) {
-            System.debug('Error In getTemplate ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getTemplate');
         }
         return null;
@@ -291,7 +291,7 @@ public with sharing class GoogleDocTemplateEditorController {
 
             return JSON.serialize(profile);
         } catch (Exception e) {
-            System.debug('Error In getGoogleProfile ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getUsernameAndEmail');
             return null;
         }
@@ -316,7 +316,7 @@ public with sharing class GoogleDocTemplateEditorController {
             string objLabel = sObjectMap.get(objectName).getDescribe().getLabel();
             return objLabel;
         } catch (Exception e) {
-            System.debug('Error In getLabel ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'getLabel');
             return null;
         }
@@ -350,7 +350,7 @@ public with sharing class GoogleDocTemplateEditorController {
             } 
 
         } catch (Exception e) {
-            System.debug('Error In editTemplate ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'editTemplate');
         }
         return false;
@@ -383,7 +383,7 @@ public with sharing class GoogleDocTemplateEditorController {
                 insert as user templateData;
             }
         } catch (Exception e) {
-            System.debug('Error In saveTemplateData ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'saveTemplateData');
         }
     }
@@ -405,7 +405,7 @@ public with sharing class GoogleDocTemplateEditorController {
                 upsert authProvider;
             }
         } catch (Exception e) {
-            System.debug('Error In updateAuthProviderSettings ==> ' + e.getMessage());
+            
             Log_Handler.store_exception(e, 'GoogleDocTemplateEditorController', 'updateAuthProviderSettings');
         }
     }
@@ -425,7 +425,7 @@ public with sharing class GoogleDocTemplateEditorController {
         try {
             Response_Handler.store_All_Callout_Response_Map(responseList, 'GoogleDocTemplateEditorController');
         } catch (Exception e) {
-            System.debug('Error In insertResponses ==> ' + e.getMessage());
+            
             Log_Handler.store_Exception(e, 'GoogleDocTemplateEditorController', 'insertResponses');
         }
     }
