@@ -5,7 +5,8 @@
     position: relative;
     height: calc(100% - 4.5rem);
     overflow-y: scroll;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: #00aeff transparent;
 }
 
 .prerequisites-div {
