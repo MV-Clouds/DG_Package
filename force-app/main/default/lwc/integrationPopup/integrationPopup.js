@@ -70,7 +70,6 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
 
     toggleIsOrg(){
         this.isOrg = !this.isOrg;
-        // console.log(this.isOrg); 
     }
 
     checkBtn(){
@@ -82,13 +81,11 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
         else if(this.isAws && this.isNamedCredential && this.namedCredential != ''){
             const authBtn = this.template.querySelector('.save-btn');
             authBtn.style.background = '#00AEFF';
-            // console.log(this.authorizationCode);
             authBtn.removeAttribute('disabled');
         }
         else if(this.isGoogleDrive && this.authorizationCode != ''){
             const authBtn = this.template.querySelector('.save-btn');
             authBtn.style.background = '#00AEFF';
-            // console.log(this.authorizationCode);
             authBtn.removeAttribute('disabled');
         }
         else if(this.isOneDrive && this.clientId != '' && this.clientSecret != ''){
@@ -115,9 +112,7 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             copyIconContainer.classList.remove('show-copied');
         });
         this.isSpinner = true;
-        // console.log('Invoked clipboard');
         var copyText = this.template.querySelector(".copy");
-        // console.log(copyText);
         copyText.select();
         copyText.setSelectionRange(0, 99999); // For mobile devices
         navigator.clipboard.writeText(copyText.value);
@@ -127,7 +122,6 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
 
     imageLoaded(){
         this.isImageLoaded = true;
-        // console.log('image is loaded');
         const onimgload = new CustomEvent('onimgload');
         if(typeof window !== 'undefined'){
             this.dispatchEvent(onimgload);
@@ -150,7 +144,6 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             this.template.querySelectorAll('label')[3].classList.add("error-label");
             this.isDataInvalid = true;
         }
-        // console.log(this.nickname);
         this.checkBtn();
     }
 
@@ -164,7 +157,6 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             this.template.querySelectorAll('label')[1].classList.add("error-label");
             this.isDataInvalid = true;
         }
-        // console.log(this.namedCredential);
         this.checkBtn();
     }
 
@@ -178,7 +170,6 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             this.template.querySelectorAll('label')[1].classList.add("error-label");
             this.isDataInvalid = true;
         }
-        // console.log(this.clientId);
         this.checkBtn();
     }
 
@@ -218,7 +209,6 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             this.template.querySelectorAll('label')[4].classList.add("error-label");
             this.isDataInvalid = true;
         }
-        // console.log(this.bucket);
         this.checkBtn();
 
     }
@@ -245,67 +235,54 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             this.template.querySelectorAll('label')[0].classList.add("error-label");
             this.isDataInvalid = true;
         }
-        // console.log(this.clientId);
         this.checkBtn();
     }
 
     authorize(){
-        // console.log('inside authorize');
         if(!this.isGoogleDrive && !this.isNamedCredential){
-            // console.log('-2');
         this.template.querySelector('.t-clientid').classList.remove("error-border");
         this.template.querySelectorAll('label')[1].classList.remove("error-label");
         this.template.querySelector('.t-clientsecret').classList.remove("error-border");
         this.template.querySelectorAll('label')[2].classList.remove("error-label");
         }
         if(this.isAws && !this.isNamedCredential){
-        // console.log('-1');
         this.template.querySelector('.t-name').classList.remove("error-border");
         this.template.querySelectorAll('label')[3].classList.remove("error-label");
         this.template.querySelector('.t-bucket').classList.remove("error-border");
         this.template.querySelectorAll('label')[4].classList.remove("error-label");
         }
         if(this.isGoogleDrive){
-            // console.log('0');
             this.template.querySelector('.t-authorizationcode').classList.remove("error-border");
             this.template.querySelectorAll('label')[0].classList.remove("error-label");
         }
         this.isDataInvalid = false;
-        // console.log('child0');
         if (!this.clientId && !this.isGoogleDrive && !this.isNamedCredential) {
-            // console.log('1');
             this.template.querySelector('.t-clientid').classList.add("error-border");
             this.template.querySelectorAll('label')[1].classList.add("error-label");
             this.isDataInvalid = true;
         }
         if (!this.clientSecret && !this.isGoogleDrive && !this.isNamedCredential) {
-            // console.log('2');
             this.template.querySelector('.t-clientsecret').classList.add("error-border");
             this.template.querySelectorAll('label')[2].classList.add("error-label");
             this.isDataInvalid = true;
         }
         if (!this.bucket && this.isAws == true && !this.isNamedCredential) {
-            // console.log('3');
             this.template.querySelector('.t-bucket').classList.add("error-border");
             this.template.querySelectorAll('label')[4].classList.add("error-label");
             this.isDataInvalid = true;
         }
         if (!this.nickname && this.isAws == true && !this.isNamedCredential ) {
-            // console.log('4');
             this.template.querySelector('.t-name').classList.add("error-border");
             this.template.querySelectorAll('label')[3].classList.add("error-label");
             this.isDataInvalid = true;
         }
         if (!this.authorizationCode && this.isGoogleDrive){
-            // console.log('5');
             this.template.querySelector('.t-authorizationcode').classList.add("error-border");
             this.template.querySelectorAll('label')[0].classList.add("error-label");
             this.isDataInvalid = true;
         }
         if(!this.isDataInvalid){
-            // console.log('child1');
             try{
-                // console.log('dispatching data');
             if(typeof window !== 'undefined'){
                 this.dispatchEvent(new CustomEvent('authorize', {
                     detail: {
@@ -322,9 +299,8 @@ export default class integrationPopup extends NavigationMixin(LightningElement) 
             }
             }
             catch(error){
-                // console.log('Eroor'+error);
+                errorDebugger('chatBot', 'submitFeedback', error, 'warn');
             }
-            // console.log('child2');
             this.bucket = null;
             this.clientId = null;
             this.clientSecret = null;

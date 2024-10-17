@@ -98,7 +98,6 @@ export default class ChatBot extends LightningElement {
                 this.isOnlyEmail = false;
                 this.isSol = true;
                 this.isIssue = false;
-                // console.log(result);
                 this.messages = JSON.parse(result);
                 this.oldChats = true;
                 this.isSpinner = false;
@@ -217,7 +216,6 @@ export default class ChatBot extends LightningElement {
 
     handleFeedbackChange(event){
         const userfeedback = event.target.value;
-        console.log(event.target.value);
         this.userFeedback = userfeedback.trim();
         
     }
@@ -238,20 +236,17 @@ export default class ChatBot extends LightningElement {
     }
 
     formatFileSize(size) {
-        // console.log(size);
         if (size < 1048576) return (size / 1024).toFixed(1) + ' KB';
         return (size / 1048576).toFixed(1) + ' MB';
     }
 
     submitFeedback(){
-        // console.log('FEEDBACK'+this.feedbackRating);
         if(this.feedbackRating != null){
             sendFeedbackEmail({toAddress: this.toAddress, key: this.feedbackRating, feedback: this.userFeedback, chats: JSON.stringify(this.messages)})
             .then(() => {
                 this.handleClearClose();
             })
             .catch(() => {
-                console.error('error sending feedback');
                 this.handleClearClose();
             })
         }
@@ -278,14 +273,10 @@ export default class ChatBot extends LightningElement {
             // If the keyword or its variation is found, add the original keyword to the list
             if (!foundKeywords.includes(originalKeyword)) {
                 if(originalKeyword === "EndChat"){
-                    // console.log('returning null');
                     return null;
                 }
-                // console.log(originalKeyword);
-                // console.log('finding issue');
                 this.keyword = originalKeyword;
                 this.updateParsedJson(this.jsonFaqs, this.keyword);
-                    // console.log('no issues found');
                     return originalKeyword;
             }
         }
@@ -308,13 +299,10 @@ export default class ChatBot extends LightningElement {
             if (subItem.question.toLowerCase().includes(keyword.toLowerCase())) {
                 this.selectedJSON = subItem;
                 foundSubQuestions.push(subItem);
-                // console.log('outside findInSubQuesitons');
             }
             if (subItem.subQuestions && subItem.subQuestions.length > 0) {
                 const result = this.findInSubQuestions(subItem.subQuestions, keyword);
-                // console.log(JSON.stringify(result));
                 foundSubQuestions = foundSubQuestions.concat(result);
-                // console.log('outside findInSubQuesitons');
             }
         });
         return foundSubQuestions;
@@ -337,7 +325,6 @@ export default class ChatBot extends LightningElement {
         if(this.isFeedbackPopup){
             this.toggleFeedback();
         }
-        // console.log(this.isClearPopup);
         this.isClearPopup = this.isClearPopup ? false : true;
               
     }
@@ -382,7 +369,6 @@ export default class ChatBot extends LightningElement {
                             this.issues = this.jsonFaqs.map(item => item.question);
                         } else {
                             this.isSpinner = false;
-                            console.error('Failed to fetch Faqs');
                         }
                     }
                 
@@ -391,29 +377,22 @@ export default class ChatBot extends LightningElement {
                         this.isIssue = true;
                     }
                 })
-                .catch(error =>{
-                    console.error(error);
-                });  
     }
 
     fetchingSubFAQS(selectedQuestion){
         if(this.selectedJSON == null){
             this.selectedJSON = this.jsonFaqs.find(faq => faq.question === selectedQuestion);
-            // // console.log('This is subfaq '+ JSON.stringify(JSON.parse(this.selectedJSON)));
             this.checkSpinnerDuration((result) => {
                 if(result === 'success'){
                     this.isTimer = true;
-                    // console.log('Time completed');
                     if(this.isEmail){
                         this.issues = null;
                         this.isSpinner = false;
                     }
                     else if (this.selectedJSON && this.selectedJSON.subQuestions.length > 0) {
                         this.issues = this.selectedJSON.subQuestions.map(item => item.question);
-                        // console.log(`Fetched SubFAQs for ${selectedQuestion}:`, this.issues);
                     } else {
                         this.issues = [];
-                        // console.log(`No SubFAQs found for ${selectedQuestion}.`);
                     }
                     if(this.isTimer == true && (this.issues != null || this.solution != null)){
                         this.isSpinner = false;
@@ -425,36 +404,28 @@ export default class ChatBot extends LightningElement {
             });
         }
         else{
-            // // console.log('selected json is not null-->'+JSON.stringify(JSON.parse(JSON.stringify(this.selectedJSON))));
             this.selectedJSON = this.selectedJSON.subQuestions.find(faq => faq.question === selectedQuestion);
-            // // console.log('This is subfaq '+ JSON.stringify(this.selectedJSON));
             this.checkSpinnerDuration((result) => {
                 if(result === 'success'){
                     this.isTimer = true;
-                    // console.log('Time completed');
                     if(this.isEmail){
                         this.issues = null;
                         this.isSpinner = false;
                     }
                     else if (this.selectedJSON && this.selectedJSON.subQuestions && this.selectedJSON.subQuestions.length > 0) {
                         this.issues = this.selectedJSON.subQuestions.map(item => item.question);
-                        // console.log(`Fetched SubFAQs for ${selectedQuestion}:`, this.issues);
                     } else if(this.selectedJSON && this.selectedJSON.answer) {
-                        // console.log('inside else');
                         this.isSolution = true;
                         this.useful = true;
                         this.solution = this.selectedJSON.answer;
                         this.issues = [];
-                        // console.log(`No SubFAQs found for ${selectedQuestion}.`);
                     }
                     if(this.isTimer == true && (this.issues != null || this.isSolution == true)){
                         this.isSpinner = false;
                         if(this.issues != null){
-                            // console.log('issue');
                             this.isIssue = true;
                         }
                         if(this.isSolution == true){
-                            // console.log('solution');
                             this.isIssue = false;
                             this.isSol = true;
                             this.hideChatBar = true;
@@ -464,7 +435,6 @@ export default class ChatBot extends LightningElement {
                             this.updateScroll();
                             storeMessages({msg: JSON.stringify(this.messages)})
                             .then(()=>{
-                                // console.log(result);
                             })
                         }
                     }
@@ -511,7 +481,6 @@ export default class ChatBot extends LightningElement {
         }})
         .then(() => {
             // handle success, show a success message or toast
-            // console.log('Email sent successfully');            
             this.mailSent = true;
             this.isEmail = false;
             this.emailErrorMessage = false;
@@ -522,14 +491,12 @@ export default class ChatBot extends LightningElement {
         })
         .catch(error => {
             // handle error, show an error message or toast
-            console.log("this is error from catch",error);
             
             const existingErrorElement = this.template.querySelector('.error-message');
             if (existingErrorElement) {
                 existingErrorElement.remove();
             }
             if(error.body && error.body.message && error.body.message.includes('INVALID_EMAIL_ADDRESS')){
-                console.log('Email not valid');
                 this.emailErrorMessage = true;
                 const btn = this.template.querySelector('.mail-submit');
                 btn.style.background = '#00AEFF';
@@ -555,7 +522,6 @@ export default class ChatBot extends LightningElement {
 
     toggleBot(){
         this.popupOpen = true;
-        // console.log('Is popup open'+this.popupOpen);
         if(!this.isChatStarted){
             this.isSpinner = true;
             this.issues = null;
@@ -607,10 +573,7 @@ export default class ChatBot extends LightningElement {
         this.isSpinner = true;
         this.isTimer = false;
         this.checkSpinnerDuration(() => {
-            // console.log(result); // Will log 'success' after a random time
         });
-        // console.log(event.currentTarget.dataset.key);
-        // console.log(event.currentTarget.dataset.value);
         this.currentTime = ChatBot
     .captureCurrentTime();
         this.issues = null;
@@ -618,9 +581,7 @@ export default class ChatBot extends LightningElement {
         this.messages.push({text: event.currentTarget.dataset.value, isAnswer: true, time: this.currentTime});
         storeMessages({msg: JSON.stringify(this.messages)})
         .then(()=>{
-            // console.log(result);
         })
-        // console.log('this is message -->',JSON.stringify(this.messages));
         this.fetchingSubFAQS(event.currentTarget.dataset.key);
 
     }
@@ -630,7 +591,6 @@ export default class ChatBot extends LightningElement {
         this.hideChatBar = true;
         this.selectedFileSize = 0;
         this.emailWasActive = false;
-        // console.log('Inside handle chat');
         this.isIssue = false;
         this.isSol = false;
         this.issues = null;
@@ -686,7 +646,6 @@ export default class ChatBot extends LightningElement {
     getRandomTime(){
         const randomIndex = Math.floor(Math.random() * this.time.length);
         const randomTime = this.time[randomIndex];
-        // console.log(randomTime);
         return randomTime;
     }
 
@@ -700,7 +659,6 @@ export default class ChatBot extends LightningElement {
 
           if (event.key === "Enter") {
             event.preventDefault();
-            // console.log('check enter');
             this.sendChat();
           }
         
@@ -712,9 +670,7 @@ export default class ChatBot extends LightningElement {
                 this.isChatStarted = true;
             }
             this.textValue = this.template.querySelector('.communicate').value;
-            // console.log(this.textValue);
             this.template.querySelector('.communicate').value = null;
-            // console.log('Issue with variable');
             this.isIssue = false;
             this.issues = null;
             this.isSol = false;
@@ -732,9 +688,6 @@ export default class ChatBot extends LightningElement {
                     this.messages.push({text: 'Sorry, I couldn\'t understand.', isQuestion: true, time: this.currentTime});
                     this.isSpinner = false;
                     storeMessages({msg: JSON.stringify(this.messages)})
-                    .then(()=>{
-                        // console.log(result);
-                    });
                 }
                 else if(this.query == null){
                     this.isSpinner = false;
@@ -745,30 +698,23 @@ export default class ChatBot extends LightningElement {
                     this.question = 'Is this what you were looking for?';
 
                     if (this.selectedJSON && this.selectedJSON.subQuestions && this.selectedJSON.subQuestions.length > 0) {
-                        // console.log('INSIDE IF');
-                        // console.log(this.selectedJSON);
                         this.issues = this.selectedJSON.subQuestions.map(item => item.question);
-                        // console.log(JSON.stringify(this.issues));
                     }else if(this.query == null){
                         this.isSpinner = false;
                         this.handleChat();
                         this.toggleBot();
                     } else if(this.selectedJSON && this.selectedJSON.answer) {
-                        // console.log('inside else');
                         this.isSolution = true;
                         this.useful = true;
                         this.solution = this.selectedJSON.answer
                         this.issues = [];
-                        // console.log(`No SubFAQs found for ${selectedQuestion}.`);
                     }
                     if(this.isTimer == true && (this.issues != null || this.isSolution == true)){
                         this.isSpinner = false;
                         if(this.issues != null){
-                            // console.log('issue');
                             this.isIssue = true;
                         }
                         if(this.isSolution == true){
-                            // console.log('solution');
                             this.isIssue = false;
                             this.hideChatBar = true;
                             this.isSol = true;
@@ -777,12 +723,10 @@ export default class ChatBot extends LightningElement {
                             this.messages.push({text: this.solution, isSolution: true, time: this.currentTime});
                             storeMessages({msg: JSON.stringify(this.messages)})
                             .then(()=>{
-                                // console.log(result);
                             })
                         }
                     }
                 }
-                // console.log(result); // Will log 'success' after a random time
             });
             this.issues = null;
             this.currentTime = ChatBot
@@ -790,10 +734,8 @@ export default class ChatBot extends LightningElement {
             this.messages.push({text: this.textValue, isAnswer: true, time: this.currentTime});
             storeMessages({msg: JSON.stringify(this.messages)})
             .then(()=>{
-                // console.log(result);
             });
             this.query = this.checkWord();
-            // console.log();
             if(this.query === 'NORESULT' && this.isTimer == true){
                 this.currentTime = ChatBot
             .captureCurrentTime();
@@ -801,39 +743,27 @@ export default class ChatBot extends LightningElement {
                 this.isSpinner = false;
                 storeMessages({msg: JSON.stringify(this.messages)})
                 .then(()=>{
-                    // console.log(result);
                 });
             }
             else if(this.query != null && this.isTimer == true){
-                // console.log('checked keyword');
                 // this.fetchingSubFAQS(key);
                 this.question = 'Is this what you were looking for?';
-                // console.log('skipped if');
                 
                         // this.isTimer = true;
-                        // console.log('Time completed');
-                        // console.log(JSON.stringify(this.selectedJSON));
                         if (this.selectedJSON && this.selectedJSON.subQuestions && this.selectedJSON.subQuestions.length > 0) {
-                            // console.log('INSIDE IF');
-                            // console.log(this.selectedJSON);
                             this.issues = this.selectedJSON.subQuestions.map(item => item.question);
-                            // console.log(JSON.stringify(this.issues));
                         } else if(this.selectedJSON && this.selectedJSON.answer) {
-                            // console.log('inside else');
                             this.isSolution = true;
                             this.useful = true;
                             this.solution = this.selectedJSON.answer
                             this.issues = [];
-                            // console.log(`No SubFAQs found for ${selectedQuestion}.`);
                         }
                         if(this.isTimer == true && (this.issues != null || this.isSolution == true)){
                             this.isSpinner = false;
                             if(this.issues != null){
-                                // console.log('issue');
                                 this.isIssue = true;
                             }
                             if(this.isSolution == true){
-                                // console.log('solution');
                                 this.isIssue = false;
                                 this.isSol = true;
                                 this.hideChatBar = true;
@@ -842,7 +772,6 @@ export default class ChatBot extends LightningElement {
                                 this.messages.push({text: this.solution, isSolution: true, time: this.currentTime});
                                 storeMessages({msg: JSON.stringify(this.messages)})
                                 .then(()=>{
-                                    // console.log(result);
                                 })
                             }
                         }
@@ -853,16 +782,12 @@ export default class ChatBot extends LightningElement {
     handleRemoveFile(event) {
         const fileId = event.target.dataset.id;
         const fileToRemove = this.uploadedFiles.find(file => file.id === parseInt(fileId, 10));
-        console.log(fileToRemove);
         
     
         if (fileToRemove) {
-            console.log("Removing Files");
             
             const fileSizeInBytes = this.convertFileSizeToBytes(fileToRemove.fileSize);
-            this.selectedFileSize -= fileSizeInBytes;
-            console.log(this.selectedFileSize);
-            
+            this.selectedFileSize -= fileSizeInBytes;            
             
             this.uploadedFiles = this.uploadedFiles.filter(file => file.id !== parseInt(fileId, 10));
         }
@@ -900,7 +825,6 @@ export default class ChatBot extends LightningElement {
         
 
         const clickedImage = event.target;
-        // console.log(clickedImage)
         if(event.target.dataset.key == '1'){          
             this.feedbackRating = 1;
             clickedImage.style.filter = 'grayscale(0)';

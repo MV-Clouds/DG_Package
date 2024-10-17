@@ -28,7 +28,6 @@ public with sharing class DropBoxAuthorizationController {
             return result;
         }catch(Exception e){
             Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'checkdropboxauth');
-            System.debug('Exception of checkdropboxauth got invoked');
             return null;
         }
     }
@@ -61,7 +60,6 @@ public with sharing class DropBoxAuthorizationController {
 
         req.setBody(body);
         HttpResponse res = h.send(req);
-        // System.debug(res.getBody());
         if(res.getStatusCode() == 200){
             Map < String, String > jsonvalues = new Map < String, String > ();
             jsonvalues = parseJSONToMap(res.getBody());
@@ -78,7 +76,7 @@ public with sharing class DropBoxAuthorizationController {
         }
     }
     catch (Exception e) {
-            System.debug('Error in dropbox verify auth');
+        Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'verifyAuth');
             return false;
         }
     }
@@ -118,8 +116,6 @@ public with sharing class DropBoxAuthorizationController {
             return false;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'unauthorize');
-            System.debug('Exception of unauthorize got invoked' + e.getStackTraceString());
-            System.debug('Exception message' + e.getDmlMessage(0));
             return null;
         }
     }
@@ -128,7 +124,6 @@ public with sharing class DropBoxAuthorizationController {
     public static String authorize(String clientId, String clientSecret) {
         try{
             if (String.isBlank(clientId) || String.isBlank(clientSecret)) {
-                System.debug('looks fishy');
                 return 'Both Client ID and Client Secret are required.';
             }
             List<MVDG__DropBoxAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
@@ -141,13 +136,10 @@ public with sharing class DropBoxAuthorizationController {
             settings.MVDG__ClientId__c = clientId;
             settings.MVDG__ClientSecret__c = clientSecret;
             String durl = authcode(clientId, clientSecret);
-            System.debug('before upsert');
             upsert as user settings;
-            System.debug(durl);
             return durl;
         }catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'authorize');
-            System.debug('Exception of authorize got invoked');
             return null;
         }
     }
@@ -160,7 +152,6 @@ public with sharing class DropBoxAuthorizationController {
             return REDIRECT_URI;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'redirectUrl');
-            System.debug('Exception of redirecturl got invoked');
             return null;
         }
     }
@@ -169,26 +160,21 @@ public with sharing class DropBoxAuthorizationController {
         try{
             String REDIRECT_URI = '';
             if(url.contains('develop.my.salesforce.com')) {
-            System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             REDIRECT_URI = baseUrl + '--c.develop.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
-                System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 REDIRECT_URI = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
-                System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 REDIRECT_URI = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else {
-                System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 REDIRECT_URI = baseUrl + '--c.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }
             return REDIRECT_URI;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'redirect');
-            System.debug('Exception of redirect got invoked');
             return null;
         }
     }
@@ -198,7 +184,6 @@ public with sharing class DropBoxAuthorizationController {
     public static string authcode(String clientId, String clientSecret){
         try{
         String REDIRECT_URI = redirecturl(); 
-        System.debug('redirect uri -->'+REDIRECT_URI);
         String AUTH_URL = 'https://www.dropbox.com/oauth2/authorize';
         String DROP_BOX_SCOPES = 'files.content.read files.content.write account_info.read';
         String authUrl = AUTH_URL + '?response_type=code' +
@@ -213,7 +198,6 @@ public with sharing class DropBoxAuthorizationController {
         return authUrl;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'authcode');
-            System.debug('Exception of authcode got invoked');
             return null;
         }
     }

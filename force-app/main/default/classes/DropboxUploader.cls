@@ -34,7 +34,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     
             req.setBody(body);
             HttpResponse res = h.send(req);
-            // System.debug(res.getBody());
     
             Map < String, String > jsonvalues = new Map < String, String > ();
             jsonvalues = parseJSONToMap(res.getBody());
@@ -69,7 +68,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
 
     global DropboxUploader(Id cvid, Id activityId) {
         this.contentVersionId = cvid;
-        System.debug('Activity ID '+activityId);
         this.activity = activityId;  //activity will be used to send mail
     }
 
@@ -122,10 +120,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                         maxSize = 800;
                     }
                     if (fileSize < maxSize) { // 8 MB threshold
-                        System.debug('Uploading small file directly to Dropbox');
                         uploadSmallFile(cv.VersionData, contentType, activity);
                     } else {
-                        System.debug('Uploading large file in chunks to Dropbox');
                         uploadLargeFileInChunks(cv, fileSizeEncoded, activity);
                     }
                 }
@@ -135,7 +131,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 obj.MVDG__Dropbox__c = 'Failure '+ e.getMessage();
                 obj.Id = activity; 
                 updateActivityMessage(obj);
-                System.debug('Error during Dropbox file upload: ' + e.getMessage());
             }
             if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isAccessible() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isUpdateable()){
                 update as user listMessage[0];
@@ -143,7 +138,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     }
 
     global void finish(Database.BatchableContext bC) {
-        System.debug('Dropbox file upload batch finished');
     }
 
     public static void mailMessage(Integer code){
@@ -243,7 +237,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             HttpResponse res = http.send(req);
     
             if (res.getStatusCode() == 200) {
-                System.debug('Small file uploaded successfully to Dropbox');
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Dropbox__c = 'Success';
                 obj.Id = activity; 
@@ -255,8 +248,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 obj.Id = activity;
                 updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
-                System.debug('Error during small file upload to Dropbox: ' + res.getStatus());
-                System.debug('Response body: ' + res.getBody());
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxUploader', 'uploadSmallFile', activity);
@@ -277,23 +268,15 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             Integer totalChunks = Integer.valueOf(Math.ceil(filesizedec.divide(chunkSize, 3)));
     
             for (Integer i = 0; i < totalChunks; i++) {
-                System.debug(Limits.getHeapSize());
                 Integer start = i * chunkSize;
                 Integer ending = Math.min((i + 1) * chunkSize - 1, Integer.valueOf(fileSize) - 1);
-                System.debug('Chunk Start Byte: ' + start);
-                System.debug('Chunk End Byte: ' + ending);
-                System.debug('file size-->' + fileSize);
                 Blob chunkBlob = getFileData(contentVersion.VersionData, start, chunkSize);
     
                 // Compute the offset as the start byte of the chunk
                 offset = Integer.valueOf(Math.floor(start / 1.3333333333));
-                System.debug('Chunk Offset: ' + offset);
     
                 uploadChunk(chunkBlob, sessionId, offset, activity);
-                System.debug('Uploaded chunk ' + (i + 1) + '/' + totalChunks + ': Start Byte: ' + start + ', End Byte: ' + ending + ', Offset: ' + offset);
-                System.debug(Limits.getHeapSize());
                 chunkBlob = null;
-                System.debug(Limits.getHeapSize());
     
             }
             Response_Handler.store_All_Callout_Response(responseList, 'DropboxUploader', 'uploadChunk');
@@ -378,7 +361,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
 
     private static void completeUploadSession(String sessionId, Blob lastChunk, Integer offset, String activity) {
         try {
-            System.debug(lastChunk.size() + offset);
             Integer off = lastChunk.size() + offset;
             HttpRequest req = new HttpRequest();
             req.setEndpoint('https://content.dropboxapi.com/2/files/upload_session/finish');
@@ -392,7 +374,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
             HttpResponse res = http.send(req);
     
             if (res.getStatusCode() == 200) {
-                System.debug('Large file uploaded successfully to Dropbox');
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__Dropbox__c = 'Success';
                 obj.Id = activity; 
@@ -404,8 +385,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 obj.Id = activity; 
                 updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
-                System.debug('Error during large file upload to Dropbox: ' + res.getStatus());
-                System.debug('Response body: ' + res.getBody());
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxUploader', 'completeUploadSession', activity);
@@ -417,7 +396,6 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     }
 
     private static Blob getFileData(Blob versionDataBlob, Integer chunkStart, Integer chunkSize) {
-        System.debug('Error -->' + EncodingUtil.base64Decode(encodingUtilMethod(versionDataBlob, chunkStart, chunkSize)));
         return EncodingUtil.base64Decode(encodingUtilMethod(versionDataBlob, chunkStart, chunkSize));
     }
 
@@ -441,10 +419,7 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
         String userEmail = UserInfo.getUserEmail();
         if (userEmail != null && userEmail.contains('@')) {
             mail.setToAddresses(new List<String>{userEmail});
-        } else {
-            // Handle the case when email is null or invalid
-            System.debug('Invalid user email: ' + userEmail);
-        } 
+        }
         mail.setSubject(subject);
         mail.setPlainTextBody(message);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });

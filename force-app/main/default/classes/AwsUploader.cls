@@ -149,7 +149,6 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
     }
 
     global void finish(Database.BatchableContext bC) {
-        // System.debug('It is final');
     }
 
 /*

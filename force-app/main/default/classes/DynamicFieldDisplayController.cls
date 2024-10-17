@@ -88,8 +88,7 @@ public with sharing class DynamicFieldDisplayController {
             // Convert map to list
             this.fieldSections = sectionsMap.values();
         } catch (Exception e) {
-            System.debug('Error in fetchRecordFieldValues: ' + e.getMessage());
-            throw new AuraHandledException('Unable to fetch record field values.');
+            throw new AuraHandledException('Unable to fetch record field values.'+ e);
         }
     }
 
@@ -234,7 +233,6 @@ public with sharing class DynamicFieldDisplayController {
             
             return recordFieldValues;
         } catch (Exception e) {
-            System.debug('Error in getRecordFieldValues: ' + e.getMessage());
 
             throw new AuraHandledException('Unable to fetch record field values.');
         }
@@ -280,10 +278,9 @@ public static List<Map<String, Object>> getFields(String objectName, String layo
                 }
                 sectionIndex++;
             }
-        } else {
         }
     } catch (Exception e) {
-        System.debug('Exception in getFields: Line ' + e.getLineNumber() + ' - ' + e.getMessage());
+        throw new AuraHandledException('Unable to fetch record field values.'+e);
     }
     return fieldDetails;
 }
@@ -303,7 +300,6 @@ public static List<Map<String, Object>> getFields(String objectName, String layo
         }
         catch(Exception ex)
         {
-            system.debug('Exception in tooling API Call:'+ ex.getMessage());
             return ex.getMessage();
         }
     }

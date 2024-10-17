@@ -104,7 +104,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             Integer fileSize = cv.ContentSize;
             fullFileName = cv.Title +'.'+ cv.fileExtension;
             String contentType = contentTypeForOneDrive(cv.FileExtension);
-            System.debug(activity);
             
             String acctoken = getToken(activity);
             Integer fileSizeEncoded = getLengthOfFile(cv.VersionData);
@@ -134,7 +133,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             obj.MVDG__One_Drive__c = 'Failure '+ e.getMessage();
             obj.Id = activity; 
             updateActivityMessage(obj);
-            System.debug('Error during Dropbox file upload: ' + e.getMessage());
         }
         if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isAccessible() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isUpdateable()){
             update as user listMessage[0];
@@ -143,7 +141,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
 
 
     global void finish(Database.BatchableContext bC) {
-        System.debug('Dropbox file upload batch finished');
     }
 
 
@@ -174,11 +171,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
             req.setTimeout(120000);
             Http h = new Http();
             HttpResponse resp = h.send(req);
-            System.debug(resp.getStatusCode());
-            System.debug(resp.getBody());
             if (resp.getStatusCode() == 200 || resp.getStatusCode() == 201) {
-                System.debug(resp.getBody());
-                System.debug('activity'+fileDetails[2]);
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Success';
                 obj.Id = fileDetails[2]; 
@@ -191,7 +184,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 obj.Id = fileDetails[2]; 
                 updateActivityMessage(obj);
                 mailMessage(resp.getStatusCode());
-                System.debug('Something went wrong');
                 return false;
             }
         } catch (Exception e) {
@@ -305,7 +297,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
         try {
             String result = initiateUploadSession(fileDetails[1], contentVersion, fileDetails[2]);
             if (result != 'failure') {
-                System.debug('Initiated successfully');
                 Decimal filesizedec = Decimal.valueOf(fileSize);
                 Integer offset;
         
@@ -361,7 +352,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 mail.setToAddresses(new List<String>{userEmail});
             } else {
                 // Handle the case when email is null or invalid
-                System.debug('Invalid user email: ' + userEmail);
             }
             mail.setSubject(subject);
             mail.setPlainTextBody(message);
@@ -401,7 +391,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
                 obj.Id = activity; 
                 updateActivityMessage(obj);
                 mailMessage(res.getStatusCode());
-                System.debug('Error initiating upload session: ' + res.getStatusCode() + res.getBody());
                 return 'failure';
             }
         } catch (Exception e) {
@@ -423,7 +412,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     ********************************************************
     */
     private static void uploadChunk(chunkDetails parameters) {
-        System.debug('Upload chunk Invoked');
         try {
             if( parameters.result != null){
                 
@@ -440,19 +428,15 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
 
             Http http = new Http();
             HttpResponse res = http.send(req2);
-            System.debug(res.getStatusCode());
 
             if (res.getStatusCode() == 200 || res.getStatusCode() == 202) {
-                System.debug('Half was success' + res.getStatusCode() + res.getBody());
             }
             else if(res.getStatusCode() == 201){
-                System.debug('Everything was success' + res.getStatusCode() + res.getBody());
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Success';
                 obj.Id = parameters.activity; 
                 updateActivityMessage(obj);
             }else {
-                System.debug('Everything was in else' + res.getStatusCode() + res.getBody());
                 responseList.add(res);
                 MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
                 obj.MVDG__One_Drive__c = 'Failure'+ res.getStatusCode() + res.getBody();
