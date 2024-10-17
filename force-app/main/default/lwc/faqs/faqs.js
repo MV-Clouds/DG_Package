@@ -1,12 +1,14 @@
 import { LightningElement, track } from 'lwc';
-import faqImage from '@salesforce/resourceUrl/faqImage'
+import faqImage from '@salesforce/resourceUrl/faqImage';
+import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getAllFaqs from '@salesforce/apex/FaqsController.getAllFaqs';
 import getFAQKnowledge from '@salesforce/apex/FaqsController.getFAQKnowledge';
 
 export default class Faqs extends LightningElement {
 
 
-    faqImage = faqImage
+    faqImage = faqImage;
+    docGeniusLogoSvg = docGeniusLogoSvg;
     @track activeSection = 'Integration';
     @track contentSections = [];
     @track faqs = [];
@@ -65,7 +67,6 @@ export default class Faqs extends LightningElement {
             getFAQKnowledge()
             .then(result => {
                 if(result) {
-                    console.log('result : ', result);
                     if(result){
                         this.setFAQs(result);
                     }
@@ -109,8 +110,6 @@ export default class Faqs extends LightningElement {
                 });
             });
 
-            console.log('faq2 : ', this.faqs);
-            
         } catch (error) {
             console.log('error in setFAQs : ', error.message);
         }

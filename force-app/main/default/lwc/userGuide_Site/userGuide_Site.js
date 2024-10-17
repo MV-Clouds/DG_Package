@@ -13,7 +13,7 @@ export default class UserGuide_Site extends LightningElement {
 
     @track isClose = false;
     @track isSmallScreen = false;
-    @track showModal = false;
+    @track showImageModal = false;
     initialRender = true;
 
     connectedCallback(){
@@ -43,7 +43,7 @@ export default class UserGuide_Site extends LightningElement {
     }
 
     renderedCallback() {
-        if (this.showModal) {
+        if (this.showImageModal) {
             window.addEventListener('keydown', this.handleKeyPress);
         } else {
             window.removeEventListener('keydown', this.handleKeyPress);
@@ -91,7 +91,8 @@ export default class UserGuide_Site extends LightningElement {
             guideCategory?.forEach((ele, index) => {
                 this.userGuides.push({
                     'category' : ele,
-                    'opened' : index === 0,
+                    // 'opened' : index === 0,
+                    'opened' : false,
                     'guides' : []
                 });
             });
@@ -108,25 +109,27 @@ export default class UserGuide_Site extends LightningElement {
             });
 
             setTimeout(() => {
-                this.openGuideTypesHelper(this.userGuides[0]?.category);
+                // Set first  user guide content to display...
+                const guide1 = this.userGuides[0];
+                this.setContentToDisplay(guide1?.guides[0].content);
+
+                // // Open first category accordion at initial loading...
+                // this.openGuideTypesHelper(this.userGuides[0]?.category);
+
+                // Open all category accordion at initial loading...
+                this.userGuides?.forEach(ele => {
+                    this.openGuideTypesHelper(ele?.category);
+                })
             }, 500);
 
         } catch (error) {
-            console.log('error in setUserGuideStructure : ', error.stack);
+            errorDebugger("userGuide", 'setUserGuideStructure', error, 'error');
         }
-    }
-
-    closeModal() {
-        this.showModal = false;
-    }
-    openModal = (event) => {
-        this.selectedImage = event.target.src;
-        this.showModal = true;
     }
 
     handleKeyPress = (event) => {
         if (event.key == 'Escape') {
-            this.closeModal();
+            this.closeImageModal();
         }
     }
 
@@ -145,38 +148,69 @@ export default class UserGuide_Site extends LightningElement {
             // this.userGuides.forEach(ele => {
                 if (ele.name === targetedGuide) {
                     ele.selected = true;
-                    this.contentToDisplay = ele.content;
+                    this.setContentToDisplay(ele.content);
                 }
                 else{
                     ele.selected = false;
                 }
             });
 
-            const scrollContent = this.template.querySelector('.white-background');
-            console.log('scrollContent : ', scrollContent?.scrollTop);
-            if(scrollContent) scrollContent.scrollTop = 0;
-            this.addEventListenerToImages();
-
-
             // const guideContent = this.template.querySelector('.tab-content');
             // guideContent && (guideContent.innerHTML = this.contentToDisplay);
 
         } catch (error) {
-            errorDebugger("userGuide", 'handleTabSelection', error, 'error', 'Error in changing tabs. Please try again later');
+            errorDebugger("userGuide", 'handleTabSelection', error, 'error');
         }
     }
 
+    setContentToDisplay(content){
+        try {
+            const richTextDiv = this.template.querySelector(`[data-name="richText"]`);
+            if(richTextDiv){
+                richTextDiv && (richTextDiv.innerHTML = content);
+    
+                const scrollContent = this.template.querySelector('.white-background');
+                if(scrollContent) scrollContent.scrollTop = 0;
+    
+                this.addEventListenerToImages();
+            }
+            else{
+                // if richTextDiv not rendered, call this method again...
+                this.setContentToDisplay(content);
+            }
+        } catch (error) {
+            errorDebugger("userGuide", 'setContentToDisplay', error, 'error', 'Error in changing tabs. Please try again later');
+        }
+    }
+
+    /**
+     * Add event listener to Images when user change user guide tab
+     */
     addEventListenerToImages(){
         try{
-            const content = this.template.querySelector('.content');
-            const contentImages = content.querySelectorAll('img');
+            const content = this.template.querySelector('.content')
+            const contentImages = content?.querySelectorAll('img');
             contentImages.forEach(ele => {
-                ele.addEventListener('click', this.openImages);
+                // ...First remove existing Eventlistener to avoid any conflict...
+                ele.removeEventListener('click', null);
+                ele.addEventListener('click', this.openImagesModal);
             })
         }
         catch(error){
-            console.log(`error in addEventListenerToImages : ${error.message}`);
+            errorDebugger("userGuide", 'addEventListenerToImages', error, 'error');
         }
+    }
+
+    /**
+     * To Open Content Image in popup
+     */
+    openImagesModal = (event) => {
+        this.showImageModal = true;
+        this.selectedImage = event.target.src;
+    }
+
+    closeImageModal() {
+        this.showImageModal = false;
     }
 
     toggleTab() {
@@ -186,7 +220,7 @@ export default class UserGuide_Site extends LightningElement {
 
     // ================ =============== ================= ================= ==================
 
-    openGuideTypes(event){
+    openGuideTypesAccordion(event){
         this.openGuideTypesHelper(event.currentTarget.dataset.category);
     }
 
@@ -198,6 +232,8 @@ export default class UserGuide_Site extends LightningElement {
             targetDiv.style = `--openedMaxHeight : ${maxHeight}px`;
             targetedCate.opened = !targetedCate.opened;
             
+            // ... For Single accordion opening ...
+
             // this.userGuides?.forEach(ele => {
             //     const targetDiv = this.template.querySelector(`[data-tablist="${ele.category}"]`);
             //     if(ele.category === targetCategory){
@@ -212,7 +248,7 @@ export default class UserGuide_Site extends LightningElement {
             // })
             
         } catch (error) {
-            console.log(`error in openGuideTypes : ${error.message}`);
+            errorDebugger("userGuide", 'openGuideTypesHelper', error, 'error');
         }
     }
 

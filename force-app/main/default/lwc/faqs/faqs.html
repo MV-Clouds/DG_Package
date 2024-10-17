@@ -1,6 +1,18 @@
 <template>
   <div class="faq-maindiv">
-
+    <div class="headerContainer">
+      <div class="headerTitle">
+          Frequently Asked Questions
+      </div>
+      <div class="headerLogo">
+        <a class="hyperLink" href="https://mvclouds.com/docgenius/user-guide/">
+          <div>User Guide</div>
+        </a>
+        <a href="https://mvclouds.com/docgenius">
+          <img src={docGeniusLogoSvg} alt="logo">
+        </a>
+      </div>
+  </div>
     <template if:false={mobileView}>
         <div class="all-btn">
         <template for:each={faqs} for:item="faq" for:index="index">
@@ -21,7 +33,7 @@
         </div>
       </div>
     </template>
-    <hr>
+    <!-- <hr> -->
     <div class="content-container">
       <div class="left-container">
         <img id="link" src={faqImage} alt="error" width="90%" draggable="false">

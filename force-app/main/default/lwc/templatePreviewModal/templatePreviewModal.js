@@ -102,8 +102,7 @@ export default class TemplatePreviewModal extends LightningElement {
         try {
             // Set pre-selected Record Id...
             if(this.recordId){
-                this.selectedRecordId = this.recordId;
-                this.generatePreview();
+                this.selectedRecordId = this.recordId;    
             }
             else{
                 this.isSpinner = true;
@@ -139,6 +138,7 @@ export default class TemplatePreviewModal extends LightningElement {
         try {
             console.log("this.isCalledFromGenerateDoc==>", this.isCalledFromGenerateDoc);
             if (this.isCalledFromGenerateDoc) {
+                this.generatePreview();
                 this.template.host.style.setProperty("--maxWidth", 'unset');
             }
         } catch (error) {
@@ -224,9 +224,13 @@ export default class TemplatePreviewModal extends LightningElement {
                 // setTimeout(() => {
                 //     this.generateGoogleDocPreview();
                 // }, 300)
-                this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod( () => {
-                    this.generateGoogleDocPreview()
-                }, 300);
+                const previewTimeout = this.template.querySelector('[data-id="previewTimeout"]');
+                if(previewTimeout){
+                    previewTimeout.setCustomTimeoutMethod( () => {
+                        this.generateGoogleDocPreview()
+                    }, 300);
+                    this._isCalledFromGenerateDoc = false;
+                }
             }
         } catch (error) {
             errorDebugger('TemplatePreviewModal', 'previewData', error, 'warn');
