@@ -317,13 +317,13 @@ c-user-guide {
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url('/resource/DG_UserGuide');
+    background-image: url('/resource/MVDG__DG_UserGuide');
 }
 .buttonCSS-bg-faqs {
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url('/resource/DG_FAQs');
+    background-image: url('/resource/MVDG__DG_FAQs');
 }
 .nav-container {
     display: flex;
