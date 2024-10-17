@@ -145,8 +145,9 @@ public with sharing class FaqsController {
     @AuraEnabled
     public static List<Knowledge__kav> getFAQKnowledge(){
         try {
-            List<Knowledge__kav> faqs = [SELECT Id, Title, UrlName, FAQ_Question_Category__c, FAQ_Question__c, FAQ_Answer__c FROM Knowledge__kav WHERE RecordType.Name = 'FAQs' LIMIT 50000];
-            
+            Id faqsRecordTypeId = Schema.SObjectType.Knowledge__kav.getRecordTypeInfosByName().get('DocGenius FAQs').getRecordTypeId();
+            List<Knowledge__kav> faqs = [SELECT Id, Title, UrlName, FAQ_Question_Category__c, FAQ_Question__c, FAQ_Answer__c FROM Knowledge__kav WHERE RecordTypeId =: faqsRecordTypeId AND PublishStatus = 'Online' LIMIT 50000];
+                
             return faqs;
         } catch (Exception e) {
             system.debug('exception in getTempalaterecords : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());

@@ -55,13 +55,15 @@
 .left-section {
     white-space: pre;
     min-width: 30%;
-    width: 15rem;
+    width: 20rem;
+    max-width: max-content;
     overflow: scroll;
     scrollbar-color: #00AEFF white;
     scrollbar-width: thin;
     transition: all 0.5s;
     /* padding-inline: 1rem 0.5rem; */
     padding-block: 1rem;
+    height: 100%;
 }
 .left-section[data-close=true]{
    width: 0rem;
@@ -325,8 +327,8 @@ lightning-accordion-section {
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     /* width: 100%; */
-    margin-top: 5.5rem;
-    margin-inline: 5.5rem;
+    margin-block: 1rem;
+    margin-inline: 1rem;
     animation: fadeIn 0.3s ease-in-out;
     z-index: 103;
 }
@@ -342,7 +344,7 @@ lightning-accordion-section {
 }
 .custom-modal-body img {
     max-height: 70vh;
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
 @keyframes fadeIn {
