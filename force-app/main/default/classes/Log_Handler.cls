@@ -44,7 +44,7 @@ public with sharing class Log_Handler {
             
         } 
         catch (Exception error) {
-            system.debug('error in Store_Exception >> '+ error);
+            store_Exception(error, 'Log_Handler', 'store_Exception');
         }
     } 
 
@@ -76,10 +76,7 @@ public with sharing class Log_Handler {
             ex.MVDG__Exception_Stack_Trace__c = e.getStackTraceString();
             ex.MVDG__Class_Name__c = classname;
             ex.MVDG__Method_Name__c = methodname;
-            System.debug('activityId=>' + activityId);
             ex.MVDG__Generate_Document_Activity__c	= activityId;
-
-            System.debug('The new Exception log is :::' + ex);
         
             if(Schema.sObjectType.MVDG__Exception_Logs__c.isCreateable()){
                 insert ex;
@@ -87,7 +84,6 @@ public with sharing class Log_Handler {
             
         } 
         catch (Exception error) {
-            system.debug('error in Store_Exception >> '+ error);
             store_Exception(error, 'Log_Handler', 'store_Exception');
         }
     }

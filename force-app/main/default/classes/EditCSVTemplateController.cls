@@ -87,7 +87,6 @@ public with sharing class EditCSVTemplateController {
                 allData.maxLimit = tf[0].MVDG__CSV_Limit__c;
                 allData.fields = tf[0].MVDG__CSV_Fields__c;
             }
-            System.debug('Template Fields Data Fetched: ' + allData);
             return allData;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'EditCSVTemplateController', 'getTemplateField');

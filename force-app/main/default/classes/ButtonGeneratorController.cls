@@ -27,7 +27,6 @@ public with sharing class ButtonGeneratorController {
         } catch (Exception e) {
             combinedData.isSuccess = false;
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getCombinedData');
-            system.debug('exception in getCombinedData : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
         }
         return combinedData;
     }
@@ -49,7 +48,6 @@ public with sharing class ButtonGeneratorController {
             return objects;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getListViewButtonObj');
-            system.debug('exception in getListViewButtonObj : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }
@@ -72,7 +70,6 @@ public with sharing class ButtonGeneratorController {
             return objects;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getBasicPrintButtonObj');
-            system.debug('exception in getBasicPrintButtonObj : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }
@@ -101,7 +98,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
         return objects;
     } catch (Exception e) {
         Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getQuickActionButtonObj');
-        system.debug('exception in getQuickActionButtonObj : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
         return null;
     }
 }
@@ -135,7 +131,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
             return listOfObjects;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getAllObjects');
-            system.debug('exception in getAllObjects : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }
@@ -151,7 +146,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
     @AuraEnabled
     public static String createListViewButtons(List<String> objects,Map<String, String> buttonData){
         try {
-            System.debug('buttonData :' + buttonData+ 'Objects ::' + objects);
             String buttonName = buttonData.get('buttonName');
             String buttonEndURL = buttonData.get('buttonEndURL');
             String buttonLabel = buttonData.get('buttonLabel');
@@ -198,7 +192,6 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
             }
             return 'success';
         } catch (Exception e) {
-            system.debug('exception in createListViewButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'createListViewButtons');
             return e.getMessage();
         }
@@ -220,16 +213,13 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
             }
             list<MetadataService.UpsertResult> saveResultList = new list<MetadataService.UpsertResult>();
             saveResultList = service.upsertMetadata(webLinks);
-            System.debug('Save Result List :::' + saveResultList);
 
             if(!saveResultList[0].created){
-                system.debug('Error Creating Button.');
                 return false;
             }
             return true;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'addButtons');
-            system.debug('exception in addButtons : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return false;
         }
     }
