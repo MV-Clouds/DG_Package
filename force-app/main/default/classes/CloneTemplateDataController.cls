@@ -111,16 +111,12 @@ public with sharing class CloneTemplateDataController {
                 }
                 insert as user newTempData; 
             }
-            System.debug('cloneTemp.Id'+cloneTemp.Id);
-             
             field.tempId = cloneTemp.Id;
             field.tempObj = cloneTemp.MVDG__Object_API_Name__c;
             field.isSuccess = true;
 
         } catch (Exception e) {
-            System.debug('Exception'+e);
-            System.debug('Exception occurred at line: ' + e.getLineNumber());
-            System.debug('Exception Type: ' + e.getTypeName());
+            Log_Handler.store_Exception(e, 'CloneTemplateDataController', 'cloneTempData');
             field.isSuccess = false;
         }
         return field;
