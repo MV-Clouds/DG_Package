@@ -2306,6 +2306,10 @@ a.note-dropdown-item:hover {
                 align-items: center;
                 gap: 0.5rem;
             }
+            .sn-checkbox-open-in-new-window{
+                /* Hide Open in new Window option from link popup */
+                display: none;
+            }
 
 
 

@@ -136,7 +136,7 @@ export default class TemplatePreviewModal extends LightningElement {
 
     renderedCallback() {
         try {
-            console.log("this.isCalledFromGenerateDoc==>", this.isCalledFromGenerateDoc);
+            // console.log("this.isCalledFromGenerateDoc==>", this.isCalledFromGenerateDoc);
             if (this.isCalledFromGenerateDoc) {
                 this.generatePreview();
                 this.template.host.style.setProperty("--maxWidth", 'unset');

@@ -619,7 +619,7 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
               ['custom_title', ['titleBtn']],
             ]
             
-            // remove page backer for header and footer editor.
+            // remove page brake for header and footer editor.
             if(note.selector == 'headerEditor' || note.selector == 'footerEditor'){
               (toolbarOptions[4][1])?.splice(3, 1);
             }

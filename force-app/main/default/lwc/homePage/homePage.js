@@ -50,6 +50,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     lastScroll = 0;                             // User to identify scroll direction for lazy loading...
     hour12 = false;
+    isSetUpRedirect = false;
 
     @track sortingFiledList = [
         {label : 'Template Name', value : 'MVDG__Template_Name__c'},
@@ -197,8 +198,6 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             errorDebugger('HomePage', 'setReferenceDate', error, 'warn');
         }
     }
-
-    isSetUpRedirect = false;
 
     // Fetch Template Records From Apex..
     fetchTemplateRecords(){
