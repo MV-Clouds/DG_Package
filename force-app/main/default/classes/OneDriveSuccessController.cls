@@ -32,8 +32,6 @@ public with sharing class OneDriveSuccessController {
                String url = ''+System.Url.getOrgDomainUrl();
                String redirectUri = redirect(url);
             
-               System.debug('redirectUri-->'+redirectUri);
-               System.debug('Lets generate refresh token');
                Map<String, String> tokens = generaterefreshtoken(clientid, clientsecret, redirectUri, authcode);
                 if (tokens == null || tokens.isEmpty()) {
                     return 'error: failed to generate tokens';
@@ -136,7 +134,6 @@ public with sharing class OneDriveSuccessController {
            return 'error';
        } catch (Exception e) {
            Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'gettoken');
-           System.debug('Exception of gettoken got invoked');
            return null;
        } 
    }
@@ -145,26 +142,21 @@ public with sharing class OneDriveSuccessController {
        try{
            String redirectUri = '';
            if(url.contains('develop.my.salesforce.com')){
-           System.debug('System org url -->'+url);
            String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
            redirectUri = baseUrl + '--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage';
            }else if(url.contains('sandbox.my.salesforce.com')){
-               System.debug('System org url -->'+url);
                String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                redirectUri = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage';
            }else if(url.contains('scratch.my.salesforce.com')){
-               System.debug('System org url -->'+url);
                String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                redirectUri = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage';
            }else {
-               System.debug('System org url -->'+url);
                String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                redirectUri = baseUrl + '--c.vf.force.com/apex/MVDG__oneDriveSuccessPage';
            }
            return redirectUri;
        } catch (Exception e) {
            Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'redirect');
-           System.debug('Exception of gettoken got invoked');
            return null;
        }
    }
@@ -173,27 +165,22 @@ public with sharing class OneDriveSuccessController {
        try{
        String refrenceUrl = '';
        if(url.contains('develop.my.salesforce.com')) {
-       System.debug('System org url -->'+url);
        String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
        refrenceUrl = baseUrl + '.develop.lightning.force.com/lightning/n/MVDG__User_Configuration';
        }else if(url.contains('sandbox.my.salesforce.com')){
-           System.debug('System org url -->'+url);
            String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
            refrenceUrl = baseUrl + '.sandbox.lightning.force.com/lightning/n/MVDG__User_Configuration';
        }
        else if(url.contains('scratch.my.salesforce.com')){
-           System.debug('System org url -->'+url);
            String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
            refrenceUrl = baseUrl + '.scratch.lightning.force.com/lightning/n/MVDG__User_Configuration';
        }else {
-           System.debug('System org url -->'+url);
            String baseUrl = url.substringBeforeLast('.my.salesforce.com');
            refrenceUrl = baseUrl + '.force.com/lightning/n/MVDG__User_Configuration';
        }
        return refrenceUrl;
        } catch (Exception e) {
            Log_Handler.store_Exception(e, 'DropboxSuccessController', 'referenceUrl');
-           System.debug('Exception of gettoken got invoked');
            return null;
        }
    }
@@ -204,12 +191,10 @@ public with sharing class OneDriveSuccessController {
            try {
                String url = ''+System.Url.getOrgDomainUrl();
                String refrenceUrl = referenceUrl(url);
-               System.debug(refrenceUrl);
                PageReference pageRef = new PageReference(refrenceUrl); // Replace 'TargetPageName' with the name of your target Visualforce page
                return pageRef;
            } catch (Exception e) {
            Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'redirectToSalesforcePage');
-           System.debug('Exception of redirectToSalesforcePage got invoked');
            return null;
        } 
    }
@@ -220,11 +205,9 @@ public with sharing class OneDriveSuccessController {
             // Use the PageReference class to extract query parameters
             PageReference pageRef = new PageReference(url.replace(System.Url.getOrgDomainUrl().toExternalForm(), ''));
             String codeParameter = pageRef.getParameters().get('code');
-            System.debug(codeParameter);
             return codeParameter;
        } catch (Exception e) {
            Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'extractCodeParameter');
-           System.debug('Exception of extractCodeParameter got invoked');
            return null;
        } 
    }
@@ -248,13 +231,8 @@ public with sharing class OneDriveSuccessController {
            HttpResponse response = http.send(request);
            // Parse the response and extract refresh token
            Map<String, String> result = new Map<String, String>();
-           System.debug(response.getStatusCode());
-           System.debug(response.getBody());
            if (response.getStatusCode() == 200) {
                Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
-               // System.debug(jsonResponse);
-               System.debug('access token : '+(String) jsonResponse.get('access_token'));
-               System.debug('refresh token : '+(String) jsonResponse.get('refresh_token'));
                result.put('refresh_token', (String) jsonResponse.get('refresh_token'));
                result.put('access_token', (String) jsonResponse.get('access_token'));
            } else {
@@ -266,7 +244,6 @@ public with sharing class OneDriveSuccessController {
            return result;
        } catch (Exception e) {
            Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'generaterefreshtoken');
-           System.debug('Exception of generaterefreshtoken got invoked');
            return null;
        }
    }
@@ -290,7 +267,6 @@ public with sharing class OneDriveSuccessController {
            }
        } catch (Exception e) {
            Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'fetchUserDetails');
-           System.debug('Exception of fetchUserDetails got invoked');
            return null;
        }   
    }
@@ -306,7 +282,6 @@ public with sharing class OneDriveSuccessController {
            return req2;
        } catch (Exception e) {
            Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'getuserdata');
-           System.debug('Exception of getuserdata got invoked');
            return null;
        }
    }

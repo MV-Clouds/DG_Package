@@ -74,40 +74,30 @@
                 function init() {
                     var currentUrl = '{!JSENCODE($CurrentPage.URL)}';
 
-                    console.log('currentUrl');
-
                     Visualforce.remoting.Manager.invokeAction(
                         '{!$RemoteAction.DropboxSuccessController.gettoken}',
                         currentUrl,
                         function(result, event) {
                             if(result == 'Success'){
                                 if (event.status) {
-                                    console.log('this is eventstatus');
                                     var successPanels = document.getElementsByClassName('successPanels')[0];
-                                    console.log(successPanels);
                                     if (successPanels) {
                                         successPanels.style.display = 'block';
-                                        console.log('successPanels');
                                         redirectToSalesforce();
 
                                     }
-                                    console.log(event.status);
                                 } else {
                                     var errorPanels = document.getElementsByClassName('errorPanels')[0];
                                     if (errorPanels) {
                                         errorPanels.style.display = 'block';
-                                        console.log('errorpanels');
                                     }
-                                    console.error(event.message);
                                 }
                             }
                             else{
                                 var errorPanels = document.getElementsByClassName('errorPanels')[0];
                                     if (errorPanels) {
                                         errorPanels.style.display = 'block';
-                                        console.log('errorpanels');
                                     }
-                                    console.error(event.message);
                             }
                         }
                     );
@@ -119,10 +109,6 @@
                                 function(result, event) {
                                     if (event.status) {
                                         window.location.href = result;
-                                    } else if (event.type === 'exception') {
-                                        console.error(event.message);
-                                    } else {
-                                        console.error('Unknown error occurred');
                                     }
                                 }
                             );

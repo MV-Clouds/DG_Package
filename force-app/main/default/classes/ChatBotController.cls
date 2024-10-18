@@ -194,8 +194,8 @@ public with sharing class ChatBotController {
             '"answer": "Ask system admins for permission if you want to change integration options or create buttons."' +
         '},' +
         '{' +
-            '"question": "What is Doc Genius",' +
-            '"answer": "Doc Genius provide\'s end to end solution to all your document generation problems."' +
+            '"question": "What is DocGenius",' +
+            '"answer": "DocGenius provide\'s end to end solution to all your document generation problems."' +
         '},' +
         '{' +
             '"question": "Email Us",' +
