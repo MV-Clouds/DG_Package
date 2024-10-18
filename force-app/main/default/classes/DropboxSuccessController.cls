@@ -34,7 +34,6 @@ public with sharing class DropboxSuccessController {
                 }
                 if(refreshToken != null){
                     settings.MVDG__refresh_token__c = refreshToken;
-                    System.debug('ref');
                     }
                 if(accessToken != null){
                     settings.MVDG__access_token__c = accessToken;
@@ -80,7 +79,6 @@ public with sharing class DropboxSuccessController {
             return 'error';
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'gettoken');
-            System.debug('Exception of gettoken got invoked');
             return null;
         }
     }
@@ -90,26 +88,21 @@ public with sharing class DropboxSuccessController {
         try{
             String redirectUri = '';
             if(url.contains('develop.my.salesforce.com')){
-            System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
             redirectUri = baseUrl + '--c.develop.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('sandbox.my.salesforce.com')){
-                System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
                 redirectUri = baseUrl + '--c.sandbox.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else if(url.contains('scratch.my.salesforce.com')){
-                System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
                 redirectUri = baseUrl + '--c.scratch.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }else {
-                System.debug('System org url -->'+url);
                 String baseUrl = url.substringBeforeLast('.my.salesforce.com');
                 redirectUri = baseUrl + '--c.vf.force.com/apex/MVDG__dropboxSuccessPage';
             }
             return redirectUri;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'redirect');
-            System.debug('Exception of gettoken got invoked');
             return null;
         }
     }
@@ -119,27 +112,22 @@ public with sharing class DropboxSuccessController {
         try{
         String refrenceUrl = '';
         if(url.contains('develop.my.salesforce.com')) {
-        System.debug('System org url -->'+url);
         String baseUrl = url.substringBeforeLast('.develop.my.salesforce.com');
         refrenceUrl = baseUrl + '.develop.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }else if(url.contains('sandbox.my.salesforce.com')){
-            System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.sandbox.my.salesforce.com');
             refrenceUrl = baseUrl + '.sandbox.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }
         else if(url.contains('scratch.my.salesforce.com')){
-            System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.scratch.my.salesforce.com');
             refrenceUrl = baseUrl + '.scratch.lightning.force.com/lightning/n/MVDG__User_Configuration';
         }else {
-            System.debug('System org url -->'+url);
             String baseUrl = url.substringBeforeLast('.my.salesforce.com');
             refrenceUrl = baseUrl + '.force.com/lightning/n/MVDG__User_Configuration';
         }
         return refrenceUrl;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'referenceUrl');
-            System.debug('Exception of gettoken got invoked');
             return null;
         }
     }
@@ -151,12 +139,10 @@ public with sharing class DropboxSuccessController {
                 String url = ''+System.Url.getOrgDomainUrl();
                 String refrenceUrl = referenceUrl(url);
                 
-                System.debug(refrenceUrl);
                 PageReference pageRef = new PageReference(refrenceUrl); // Replace 'TargetPageName' with the name of your target Visualforce page
                 return pageRef;
             } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'redirectToSalesforcePage');
-            System.debug('Exception of redirectToSalesforcePage got invoked');
             return null;
         }
     }
@@ -167,11 +153,9 @@ public with sharing class DropboxSuccessController {
             // Use the PageReference class to extract query parameters
             PageReference pageRef = new PageReference(url.replace(System.Url.getOrgDomainUrl().toExternalForm(), ''));
             String codeParameter = pageRef.getParameters().get('code');
-            System.debug('Tirth code parameter'+codeParameter);
             return codeParameter;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'extractCodeParameter');
-            System.debug('Exception of extractCodeParameter got invoked');
             return null;
         }
     }
@@ -180,7 +164,6 @@ public with sharing class DropboxSuccessController {
     public static Map<String, String> generaterefreshtoken(String clientId, String clientSecret, String redirectUri, String authcode){
         try {
             String scope = 'files.content.read files.content.write account_info.read';
-            System.debug(scope);
             String endpoint = 'https://api.dropbox.com/oauth2/token';
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
@@ -195,13 +178,8 @@ public with sharing class DropboxSuccessController {
             HttpResponse response = http.send(request);
             // Parse the response and extract refresh token
             Map<String, String> result = new Map<String, String>();
-            System.debug(response.getStatusCode());
-            System.debug(response.getBody());
             if (response.getStatusCode() == 200) {
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
-                // System.debug(jsonResponse);
-                System.debug('access token : '+(String) jsonResponse.get('access_token'));
-                System.debug('refresh token : '+(String) jsonResponse.get('refresh_token'));
                 result.put('refresh_token', (String) jsonResponse.get('refresh_token'));
                 result.put('access_token', (String) jsonResponse.get('access_token'));
             } else {
@@ -213,7 +191,6 @@ public with sharing class DropboxSuccessController {
             return result;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'generaterefreshtoken');
-            System.debug('Exception of generaterefreshtoken got invoked');
             return null;
         }
     }
@@ -231,20 +208,16 @@ public with sharing class DropboxSuccessController {
   
             if (resp1.getStatusCode() == 200) {
                 String resbody = resp1.getBody();
-                System.debug(resbody);
                 String respbody = resbody != null ? resbody : '';
                 return respbody;
             }
             else{
                 Response_Handler.store_Callout_Response(resp1, 'DropboxSuccessController', 'fetchUserDetails');
-                System.debug('Error fetching user details. HTTP Status Code: ' + resp1.getStatusCode() +
-                                ', Response Body: ' + resp1.getBody());
                 return 'false';
             }
             
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'fetchUserDetails');
-            System.debug('Exception of fetchUserDetails got invoked');
             return null;
         }    
     }
@@ -259,7 +232,6 @@ public with sharing class DropboxSuccessController {
             return req2;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropboxSuccessController', 'getuserdata');
-            System.debug('Exception of getuserdata got invoked');
             return null;
         }
     }

@@ -49,13 +49,11 @@ public class OneDriveUploaderTest {
 
         // First element
         OneDriveUploader uploader = new OneDriveUploader(contentVersion[0].Id, act[0].Id);
-        System.debug(contentVersion[0].ContentSize);
         String executeResult = Database.executeBatch(uploader);
         System.assertNotEquals(null, executeResult, 'The batch result cannot be null');
         
         // Second element
         OneDriveUploader uploader2 = new OneDriveUploader(contentVersion[1].Id, act[0].Id);
-        System.debug(contentVersion[1].ContentSize);
         String executeResult2 = Database.executeBatch(uploader2);
         System.assertNotEquals(null, executeResult2, 'The result cannot be null');
         Test.stopTest();

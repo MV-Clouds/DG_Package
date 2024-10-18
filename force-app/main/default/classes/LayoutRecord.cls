@@ -10,7 +10,6 @@ public class LayoutRecord {
     } 
     
     public static LayoutRecord parse(String json){
-        System.debug(json);
         return (LayoutRecord) System.JSON.deserialize(json, LayoutRecord.class);
     }
 }

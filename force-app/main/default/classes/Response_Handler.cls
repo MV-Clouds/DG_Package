@@ -21,7 +21,7 @@ public with sharing class Response_Handler{
             
         } 
         catch (Exception error) {
-            system.debug('response in Store_Exception >> '+ error);
+            Log_Handler.store_Exception(error, 'Response_Handler', 'store_Callout_Response');
         }
     } 
 
@@ -41,7 +41,7 @@ public with sharing class Response_Handler{
             insert as user allResponseList;
         } 
         catch (Exception error) {
-            system.debug('response in store_All_Callout_Response >> '+ error);
+            Log_Handler.store_Exception(error, 'Response_Handler', 'store_All_Callout_Response');
         }
     }
 
@@ -64,7 +64,7 @@ public with sharing class Response_Handler{
             insert as user allResponseList;
         } 
         catch (Exception error) {
-            system.debug('response in store_All_Callout_Response >> '+ error);
+            Log_Handler.store_Exception(error, 'Response_Handler', 'store_All_Callout_Response_Map');
         }
     } 
     
