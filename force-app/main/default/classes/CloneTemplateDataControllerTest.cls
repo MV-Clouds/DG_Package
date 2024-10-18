@@ -56,7 +56,6 @@ public class CloneTemplateDataControllerTest {
     static void testCloneTempData_SimpleTemplate() {
         // Fetch the template record inserted in the test setup
         MVDG__Template__c templateRecord = [SELECT Id, MVDG__Template_Name__c, MVDG__Description__c FROM MVDG__Template__c WHERE MVDG__Template_Type__c = 'Simple Template' LIMIT 1];
-        System.debug('templateRecord *** : '+templateRecord);
         
         // Create a JSON string for dataMap
         String jsonData = '{"templateName": "test", "templateDescription": "desc", "templateType":"Simple Template","templateBody":"true","header":"true","pageConfiguration":"true","footer":"true"}';
@@ -81,7 +80,6 @@ public class CloneTemplateDataControllerTest {
     static void testCloneTempData_CSVTemplate() {
         // Fetch the template record inserted in the test setup
         MVDG__Template__c templateRecord = [SELECT Id FROM MVDG__Template__c WHERE MVDG__Template_Type__c = 'CSV Template' LIMIT 1];
-        System.debug('templateRecord *** : '+templateRecord);
         
         // Create a JSON string for dataMap
         String jsonData = '{"templateName": "test", "templateDescription": "desc", "templateType":"CSV Template","newSelectedFields":"true","newFieldsFilters":"true","newFieldOrderBy":"true","newFieldLimit":"true"}';
