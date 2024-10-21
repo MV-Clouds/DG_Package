@@ -233,10 +233,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     get updatedTemplates(){
         if(!this.templateSearchKey){
+            this.noTemplateFound = this.allTemplates.length < 1 ? true : false;
             return this.allTemplates;
         }
         let searchedTemplates = this.allTemplates.filter(t => t.MVDG__Template_Name__c.toUpperCase().includes(this.templateSearchKey.toUpperCase()));
         this.noTemplateFound = searchedTemplates.length < 1 ? true : false;
+        
         return searchedTemplates;
     }
 
