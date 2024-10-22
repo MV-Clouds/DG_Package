@@ -23,7 +23,7 @@ export default class ChatBot extends LightningElement {
     @track isEmail = false;
     @track toAddress = 'support-dg@mvclouds.com';
     @track replyAddress = '';
-    @track subject = 'User is facing issue in DocGenius';
+    @track subject = 'Support Request: DocGenius Product';
     @track body = '';
     @track mailSent = false;
     @track hideCircle = false;
@@ -40,6 +40,7 @@ export default class ChatBot extends LightningElement {
     @track fileSizeError = false;
     @track emailWasActive = false;
     @track unknownError = false;
+    @track isThankYou = false;
 
     selectedFileSize = 0;
     currentTime = '09:48';
@@ -244,10 +245,16 @@ export default class ChatBot extends LightningElement {
         if(this.feedbackRating != null){
             sendFeedbackEmail({toAddress: this.toAddress, key: this.feedbackRating, feedback: this.userFeedback, chats: JSON.stringify(this.messages)})
             .then(() => {
-                this.handleClearClose();
+                this.isThankYou = true;
+                this.customTimeout?.setCustomTimeoutMethod(() => {
+                    this.handleClearClose();
+                }, 2000);
             })
             .catch(() => {
-                this.handleClearClose();
+                this.isThankYou = true;
+                this.customTimeout?.setCustomTimeoutMethod(() => {
+                    this.handleClearClose();
+                }, 2000);
             })
         }
     }
@@ -579,6 +586,7 @@ export default class ChatBot extends LightningElement {
         this.issues = null;
         this.messages.push({text: this.question, isQuestion: true, time: this.currentTime});
         this.messages.push({text: event.currentTarget.dataset.value, isAnswer: true, time: this.currentTime});
+        this.question = 'What seems to be causing you trouble in '+ event.currentTarget.dataset.value+ ' ?';
         storeMessages({msg: JSON.stringify(this.messages)})
         .then(()=>{
         })
@@ -587,6 +595,11 @@ export default class ChatBot extends LightningElement {
     }
 
     handleChat(){
+        this.isThankYou = false;
+        this.body = '';
+        this.subject = '';
+        this.replyAddress = '';
+        this.uploadedFiles = null;
         this.isOnlyEmail = true;
         this.hideChatBar = true;
         this.selectedFileSize = 0;
@@ -685,7 +698,7 @@ export default class ChatBot extends LightningElement {
                 if(result === 'success' && this.query ==='NORESULT' ){
                     this.currentTime = ChatBot
                 .captureCurrentTime();
-                    this.messages.push({text: 'Sorry, I couldn\'t understand.', isQuestion: true, time: this.currentTime});
+                    this.messages.push({text: 'Oops, I couldn\'t understand that.', isQuestion: true, time: this.currentTime});
                     this.isSpinner = false;
                     storeMessages({msg: JSON.stringify(this.messages)})
                 }
