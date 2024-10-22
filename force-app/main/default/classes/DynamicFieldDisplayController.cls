@@ -6,6 +6,8 @@ public with sharing class DynamicFieldDisplayController {
     public String layoutName { get; set; }
     public string RecordTypeId { get; set;}
     public List<FieldSection> fieldSections { get; set; }
+    public string baseUrl { get; set; }
+
 
     public DynamicFieldDisplayController() {
         this.recordId = ApexPages.currentPage().getParameters().get('id');
@@ -17,9 +19,10 @@ public with sharing class DynamicFieldDisplayController {
             this.layoutName = getObjectLayout(this.objectID, this.RecordTypeId)[0]; // Change this to the desired layout
             this.fieldSections = new List<FieldSection>();
             fetchRecordFieldValues();
+            baseUrl = URL.getOrgDomainUrl().getHost().split('.com')[0];
         }
-
     }
+
     public String getObjectNameFromRecordId(String recordId) {
         String objectName = '';
         Map<String, Schema.SObjectType> globalDescribeMap = Schema.getGlobalDescribe();
@@ -48,6 +51,8 @@ public with sharing class DynamicFieldDisplayController {
             Map<String, Object> recordFieldValues = getRecordFieldValues(recordId, objectName, layoutName, NameSpace);
             List<Map<String, Object>> fieldDetails = getFields(objectName, layoutName, NameSpace);
 
+
+
             Map<Integer, FieldSection> sectionsMap = new Map<Integer, FieldSection>();
             Map<String, Schema.SObjectField> fieldsMap = Schema.getGlobalDescribe().get(objectName).getDescribe().fields.getMap();
 
@@ -57,6 +62,7 @@ public with sharing class DynamicFieldDisplayController {
                 Integer sectionIndex = (Integer) fieldDetail.get('sectionIndex');
                 Integer columnIndex = (Integer) fieldDetail.get('columnIndex');
                 String fieldName = (String) fieldDetail.get('field');
+                String fieldType = (String) fieldDetail.get('fieldType');
                 Object fieldValue = recordFieldValues.get(fieldName);
                 String fieldLabel = fieldsMap.containsKey(fieldName) ? fieldsMap.get(fieldName).getDescribe().getLabel() : fieldName;
 
@@ -79,9 +85,9 @@ public with sharing class DynamicFieldDisplayController {
 
                 FieldSection section = sectionsMap.get(sectionIndex);
                 if (columnIndex == 0) {
-                    section.leftColumn.add(new Field(fieldName, formattedFieldValue, fieldLabel));
+                    section.leftColumn.add(new Field(fieldName, formattedFieldValue, fieldLabel, fieldType));
                 } else if (columnIndex == 1) {
-                    section.rightColumn.add(new Field(fieldName, formattedFieldValue, fieldLabel));
+                    section.rightColumn.add(new Field(fieldName, formattedFieldValue, fieldLabel, fieldType));
                 }
             }
 
@@ -104,9 +110,6 @@ public with sharing class DynamicFieldDisplayController {
 
 
 
-
-   
-
     public class FieldSection {
         public String sectionName { get; set; }
         public Integer sectionIndex { get; set; }
@@ -125,11 +128,13 @@ public with sharing class DynamicFieldDisplayController {
         public String fieldName { get; set; }
         public String fieldValue { get; set; }
         public String fieldLabel { get; set; }
+        public String fieldType { get; set; }
 
-        public Field(String fieldName, String fieldValue, String fieldLabel) {
+        public Field(String fieldName, String fieldValue, String fieldLabel, String fieldType) {
             this.fieldName = fieldName;
             this.fieldValue = fieldValue;
             this.fieldLabel = fieldLabel;
+            this.fieldType = fieldType;
         }
     }
 
@@ -239,51 +244,61 @@ public with sharing class DynamicFieldDisplayController {
     }
     
     @AuraEnabled
-public static List<Map<String, Object>> getFields(String objectName, String layout, String NameSpace) {
-    List<Map<String, Object>> fieldDetails = new List<Map<String, Object>>();
-    
-    
-    try {
-        // Adjust layout name based on whether the object is namespaced
-        String layoutName;
-        if (NameSpace != null) {
-            layoutName = objectName + '-' + NameSpace + '__' + layout;
-        } else {
-            layoutName = String.format('{0}-{1}', new String[]{objectName, layout});
-        }
-
-        List<Metadata.Metadata> layouts = Metadata.Operations.retrieve(Metadata.MetadataType.Layout, new List<String>{layoutName});
-
-        // Check if layouts list is null or empty before casting
-        if (layouts != null && layouts.size() > 0 && layouts.get(0) != null) {
-            Metadata.Layout layoutMd = (Metadata.Layout)layouts.get(0);
-            
-            Integer sectionIndex = 0;
-            for (Metadata.LayoutSection section : layoutMd.layoutSections) {
-                Integer columnIndex = 0;
-                String sectionLabel = section.label != null ? section.label : 'Section ' + sectionIndex;
-
-                for (Metadata.LayoutColumn column : section.layoutColumns) {
-                    if (column.layoutItems != null) {
-                        for (Metadata.LayoutItem item : column.layoutItems) {
-                            Map<String, Object> fieldDetail = new Map<String, Object>();
-                            fieldDetail.put('field', item.field);
-                            fieldDetail.put('sectionName', sectionLabel);
-                            fieldDetail.put('sectionIndex', sectionIndex);
-                            fieldDetail.put('columnIndex', columnIndex);
-                            fieldDetails.add(fieldDetail);
-                        }
-                    }
-                    columnIndex++;
-                }
-                sectionIndex++;
+    public static List<Map<String, Object>> getFields(String objectName, String layout, String NameSpace) {
+        List<Map<String, Object>> fieldDetails = new List<Map<String, Object>>();
+        try {
+            // Adjust layout name based on whether the object is namespaced
+            String layoutName;
+            if (NameSpace != null) {
+                layoutName = objectName + '-' + NameSpace + '__' + layout;
+            } else {
+                layoutName = String.format('{0}-{1}', new String[]{objectName, layout});
             }
+
+            Map<String, FieldInfo> objectFields = getFieldInfo(objectName);
+
+            List<Metadata.Metadata> layouts = Metadata.Operations.retrieve(Metadata.MetadataType.Layout, new List<String>{layoutName});
+
+            // Check if layouts list is null or empty before casting
+            if (layouts != null && layouts.size() > 0 && layouts.get(0) != null) {
+                Metadata.Layout layoutMd = (Metadata.Layout)layouts.get(0);
+                
+                Integer sectionIndex = 0;
+                for (Metadata.LayoutSection section : layoutMd.layoutSections) {
+                    Integer columnIndex = 0;
+                    String sectionLabel = section.label != null ? section.label : 'Section ' + sectionIndex;
+
+                    for (Metadata.LayoutColumn column : section.layoutColumns) {
+                        if (column.layoutItems != null) {
+                            for (Metadata.LayoutItem item : column.layoutItems) {
+                                String field = item.field;
+                                // System.debug('field : ' + field);
+                                // System.debug('objectFields.get(field) : ' + objectFields.get(field));
+                                // Boolean isRefrenceField = objectFields.get(field)?.isRefrenceField;
+                                // if(isRefrenceField){
+                                //     System.debug('referenceObjNameField : ' + objectFields.get(field)?.referenceObjNameField);
+                                //     field = objectFields.get(field)?.referenceObjNameField;
+                                // }
+                                Map<String, Object> fieldDetail = new Map<String, Object>();
+                                fieldDetail.put('field', field);
+                                fieldDetail.put('fieldType', objectFields.get(field)?.fieldType);
+                                fieldDetail.put('sectionName', sectionLabel);
+                                fieldDetail.put('sectionIndex', sectionIndex);
+                                fieldDetail.put('columnIndex', columnIndex);
+                                System.debug('fieldDetail : ' + fieldDetail);
+                                fieldDetails.add(fieldDetail);
+                            }
+                        }
+                        columnIndex++;
+                    }
+                    sectionIndex++;
+                }
+            }
+        } catch (Exception e) {
+            throw new AuraHandledException('Unable to fetch record field values.'+e);
         }
-    } catch (Exception e) {
-        throw new AuraHandledException('Unable to fetch record field values.'+e);
+        return fieldDetails;
     }
-    return fieldDetails;
-}
 
 
     public static String restGet(String endPoint, String method, String sid) {
@@ -302,5 +317,69 @@ public static List<Map<String, Object>> getFields(String objectName, String layo
         {
             return ex.getMessage();
         }
+    }
+
+    public static Map<String, FieldInfo> getFieldInfo(string objectApiName){
+
+        try {
+            Schema.SObjectType sobjType = Schema.getGlobalDescribe().get(objectApiName);
+            Schema.DescribeSObjectResult r = sobjType.getDescribe();
+            Map<String, Schema.SObjectField> mapOfFields = r.fields.getMap();
+            List<String> fieldsList = new List<String>(mapOfFields.keySet());
+            fieldsList.sort();
+            
+            Map<String, FieldInfo> fields = new Map<String, FieldInfo>();
+            
+            for(String fieldName : fieldsList){
+                Schema.SObjectField f = mapOfFields.get(fieldName);
+                Schema.DescribeFieldResult field = f.getDescribe();
+
+                FieldInfo fieldInfo = new FieldInfo();
+                fieldInfo.fieldName = (String) String.valueOf(field.getName());
+                fieldInfo.fieldType = (String) String.valueOf(field.getType());
+
+                if(field.getType() == Schema.DisplayType.REFERENCE){
+                    fieldInfo.isRefrenceField = true;
+                    String refrenceObjName = string.valueOf(field.getReferenceTo()[0]);
+                    String refrnceObjRelationshipName = field.getRelationshipName();
+                    fieldInfo.referenceObjName = refrenceObjName;
+                    fieldInfo.referenceObjNameField = getObjectNameField(refrenceObjName,refrnceObjRelationshipName );
+                }
+                else{
+                    fieldInfo.isRefrenceField = false;
+                }
+                fields.put(fieldInfo.fieldName, fieldInfo);
+            }
+
+            return fields;
+        } catch (Exception e) {
+            System.debug('exception in getFieldInfo : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            return null;
+        }
+    }
+
+    public static String getObjectNameField(String refernceObjName, String relationshipName){
+        String nameField = 'Id';
+
+        Schema.SObjectType sobjType = Schema.getGlobalDescribe().get(refernceObjName);
+        Schema.DescribeSObjectResult r = sobjType.getDescribe();
+        Map<String, Schema.SObjectField> mapOfFields = r.fields.getMap();
+
+        for(Schema.SObjectField field : mapOfFields.values()){
+            if(field.getDescribe().isNameField()){
+                nameField = relationshipName +'.'+ field.getDescribe().getName();
+            }
+        }
+
+        return nameField;
+    }
+
+    public class FieldInfo{
+        public string fieldName; 
+        public string fieldLabel; 
+        public string fieldType; 
+        public Boolean isRefrenceField;
+        public string referenceObjName;
+        public string referenceObjNameField;
     }
 }

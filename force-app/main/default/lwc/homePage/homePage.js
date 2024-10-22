@@ -20,12 +20,15 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     @track maxTempToDisplay;
     
     @track defaultFieldToSort = 'LastModifiedDate';
-    @track sortAS = 'desc';
-    @track filterOpts = {};
+    @track defaultSortAS = 'desc';
+    @track filterOpts = {
+        fieldToSort : this.defaultFieldToSort,
+        filterSortAS : this.defaultSortAS,
+    };
     @track selectedTemplateId;
     @track selectedTempStatus;
     @track selectedObjectName;
-    @track previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts))
+    @track previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts));
 
     @track selectedTemplate = {};
     @track dataLoaded = false; 
@@ -47,6 +50,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     @track isCSVPreview = false;
 
    _optionContainerEventAdded = false
+   isInitialRender = true;
 
     lastScroll = 0;                             // User to identify scroll direction for lazy loading...
     hour12 = false;
@@ -95,20 +99,20 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
     get isFilterApplied(){
-        return (Object.keys(this.filterOpts)?.length > 1 || (Object.keys(this.filterOpts)?.length === 1 && this.filterOpts.fieldToSort !== this.defaultFieldToSort)) && JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
+        return Object.keys(this.filterOpts)?.length > 0 && JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
     }
 
     get disabledFilterApplyBtn(){
-        return JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
+        return JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts);
     }
 
     get disabledFilterClearBtn(){
         return Object.keys(this.filterOpts)?.length === 0;
     }
 
-    get sortByField(){
-        return Object.prototype.hasOwnProperty.call(this.filterOpts, 'fieldToSort') ? this.filterOpts.fieldToSort : null;
-    }
+    // get sortByField(){
+    //     return Object.prototype.hasOwnProperty.call(this.filterOpts, 'fieldToSort') ? this.filterOpts.fieldToSort : null;
+    // }
 
     get clearRangeDates(){
         return (Object.prototype.hasOwnProperty.call(this.filterOpts, 'fromDate') || Object.prototype.hasOwnProperty.call(this.filterOpts, 'toDate')) ? true : false;
@@ -116,6 +120,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     get noResultFound(){
         return this.displayedTemplateList.length || this.isSpinner ? false : true;
+    }
+
+    get disabledFromTO(){
+        return !this.filterOpts.dateToFilter;
     }
 
     connectedCallback(){
@@ -141,6 +149,21 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                         }
                     });
                     this._optionContainerEventAdded = true;
+                }
+            }
+
+            if(this.isInitialRender){
+
+                const mainDiv_Home = this.template.querySelector('.mainDiv_Home');
+                if(mainDiv_Home){
+                    const style = document.createElement('style');
+                    style.innerText = `
+                        .fromTo .slds-form-element__help{
+                            display : none !important;
+                        }
+                    `;
+                    mainDiv_Home.appendChild(style);
+                    this.isInitialRender = false;
                 }
             }
         } catch (error) {
@@ -319,6 +342,16 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             else if(Object.prototype.hasOwnProperty.call(tempFilterOpts, filterOpt)){
                 delete tempFilterOpts[filterOpt];
                 this.objPillToDisplay = null;
+
+                /**
+                 * If user clear date to filter field, remove error border from date input, (if applied)
+                 */
+                if(filterOpt === 'dateToFilter'){
+                    this.template.querySelector(`[data-name="toDate"]`)?.classList?.remove('errorBorder');
+                    this.template.querySelector(`[data-name="fromDate"]`)?.classList?.remove('errorBorder');
+                    delete tempFilterOpts['fromDate'];
+                    delete tempFilterOpts['toDate'];
+                }
             }
 
             this.filterOpts = tempFilterOpts;
@@ -362,32 +395,30 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     ChangeDates(event){
         try {
-            var filterOpt = event.currentTarget.dataset.name
-            this.filterOpts[filterOpt] = event.target.value;
+            var filterOpt = event.currentTarget.dataset.name;
+            
+            /**
+             * "event.target.validity.rangeUnderflow" - used to check if selected date is less or large than set min and max value...
+             * It will throw error if user select lesser or larger value than set value...
+             */
+            if(event.target.validity.rangeUnderflow || event.target.validity.rangeOverflow){
+                let errorMessage = '';
+                if(filterOpt === 'toDate' && event.target.validity.rangeUnderflow){
+                    errorMessage = '"To" Date must be greater or equal to "From" date';
+                }
+                else if(filterOpt === 'fromDate' && event.target.validity.rangeOverflow){
+                    errorMessage = '"From" Date must be less than "To" date';
+                }
 
-            if(this.filterOpts['fromDate'] && this.filterOpts['toDate']){
-                if(filterOpt === 'toDate'){
-                    if(this.filterOpts['toDate'] < this.filterOpts['fromDate']){
-                        this.filterOpts['toDate'] = '';
-                        event.target.value = '';
-                        this.template.querySelector(`[data-label="toDate"]`).classList.add('errorText');
-                        this.showMessageToast('error', '', '"To" Date must be greater or equal to "From" date', 4000);
-                    }
-                    else{
-                        this.template.querySelector(`[data-label="toDate"]`).classList.remove('errorText');
-                    }
+                if(errorMessage){
+                    event.target.value = '';
+                    this.showMessageToast('error', '',errorMessage, 4000);
+                    event.target?.classList?.add('errorBorder');
                 }
-                else if(filterOpt === 'fromDate'){
-                    if(this.filterOpts['fromDate'] > this.filterOpts['toDate']){
-                        this.filterOpts['fromDate'] = '';
-                        event.target.value = '';
-                        this.template.querySelector(`[data-label="fromDate"]`).classList.add('errorText');
-                        this.showMessageToast('error', '', '"From" Date must be less than "To" date', 4000);
-                    }
-                    else{
-                        this.template.querySelector(`[data-label="fromDate"]`).classList.remove('errorText');
-                    }
-                }
+            }
+            else{
+                this.filterOpts[filterOpt] = event.target.value;
+                event.target?.classList?.remove('errorBorder');
             }
         } catch (error) {
             errorDebugger('HomePage', 'ChangeDates', error, 'warn');
@@ -514,9 +545,9 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     sortDisplayTemplates(){
         try {
-            this.filterOpts['fieldToSort'] = this.filterOpts['fieldToSort'] ? this.filterOpts['fieldToSort'] : this.defaultFieldToSort;
+            // this.filterOpts['fieldToSort'] = this.filterOpts['fieldToSort'] ? this.filterOpts['fieldToSort'] : this.defaultFieldToSort;
             const sortAs = this.filterOpts['filterSortAS'] ? this.filterOpts['filterSortAS'] : this.defaultSortAS;
-            const fieldToSort = this.filterOpts['fieldToSort'];
+            const fieldToSort = this.filterOpts['fieldToSort'] ? this.filterOpts['fieldToSort'] : this.defaultFieldToSort;
             
             this.filteredTemplateList = this.filteredTemplateList.sort((a, b) => {
                 if(a[fieldToSort].toLowerCase() > b[fieldToSort].toLowerCase()){

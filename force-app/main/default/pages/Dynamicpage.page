@@ -1,20 +1,36 @@
-<apex:page controller="DynamicFieldDisplayController" renderAs="pdf" >
+<apex:page controller="DynamicFieldDisplayController" 
+    renderAs="pdf" 
+>
  
     
     <apex:form id="pdfPreviewContainer">
         <apex:pageMessages />
         <apex:repeat value="{!fieldSections}" var="section">
             <apex:outputPanel layout="block" styleClass="slds-section">
-                <apex:outputPanel layout="block" styleClass="slds-section__title">
-                    <h2 style="font-size: 20px;">{!section.sectionName}</h2>
+                <apex:outputPanel layout="block" style="margin-bottom: 16px;" styleClass="slds-section__title">
+                    <h2 style="font-size: 20px; display: inline-block; width: 100%; background: #c9c9c9; padding: 8px;">{!section.sectionName}</h2>
                 </apex:outputPanel>
                 <apex:outputPanel layout="block" styleClass="slds-section__content">
                     <apex:outputPanel layout="block" styleClass="slds-grid slds-wrap">
                         <!-- Left Column -->
                         <apex:outputPanel layout="block" styleClass="slds-col slds-size_1-of-2 slds-p-around_small" style="width: 50%; display:inline-block;">
                             <apex:repeat value="{!section.leftColumn}" var="field">
-                                <div class="slds-form-element">
-                                    <p style="width: 85%; overflow-wrap: break-word; word-break: break-all;" >{!field.fieldLabel}: {!field.fieldValue}</p>
+                                <div class="slds-form-element" style="width: 90%;">
+                                    <div style="margin-bottom: 8px;">
+                                        {!field.fieldLabel}
+                                    </div>
+                                    <div style="margin-bottom: 8px; font-size: 14px; color: black; min-height: 14px; word-break: break-all;">
+                                        <apex:outputPanel rendered="{!IF(field.fieldType = 'REFERENCE' ,true,false)}" >
+                                            <a href='{!baseUrl}.com/{!field.fieldValue}' >
+                                                {!field.fieldValue}
+                                            </a>
+                                        </apex:outputPanel>
+                                        <apex:outputPanel rendered="{!IF(field.fieldType != 'REFERENCE' ,true,false)}" >
+                                            {!field.fieldValue}
+                                        </apex:outputPanel>
+                                    </div>
+                                    <hr style="height: 1px; color: #d4d4d4; background-color: #d4d4d4; border: none; margin-bottom : 16px;"></hr>
+                                    <!-- <p style="width: 85%; overflow-wrap: break-word; word-break: break-all;" >{!field.fieldLabel}: {!field.fieldValue}</p> -->
                                 </div>
                             </apex:repeat>
                         </apex:outputPanel>
@@ -22,7 +38,14 @@
                         <apex:outputPanel layout="block" styleClass="slds-col slds-size_1-of-2 slds-p-around_small" style="width: 50%; display:inline-block; float: right;">
                             <apex:repeat value="{!section.rightColumn}" var="field">
                                 <div class="slds-form-element">
-                                    <p style="width: 85%; overflow-wrap: break-word; word-break: break-all;" >{!field.fieldLabel}: {!field.fieldValue}</p>
+                                    <div style="margin-bottom: 8px;">
+                                        {!field.fieldLabel}
+                                    </div>
+                                    <div style="margin-bottom: 8px; font-size: 14px; color: black; min-height: 14px;">
+                                        {!field.fieldValue}
+                                    </div>
+                                    <hr style="height: 1px; color: #d4d4d4; background-color: #d4d4d4; border: none; margin-bottom : 16px;"></hr> 
+                                    <!-- <p style="width: 85%; overflow-wrap: break-word; word-break: break-all;" >{!field.fieldLabel}: {!field.fieldValue}</p> -->
                                 </div>
                             </apex:repeat>
                         </apex:outputPanel>

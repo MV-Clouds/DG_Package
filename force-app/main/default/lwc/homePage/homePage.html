@@ -38,7 +38,7 @@
                                     options={sortingFiledList}
                                     placeholder="Select Field To Sort"
                                     onselect={onOptionSelect}
-                                    value={sortByField}
+                                    value={filterOpts.fieldToSort}
                                     multiselect="false"
                                     searchable="false"
                                     dropdown-position="right"
@@ -140,13 +140,13 @@
                                 <div class="rangeSelection">
                                   <label class="slds-form-element__label" data-label="fromDate" style="width: 100%; padding-left: 4px; color:black;">From</label>
                                   <div class="fromTo">
-                                    <lightning-input type="date" data-name="fromDate" value={filterOpts.fromDate} variant="label-hidden" date-style="short" placeholder="From..." onchange={ChangeDates}></lightning-input>
+                                    <lightning-input type="date" data-name="fromDate" value={filterOpts.fromDate} variant="label-hidden" date-style="short" max={filterOpts.toDate} placeholder="From..." onchange={ChangeDates} disabled={disabledFromTO}></lightning-input>
                                   </div>
                                 </div>
                                 <div class="rangeSelection">
                                   <label class="slds-form-element__label" data-label="toDate" style="width: 100%; padding-left: 4px; color:black;">To</label>
                                   <div class="fromTo">
-                                    <lightning-input type="date" data-name="toDate" value={filterOpts.toDate} variant="label-hidden" date-style="short" placeholder="To..." onchange={ChangeDates}></lightning-input>
+                                    <lightning-input type="date" data-name="toDate" value={filterOpts.toDate} variant="label-hidden" date-style="short" min={filterOpts.fromDate} placeholder="To..." onchange={ChangeDates} disabled={disabledFromTO}></lightning-input>
                                   </div>
                                 </div>
                               </div>

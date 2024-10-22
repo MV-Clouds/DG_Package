@@ -788,7 +788,6 @@ public with sharing class DataMappingControllerV2 {
                     if((String)String.valueOf(field.getType()) != 'ADDRESS' && (String)String.valueOf(field.getType()) != 'LOCATION' && fieldType == 'normal'){
                         String fieldAPI = (String) String.valueOf(field.getName());
 
-                        
                         if(objectAPI != 'Group' && replationshipName != 'What' && replationshipName != 'Who'){
 
                             fieldAPI = replationshipName == null ? fieldAPI : replationshipName +'.'+ fieldAPI;

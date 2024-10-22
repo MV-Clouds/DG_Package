@@ -713,8 +713,15 @@
                                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
                                 jsPDF: { unit: 'px', format: pageSize, orientation: pageOriantation, hotfixes: ["px_scaling"] },
                             };
-    
-                            if(showHeader === true && headerHtml){
+
+                            /**
+                             * ... Check if content is avaolabe for not in header/footer once mapping keys are replaced,
+                             * ... If content is not availbe then do not generate pdf, otherwise it will cause issue in generation
+                             */
+                            const isHeaderContent = !(!headerElement?.querySelector('.note-editable')?.innerHTML?.trim());
+                            const isFooterContent = !(!footerElement?.querySelector('.note-editable')?.innerHTML?.trim());
+
+                            if(showHeader === true && isHeaderContent){
     
                                 const headerImgs =  headerElement.querySelectorAll('img');
                                 headerImgs.forEach(ele => {
@@ -730,7 +737,7 @@
                                                 };             
                             }
     
-                            if(showFooter === true && footerHtml){
+                            if(showFooter === true && isFooterContent){
     
                                 const footerImgs =  footerElement.querySelectorAll('img');
                                 footerImgs.forEach(ele => {
@@ -759,7 +766,6 @@
                                 if(useMode === 'preview'){
                                     intialLoading.style.display = 'none';
                                     displayPDF(rawPDF);
-
                                 }
                                 else{
                                     const pdfBlob = new Blob([getArrayBuffer(rawPDF)], { type: 'application/pdf' }) 
@@ -799,8 +805,11 @@
                             const htmlElement = document.createElement('div');
                             htmlElement.classList.add('section');
                             htmlElement.innerHTML =  bodyElement.innerHTML;
+
+                            const isHeaderContent = !(!headerElement?.querySelector('.note-editable')?.innerHTML?.trim());
+                            const isFooterContent = !(!footerElement?.querySelector('.note-editable')?.innerHTML?.trim());
     
-                            if( showHeader == 'true' || showHeader == true){
+                            if( showHeader == 'true' || isHeaderContent){
                                 // let headerElement = document.createElement('div');
                                 // headerElement.innerHTML = editorNode.replace('<HTMLContent>', headerHtml)
                                 //                                             .replace('@typeClass', 'headerEditor');
@@ -824,7 +833,7 @@
                                                             </div>`;;
                             }
     
-                            if(showFooter == 'true' || showFooter == true){
+                            if(showFooter == 'true' || isFooterContent){
     
                                 // let footerElement = document.createElement('div');
                                 // footerElement.innerHTML = editorNode.replace('<HTMLContent>', footerHtml)
@@ -1414,7 +1423,7 @@
     
                             function onscroll(){
                                 let scrollHeight = content.scrollHeight;
-                                const addon = currentPage === 1 ? 8 : 4;
+                                const addon = currentPage === 1 ? 16 : 4;
                                 const singlePageHeight = (content.scrollHeight / pdfPages) - addon;
     
                                 currentPage =  Math.floor((content.scrollTop / (singlePageHeight)) + 1);
