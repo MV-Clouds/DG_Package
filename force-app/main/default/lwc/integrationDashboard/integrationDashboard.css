@@ -151,7 +151,6 @@
     padding: 1rem 0;
     height: var(--height-for-create-button-div, 0%);
     visibility: var(--visibility-for-create-button-div, collapse);
-    transition: 1s all ease-in-out;
 }
 
 .button-creation {

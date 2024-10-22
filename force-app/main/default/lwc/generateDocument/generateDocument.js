@@ -233,10 +233,12 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     get updatedTemplates(){
         if(!this.templateSearchKey){
+            this.noTemplateFound = this.allTemplates.length < 1 ? true : false;
             return this.allTemplates;
         }
         let searchedTemplates = this.allTemplates.filter(t => t.MVDG__Template_Name__c.toUpperCase().includes(this.templateSearchKey.toUpperCase()));
         this.noTemplateFound = searchedTemplates.length < 1 ? true : false;
+        
         return searchedTemplates;
     }
 
@@ -561,10 +563,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()) : [];
                         this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()) : [];
                     }
-                    this.emailSubject = data?.emailSubject ? data?.emailSubject : '';
-                    this.emailBody = data?.emailBody ? data?.emailBody : '';
                     this.selectedEmailTemplate = data?.emailTemplate ? data?.emailTemplate : null;
                     this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
+                    this.emailSubject = data?.emailSubject ? data?.emailSubject : '';
+                    this.emailBody = data?.emailBody ? data?.emailBody : '';
                     this.buttonLabel = data?.buttonLabel ? data?.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent.length > 80 ? this.templateNameFromParent.slice(0, 80) : this.templateNameFromParent : '');
                     this.buttonName = data?.buttonName || null;
                     if(this.buttonName && this.allButtons.includes(this.buttonName)){
@@ -874,23 +876,17 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     handleSubjectChange(event){
         try{
-            this.showSpinner = true;
             this.emailSubject = event.target.value;
         }catch (e) {
             errorDebugger('generateDocument', 'handleSubjectChange', e, 'error');
-        }finally{
-            this.showSpinner = false;
         }
     }
 
     handleBodyChange(event){
         try{
-            this.showSpinner = true;
             this.emailBody = event.target.value;
         }catch (e) {
             errorDebugger('generateDocument', 'handleBodyChange', e, 'error');
-        }finally{
-            this.showSpinner = false;
         }
     }
 
@@ -908,7 +904,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.template.host.style.setProperty('--display-for-email-body-div', this.selectedEmailTemplate ? "none" : "flex");
             this.template.host.style.setProperty('--display-for-email-preview-div', this.selectedEmailTemplate ? "flex" : "none");
             if(this.selectedEmailTemplate){
-                this.previewEmailBody = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue;
+                this.previewEmailBody = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.HtmlValue || this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.Body;
                 this.emailSubject = this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate)?.Subject || this.emailSubject;
             }else{
                 this.emailSubject = '';
@@ -1551,9 +1547,9 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
 
     handleGDocError(event){
         this.showSpinner = false;
-        errorDebugger('generateDocument', 'handleGDocError', event, 'error');
+        errorDebugger('generateDocument', 'handleGDocError', event.detail, 'error');
         ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error Creating File => '+event?.detail?.message);
-        this.showWarningPopup('error', 'Something went wrong!', 'The Document could not be generated, please try again...');
+        this.showWarningPopup('error', 'Something went wrong!', event.detail.message ||'The Document could not be generated, please try again...' );
         this.isClosableError = true;
         this.showSpinner = false;
     }
@@ -1869,14 +1865,13 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 let emailData = {
                     contentVersionId: cvId,
                     emailSubject: this.emailSubject,
-                    emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue : this.emailBody
+                    emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue || this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).Body || '' : this.emailBody
                 };
                 let allEmails = {
                     toEmails: this.toEmails,
                     ccEmails: this.ccEmails,
                     bccEmails: this.bccEmails
                 }
-        
                 sendEmail({ allEmails:allEmails, emailData:emailData, activityId : this.activity.Id })
                 .then((result) => {
                     if(result === 'success'){

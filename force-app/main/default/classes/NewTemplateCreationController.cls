@@ -3,7 +3,7 @@
 Apex Class Name    : NewTemplateCreationController
 @description       : This class is used for handling various processes of the new template creation (newTemplateCreation LWC), for fetching the template types and saving the template 
 @author            : Kevin Suvagiya
-@last Modified     : Kevin Suvagiya - 17 Sep, 2024
+@last Modified     : Kevin Suvagiya - 18 Oct, 2024
 *********************************************************
 */
 public with sharing class NewTemplateCreationController {

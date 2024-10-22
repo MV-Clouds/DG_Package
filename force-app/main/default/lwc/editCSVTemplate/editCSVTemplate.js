@@ -14,6 +14,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
     // -=-=- the values we got from the Home page/new template popup -=-=-
     @api objectName;
     @api templateId;
+    @api isCloned;
 
     //-=-=- to Show/hide the Spinner -=-=-
     @track showSpinner;
@@ -1601,6 +1602,10 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 this.existingCustomLogicString = this.customLogicString;
                 this.existingShowLimitInput = this.showLimitInput;
                 this.existingLimit = this.limit;
+            }
+            if(this.isCloned){
+                this.generateQuery();
+                this.saveTemplate();
             }
             this.showSpinner = false;
         }catch(e){
