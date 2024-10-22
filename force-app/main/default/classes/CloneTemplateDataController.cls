@@ -21,7 +21,7 @@ public with sharing class CloneTemplateDataController {
         NewTemplateData field = new NewTemplateData();
         try {
             List<MVDG__Template__c> newList = new List<MVDG__Template__c>();
-            newList = [SELECT Id, MVDG__Object_API_Name__c, MVDG__Template_Type__c, MVDG__Header_Text__c, MVDG__Template_Name__c,MVDG__Template_Status__c FROM MVDG__Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED];
+            newList = [SELECT Id, MVDG__Object_API_Name__c, MVDG__Template_Type__c, MVDG__Header_Text__c, MVDG__Template_Name__c,MVDG__Template_Status__c, MVDG__List_View__c FROM MVDG__Template__c WHERE Id =: templateId WITH SECURITY_ENFORCED];
             MVDG__Template__c cloneTemp = new MVDG__Template__c();
             String test = newList[0].MVDG__Object_API_Name__c;
             cloneTemp.MVDG__Object_API_Name__c = test;
@@ -30,6 +30,7 @@ public with sharing class CloneTemplateDataController {
             cloneTemp.MVDG__Description__c = templateDescription;
             cloneTemp.MVDG__Template_Status__c = newList[0].MVDG__Template_Status__c;
             cloneTemp.MVDG__Template_Type__c = newList[0].MVDG__Template_Type__c;
+            cloneTemp.MVDG__List_View__c = newList[0].MVDG__List_View__c;
             insert as user cloneTemp;
 
             if (templateType == 'Simple Template') {

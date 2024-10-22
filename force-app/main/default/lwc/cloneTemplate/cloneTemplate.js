@@ -16,7 +16,7 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
     @track templateId;
     @track templateName;
     @track templateDescription;
-    @track trmplateObject;
+    @track templateObject;
     @track templateType;
     @track templateImage = cloneTemplateImage;
     @track templateBg = newTemplateBg;
@@ -55,7 +55,7 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
         if(this.templateDescription == undefined || this.templateDescription == null){
             this.templateDescription='';
         }
-        this.trmplateObject = template.MVDG__Object_API_Name__c;
+        this.templateObject = template.MVDG__Object_API_Name__c;
         this.templateType = template.MVDG__Template_Type__c;
         if( this.templateType == 'CSV Template'){
             this.templateTypeCSV = true;
@@ -155,7 +155,7 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
             .then(response=>{
                 if(response.isSuccess ){
                     this.templateId = response.tempId;
-                    this.trmplateObject = response.tempObj;
+                    this.templateObject = response.tempObj;
                     this.handleNavigate();
                     if (typeof window !== 'undefined') {
                         this.dispatchEvent(new CustomEvent('aftersave'));
@@ -178,11 +178,12 @@ export default class CloneTemplate extends NavigationMixin(LightningElement) {
         try {
             var paramToPass = {
                 templateId: this.templateId,
-                objectName: this.trmplateObject,
+                objectName: this.templateObject,
             };
             if (this.templateType === 'Simple Template') {
                 this.navigateToComp(navigationComps.simpleTemplateBuilder, paramToPass);
             } else if (this.templateType === 'CSV Template') {
+                paramToPass.isCloned = true;
                 this.navigateToComp(navigationComps.csvTemplateBuilder, paramToPass);
             } else if (this.templateType === 'Drag&Drop Template') {
                 this.navigateToComp(navigationComps.dNdTemplateBuilder, paramToPass);
