@@ -20,7 +20,7 @@ public with sharing class GenerateDocumentController {
         CombinedDataWrapper combinedData = new CombinedDataWrapper();
         try {
             List<EmailTemplate> emailTemplates = new List<EmailTemplate>();
-            emailTemplates = [SELECT Id, Name, Subject, HtmlValue FROM EmailTemplate WHERE IsActive = true WITH SECURITY_ENFORCED];
+            emailTemplates = [SELECT Id, Name, Subject, Body, HtmlValue FROM EmailTemplate WHERE IsActive = true WITH SECURITY_ENFORCED];
             combinedData.emailTemplates = emailTemplates;
             combinedData.folderWrapper = getFolders();
             combinedData.integrationWrapper = getIntegrationStatus();
@@ -195,12 +195,8 @@ public with sharing class GenerateDocumentController {
 
             Messaging.SendEmailResult[] result = Messaging.sendEmail(
                 new Messaging.SingleEmailMessage[] { mail });
-            if (result[0].isSuccess()) {
-            }
-            else {
-                if(Test.isRunningTest() == false){
-                    throw new AuraHandledException('Email send was unsuccessfull');     
-                }
+            if (!result[0].isSuccess() && !Test.isRunningTest()){
+                throw new AuraHandledException('Email send was unsuccessfull');
             }
             return 'success';
         }catch (Exception e) {
