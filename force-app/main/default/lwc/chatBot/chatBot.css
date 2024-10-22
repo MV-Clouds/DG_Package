@@ -22,6 +22,34 @@
     animation: enlarge 0.5s forwards;
 }
 
+.thank-you{
+    color: #00AEFF;
+    font-size: 24px;
+    background-color: #F2FBFF;
+    border-radius: 8px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding-block: 200px;
+    padding-inline: 50px;
+    text-align: center;
+}
+
+.thank-you div{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    gap: 40px;
+}
+
+.thank-you img{
+    width: 80px;
+}
+
 
 
 .hidden-bot{

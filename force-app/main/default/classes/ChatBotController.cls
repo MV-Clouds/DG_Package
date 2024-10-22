@@ -170,7 +170,7 @@ public with sharing class ChatBotController {
     '"subQuestions": [' +
         '{' +
             '"question": "Template Status",' +
-            '"answer": "Template\'s which you are not going to use you can keep them as inactive and that won\'t appear in generate template selection page."' +
+            '"answer": "Templates which you are not going to use you can keep them as inactive and that won\'t appear in generate template selection page."' +
         '},' +
         '{' +
             '"question": "Template Limit",' +
@@ -340,7 +340,7 @@ public static void sendEmailWithAttachment(Map<String, Object> parameters) {
         String name = UserInfo.getName();
         String email = UserInfo.getUserEmail();
         String fname = UserInfo.getFirstName();
-        String subject = 'Feedback for chatbot';
+        String subject = 'User Feedback for BotGenius : '+ UserInfo.getOrganizationId();
         List<Object> chatDataList = (List<Object>) JSON.deserializeUntyped(chats);
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         mail.setToAddresses(new String[] { toAddress });
