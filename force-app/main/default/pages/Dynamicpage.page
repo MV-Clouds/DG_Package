@@ -1,8 +1,7 @@
 <apex:page controller="DynamicFieldDisplayController" 
-    renderAs="pdf" 
+renderAs="pdf" 
 >
- 
-    
+
     <apex:form id="pdfPreviewContainer">
         <apex:pageMessages />
         <apex:repeat value="{!fieldSections}" var="section">
@@ -19,11 +18,9 @@
                                     <div style="margin-bottom: 8px;">
                                         {!field.fieldLabel}
                                     </div>
-                                    <div style="margin-bottom: 8px; font-size: 14px; color: black; min-height: 14px; word-break: break-all;">
+                                    <div style="margin-bottom: 8px; font-size: 14px; color: black; min-height: 14px;max-width: 100%; word-break: break-all; white-space: normal; word-wrap: break-word;">
                                         <apex:outputPanel rendered="{!IF(field.fieldType = 'REFERENCE' ,true,false)}" >
-                                            <a href='{!baseUrl}.com/{!field.fieldValue}' >
-                                                {!field.fieldValue}
-                                            </a>
+                                            <apex:outputLink value="https://{!baseUrl}/{!field.fieldValue}">{!field.fieldValue}</apex:outputLink>
                                         </apex:outputPanel>
                                         <apex:outputPanel rendered="{!IF(field.fieldType != 'REFERENCE' ,true,false)}" >
                                             {!field.fieldValue}
@@ -41,8 +38,13 @@
                                     <div style="margin-bottom: 8px;">
                                         {!field.fieldLabel}
                                     </div>
-                                    <div style="margin-bottom: 8px; font-size: 14px; color: black; min-height: 14px;">
-                                        {!field.fieldValue}
+                                    <div style="margin-bottom: 8px; font-size: 14px; color: black; min-height: 14px; word-break: break-all; word-wrap: normal; white-space: normal; overflow: hidden; max-width: 100%">
+                                        <apex:outputPanel rendered="{!IF(field.fieldType = 'REFERENCE' ,true,false)}" >
+                                            <apex:outputLink value="https://{!baseUrl}/{!field.fieldValue}">{!field.fieldValue}</apex:outputLink>
+                                        </apex:outputPanel>
+                                        <apex:outputPanel rendered="{!IF(field.fieldType != 'REFERENCE' ,true,false)}" >
+                                            {!field.fieldValue}
+                                        </apex:outputPanel>
                                     </div>
                                     <hr style="height: 1px; color: #d4d4d4; background-color: #d4d4d4; border: none; margin-bottom : 16px;"></hr> 
                                     <!-- <p style="width: 85%; overflow-wrap: break-word; word-break: break-all;" >{!field.fieldLabel}: {!field.fieldValue}</p> -->

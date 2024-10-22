@@ -19,7 +19,7 @@ public with sharing class DynamicFieldDisplayController {
             this.layoutName = getObjectLayout(this.objectID, this.RecordTypeId)[0]; // Change this to the desired layout
             this.fieldSections = new List<FieldSection>();
             fetchRecordFieldValues();
-            baseUrl = URL.getOrgDomainUrl().getHost().split('.com')[0];
+            baseUrl = URL.getOrgDomainUrl().getHost();
         }
     }
 
@@ -285,7 +285,7 @@ public with sharing class DynamicFieldDisplayController {
                                 fieldDetail.put('sectionName', sectionLabel);
                                 fieldDetail.put('sectionIndex', sectionIndex);
                                 fieldDetail.put('columnIndex', columnIndex);
-                                System.debug('fieldDetail : ' + fieldDetail);
+                                // System.debug('fieldDetail : ' + fieldDetail);
                                 fieldDetails.add(fieldDetail);
                             }
                         }
@@ -353,7 +353,7 @@ public with sharing class DynamicFieldDisplayController {
 
             return fields;
         } catch (Exception e) {
-            System.debug('exception in getFieldInfo : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getFieldInfo : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
     }
