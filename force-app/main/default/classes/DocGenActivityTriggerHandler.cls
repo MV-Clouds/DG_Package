@@ -3,7 +3,7 @@
 Apex Class Name    : DocGenActivityTriggerHandler
 @description       : This class is used to send email after all the generation process completes 
 @author            : Kevin Suvagiya
-@last Modified     : Kevin Suvagiya - 17 Sep, 2024
+@last Modified     : Kevin Suvagiya - 18 Oct, 2024
 *********************************************************
 */
 public with sharing class DocGenActivityTriggerHandler {

@@ -1,4 +1,22 @@
+/*
+*********************************************************
+Apex Class Name    : CloneTemplateDataController
+@description       : This class is used to clone the template
+@author            : Yash Shah
+@last Modified     : Kevin Suvagiya - 22 Oct, 2024
+*********************************************************
+*/
+
 public with sharing class CloneTemplateDataController {
+
+    /*
+    *********************************************************
+    @description        : Method is used to clone the data selected by the user for the templates
+    @param templateId   : {String} - Id for the template to fetch
+    @param jsonData      : {String} - the data about the user selection for cloning the data
+    @return             : {NewTemplateData} - wrapper combining all the data
+    ********************************************************
+    */
     @AuraEnabled
     public static NewTemplateData cloneTempData(String templateId, String jsonData){
 
