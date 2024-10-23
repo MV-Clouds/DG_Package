@@ -835,9 +835,32 @@ public with sharing class DataMappingControllerV2 {
     public static string formatDateTime(string fieldValue, string formatType, String fieldType){
         String userTimeZone = (String)String.valueOf(UserInfo.getTimeZone().getID());
 
-        Datetime dt = datetime.now();
+        Datetime dt;
+        if(fieldType == 'DATETIME'){
+            // If DateTime field value consist of timezone offset then convert to GMT. field required formatting...
+            Datetime dt1 = (Datetime) JSON.deserialize('"' + fieldValue + '"', Datetime.class);
+            dt = Datetime.valueOf(dt1.format('yyyy-MM-dd HH:mm:ss'));
+            // Now Format GMT time as per user timezone... with format type
+            fieldValue = dt.format(formatType, userTimeZone);
 
-        // Now Format GMT time as per user timezone... with format type
+        }
+        else if(fieldType == 'DATE'){
+            // Else do the normal DateTime conversion....
+            dt = (Datetime) JSON.deserialize('"' + fieldValue + '"', Date.class);
+        }
+        else if(fieldType == 'TIME'){
+
+            String TimeOnly = fieldValue?.substringBefore('.');
+            String hr = TimeOnly?.split(':')[0];
+            String min = TimeOnly?.split(':')[1];
+            String sec = TimeOnly?.split(':')[2];
+
+            Time timeValue = Time.newInstance(Integer.valueOf(hr), Integer.valueOf(min), Integer.valueOf(sec), 0);
+            Date dateValue = Date.today(); 
+
+            dt = Datetime.newInstance(dateValue, timeValue);
+        }
+
         fieldValue = dt.format(formatType, userTimeZone);
 
         return fieldValue;

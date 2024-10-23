@@ -47,8 +47,8 @@ export default class DocumentLoader extends LightningElement {
 		else if(value == false){
 
 			this.customTimeout?.setCustomTimeoutMethod(() => {
-				this.template.querySelector('.documentPage').classList.add('zoomOutEffect');
-				this.template.querySelector('.loader_mainDiv').classList.add('fadedTransitionEffect');
+				this.template.querySelector('.documentPage')?.classList.add('zoomOutEffect');
+				this.template.querySelector('.loader_mainDiv')?.classList.add('fadedTransitionEffect');
 			}, 300)
 
 			this.customTimeout?.setCustomTimeoutMethod(() => {
@@ -59,8 +59,8 @@ export default class DocumentLoader extends LightningElement {
 			}, this.scaleOutTime + 300)
 			
 			// setTimeout(() => {
-			// 	this.template.querySelector('.documentPage').classList.add('zoomOutEffect');
-			// 	this.template.querySelector('.loader_mainDiv').classList.add('fadedTransitionEffect');
+			// 	this.template.querySelector('.documentPage')?.classList.add('zoomOutEffect');
+			// 	this.template.querySelector('.loader_mainDiv')?.classList.add('fadedTransitionEffect');
 			// }, 300)
 			// setTimeout(() => {
 			// 	this.isDisplay = false;
