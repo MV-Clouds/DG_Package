@@ -23,7 +23,6 @@ global class PostInstallationScript implements InstallHandler, UninstallHandler{
         }
     }
 
-    @deprecated
     global void onUninstall(UnInstallContext ctx) {
         System.debug('As Global Method can\'t be removed, commenting this process as no longer in use.');
         /*try {
