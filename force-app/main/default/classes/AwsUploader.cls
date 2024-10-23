@@ -488,6 +488,7 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                     completeDetail.fileExtension = parameters.fileExtension;
                     completeDetail.uploadId = parameters.uploadId;
                     completeDetail.maxPart = String.valueOf(parameters.partNumber);
+                    completeDetail.activity = parameters.activity;
                     completeFile(completeDetail);
                 }
                 return true;
