@@ -4,4 +4,9 @@
     <availableInTouch>true</availableInTouch>
     <confirmationTokenRequired>false</confirmationTokenRequired>
     <label>Dynamicpage</label>
+    <packageVersions>
+        <majorNumber>1</majorNumber>
+        <minorNumber>4</minorNumber>
+        <namespace>MVDG</namespace>
+    </packageVersions>
 </ApexPage>
