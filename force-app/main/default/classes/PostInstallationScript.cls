@@ -25,7 +25,7 @@ global class PostInstallationScript implements InstallHandler, UninstallHandler{
 
     @deprecated
     global void onUninstall(UnInstallContext ctx) {
-        System.debug('As Global Method can't be removed, commenting this process as no longer in use.');
+        System.debug('As Global Method can\'t be removed, commenting this process as no longer in use.');
         /*try {
             List<PermissionSetAssignment> psassignment = new List<PermissionSetAssignment>();
             psassignment = [SELECT Id FROM PermissionSetAssignment WHERE PermissionSet.Name IN ('DocGenius_Standard_Permissions', 'DocGenius_Admin_Permissions', 'DocGenius_Basic_Permissions')];
