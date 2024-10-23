@@ -1,24 +1,26 @@
 public with sharing class DynamicFieldDisplayController {    
     public String recordId { get; set; }
-    public String NameSpace { get; set; }
+    public String nameSpace { get; set; }
     public String objectName { get; set; }
     public String objectLabel { get; set; }
     public String objectID {get;set;}
     public String layoutName { get; set; }
-    public string RecordTypeId { get; set;}
+    public string recordTypeId { get; set;}
     public List<FieldSection> fieldSections { get; set; }
 
     public DynamicFieldDisplayController() {
-        this.recordId = ApexPages.currentPage().getParameters().get('id');
-        if(this.recordId != null){
-            this.objectName = getObjectNameFromRecordId(this.recordId)[0];
-            this.objectLabel = getObjectNameFromRecordId(this.recordId)[1];
-            this.NameSpace = getNameSpace(this.objectName);
-            this.objectID = getObjectIdByApiName(this.objectName);
-            this.RecordTypeId = getRecordTypeId(this.recordId, this.objectName);
-            this.layoutName = getObjectLayout(this.objectID, this.RecordTypeId)[0]; // Change this to the desired layout
-            this.fieldSections = new List<FieldSection>();
-            fetchRecordFieldValues();
+        if(ApexPages.currentPage().getParameters().get('id') != null){
+            this.recordId = ApexPages.currentPage().getParameters().get('id').escapeHtml4();
+            if(this.recordId != null){
+                this.objectName = getObjectNameFromRecordId(this.recordId)[0];
+                this.objectLabel = getObjectNameFromRecordId(this.recordId)[1];
+                this.nameSpace = getNameSpace(this.objectName);
+                this.objectID = getObjectIdByApiName(this.objectName);
+                this.recordTypeId = getRecordTypeId(this.recordId, this.objectName);
+                this.layoutName = getObjectLayout(this.objectID, this.recordTypeId)[0]; // Change this to the desired layout
+                this.fieldSections = new List<FieldSection>();
+                fetchRecordFieldValues(this.recordId);
+            }
         }
     }
 
@@ -47,11 +49,11 @@ public with sharing class DynamicFieldDisplayController {
         return null;
     }
 
-    public void fetchRecordFieldValues() {
+    public void fetchRecordFieldValues(string recordId) {
         try {
 
             // Get Fields with value...
-            Map<String, FieldInfo> fieldDetails = getRecordFieldValues(recordId, objectName, layoutName, NameSpace);
+            Map<String, FieldInfo> fieldDetails = getRecordFieldValues(recordId, objectName, layoutName, nameSpace);
 
             Map<Integer, FieldSection> sectionsMap = new Map<Integer, FieldSection>();
             Map<String, Schema.SObjectField> fieldsMap = Schema.getGlobalDescribe().get(objectName).getDescribe().fields.getMap();
@@ -97,6 +99,15 @@ public with sharing class DynamicFieldDisplayController {
         if (address?.get('country') != null) addressParts.add(String.ValueOf(address?.get('country')));
         return String.join(addressParts, ', ');
     }
+
+    private static string formatLocation(Object locationObj){
+        List<String> locationParts = new List<String>();
+
+        Map<String, Object> location = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(locationObj));
+        if (location?.get('latitude') != null) locationParts.add(String.ValueOf(location?.get('latitude')));
+        if (location?.get('longitude') != null) locationParts.add(String.ValueOf(location?.get('longitude')));
+        return String.join(locationParts, ', ');
+    }
     
     @AuraEnabled(cacheable=true)
     public static List<String> getObjectLayout(String objectId, String recordTypeId) {
@@ -119,14 +130,14 @@ public with sharing class DynamicFieldDisplayController {
     } 
 
     public static String getRecordTypeId(String recordId, String objectType) {
-        // Dynamic query to fetch RecordTypeId
+        // Dynamic query to fetch recordTypeId
         Map<String, Schema.SObjectField> fields = Schema.getGlobalDescribe().get(objectType).getDescribe().fields.getMap();
-        boolean isRecordID = fields.containsKey('RecordTypeId');
+        boolean isRecordID = fields.containsKey('recordTypeId');
         if(isRecordID){
-            String query = 'SELECT RecordTypeId FROM ' + String.escapeSingleQuotes(objectType) + ' WHERE Id = \'' + String.escapeSingleQuotes(recordId) + '\'';
+            String query = 'SELECT recordTypeId FROM ' + String.escapeSingleQuotes(objectType) + ' WHERE Id = \'' + String.escapeSingleQuotes(recordId) + '\'';
             SObject record = Database.query(String.escapeSingleQuotes(query));
             if (record != null) {
-                return (String) record.get('RecordTypeId');
+                return (String) record.get('recordTypeId');
             }
             return null;
         }
@@ -140,7 +151,7 @@ public with sharing class DynamicFieldDisplayController {
         String soql;
         if (recordTypeId != null) {
         // Query to get layout for specific record type
-            soql = 'SELECT Layout.Name FROM ProfileLayout WHERE RecordTypeId=\'' + recordTypeId + '\' AND TableEnumOrId=\'' + objectId + '\'';
+            soql = 'SELECT Layout.Name FROM ProfileLayout WHERE recordTypeId=\'' + recordTypeId + '\' AND TableEnumOrId=\'' + objectId + '\'';
         } else {
             // Query to get default layout
             soql = 'SELECT Layout.Name FROM ProfileLayout WHERE TableEnumOrId=\'' + objectId + '\'';
@@ -175,12 +186,12 @@ public with sharing class DynamicFieldDisplayController {
 
 
     @AuraEnabled(cacheable=true)
-    public static Map<String, FieldInfo> getRecordFieldValues(String recordId, String objectName, String layout, String NameSpace) {
+    public static Map<String, FieldInfo> getRecordFieldValues(String recordId, String objectName, String layout, String nameSpace) {
         Map<String, FieldInfo> fieldDetails = new Map<String, FieldInfo>();
         try {
 
             // Get Fields From the page layout...
-            fieldDetails = getFields(objectName, layout, NameSpace);
+            fieldDetails = getFields(objectName, layout, nameSpace);
             
             Set<String> fieldNames = new Set<String>();
             Set<String> refrenceFields = new Set<String>();
@@ -196,8 +207,8 @@ public with sharing class DynamicFieldDisplayController {
             }
 
             // Query Field...
-            String soql = 'SELECT ' + String.join(fieldNames, ', ') + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id = \''+ String.escapeSingleQuotes(recordId) +'\'';
-            SObject record = Database.query(soql);
+            String soql = 'SELECT ' + String.join(fieldNames, ', ') + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id =: recordId LIMIT 1';
+            SObject record = querySObject(soql,recordId, objectName);
 
             // Convert sObejct in Map...
             Map<String, Object> recordAsMap = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(record));
@@ -232,6 +243,9 @@ public with sharing class DynamicFieldDisplayController {
                     if (fieldDetail.fieldType == 'ADDRESS') {
                         formattedFieldValue = formatAddress(fieldValue);
                     }
+                    else if (fieldDetail.fieldType == 'LOCATION') {
+                        formattedFieldValue = formatLocation(fieldValue);
+                    }
                     else if(fieldDetail.fieldType == 'URL'){
                         fieldDetail.refrenceURL = String.valueOf(fieldValue);
                         if(!fieldDetail?.refrenceURL?.contains('http')){
@@ -254,20 +268,29 @@ public with sharing class DynamicFieldDisplayController {
             
             return recordFieldValues;
         } catch (Exception e) {
-            System.debug('exception in getRecordFieldValues : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getRecordFieldValues : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return fieldDetails;
         }
 
     }
+
+    public static sObject querySObject(String query, String recordId, String sourceObject){
+        try {
+            return Database.query(query);
+        } catch (Exception e) {
+            Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(sourceObject);
+            return  sObjectType.newSObject();
+        }
+    }
     
     @AuraEnabled
-    public static Map<String, FieldInfo> getFields(String objectName, String layout, String NameSpace) {
+    public static Map<String, FieldInfo> getFields(String objectName, String layout, String nameSpace) {
         Map<String, FieldInfo> fieldDetails = new Map<String, FieldInfo>();
         try {
             // Adjust layout name based on whether the object is namespaced
             String layoutName;
-            if (NameSpace != null) {
-                layoutName = objectName + '-' + NameSpace + '__' + layout;
+            if (nameSpace != null) {
+                layoutName = objectName + '-' + nameSpace + '__' + layout;
             } else {
                 layoutName = String.format('{0}-{1}', new String[]{objectName, layout});
             }
@@ -313,7 +336,7 @@ public with sharing class DynamicFieldDisplayController {
             }
             return fieldDetails;
         } catch (Exception e) {
-            System.debug('exception in getFields : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            // System.debug('exception in getFields : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return fieldDetails;
         }
     }
