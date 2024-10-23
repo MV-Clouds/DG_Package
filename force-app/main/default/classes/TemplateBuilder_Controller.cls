@@ -1,5 +1,9 @@
 public with sharing class TemplateBuilder_Controller {
 
+    public static List<MVDG__Template_Data__c> recordToInsert_global = new List<MVDG__Template_Data__c>();
+    public static List<MVDG__Template_Data__c> recordToUpdate_global = new List<MVDG__Template_Data__c>();
+    public static List<MVDG__Template_Data__c> recordToDelete_global = new List<MVDG__Template_Data__c>();
+
     /**
      * @param {String} templateId, Id of template going to edit.
      * @return retrunWrapper,
@@ -139,7 +143,7 @@ public with sharing class TemplateBuilder_Controller {
                         else{
                             bodyValuesMap.put('1', '');
                         }
-                    saveTempDataRecordsInBatch( bodyValuesMap , new Map<String, String>{temp[0].Id => 'Body Value'}, true);
+                    saveTempDataRecords_forValueTypes( bodyValuesMap , new Map<String, String>{temp[0].Id => 'Body Value'}, true);
 
                     Map<String ,String> headerValuesMap = new Map<String ,String>();
                         if(templateValues?.get('Header Value')?.size() > 0){
@@ -150,7 +154,7 @@ public with sharing class TemplateBuilder_Controller {
                         else{
                             headerValuesMap.put('1', '');
                         }
-                    saveTempDataRecordsInBatch( headerValuesMap , new Map<String, String>{temp[0].Id => 'Header Value'}, true);
+                    saveTempDataRecords_forValueTypes( headerValuesMap , new Map<String, String>{temp[0].Id => 'Header Value'}, true);
 
                     Map<String ,String> footerValuesMap = new Map<String ,String>();
                         if(templateValues?.get('Footer Value')?.size() > 0){
@@ -161,7 +165,7 @@ public with sharing class TemplateBuilder_Controller {
                         else{
                             footerValuesMap.put('1', '');
                         }
-                    saveTempDataRecordsInBatch( footerValuesMap , new Map<String, String>{temp[0].Id => 'Footer Value'}, true);
+                    saveTempDataRecords_forValueTypes( footerValuesMap , new Map<String, String>{temp[0].Id => 'Footer Value'}, true);
 
                     Map<String ,String> watermarkValuesMap = new Map<String ,String>();
                         if(templateValues?.get('Watermark Value')?.size() > 0){
@@ -172,7 +176,7 @@ public with sharing class TemplateBuilder_Controller {
                         else{
                             watermarkValuesMap.put('1', '');
                         }
-                    saveTempDataRecordsInBatch( watermarkValuesMap , new Map<String, String>{temp[0].Id => 'Watermark Value'}, true);
+                    saveTempDataRecords_forValueTypes( watermarkValuesMap , new Map<String, String>{temp[0].Id => 'Watermark Value'}, true);
                     
                     Map<String ,String> extractedKeyMap = new Map<String ,String>();
                         if(templateValues?.get('Extracted Mapping Keys')?.size() > 0){
@@ -183,7 +187,17 @@ public with sharing class TemplateBuilder_Controller {
                         else{
                             extractedKeyMap.put('1', '');
                         }
-                    saveTempDataRecordsInBatch( extractedKeyMap , new Map<String, String>{temp[0].Id => 'Extracted Mapping Keys'}, true);
+                    saveTempDataRecords_forValueTypes( extractedKeyMap , new Map<String, String>{temp[0].Id => 'Extracted Mapping Keys'}, true);
+
+                    if(recordToUpdate_global.size() < 1000) {
+                        update recordToUpdate_global;
+                    }
+                    if(recordToInsert_global.size() < 1000) {
+                        insert recordToInsert_global;
+                    }
+                    if(recordToDelete_global.size() < 1000) {
+                        delete as user recordToDelete_global;
+                    }
                     
                 }
                 
@@ -208,10 +222,65 @@ public with sharing class TemplateBuilder_Controller {
      * @param {Map<String, string>}, templateDataList, Map of batchOrderNumver vs template Data
      * @param {Map<String, String>}, tempIdVsValueType, Map of tempate Id vs template Value,
      * @param {boolean}, isLastBatch, to indentify last batch,
+     * @description : Method Save body content data into template data object for multiple value type (i.e., Body, header, footer, mappingKeys).
+     */
+    @AuraEnabled
+    public static String saveTempDataRecords_forValueTypes(Map<String, string> templateDataList ,Map<String, String> tempIdVsValueType, boolean isLastBatch){
+        try {
+            
+            Map<String, List<MVDG__Template_Data__c>> dataToUpdate = setupTemplateDataForUpdate(templateDataList, tempIdVsValueType, isLastBatch);
+
+            List<MVDG__Template_Data__c> recordToInsert = dataToUpdate?.get('recordToInsert');
+            List<MVDG__Template_Data__c> recordToUpdate = dataToUpdate?.get('recordToUpdate');
+            List<MVDG__Template_Data__c> recordToDelete = dataToUpdate?.get('recordToDelete');
+
+            if(recordToInsert != null && recordToInsert.size() > 0) recordToInsert_global.addAll(recordToInsert);
+            if(recordToUpdate != null && recordToUpdate.size() > 0) recordToUpdate_global.addAll(recordToUpdate);
+            if(recordToDelete != null && recordToDelete.size() > 0) recordToDelete_global.addAll(recordToDelete);
+
+            return isLastBatch ? 'last batch update succesfully' : 'batch update succesfully';
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'TemplateBuilderController', 'saveTempDataRecordsInBatch');
+            // System.debug('exception in saveTempDataRecordsInBatch : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            return null;
+        }
+    }
+
+    /**
+     * @param {Map<String, string>}, templateDataList, Map of batchOrderNumver vs template Data
+     * @param {Map<String, String>}, tempIdVsValueType, Map of tempate Id vs template Value,
+     * @param {boolean}, isLastBatch, to indentify last batch,
      * @description : Method Save body content data into template data object in multiple batch to handle large size.
      */
     @AuraEnabled
     public static String saveTempDataRecordsInBatch(Map<String, string> templateDataList ,Map<String, String> tempIdVsValueType, boolean isLastBatch){
+        try {
+
+            Map<String, List<MVDG__Template_Data__c>> dataToUpdate = setupTemplateDataForUpdate(templateDataList, tempIdVsValueType, isLastBatch);
+
+            List<MVDG__Template_Data__c> recordToInsert = dataToUpdate?.get('recordToInsert');
+            List<MVDG__Template_Data__c> recordToUpdate = dataToUpdate?.get('recordToUpdate');
+            List<MVDG__Template_Data__c> recordToDelete = dataToUpdate?.get('recordToDelete');
+
+            if(recordToUpdate.size() < 1000) {
+                update recordToUpdate;
+            }
+            if(recordToInsert.size() < 1000) {
+                insert recordToInsert;
+            }
+            if(recordToDelete.size() < 1000) {
+                delete as user recordToDelete;
+            }
+
+            return isLastBatch ? 'last batch update succesfully' : 'batch update succesfully';
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'TemplateBuilderController', 'saveTempDataRecordsInBatch');
+            // System.debug('exception in saveTempDataRecordsInBatch : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
+            return null;
+        }
+    }
+
+    public static Map<String, List<MVDG__Template_Data__c>> setupTemplateDataForUpdate(Map<String, string> templateDataList ,Map<String, String> tempIdVsValueType, boolean isLastBatch){
         try {
             List<String> batchOrderNumber = new List<String>(templateDataList.keySet());
             Integer startOrderNumber = batchOrderNumber.size() > 0 ? Integer.valueOf(batchOrderNumber[0]) : 0;
@@ -261,13 +330,6 @@ public with sharing class TemplateBuilder_Controller {
                         recordToInsert.add(dt);
                     }
                 }
-                
-                if(recordToUpdate.size() < 1000) {
-                    update recordToUpdate;
-                }
-                if(recordToInsert.size() < 1000) {
-                    insert recordToInsert;
-                }
             }
             else if(Schema.sObjectType.MVDG__Template_Data__c.isCreateable()){
                 for(integer i = startOrderNumber; i <= endOrderNumber; i++){
@@ -277,10 +339,6 @@ public with sharing class TemplateBuilder_Controller {
                     dt.MVDG__Order_No_Simple__c = (i);
                     dt.MVDG__Value_Type__c = ValueType;
                     recordToInsert.add(dt);
-                }
-
-                if(recordToInsert.size() < 1000) {
-                    insert recordToInsert;
                 }
             }
 
@@ -298,14 +356,17 @@ public with sharing class TemplateBuilder_Controller {
                                                                         AND MVDG__Value_Type__c =: valueType WITH SECURITY_ENFORCED
                                                                         ORDER BY MVDG__Order_No_Simple__c ASC LIMIT 50000];
                 
-                if(templateDataToDelete.size() < 1000) {
-                    delete as user templateDataToDelete;
-                }
+                recordToDelete.addAll(templateDataToDelete);
             }
+            
 
-            return isLastBatch ? 'last batch update succesfully' : 'batch update succesfully';
-        } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'TemplateBuilderController', 'saveTempDataRecordsInBatch');
+            return new Map<String, List<MVDG__Template_Data__c>>{
+                'recordToInsert' => recordToInsert,
+                'recordToUpdate' => recordToUpdate,
+                'recordToDelete' => recordToDelete
+            };
+        } catch(Exception e) {
+            Log_Handler.store_Exception(e, 'TemplateBuilderController', 'setupTemplateDataForUpdate');
             // System.debug('exception in saveTempDataRecordsInBatch : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return null;
         }
