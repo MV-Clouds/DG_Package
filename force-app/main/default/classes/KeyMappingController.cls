@@ -613,7 +613,7 @@ public with sharing class KeyMappingController {
             String fieldType = (String)String.valueOf(field.getType());
             fieldMapping.type = fieldType;
 
-            if( fieldType == 'DATE' || fieldType == 'DATETIME' || fieldType == 'BOOLEAN' || fieldType == 'STRING' || 
+            if( fieldType == 'DATE' || fieldType == 'DATETIME' ||  fieldType == 'TIME' || fieldType == 'BOOLEAN' || fieldType == 'STRING' || 
                 fieldType == 'INTEGER' || fieldType == 'DOUBLE' || fieldType == 'CURRENCY' || fieldType == 'PERCENT'){
                 fieldMapping.isFormatReq = true;
             }

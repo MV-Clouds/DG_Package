@@ -2,6 +2,7 @@ public with sharing class DynamicFieldDisplayController {
     public String recordId { get; set; }
     public String NameSpace { get; set; }
     public String objectName { get; set; }
+    public String objectLabel { get; set; }
     public String objectID {get;set;}
     public String layoutName { get; set; }
     public string RecordTypeId { get; set;}
@@ -10,7 +11,8 @@ public with sharing class DynamicFieldDisplayController {
     public DynamicFieldDisplayController() {
         this.recordId = ApexPages.currentPage().getParameters().get('id');
         if(this.recordId != null){
-            this.objectName = getObjectNameFromRecordId(this.recordId);
+            this.objectName = getObjectNameFromRecordId(this.recordId)[0];
+            this.objectLabel = getObjectNameFromRecordId(this.recordId)[1];
             this.NameSpace = getNameSpace(this.objectName);
             this.objectID = getObjectIdByApiName(this.objectName);
             this.RecordTypeId = getRecordTypeId(this.recordId, this.objectName);
@@ -20,9 +22,10 @@ public with sharing class DynamicFieldDisplayController {
         }
     }
 
-    public String getObjectNameFromRecordId(String recordId) {
+    public List<String> getObjectNameFromRecordId(String recordId) {
         String objectName = '';
         Map<String, Schema.SObjectType> globalDescribeMap = Schema.getGlobalDescribe();
+        
         String prefix = String.valueOf(recordId).substring(0, 3);
         for (Schema.SObjectType objType : globalDescribeMap.values()) {
             if (objType.getDescribe().getKeyPrefix() == prefix) {
@@ -30,7 +33,8 @@ public with sharing class DynamicFieldDisplayController {
                 break;
             }
         }
-        return objectName;
+        String objectLabel = Schema.getGlobalDescribe().get(objectName).getDescribe().getLabel();
+        return new List<String>{objectName, objectLabel };
     }
 
     public string getNameSpace(String objectApiName){
@@ -78,17 +82,19 @@ public with sharing class DynamicFieldDisplayController {
             // Convert map to list
             this.fieldSections = sectionsMap?.values();
         } catch (Exception e) {
-            // throw new AuraHandledException('Unable to fetch record field values.'+ e);
+            System.debug('exception in fetchRecordFieldValues : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
         }
     }
 
-    private static String formatAddress(Address address) {
+    private static String formatAddress(Object addressObj) {
         List<String> addressParts = new List<String>();
-        if (address.getStreet() != null) addressParts.add(address.getStreet());
-        if (address.getCity() != null) addressParts.add(address.getCity());
-        if (address.getState() != null) addressParts.add(address.getState());
-        if (address.getPostalCode() != null) addressParts.add(address.getPostalCode());
-        if (address.getCountry() != null) addressParts.add(address.getCountry());
+
+        Map<String, Object> address = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(addressObj));
+        if (address?.get('street') != null) addressParts.add(String.ValueOf(address?.get('street')));
+        if (address?.get('city') != null) addressParts.add(String.ValueOf(address?.get('city')));
+        if (address?.get('postalCode') != null) addressParts.add(String.ValueOf(address?.get('postalCode')));
+        if (address?.get('state') != null) addressParts.add(String.ValueOf(address?.get('state')));
+        if (address?.get('country') != null) addressParts.add(String.ValueOf(address?.get('country')));
         return String.join(addressParts, ', ');
     }
     
@@ -207,24 +213,37 @@ public with sharing class DynamicFieldDisplayController {
                 FieldInfo field = new FieldInfo();
                 fieldDetail.fieldValue = '';
                 if(fieldDetail?.isRefrenceField){
+
+                    // Get Parent Object's Name Field Value to display as Value fo Refrence Field...
                     Map<String, Object> parentObj = (Map<String, Object>) recordAsMap?.get(fieldDetail?.refrenceField.substringBefore('.'));
                     fieldDetail.fieldValue = (String) String.valueOf(parentObj?.get(fieldDetail?.refrenceField.substringAfter('.')));
                     fieldDetail.fieldValue = fieldDetail?.fieldValue != null ? fieldDetail.fieldValue : '';
+
+                    // Get Refrence Id and set URL for Redirect...
                     string refrenceId = String.valueOf(recordAsMap?.get(fieldName));
                     fieldDetail.refrenceURL = baseUrl+refrenceId;
                 }
                 else{
                     // Format Field value...
+                    System.debug('fieldType : ' + fieldDetail.fieldType);
                     Object fieldValue = recordAsMap?.get(fieldName);
                     String formattedFieldValue = '';
-                    if (fieldValue instanceof Address) {
-                        Address address = (Address) fieldValue;
-                        formattedFieldValue = formatAddress(address);
-                    }else if(string.valueOf(fieldValue) == 'null'){
-                        formattedFieldValue = ' ';
-                    } else if (fieldValue != null) {
+
+                    if (fieldDetail.fieldType == 'ADDRESS') {
+                        formattedFieldValue = formatAddress(fieldValue);
+                    }
+                    else if(fieldDetail.fieldType == 'URL'){
+                        fieldDetail.refrenceURL = String.valueOf(fieldValue);
+                        if(!fieldDetail?.refrenceURL?.contains('http')){
+                            fieldDetail.refrenceURL = 'https://' + fieldDetail.refrenceURL;
+                        }
                         formattedFieldValue = String.valueOf(fieldValue);
-                    } else {
+                    }
+                    else{
+                        formattedFieldValue = String.valueOf(fieldValue);
+                    }
+                    
+                    if (formattedFieldValue == null) { 
                         formattedFieldValue = ' ';
                     }
 
@@ -235,7 +254,7 @@ public with sharing class DynamicFieldDisplayController {
             
             return recordFieldValues;
         } catch (Exception e) {
-            // throw new AuraHandledException('Unable to fetch record field values.');
+            System.debug('exception in getRecordFieldValues : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return fieldDetails;
         }
 
@@ -294,8 +313,8 @@ public with sharing class DynamicFieldDisplayController {
             }
             return fieldDetails;
         } catch (Exception e) {
+            System.debug('exception in getFields : ' +  e.getMessage() +'\n'+ 'Line Number : ' + e.getLineNumber());
             return fieldDetails;
-            // throw new AuraHandledException('Unable to fetch record field values.'+e);
         }
     }
 

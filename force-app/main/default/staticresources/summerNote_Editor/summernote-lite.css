@@ -1816,7 +1816,7 @@ a.note-dropdown-item:hover {
             }
             .note-editor.note-frame li{
                 display: list-item !important;
-                text-align: -webkit-match-parent !important;
+                text-align: -webkit-match-parent;
                 unicode-bidi: isolate !important;
             }
             .note-editor.note-frame ::marker{
