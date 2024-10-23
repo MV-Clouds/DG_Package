@@ -19,7 +19,7 @@ public with sharing class DynamicFieldDisplayController {
             this.layoutName = getObjectLayout(this.objectID, this.RecordTypeId)[0]; // Change this to the desired layout
             this.fieldSections = new List<FieldSection>();
             fetchRecordFieldValues();
-            baseUrl = URL.getOrgDomainUrl().getHost();
+            baseUrl = 'https://'+URL.getOrgDomainUrl().getHost()+'/';
         }
     }
 
@@ -220,25 +220,36 @@ public with sharing class DynamicFieldDisplayController {
         try {
             List<Map<String, Object>> fieldDetails = getFields(objectName, layout, NameSpace);
             
-            List<String> fieldNames = new List<String>();
+            Set<String> fieldNames = new Set<String>();
+            fieldNames.add('Id');
+            fieldNames.add('OwnerId');
             for (Map<String, Object> fieldDetail : fieldDetails) {
                 if(fieldDetail.get('field') != null){
                     fieldNames.add((String)fieldDetail.get('field'));
                 }
             }
 
-
-            String soql = 'SELECT Id, ' + String.join(fieldNames, ', ') + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id = \''+ String.escapeSingleQuotes(recordId) +'\'';
+            System.debug('fieldNames : ' + fieldNames);
+            String soql = 'SELECT ' + String.join(fieldNames, ', ') + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id = \''+ String.escapeSingleQuotes(recordId) +'\'';
             SObject record = Database.query(soql);
+            Map<String, Object> recordAsMap = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(record));
             
             Map<String, Object> recordFieldValues = new Map<String, Object>();
             for (String fieldName : fieldNames) {
-                recordFieldValues.put(fieldName, record.get(fieldName) != null ? record.get(fieldName) : 'null');
+                string fieldValue = '';
+                if(fieldName.contains('.')){
+                    Map<String, Object> parentObj = (Map<String, Object>) recordAsMap?.get(fieldName.substringBefore('.'));
+                    fieldValue = (String) String.valueOf(parentObj?.get(fieldName.substringAfter('.')));
+                }
+                else{
+                    fieldValue = (String) String.valueOf(recordAsMap?.get(fieldName));
+                }
+                fieldValue = fieldValue != null ? fieldValue : '';
+                recordFieldValues.put(fieldName, fieldValue);
             }
             
             return recordFieldValues;
         } catch (Exception e) {
-
             throw new AuraHandledException('Unable to fetch record field values.');
         }
     }
@@ -274,11 +285,11 @@ public with sharing class DynamicFieldDisplayController {
                                 String field = item.field;
                                 // System.debug('field : ' + field);
                                 // System.debug('objectFields.get(field) : ' + objectFields.get(field));
-                                // Boolean isRefrenceField = objectFields.get(field)?.isRefrenceField;
-                                // if(isRefrenceField){
-                                //     System.debug('referenceObjNameField : ' + objectFields.get(field)?.referenceObjNameField);
-                                //     field = objectFields.get(field)?.referenceObjNameField;
-                                // }
+                                Boolean isRefrenceField = objectFields.get(field)?.isRefrenceField;
+                                if(isRefrenceField){
+                                    System.debug('referenceObjNameField : ' + objectFields.get(field)?.referenceObjNameField);
+                                    field = objectFields.get(field)?.referenceObjNameField;
+                                }
                                 Map<String, Object> fieldDetail = new Map<String, Object>();
                                 fieldDetail.put('field', field);
                                 fieldDetail.put('fieldType', objectFields.get(field)?.fieldType);
