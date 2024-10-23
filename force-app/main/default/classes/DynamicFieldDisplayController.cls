@@ -208,7 +208,7 @@ public with sharing class DynamicFieldDisplayController {
 
             // Query Field...
             String soql = 'SELECT ' + String.join(fieldNames, ', ') + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id =: recordId LIMIT 1';
-            SObject record = querySObject(soql,recordId, objectName);
+            SObject record = Database.query(String.escapeSingleQuotes(soql));
 
             // Convert sObejct in Map...
             Map<String, Object> recordAsMap = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(record));
@@ -272,15 +272,6 @@ public with sharing class DynamicFieldDisplayController {
             return fieldDetails;
         }
 
-    }
-
-    public static sObject querySObject(String query, String recordId, String sourceObject){
-        try {
-            return Database.query(query);
-        } catch (Exception e) {
-            Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(sourceObject);
-            return  sObjectType.newSObject();
-        }
     }
     
     @AuraEnabled
