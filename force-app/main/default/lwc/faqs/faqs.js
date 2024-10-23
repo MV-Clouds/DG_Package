@@ -1,5 +1,5 @@
 import { LightningElement, track } from 'lwc';
-import faqImage from '@salesforce/resourceUrl/faqImage';
+import faqImage from '@salesforce/resourceUrl/DG_FAQs';
 import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getAllFaqs from '@salesforce/apex/FaqsController.getAllFaqs';
 import getFAQKnowledge from '@salesforce/apex/FaqsController.getFAQKnowledge';
