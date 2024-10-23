@@ -93,47 +93,51 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                     uploadObject(fileDetails, attach.VersionData, activity);
                 } else {
                     if(namedCredential != ''){
-                    String formattedDate = DateTime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss z');
-                    String timestamp = DateTime.now().format('yyyyMMddHHmmss');
-                    awsFileName = filename.replace(' ', '%20') + '_' + timestamp + '.' + attach.fileExtension;
-                    String authHeader;
-                    String endpoint;
+                        String formattedDate = DateTime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss z');
+                        String timestamp = DateTime.now().format('yyyyMMddHHmmss');
+                        awsFileName = filename.replace(' ', '%20') + '_' + timestamp + '.' + attach.fileExtension;
+                        String authHeader;
+                        String endpoint;
 
-                    
-                    
-                    HttpRequest req = new HttpRequest();
-                    endpoint = 'callout:'+ namedCredential +'/'+ awsFileName+'?uploads';
-                    req.setMethod('POST');
-                    req.setEndpoint(endpoint);
+                        
+                        
+                        HttpRequest req = new HttpRequest();
+                        endpoint = 'callout:'+ namedCredential +'/'+ awsFileName+'?uploads';
+                        req.setMethod('POST');
+                        req.setEndpoint(endpoint);
 
-                    Http http = new Http();
-                    HTTPResponse res = http.send(req);
+                        Http http = new Http();
+                        HTTPResponse res = http.send(req);
 
 
-                    if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
-                        String uploadId = '';
-                        String responseBody = res.getBody();
-                        if (responseBody != null && responseBody.contains('UploadId')) {
-                            uploadId = responseBody.substringBetween('<UploadId>', '</UploadId>');
+                        if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
+                            String uploadId = '';
+                            String responseBody = res.getBody();
+                            if (responseBody != null && responseBody.contains('UploadId')) {
+                                uploadId = responseBody.substringBetween('<UploadId>', '</UploadId>');
+                            }
+                            UploadMultipartDetails multipartDetail = new UploadMultipartDetails();
+                            multipartDetail.uploadId = uploadId;
+                            multipartDetail.lengthOfFile = lengthOfFile;
+                            multipartDetail.filename = fileName;
+                            multipartDetail.fileExtension = attach.FileExtension;
+                            multipartDetail.attach = attach;
+                            multipartDetail.activity = activity;
+
+                            uploadMultipart(multipartDetail);
+                        } else {
+                            Response_Handler.store_Callout_Response(res, 'AwsUploader', 'execute');
+                            MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                                obj.MVDG__AWS__c = 'Failure '+ res.getBody();
+                                obj.Id = activity; 
+                                updateActivityMessage(obj);
+                            mailMessage(res.getStatusCode());
                         }
-                        UploadMultipartDetails multipartDetail = new UploadMultipartDetails();
-                        multipartDetail.uploadId = uploadId;
-                        multipartDetail.lengthOfFile = lengthOfFile;
-                        multipartDetail.filename = fileName;
-                        multipartDetail.fileExtension = attach.FileExtension;
-                        multipartDetail.attach = attach;
-                        multipartDetail.activity = activity;
-
-                        uploadMultipart(multipartDetail);
-                    } else {
-                        Response_Handler.store_Callout_Response(res, 'AwsUploader', 'execute');
-                        MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
-                            obj.MVDG__AWS__c = 'Failure '+ res.getBody();
-                            obj.Id = activity; 
-                            updateActivityMessage(obj);
-                        mailMessage(res.getStatusCode());
                     }
-                }
+                    MVDG__Generate_Document_Activity__c obj = new MVDG__Generate_Document_Activity__c();
+                    obj.Id = activity;
+                    obj.MVDG__AWS__c = 'File Size is Greater than 10 Mb. Therefore, cannot be uploaded Without Named Credential.';
+                    updateActivityMessage(obj);
             }
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'AwsUploader', 'execute batch', activity);
@@ -484,6 +488,7 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                     completeDetail.fileExtension = parameters.fileExtension;
                     completeDetail.uploadId = parameters.uploadId;
                     completeDetail.maxPart = String.valueOf(parameters.partNumber);
+                    completeDetail.activity = parameters.activity;
                     completeFile(completeDetail);
                 }
                 return true;
