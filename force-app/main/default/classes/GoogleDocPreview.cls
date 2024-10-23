@@ -416,7 +416,7 @@ public with sharing class GoogleDocPreview {
             List<OriginalObjectWrapper> jsObject = new List<OriginalObjectWrapper>();
             jsObject = (List<OriginalObjectWrapper>) JSON.deserialize(queryObject, List<OriginalObjectWrapper>.class);
             Integer tableCount = 1;
-            
+            Boolean SignatureImagePresent = false;
             for (OriginalObjectWrapper obj : jsObject) {
                 if (obj.objApi == 'General Fields') {
 
@@ -432,10 +432,7 @@ public with sharing class GoogleDocPreview {
                     returnList.add(objectFieldValues);
                     
                 } else if (obj.objApi == 'Signature Image') {
-
-                    Map<String,Object> signatureImage = new Map<String,Object>();
-                    signatureImage = getSignatureImage(recordId);
-                    returnList.add(signatureImage);
+                    signatureImagePresent = true;
 
                 } else if (tableCount <= 10) {
                     // query for every child
@@ -479,6 +476,11 @@ public with sharing class GoogleDocPreview {
                     }
                     tableCount++;
                 }
+            }
+            if (SignatureImagePresent) {
+                Map<String,Object> signatureImage = new Map<String,Object>();
+                signatureImage = getSignatureImage(recordId);
+                returnList.add(signatureImage);
             }
         } catch (Exception e) {
             
