@@ -137,7 +137,7 @@ export default class TemplatePreviewModal extends LightningElement {
     renderedCallback() {
         try {
             // console.log("this.isCalledFromGenerateDoc==>", this.isCalledFromGenerateDoc);
-            if (this.isCalledFromGenerateDoc) {
+            if (this.isCalledFromGenerateDoc && !this.showPreview) {
                 this.generatePreview();
                 this.template.host.style.setProperty("--maxWidth", 'unset');
             }
@@ -165,6 +165,11 @@ export default class TemplatePreviewModal extends LightningElement {
 
     generatePreview(){
         try {
+            const previewTimeout = this.template.querySelector('[data-id="previewTimeout"]');
+
+            // ... if custom timeout child component is not available, don't run further process...
+            if(!previewTimeout) return;
+
             if(this.templateType === 'Simple Template'){
                 this.spinnerLabel = 'Generating Preview...';
                 this.isSpinner = true;
@@ -191,7 +196,7 @@ export default class TemplatePreviewModal extends LightningElement {
                     //     this.updateSpinnerLabel('We are Almost There... Please wait a while...');
                     // }, 4000)
 
-                    this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod(() => {
+                    previewTimeout?.setCustomTimeoutMethod(() => {
                         this.updateSpinnerLabel('We are Almost There... Please wait a while...');
                     }, 4000);
                 }
@@ -203,16 +208,16 @@ export default class TemplatePreviewModal extends LightningElement {
                     //     this.vfPageSRC = newSRC;
                     //     this.showPreview = true;
 
-                    //     this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod(() => {
+                    //    setTimeout(() => {
                     //         this.updateSpinnerLabel('We are Almost There... Please wait a while...')
                     //     }, 4000);
                     // }, 100)
 
-                    this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod(() => {
+
+                    previewTimeout?.setCustomTimeoutMethod(() => {
                         this.vfPageSRC = newSRC;
                         this.showPreview = true;
-
-                        this.template.querySelector('[data-id="previewTimeout"]')?.setCustomTimeoutMethod(() => {
+                        previewTimeout?.setCustomTimeoutMethod(() => {
                             this.updateSpinnerLabel('We are Almost There... Please wait a while...')
                         }, 4000);
                     }, 1000);
@@ -220,17 +225,15 @@ export default class TemplatePreviewModal extends LightningElement {
             }
             else if(this.templateType === 'Google Doc Template'){
                  this.isSpinner = false;
-                this.showPreview = true;
+                 this.showPreview = true;
                 // setTimeout(() => {
                 //     this.generateGoogleDocPreview();
                 // }, 300)
-                const previewTimeout = this.template.querySelector('[data-id="previewTimeout"]');
-                if(previewTimeout){
-                    previewTimeout.setCustomTimeoutMethod( () => {
-                        this.generateGoogleDocPreview()
-                    }, 300);
-                    this._isCalledFromGenerateDoc = false;
-                }
+
+                previewTimeout.setCustomTimeoutMethod( () => {
+                    this.generateGoogleDocPreview()
+                }, 300);
+
             }
         } catch (error) {
             errorDebugger('TemplatePreviewModal', 'previewData', error, 'warn');

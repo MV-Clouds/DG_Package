@@ -9,9 +9,21 @@
 deploy-options.json
 manifest/originalPackage.xml
 manifest/package.xml
+.gitignore
 
 # custom-metadata-type
 customMetadata/AuthProviderSetup.GoogleAuthenticationKeys.md-meta.xml
+
+# user guider for community site...
+force-app/main/default/classes/UserGuideController.cls
+force-app/main/default/lwc/userGuide_Site/
+
+# user guider property editor community site...
+force-app/main/default/lwc/userGuidePropertyEditor/
+
+# faqs for community site...
+force-app/main/default/classes/FaqsController.cls
+force-app/main/default/lwc/faqs/
 
 # LWC VSCode autocomplete
 **/lwc/jsconfig.json
