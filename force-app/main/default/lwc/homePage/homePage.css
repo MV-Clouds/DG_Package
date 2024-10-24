@@ -345,6 +345,10 @@
     input[type="radio"]:checked + label .asc_descText{
       color: white;
     }
+    input[type="radio"]:disabled + label .asc_descBtn{
+      filter: grayscale(1) saturate(0);
+      cursor: not-allowed;
+    }
 
     input[type="radio"]:checked + label .asc_desc_SVG,
     input[type="radio"]:checked + label .asc_desc_SVG path{
