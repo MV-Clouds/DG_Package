@@ -21,10 +21,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     
     @track defaultFieldToSort = 'LastModifiedDate';
     @track defaultSortAS = 'desc';
-    @track filterOpts = {
-        fieldToSort : this.defaultFieldToSort,
-        filterSortAS : this.defaultSortAS,
-    };
+    @track filterOpts = {};
     @track selectedTemplateId;
     @track selectedTempStatus;
     @track selectedObjectName;
@@ -55,6 +52,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     lastScroll = 0;                             // User to identify scroll direction for lazy loading...
     hour12 = false;
     isSetUpRedirect = false;
+    @track isFilterApplied = false;
 
     @track sortingFiledList = [
         {label : 'Template Name', value : 'MVDG__Template_Name__c'},
@@ -98,12 +96,15 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         // return true;
     }
 
-    get isFilterApplied(){
-        return Object.keys(this.filterOpts)?.length > 0 && JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
-    }
+    // get isFilterApplied(){
+    //     return Object.keys(this.filterOpts)?.length > 0 && JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts)
+    // }
 
     get disabledFilterApplyBtn(){
-        return JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts);
+        return  JSON.stringify(this.previousFilterOpts) === JSON.stringify(this.filterOpts);
+        /**
+         * When selected filter options are same as previously applied filter options
+         */
     }
 
     get disabledFilterClearBtn(){
@@ -115,7 +116,12 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     // }
 
     get clearRangeDates(){
-        return (Object.prototype.hasOwnProperty.call(this.filterOpts, 'fromDate') || Object.prototype.hasOwnProperty.call(this.filterOpts, 'toDate')) ? true : false;
+        return Object.prototype.hasOwnProperty.call(this.filterOpts, 'fromDate') || Object.prototype.hasOwnProperty.call(this.filterOpts, 'toDate');
+        
+        /**
+         * When selected filter options have "fromDate" Options OR
+         * When selected filter options have "toDate" Options OR
+         */
     }
 
     get noResultFound(){
@@ -124,6 +130,10 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     get disabledFromTO(){
         return !this.filterOpts.dateToFilter;
+    }
+
+    get disabledSortAs(){
+        return !this.filterOpts.fieldToSort;
     }
 
     connectedCallback(){
@@ -505,7 +515,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         }
     }
 
-    applyFilter(){
+    applyFilter(event, isClearFilter){
         try {
 
             var isFilter = this.setErrorForRangeDate();
@@ -537,6 +547,8 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
                 this.previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts));
                 this.toggleFilterOptions();
+
+                this.isFilterApplied = !isClearFilter;
             }
         } catch (error) {
             errorDebugger('HomePage', 'applyFilter', error, 'warn');

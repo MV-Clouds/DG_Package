@@ -124,78 +124,81 @@ public with sharing class TemplateBuilder_Controller {
 
 
                 if(templateValues != null && templateValues.keySet().size() > 0){
-                   // updateTemplateDataRecords(templateToUpdate.MVDG__Template_Data__r, templateValues, templateToUpdate.Id);
-                    // NOTE : please do not use for-loop, it will cause in security reason...
-                //    for(String valueType : templateValues.keySet()){
-                //         Map<String ,String> templateValuesMap = new Map<String ,String>();
-                //         for(Integer i = 1; i <= templateValues.get(valueType).size(); i++){
-                //             templateValuesMap.put(String.valueOf(i), templateValues.get(valueType)[i-1]);
-                //         }
-                //         saveTempDataRecordsInBatch( templateValuesMap , new Map<String, String>{temp[0].Id => valueType}, true);
-                //     }
-
-                    Map<String ,String> bodyValuesMap = new Map<String ,String>();
-                        if(templateValues?.get('Body Value')?.size() > 0){
-                            for(Integer i = 1; i <= templateValues.get('Body Value').size(); i++){
-                                bodyValuesMap.put(String.valueOf(i), templateValues.get('Body Value')[i-1]);
+                    for(String valueType : templateValues.keySet()){
+                        Map<String ,String> templateValuesMap = new Map<String ,String>();
+                        if(templateValues?.get(valueType)?.size() > 0){
+                            for(Integer i = 1; i <= templateValues.get(valueType).size(); i++){
+                                templateValuesMap.put(String.valueOf(i), templateValues.get(valueType)[i-1]);
                             }
                         }
                         else{
-                            bodyValuesMap.put('1', '');
+                            templateValuesMap.put('1', '');
                         }
-                    saveTempDataRecords_forValueTypes( bodyValuesMap , new Map<String, String>{temp[0].Id => 'Body Value'}, true);
+                        saveTempDataRecords_forValueTypes( templateValuesMap , new Map<String, String>{temp[0].Id => valueType}, true);
+                    }
 
-                    Map<String ,String> headerValuesMap = new Map<String ,String>();
-                        if(templateValues?.get('Header Value')?.size() > 0){
-                            for(Integer i = 1; i <= templateValues.get('Header Value').size(); i++){
-                                headerValuesMap.put(String.valueOf(i), templateValues.get('Header Value')[i-1]);
-                            }
-                        }
-                        else{
-                            headerValuesMap.put('1', '');
-                        }
-                    saveTempDataRecords_forValueTypes( headerValuesMap , new Map<String, String>{temp[0].Id => 'Header Value'}, true);
+                    // Map<String ,String> bodyValuesMap = new Map<String ,String>();
+                    //     if(templateValues?.get('Body Value')?.size() > 0){
+                    //         for(Integer i = 1; i <= templateValues.get('Body Value').size(); i++){
+                    //             bodyValuesMap.put(String.valueOf(i), templateValues.get('Body Value')[i-1]);
+                    //         }
+                    //     }
+                    //     else{
+                    //         bodyValuesMap.put('1', '');
+                    //     }
+                    // saveTempDataRecords_forValueTypes( bodyValuesMap , new Map<String, String>{temp[0].Id => 'Body Value'}, true);
 
-                    Map<String ,String> footerValuesMap = new Map<String ,String>();
-                        if(templateValues?.get('Footer Value')?.size() > 0){
-                            for(Integer i = 1; i <= templateValues.get('Footer Value').size(); i++){
-                                footerValuesMap.put(String.valueOf(i), templateValues.get('Footer Value')[i-1]);
-                            }
-                        }
-                        else{
-                            footerValuesMap.put('1', '');
-                        }
-                    saveTempDataRecords_forValueTypes( footerValuesMap , new Map<String, String>{temp[0].Id => 'Footer Value'}, true);
+                    // Map<String ,String> headerValuesMap = new Map<String ,String>();
+                    //     if(templateValues?.get('Header Value')?.size() > 0){
+                    //         for(Integer i = 1; i <= templateValues.get('Header Value').size(); i++){
+                    //             headerValuesMap.put(String.valueOf(i), templateValues.get('Header Value')[i-1]);
+                    //         }
+                    //     }
+                    //     else{
+                    //         headerValuesMap.put('1', '');
+                    //     }
+                    // saveTempDataRecords_forValueTypes( headerValuesMap , new Map<String, String>{temp[0].Id => 'Header Value'}, true);
 
-                    Map<String ,String> watermarkValuesMap = new Map<String ,String>();
-                        if(templateValues?.get('Watermark Value')?.size() > 0){
-                            for(Integer i = 1; i <= templateValues.get('Watermark Value').size(); i++){
-                                watermarkValuesMap.put(String.valueOf(i), templateValues.get('Watermark Value')[i-1]);
-                            }
-                        }
-                        else{
-                            watermarkValuesMap.put('1', '');
-                        }
-                    saveTempDataRecords_forValueTypes( watermarkValuesMap , new Map<String, String>{temp[0].Id => 'Watermark Value'}, true);
+                    // Map<String ,String> footerValuesMap = new Map<String ,String>();
+                    //     if(templateValues?.get('Footer Value')?.size() > 0){
+                    //         for(Integer i = 1; i <= templateValues.get('Footer Value').size(); i++){
+                    //             footerValuesMap.put(String.valueOf(i), templateValues.get('Footer Value')[i-1]);
+                    //         }
+                    //     }
+                    //     else{
+                    //         footerValuesMap.put('1', '');
+                    //     }
+                    // saveTempDataRecords_forValueTypes( footerValuesMap , new Map<String, String>{temp[0].Id => 'Footer Value'}, true);
+
+                    // Map<String ,String> watermarkValuesMap = new Map<String ,String>();
+                    //     if(templateValues?.get('Watermark Value')?.size() > 0){
+                    //         for(Integer i = 1; i <= templateValues.get('Watermark Value').size(); i++){
+                    //             watermarkValuesMap.put(String.valueOf(i), templateValues.get('Watermark Value')[i-1]);
+                    //         }
+                    //     }
+                    //     else{
+                    //         watermarkValuesMap.put('1', '');
+                    //     }
+                    // saveTempDataRecords_forValueTypes( watermarkValuesMap , new Map<String, String>{temp[0].Id => 'Watermark Value'}, true);
                     
-                    Map<String ,String> extractedKeyMap = new Map<String ,String>();
-                        if(templateValues?.get('Extracted Mapping Keys')?.size() > 0){
-                            for(Integer i = 1; i <= templateValues.get('Extracted Mapping Keys').size(); i++){
-                                extractedKeyMap.put(String.valueOf(i), templateValues.get('Extracted Mapping Keys')[i-1]);
-                            }
-                        }
-                        else{
-                            extractedKeyMap.put('1', '');
-                        }
-                    saveTempDataRecords_forValueTypes( extractedKeyMap , new Map<String, String>{temp[0].Id => 'Extracted Mapping Keys'}, true);
+                    // Map<String ,String> extractedKeyMap = new Map<String ,String>();
+                    //     if(templateValues?.get('Extracted Mapping Keys')?.size() > 0){
+                    //         for(Integer i = 1; i <= templateValues.get('Extracted Mapping Keys').size(); i++){
+                    //             extractedKeyMap.put(String.valueOf(i), templateValues.get('Extracted Mapping Keys')[i-1]);
+                    //         }
+                    //     }
+                    //     else{
+                    //         extractedKeyMap.put('1', '');
+                    //     }
+                    // saveTempDataRecords_forValueTypes( extractedKeyMap , new Map<String, String>{temp[0].Id => 'Extracted Mapping Keys'}, true);
 
-                    if(recordToUpdate_global.size() < 1000) {
+                    if(recordToUpdate_global.size() < 10000) {
                         update recordToUpdate_global;
                     }
-                    if(recordToInsert_global.size() < 1000) {
+                    if(recordToInsert_global.size() < 10000) {
                         insert recordToInsert_global;
                     }
-                    if(recordToDelete_global.size() < 1000) {
+                    if(recordToDelete_global.size() < 10000) {
                         delete as user recordToDelete_global;
                     }
                     
@@ -223,6 +226,7 @@ public with sharing class TemplateBuilder_Controller {
      * @param {Map<String, String>}, tempIdVsValueType, Map of tempate Id vs template Value,
      * @param {boolean}, isLastBatch, to indentify last batch,
      * @description : Method Save body content data into template data object for multiple value type (i.e., Body, header, footer, mappingKeys).
+     * Here, We are using global list to update template Data record to avoid DML in loop....
      */
     @AuraEnabled
     public static String saveTempDataRecords_forValueTypes(Map<String, string> templateDataList ,Map<String, String> tempIdVsValueType, boolean isLastBatch){
@@ -280,6 +284,12 @@ public with sharing class TemplateBuilder_Controller {
         }
     }
 
+    /**
+     * @param {Map<String, string>}, templateDataList, Map of batchOrderNumver vs template Data
+     * @param {Map<String, String>}, tempIdVsValueType, Map of tempate Id vs template Value,
+     * @param {boolean}, isLastBatch, to indentify last batch,
+     * @description : Method Setup List of Tempalte Data from Insert, Update and Delete as per contnet going to save...
+     */
     public static Map<String, List<MVDG__Template_Data__c>> setupTemplateDataForUpdate(Map<String, string> templateDataList ,Map<String, String> tempIdVsValueType, boolean isLastBatch){
         try {
             List<String> batchOrderNumber = new List<String>(templateDataList.keySet());
