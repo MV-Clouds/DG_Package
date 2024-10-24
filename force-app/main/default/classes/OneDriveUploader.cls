@@ -101,8 +101,11 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
         try {
             ContentVersion cv = scope[0];
             String fileName = cv.Title;
+            String formattedDate = DateTime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss z');
+            String timestamp = DateTime.now().format('dd-MM-yy ssmmhh');
+            fileName = fileName + ' ' + timestamp;
             Integer fileSize = cv.ContentSize;
-            fullFileName = cv.Title +'.'+ cv.fileExtension;
+            fullFileName = fileName +'.'+ cv.fileExtension;
             String contentType = contentTypeForOneDrive(cv.FileExtension);
             
             String acctoken = getToken(activity);
@@ -428,7 +431,6 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
 
             Http http = new Http();
             HttpResponse res = http.send(req2);
-
             if (res.getStatusCode() == 200 || res.getStatusCode() == 202) {
             }
             else if(res.getStatusCode() == 201){

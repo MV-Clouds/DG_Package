@@ -94,7 +94,7 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
                 } else {
                     if(namedCredential != ''){
                         String formattedDate = DateTime.now().formatGMT('EEE, dd MMM yyyy HH:mm:ss z');
-                        String timestamp = DateTime.now().format('yyyyMMddHHmmss');
+                        String timestamp = DateTime.now().format('dd-MM-yy_ssmmHH');
                         awsFileName = filename.replace(' ', '%20') + '_' + timestamp + '.' + attach.fileExtension;
                         String authHeader;
                         String endpoint;
