@@ -1,4 +1,4 @@
-import {customeIcons} from 'c/globalProperties';
+import {customeIcons, errorDebugger} from 'c/globalProperties';
 var _self;
 
 /**
@@ -20,7 +20,8 @@ function setCSSAfterLoadEditor(note){
     page.setAttribute('contenteditable', 'true');
 
   } catch (error) {
-    console.warn('error in setCSSAfterLoadEditor : ', error.stack);
+    // console.warn('error in setCSSAfterLoadEditor : ', error.stack);
+    errorDebugger('TemplateBuilder', 'editorConfig.setCSSAfterLoadEditor', error, 'warn');
   }
 }
 
@@ -40,7 +41,8 @@ function setFontResizerValue(note){
           fontResizer.value = styleInfo['font-size'];
       }
   } catch (error) {
-      console.warn('error in editorConfig.setFontResizerValue : ', );
+      // console.warn('error in editorConfig.setFontResizerValue : ', );
+      errorDebugger('TemplateBuilder', 'editorConfig.setFontResizerValue', error, 'warn');
   }
 }
 /**
@@ -303,8 +305,8 @@ function setTableRowColor(color, note, context) {
       // Set background color of the table row
       $tr.css('background-color', color);
   } catch (error) {
-      console.warn('error in setTableRowColor : ', error.stack);
-      
+      // console.warn('error in setTableRowColor : ', error.stack);
+      errorDebugger('TemplateBuilder', 'editorConfig.setTableRowColor', error, 'warn');
   }
 };
 
@@ -340,8 +342,8 @@ function setTableBorderColor(color, note, context) {
       // Set background color of the table td and th
       $(rng.sc).closest('table').find('td', 'th').css('border-color' , color);
   } catch (error) {
-      console.warn('error in setTableRowColor : ', error.stack);
-      
+      // console.warn('error in setTableRowColor : ', error.stack);
+      errorDebugger('TemplateBuilder', 'editorConfig.setTableRowColor', error, 'warn');
   }
   }
 
@@ -384,8 +386,8 @@ function setTableCellColor(color, note, context) {
         $th.css('background-color', color);
       }
   } catch (error) {
-      console.warn('error in setTableRowColor : ', error.stack);
-      
+      // console.warn('error in setTableRowColor : ', error.stack);
+      errorDebugger('TemplateBuilder', 'editorConfig.setTableRowColor', error, 'warn');
   }
   }
 
@@ -429,7 +431,8 @@ function createCellColorBtn(note, context){
           $th.css('vertical-align', position);
         }
   } catch (error) {
-    console.warn('error in setCellVerticalAlighn : ', error.stack);
+    // console.warn('error in setCellVerticalAlighn : ', error.stack);
+    errorDebugger('TemplateBuilder', 'editorConfig.setCellVerticalAlighn', error, 'warn');
     
   }
  }
@@ -799,7 +802,8 @@ export function initializeSummerNote(self, docGeniusLogoSvg, editorSelector){
 
             return true;
     } catch (error) {
-        console.warn('error in editorConfig.initializeSummerNote : ', error.stack);
+        // console.warn('error in editorConfig.initializeSummerNote : ', error.stack);
+        errorDebugger('TemplateBuilder', 'editorConfig.initializeSummerNote', error, 'warn');
         return false;
     }
 }

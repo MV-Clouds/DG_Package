@@ -61,7 +61,9 @@ export default class PreviewGoogleDocument extends LightningElement {
                 this.isSpinner = true;
                 generator.generateDocument(this.templateid, this.objectname, this.recordId, ".pdf");
             } else {
-                console.error("Error in getting files");
+                // console.error("Error in getting files");
+                errorDebugger('CustomRecordPicker', 'setCustomTimeoutMethod', {message : 'Error in getting files'}, 'warn');
+
             }
         } catch (error) {
             errorDebugger("PreviewGoogleDocument", "previewDocument", error, 'error', 'Error in preview Document. Please try again later');

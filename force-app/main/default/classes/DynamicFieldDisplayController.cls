@@ -236,7 +236,7 @@ public with sharing class DynamicFieldDisplayController {
                 }
                 else{
                     // Format Field value...
-                    System.debug('fieldType : ' + fieldDetail.fieldType);
+                    // System.debug('fieldType : ' + fieldDetail.fieldType);
                     Object fieldValue = recordAsMap?.get(fieldName);
                     String formattedFieldValue = '';
 
