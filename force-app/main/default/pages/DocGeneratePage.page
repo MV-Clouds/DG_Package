@@ -780,7 +780,7 @@
                                 }
                             })
                             .catch(function (error){
-                                console.log('error to store pdf file : ', error.stack)
+                                // console.log('error to store pdf file : ', error.stack)
                                 sendInfoToLWC('unknown', false, error);
                             })
                         }
@@ -1012,7 +1012,7 @@
                                     sendInfoToLWC('External Storage', false, {message : 'File Size Limit Exceeded!'});
                                 }
                             } catch (error) {
-                                console.log('error in handleGeneratedFiles : ', error.stack);
+                                // console.log('error in handleGeneratedFiles : ', error.stack);
                                 sendInfoToLWC('unknown', false, error);
                             }
                         }
@@ -1020,7 +1020,7 @@
                         function createDocument(fileData) {
                             try {
                                 if (!sessionId || sessionId == '' ) {
-                                    console.error('Error fetching session ID fro create document');
+                                    // console.error('Error fetching session ID fro create document');
                                     sendInfoToLWC('Documents', false, {message : 'Error fetching session ID fro create document'});
                                 }
                             
@@ -1058,12 +1058,12 @@
                                     })
                                 })
                                 .catch(error => {
-                                    console.error('Error creating sf document:', error);
+                                    // console.error('Error creating sf document:', error);
                                 })
                                 // console.log('result of create sf document ', result);
                             
                             } catch (error) {
-                                console.error('Error creating sf document:', error.stack);
+                                // console.error('Error creating sf document:', error.stack);
                                 sendInfoToLWC('Documents', false, error);
                             } 
                         }
@@ -1072,7 +1072,7 @@
                             try {
     
                                 if (!sessionId || sessionId == '' ) {
-                                    console.error('Error fetching session ID fro create attachment');
+                                    // console.error('Error fetching session ID fro create attachment');
                                     sendInfoToLWC('Notes & Attachments', false, {message : 'Error fetching session ID fro create attachment'});
                                 }
     
@@ -1116,13 +1116,13 @@
                                     })
                                 })
                                 .catch(error => {
-                                    console.error('Error creating Notes & Attachments:', error);
+                                    // console.error('Error creating Notes & Attachments:', error);
                                 })
                             
                                 // console.log(' create attachment result : ', result);
                             
                             } catch (error) {
-                                console.error('error in create Attachment : ', error.stack);
+                                // console.error('error in create Attachment : ', error.stack);
                                 sendInfoToLWC('Notes & Attachments', false, error);
                             }
                         }
@@ -1131,7 +1131,7 @@
                             try {
     
                                 if (!sessionId || sessionId == '' ) {
-                                    console.error('Error fetching session ID fro create conetentVersion');
+                                    // console.error('Error fetching session ID fro create conetentVersion');
                                     sendInfoToLWC('Files', false, {message : 'Error fetching session ID fro create conetentVersion'});
                                 }
     
@@ -1159,7 +1159,7 @@
                                     response.json()
                                     .then(result => {
                                         if (!result.success || !result.id) {
-                                            console.log('Couldn\'t create the content version');
+                                            // console.log('Couldn\'t create the content version');
                                             sendInfoToLWC('External Storage', false, result.error);
         
                                         }
@@ -1169,7 +1169,7 @@
                                     })
                                 })
                                 .catch(error => {
-                                    console.log('error in External Storage : ', error.json());
+                                    // console.log('error in External Storage : ', error.json());
                                     sendInfoToLWC('External Storage', true, null, result.id);
                                 })
                                 // console.log('result of create contetVersion : ', result);
@@ -1177,7 +1177,7 @@
     
     
                             } catch (error) {
-                                console.log('Error in createContentVersion ::', error.message);
+                                // console.log('Error in createContentVersion ::', error.message);
                                 sendInfoToLWC('Files', false, error);
                             }
                         }
@@ -1384,10 +1384,12 @@
     
                                             let renderTask = page.render(renderContext);
     
-                                        }, function (reason) {
-                                            // PDF loading error
-                                            console.error(reason);
-                                        });
+                                        }, 
+                                        // function (reason) {
+                                        //     // PDF loading error
+                                        //     console.error(reason);
+                                        // }
+                                    );
                                     }
                                 });
                             }
@@ -1499,7 +1501,7 @@
                     }
                 } 
                 catch (error) {
-                    console.error('error in docGenerate JS : ', error.stack);
+                    // console.error('error in docGenerate JS : ', error.stack);
                     sendInfoToLWC('unknown', false, error);
                 }
 

@@ -27,7 +27,8 @@ export default class CustomTimeout extends LightningElement {
                 this.addedEventListener(timeoutProcessInstance);
             }
             else{
-                console.warn('you have reach maximum limit of custom settimeout')
+                // console.warn('you have reach maximum limit of custom settimeout')
+                errorDebugger('CustomRecordPicker', 'setCustomTimeoutMethod', {message : 'you have reach maximum limit of custom settimeout'}, 'warn');
             }
 
         } catch (error) {

@@ -1,5 +1,7 @@
 import { LightningElement, api, track, wire } from "lwc";
 import { gql, graphql } from "lightning/uiGraphQLApi";
+import {errorDebugger} from 'c/globalProperties';
+
 
 export default class CustomRecordPicker extends LightningElement {
 
@@ -401,7 +403,7 @@ export default class CustomRecordPicker extends LightningElement {
             }`;
         }
         else{
-            console.warn('Object API not defied')
+            errorDebugger('CustomRecordPicker', 'getter gqlQueryString', {message : 'Object API not defied'}, 'warn');
             return undefined;
         }
     }
@@ -440,7 +442,7 @@ export default class CustomRecordPicker extends LightningElement {
     }
 
     errorHandler(error){
-        console.warn('custom combobox graphQL Error : ', error);
+        errorDebugger('CustomRecordPicker', 'custom combobox graphQL Error', error, 'warn');
         if (typeof window !== 'undefined') {
             this.dispatchEvent(new CustomEvent('error', {detail : error}));
         }
@@ -508,7 +510,7 @@ export default class CustomRecordPicker extends LightningElement {
                 return null;
             }
         } catch (error) {
-            console.warn('error to pars filters : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'error to parse filters', error, 'warn');
             this.errorHandler(error.stack);
             this.filterError = true;
             return null;
@@ -556,7 +558,7 @@ export default class CustomRecordPicker extends LightningElement {
 
             return modifiedList;
         } catch (error) {
-            console.warn('error in modifiedRecordList : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'modifiedRecordList', error, 'warn');
             return list;
         }
     }
@@ -590,7 +592,7 @@ export default class CustomRecordPicker extends LightningElement {
             }
 
         } catch (error) {
-            console.warn('error inside  in setDisplayOptions  in custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'setDisplayOptions', error, 'warn');
         }
     }
     
@@ -631,7 +633,7 @@ export default class CustomRecordPicker extends LightningElement {
             this.setSelection();
             
         } catch (error) {
-            console.warn('error in setDefaultValue custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'setDefaultValue', error, 'warn');
         }
     }
 
@@ -650,7 +652,7 @@ export default class CustomRecordPicker extends LightningElement {
             this.sortDisplayItems();
 
         } catch (error) {
-            console.warn('error inside handleShowDropDown in custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'handleShowDropDown', error, 'warn');
         }
     }
 
@@ -718,7 +720,7 @@ export default class CustomRecordPicker extends LightningElement {
             }
             
         } catch (error) {
-            console.warn('error inside handleOptionClick in custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'handleOptionClick', error, 'warn');
         }
     }
 
@@ -748,7 +750,7 @@ export default class CustomRecordPicker extends LightningElement {
             this.setErrorBorder();
             this.setPlaceHolder();
         } catch (error) {
-            console.warn('error in clearSelection custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'clearSelection', error, 'warn');
         }
     }
 
@@ -770,7 +772,8 @@ export default class CustomRecordPicker extends LightningElement {
             this.sortDisplayItems();
 
         } catch (error) {
-            console.warn('error inside closeDropDown in custom combobox : ', error.stack);
+            // console.warn('error inside closeDropDown in custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'closeDropDown', error, 'warn');
         }
     }
 
@@ -781,7 +784,8 @@ export default class CustomRecordPicker extends LightningElement {
                 item.isSelected = this.selectedOptions.length ? this.selectedOptions.some(ele => ele.value == item.value) : false
             });
         } catch (error) {
-            console.warn('error in setSelection : ', error.stack);
+            // console.warn('error in setSelection : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'setSelection', error, 'warn');
         }
     }
 
@@ -812,7 +816,8 @@ export default class CustomRecordPicker extends LightningElement {
                 }
             }
         } catch (error) {
-            console.warn('error in setErrorBorder in custom combobox  : ', error.stack);
+            // console.warn('error in setErrorBorder in custom combobox  : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'setErrorBorder', error, 'warn');
         }
     }
 
@@ -842,7 +847,8 @@ export default class CustomRecordPicker extends LightningElement {
             this.displayOptions = displayOptions;
             
         } catch (error) {
-            console.warn('error in sortDisplayItems in custom combobox : ', error.stack);
+            // console.warn('error in sortDisplayItems in custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'sortDisplayItems', error, 'warn');
         }
     }
 
@@ -870,7 +876,8 @@ export default class CustomRecordPicker extends LightningElement {
             this.setErrorBorder();
             this.setPlaceHolder();
         } catch (error) {
-            console.warn('error in unselectOption in custom combobox : ', error.stack);
+            // console.warn('error in unselectOption in custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'unselectOption', error, 'warn');
         }
     }
 
@@ -896,7 +903,8 @@ export default class CustomRecordPicker extends LightningElement {
                 }
             }
         } catch (error) {
-            console.warn('error in clearAll in custom combobox : ', error.stack);
+            // console.warn('error in clearAll in custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'clearAll', error, 'warn');
         }
     }
 
@@ -919,7 +927,8 @@ export default class CustomRecordPicker extends LightningElement {
                 searchInput && (searchInput.value = '');
             }
         } catch (error) {
-            console.warn('error in clearSearch : custom combobox : ', error.stack);
+            // console.warn('error in clearSearch : custom combobox : ', error.stack);
+            errorDebugger('CustomRecordPicker', 'clearSearch', error, 'warn');
         }
     }
 
@@ -940,8 +949,8 @@ export default class CustomRecordPicker extends LightningElement {
                 this.template.querySelector('.slds-combobox__input').style = '';
             }
         } catch (error) {
-            console.warn('error in isInvalidInput : custom combobox :', error.stack);
-            
+            // console.warn('error in isInvalidInput : custom combobox :', error.stack);
+            errorDebugger('CustomRecordPicker', 'isInvalidInput', error, 'warn');
         }
     }
 
