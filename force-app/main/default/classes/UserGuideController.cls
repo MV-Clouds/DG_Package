@@ -1,4 +1,4 @@
-public without sharing class UserGuideController {
+public with sharing class UserGuideController {
 
 
 
