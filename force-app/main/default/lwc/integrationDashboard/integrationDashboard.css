@@ -257,13 +257,6 @@
 /* ------------------------------------------------------------ For the DG Setup Tab (END) ------------------------------------------------------------ */
 /* ------------------------------------------------------------ For the Userguide Tab (START) ------------------------------------------------------------ */
 
-c-user-guide {
-    height: calc(100% - 4.5rem);
-    position: relative;
-    display: flex;
-    padding-top: 1rem;
-}
-
 .buttonCSS {
     border-radius: 6px;
     padding: 10rem 0;
