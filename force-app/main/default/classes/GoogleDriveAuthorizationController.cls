@@ -523,7 +523,7 @@ public static Map<String, String> generaterefreshtoken(List<String> credentials,
   @AuraEnabled
   public static String checkAccess(){
     String UserId = UserInfo.getUserId();
-    List<PermissionSetAssignment> access;
+    List<PermissionSetAssignment> access = new List<PermissionSetAssignment>();
     if(UserId != null){
         access = [SELECT Id, PermissionSet.Name FROM PermissionSetAssignment 
         WHERE (PermissionSet.Name = 'DocGenius_Admin_Permissions' OR PermissionSet.Name = 'DocGenius_Standard_Permissions')
