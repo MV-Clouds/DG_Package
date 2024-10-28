@@ -197,7 +197,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
 
                 })
                 .catch((error) => {
-                    
+                    errorDebugger('googleDocTemplateEditor', 'getAllRelatedData', error, 'error', 'Error in getAllRelatedData. Please try again later');
                     this.isSpinner = false;
                 });
         } catch (error) {
@@ -275,7 +275,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                 })
                 .catch((error) => {
                     this.isSpinner = false;
-                    
+                    errorDebugger('googleDocTemplateEditor', 'newDocument', error, 'error', 'Error in newDocument. Please try again later');
                 });
         } catch (error) {
             this.isSpinner = false;
@@ -414,7 +414,7 @@ export default class GoogleDocTemplateEditor extends NavigationMixin(LightningEl
                     }
                 })
                 .catch((error) => {
-                    
+                    errorDebugger('googleDocTemplateEditor','save', error, 'error', 'Error in save. Please try again later');
                 });
         } catch (error) {
             errorDebugger('googleDocTemplateEditor','save', error, 'error', 'Error in save. Please try again later');

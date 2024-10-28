@@ -183,7 +183,7 @@ export default class PreviewGoogleDocument extends LightningElement {
                             intent: "print"
                         };
 
-                        let renderTask = page.render(renderContext);
+                        page.render(renderContext);
                         
                     });
                 }
