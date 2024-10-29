@@ -127,7 +127,7 @@ public with sharing class GoogleDriveAuthorizationController {
 */
   public static Boolean getToken(Boolean isOrg){
       try {
-          List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+          List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
           MVDG__AuthProviderSettings__c settings;
           if(isOrg){
               settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
@@ -141,8 +141,8 @@ public with sharing class GoogleDriveAuthorizationController {
           request.setMethod('POST');
           request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
           request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-                          '&client_id=' + mdata[0].MVDG__CID__c +
-                          '&client_secret=' + mdata[0].MVDG__CSEC__c +
+                          '&client_id=' + mdata[0].CID__c +
+                          '&client_secret=' + mdata[0].CSEC__c +
                           '&grant_type=refresh_token');
 
 
@@ -202,9 +202,9 @@ public with sharing class GoogleDriveAuthorizationController {
             String authUrl = authcode(clientId, clientSecret);
             return authUrl;
           }
-          List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-          clientId = mdata[0].MVDG__CID__c;
-          clientSecret = mdata[0].MVDG__CSEC__c;
+          List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+          clientId = mdata[0].CID__c;
+          clientSecret = mdata[0].CSEC__c;
           String authUrl = authcode(clientId, clientSecret);
           return authUrl;
       }
@@ -257,7 +257,7 @@ public with sharing class GoogleDriveAuthorizationController {
   @AuraEnabled
   public static String authorizeGoogle(String authcode, Boolean isOrg, Boolean isAccess){
       try{
-          List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+          List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
 
           List<MVDG__AuthProviderSettings__c> defsettingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
           MVDG__AuthProviderSettings__c defsettings;
@@ -280,10 +280,10 @@ public with sharing class GoogleDriveAuthorizationController {
             credentials.add('Mock');
           }
           else{
-            clientId = mdata[0].MVDG__CID__c;
-            clientSecret = mdata[0].MVDG__CSEC__c;
-            credentials.add(mdata[0].MVDG__CID__c);
-            credentials.add(mdata[0].MVDG__CSEC__c);       
+            clientId = mdata[0].CID__c;
+            clientSecret = mdata[0].CSEC__c;
+            credentials.add(mdata[0].CID__c);
+            credentials.add(mdata[0].CSEC__c);       
           }
           Map<String, String> result = generaterefreshtoken(credentials, redirectUri, authcode);
           String refresh = result.get('refresh_token');

@@ -108,10 +108,10 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 ********************************************************
 */
 
-@deprecated
+// @deprecated
 global static String getToken(){
     // try {
-    //     List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+    //     List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
     //     MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
     //     String endpoint = 'https://oauth2.googleapis.com/token';
     //     HttpRequest request = new HttpRequest();
@@ -119,8 +119,8 @@ global static String getToken(){
     //     request.setMethod('POST');
     //     request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
     //     request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-    //                     '&client_id=' + mdata[0].MVDG__CID__c +
-    //                     '&client_secret=' + mdata[0].MVDG__CSEC__c +
+    //                     '&client_id=' + mdata[0].CID__c +
+    //                     '&client_secret=' + mdata[0].CSEC__c +
     //                     '&grant_type=refresh_token');
 
     //     Http http = new Http();
@@ -143,7 +143,7 @@ global static String getToken(){
 
     global static String getToken(String activity){
         try {
-            List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
@@ -151,8 +151,8 @@ global static String getToken(){
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-                            '&client_id=' + mdata[0].MVDG__CID__c +
-                            '&client_secret=' + mdata[0].MVDG__CSEC__c +
+                            '&client_id=' + mdata[0].CID__c +
+                            '&client_secret=' + mdata[0].CSEC__c +
                             '&grant_type=refresh_token');
     
             Http http = new Http();
