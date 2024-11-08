@@ -837,12 +837,14 @@ public with sharing class DataMappingControllerV2 {
 
         Datetime dt;
         if(fieldType == 'DATETIME'){
-            // If DateTime field value consist of timezone offset then convert to GMT. field required formatting...
-            Datetime dt1 = (Datetime) JSON.deserialize('"' + fieldValue + '"', Datetime.class);
-            dt = Datetime.valueOf(dt1.format('yyyy-MM-dd HH:mm:ss'));
-            // Now Format GMT time as per user timezone... with format type
-            fieldValue = dt.format(formatType, userTimeZone);
+            // Add "T" for parse Date time
+            if(!fieldValue.contains('T')){
+                fieldValue = fieldValue.replace(' ', 'T');
+            }
 
+            // If DateTime field value consist of timezone offset then convert to GMT. field required formatting...
+            dt = (Datetime) JSON.deserialize('"' + fieldValue + '"', Datetime.class);
+            // dt = Datetime.valueOf(dt1.format('yyyy-MM-dd HH:mm:ss'));
         }
         else if(fieldType == 'DATE'){
             // Else do the normal DateTime conversion....

@@ -352,7 +352,7 @@ public with sharing class KeyMappingController {
 
         map<string, string> dateFormats = new map<string, string>{
          // 'key' =>        'label;fieldType;isFormatReq;value'
-            'date'      => 'Document Creation Date & Time;DATETIME;true;' + cTime.format('yyyy-MM-dd hh:mm:ss'),
+            'date'      => 'Document Creation Date & Time;DATETIME;true;' + cTime,
             'time'      => 'Document Creation Time;TIME;true;' + cTime.format('HH:mm:ss'),
             'Wday'      => 'Document Creation Week Day;INTEGER;false;' + cTime.format('F'),
             'Mday'      => 'Document Creation Month Day;INTEGER;false;' + cTime.format('dd'),
