@@ -162,8 +162,8 @@ public with sharing class HomePageController {
         if (String.isNotBlank(templateId) && templateId != null) {
 
             List<MVDG__Template__c> tempToUpdate = [SELECT ID, Name, MVDG__Template_Name__c  FROM MVDG__Template__c WHERE ID = : templateId WITH SECURITY_ENFORCED LIMIT 1];
-            if(tempToUpdate.size() > 0){
-                // if (Schema.sObjectType.MVDG__Template__c.fields.MVDG__Template_Name__c.isUpdateable()) {
+            if(tempToUpdate.size() > 0 && Schema.sObjectType.MVDG__Template__c.isUpdateable() && Schema.sObjectType.MVDG__Template__c.isAccessible()){
+                // if () {
                 tempToUpdate[0].MVDG__Template_Status__c = isActive;
                 update as user tempToUpdate[0];
                 // }
@@ -183,7 +183,7 @@ public with sharing class HomePageController {
         // Try and catch block not used... beacuase here is no changes to fall this method in chatch block....
         if (String.isNotBlank(templateId) && templateId != null) {    
             List<MVDG__Template__c> tempToDelete = [SELECT ID, Name  FROM MVDG__Template__c WHERE ID =:templateId WITH SECURITY_ENFORCED LIMIT 1];
-            if(tempToDelete.size() > 0){
+            if(tempToDelete.size() > 0 && Schema.sObjectType.MVDG__Template__c.isDeletable() && Schema.sObjectType.MVDG__Template__c.isAccessible()){
                 delete as user tempToDelete[0];
                 return true;
             }

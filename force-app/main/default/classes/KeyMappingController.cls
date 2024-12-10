@@ -571,7 +571,7 @@ public with sharing class KeyMappingController {
             );
 
 
-            if(Schema.sObjectType.MVDG__Template__c.isUpdateable()){
+            if(Schema.sObjectType.MVDG__Template__c.isUpdateable() && Schema.sObjectType.MVDG__Template__c.isAccessible()){
                 update as user temp;
             }
             else{

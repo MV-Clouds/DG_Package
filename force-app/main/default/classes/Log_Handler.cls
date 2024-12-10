@@ -38,8 +38,8 @@ public with sharing class Log_Handler {
             error.MVDG__Class_Name__c = classname;
             error.MVDG__Method_Name__c = methodname;
         
-            if(Schema.sObjectType.MVDG__Exception_Logs__c.isCreateable()){
-                insert error;
+            if(Schema.sObjectType.MVDG__Exception_Logs__c.isCreateable() && Schema.sObjectType.MVDG__Exception_Logs__c.isAccessible()){
+                insert as user error;
             }
             
         } 
@@ -78,8 +78,8 @@ public with sharing class Log_Handler {
             ex.MVDG__Method_Name__c = methodname;
             ex.MVDG__Generate_Document_Activity__c	= activityId;
         
-            if(Schema.sObjectType.MVDG__Exception_Logs__c.isCreateable()){
-                insert ex;
+            if(Schema.sObjectType.MVDG__Exception_Logs__c.isCreateable() && Schema.sObjectType.MVDG__Exception_Logs__c.isAccessible()){
+                insert as user ex;
             }
             
         } 

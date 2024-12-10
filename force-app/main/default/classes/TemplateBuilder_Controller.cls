@@ -26,7 +26,7 @@ public with sharing class TemplateBuilder_Controller {
                                                             FROM MVDG__Template_Page__c 
                                                             WHERE MVDG__Template__c =: temp[0].Id WITH SECURITY_ENFORCED ORDER BY MVDG__Page_Number__c ASC  LIMIT 1];
 
-                    if(pageConfigs.size() == 0 && Schema.sObjectType.MVDG__Template_Page__c.isCreateable()){
+                    if(pageConfigs.size() == 0 && Schema.sObjectType.MVDG__Template_Page__c.isCreateable() && Schema.sObjectType.MVDG__Template_Page__c.isAccessible()){
                         MVDG__Template_Page__c page = new MVDG__Template_Page__c();
                         page.MVDG__Template__c = temp[0].Id;
                         page.MVDG__Page_Number__c = 1;
@@ -39,7 +39,7 @@ public with sharing class TemplateBuilder_Controller {
                         page.MVDG__Show_Footer__c = true;
                         page.MVDG__Footer_margin_bottom__c = 0.10;       // px to inch
                         page.MVDG__Show_Watermark__c = true;       
-                        insert page;
+                        insert as user page;
                         pageConfigs = [SELECT Id, Name, MVDG__Template__c, MVDG__Page_Margin__c, MVDG__Page_Orientation__c, MVDG__Page_Size__c, MVDG__Unit_of_Page_Configs__c, MVDG__Show_Header__c, MVDG__Show_Footer__c, MVDG__Show_Watermark__c, MVDG__Header_margin_top__c, MVDG__Footer_margin_bottom__c 
                                         FROM MVDG__Template_Page__c WHERE Id =: page.Id WITH SECURITY_ENFORCED ORDER BY MVDG__Page_Number__c ASC LIMIT 1];
                     }
@@ -115,7 +115,11 @@ public with sharing class TemplateBuilder_Controller {
 
             // System.debug('templateValues : '+ templateValues);
 
-            if(temp.size() > 0 && Schema.sObjectType.MVDG__Template__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Page__c.isUpdateable()){
+            if(temp.size() > 0 && Schema.sObjectType.MVDG__Template__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Data__c.isUpdateable() &&
+                Schema.sObjectType.MVDG__Template__c.isCreateable() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable() &&
+                Schema.sObjectType.MVDG__Template__c.isDeletable() && Schema.sObjectType.MVDG__Template_Data__c.isDeletable() &&
+                Schema.sObjectType.MVDG__Template__c.isDeletable() && Schema.sObjectType.MVDG__Template_Data__c.isDeletable()
+            ){
                 MVDG__Template__c templateToUpdate = temp[0];
                 templateToUpdate.MVDG__Template_Name__c = templateRecord.MVDG__Template_Name__c;
                 templateToUpdate.MVDG__Template_Status__c = templateRecord.MVDG__Template_Status__c;
@@ -193,10 +197,10 @@ public with sharing class TemplateBuilder_Controller {
                     // saveTempDataRecords_forValueTypes( extractedKeyMap , new Map<String, String>{temp[0].Id => 'Extracted Mapping Keys'}, true);
 
                     if(recordToUpdate_global.size() < 10000) {
-                        update recordToUpdate_global;
+                        update as user recordToUpdate_global;
                     }
                     if(recordToInsert_global.size() < 10000) {
-                        insert recordToInsert_global;
+                        insert as user recordToInsert_global;
                     }
                     if(recordToDelete_global.size() < 10000) {
                         delete as user recordToDelete_global;
@@ -204,9 +208,9 @@ public with sharing class TemplateBuilder_Controller {
                     
                 }
                 
-                update templateToUpdate;
+                update as user templateToUpdate;
 
-                update pageConfigs;
+                update as user pageConfigs;
 
                 return 'Temlpate Updated Successfully Success';
             }
@@ -266,14 +270,17 @@ public with sharing class TemplateBuilder_Controller {
             List<MVDG__Template_Data__c> recordToUpdate = dataToUpdate?.get('recordToUpdate');
             List<MVDG__Template_Data__c> recordToDelete = dataToUpdate?.get('recordToDelete');
 
-            if(recordToUpdate.size() < 1000) {
-                update recordToUpdate;
-            }
-            if(recordToInsert.size() < 1000) {
-                insert recordToInsert;
-            }
-            if(recordToDelete.size() < 1000) {
-                delete as user recordToDelete;
+            if(Schema.sObjectType.MVDG__Template_Data__c.isAccessible() && Schema.sObjectType.MVDG__Template_Data__c.isCreateable() &&
+                Schema.sObjectType.MVDG__Template_Data__c.isUpdateable() && Schema.sObjectType.MVDG__Template_Data__c.isDeletable()){
+                if(recordToUpdate.size() < 1000) {
+                    update as user recordToUpdate;
+                }
+                if(recordToInsert.size() < 1000) {
+                    insert as user recordToInsert;
+                }
+                if(recordToDelete.size() < 1000) {
+                    delete as user recordToDelete;
+                }
             }
 
             return isLastBatch ? 'last batch update succesfully' : 'batch update succesfully';
