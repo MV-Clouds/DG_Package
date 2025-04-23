@@ -1,0 +1,50 @@
+<template>
+    <div class="main">
+        <div class="options">
+            <a onclick={handleSetActive} data-name="text0" id="template" class="option1 button enable">Template Capabilities</a>
+            <a onclick={handleSetActive} data-name="text1" id="storage" class="option2 button">Storage Capacities</a>
+            <a onclick={handleSetActive} data-name="text2" id="document" class="option3 button">Document Generation Capabilities</a>
+        </div>
+        <div class="content">
+            <div if:true={isTemplate}>
+                <div class="simple">
+                    <h2>Simple Template Capabilities :</h2>
+                    <li>You can insert salesforce images up to 20 MB.</li>
+                    <li>You can insert up to 3MB of images from your local storage.</li>
+                    <li>You can add up to 10 tables for the Related list (child object) record of a maximum of 50 records in each table.</li>
+                    <li>You can generate up to 20 pages of PDF from a simple template.</li>
+                </div>
+                <div class="google">
+                    <h2>Google Doc Template Capabilities :</h2>
+                    <li>You can only select templates that have been created from the DocGenius application.</li>
+                    <li>It is recommended that you generate only about 30 pages of PDF from a Google Doc template for better results.</li>
+                    <li>You can add up to 10 tables for the Related list (child object) record of a maximum of 50 records in each table.</li>
+                </div>
+                <div class="csv">
+                    <h2>CSV Template Capabilities :</h2>
+                    <li>You can add 10,00,000 records in a CSV document.</li>
+                    <li>For big data columns in the CSV, it's recommended to set a limit lower than the maximum limit.</li>
+                    <li>You can only generate CSV if you have access to all the fields you have selected as columns.</li>
+                </div>
+            </div>
+            <div if:true={isStorage}>
+                <h2>Storage Capacities :</h2>
+                <li>Notes & Attachments: You can upload files upto 25MB.</li>
+                <li>Files:  You can upload files upto 35 MB.</li>
+                <li>Document:  You can upload files upto 5 MB.</li>
+                <li>Chatter:  You can upload files upto 35 MB.</li>
+                <li>Google Drive:  You can upload files upto 35 MB.</li>
+                <li>AWS:  You can upload files upto 35 MB (Named Credential) Or 10 MB (Custom Integration).</li>
+                <li>One Drive:  You can upload files upto 35 MB.</li>
+                <li>Dropbox:  You can upload files upto 35 MB.</li>
+            </div>
+            <div if:true={isDocument}>
+                <h2>Document Preview Capabilities :</h2>
+                <li>The PDF preview does not support some special characters such as Greek, Chinese, and Mathematical expressions. However, they are shown in the external PDF viewers.</li>
+            </div>
+
+        </div>
+    </div>
+
+
+</template>

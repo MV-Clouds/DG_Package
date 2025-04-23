@@ -1,0 +1,65 @@
+<template>
+    <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
+        <c-message-popup-v2></c-message-popup-v2>
+        <c-document-loader-v2 display={doShowSpinner} ></c-document-loader-v2>
+
+        <div class="main-template-creator-div">
+            <div class="image-div">
+                <img class="image" onload={imageLoaded} src="/resource/MVDG__new_template_image" alt="New Template Image">
+            </div>
+            <div class="form-div">
+                <div class="close-div" onclick={closeModel}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M20.7334 2.5537C20.8179 2.46918 20.885 2.36885 20.9307 2.25843C20.9765 2.14801 21 2.02966 21 1.91013C21 1.79061 20.9765 1.67226 20.9307 1.56184C20.885 1.45142 20.8179 1.35109 20.7334 1.26657C20.6489 1.18206 20.5486 1.11502 20.4382 1.06928C20.3277 1.02354 20.2094 1 20.0899 1C19.9703 1 19.852 1.02354 19.7416 1.06928C19.6311 1.11502 19.5308 1.18206 19.4463 1.26657L11 9.71469L2.5537 1.26657C2.46918 1.18206 2.36885 1.11502 2.25843 1.06928C2.14801 1.02354 2.02966 1 1.91013 1C1.79061 1 1.67226 1.02354 1.56184 1.06928C1.45142 1.11502 1.35109 1.18206 1.26657 1.26657C1.18206 1.35109 1.11502 1.45142 1.06928 1.56184C1.02354 1.67226 1 1.79061 1 1.91013C1 2.02966 1.02354 2.14801 1.06928 2.25843C1.11502 2.36885 1.18206 2.46918 1.26657 2.5537L9.71469 11L1.26657 19.4463C1.09589 19.617 1 19.8485 1 20.0899C1 20.3312 1.09589 20.5627 1.26657 20.7334C1.43726 20.9041 1.66875 21 1.91013 21C2.15152 21 2.38301 20.9041 2.5537 20.7334L11 12.2853L19.4463 20.7334C19.617 20.9041 19.8485 21 20.0899 21C20.3312 21 20.5627 20.9041 20.7334 20.7334C20.9041 20.5627 21 20.3312 21 20.0899C21 19.8485 20.9041 19.617 20.7334 19.4463L12.2853 11L20.7334 2.5537Z" fill="black" stroke="black"/>
+                    </svg>                                      
+                </div>
+                <div class="title-div">
+                    <p>Create New Template</p>
+                </div>
+                <div class="label-float">
+                    <input type="text" class="t-name" maxlength="255" placeholder="Enter Template Name" onkeyup={handleTemplateNameChange} onblur={handleTemplateNameChange}/>
+                    <label class="required-input-label">Template Name</label>
+                </div>
+                <div class="label-float">
+                    <input type="text" class="t-description" maxlength="131072" placeholder="Template is about.." onkeyup={handleTemplateDescriptionChange}/>
+                    <label>Template Description</label>
+                </div>
+                <div class="select-label-float">
+                    <c-custom-combobox-v2
+                    label="Source Object"
+                    class="select-dropdown object-dd"
+                    onselect={handleObjectChange}
+                    options={objectNames}
+                    show-description="true"
+                    multiselect="false"
+                    placeholder ="Select Source Object"
+                    value ={selectedObject}
+                    dropdown-position="left"
+                    searchable="true"
+                    required="true"
+                    ></c-custom-combobox-v2>
+                </div>
+                <div class="select-label-float">
+                    <c-custom-combobox-v2
+                    class="select-dropdown type-dd"
+                    label="Template Type"
+                    onselect={handleTypeChange}
+                    options={templateTypes}
+                    multiselect="false"
+                    dropdown-position="left"
+                    placeholder ="Select Template Type"
+                    value ={selectedTemplateType}
+                    searchable="false"
+                    required="true"
+                    ></c-custom-combobox-v2>
+                </div>
+                <div class="save-div">
+                    <button class="save-btn" onclick={saveNewTemplate}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" width="16" height="16" fill="white"><g><path d="M371 40v136c0 10-8 19-19 19H139c-10 0-19-8-19-19V40H80a40 40 0 00-40 40v360a40 40 0 0040 40h360a40 40 0 0040-40V112l-72-72zm70 381c0 10-8 19-19 19H99c-10 0-19-8-19-19V254c0-10 8-19 19-19h323c10 0 19 8 19 19zM248 136c0 10 8 19 19 19h46c10 0 19-8 19-19V40h-83z"></path></g></svg>Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+</template>

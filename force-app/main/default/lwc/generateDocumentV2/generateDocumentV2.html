@@ -1,0 +1,391 @@
+<template>
+    <div class="defaults-tab-info-div" if:true={isCalledFromDefaults}>
+        <div class="title-text">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="-0.5 -0.5 16 16" fill="#00aeff"><path d="M7.5 1.25l0.40125 0.003125l0.385 0.010625l0.18687499999999999 0.008125l0.36187499999999995 0.02125l0.345625 0.028749999999999998c2.9293750000000003 0.284375 4.15625 1.4581250000000001 4.47875 4.31625l0.01875 0.18125l0.028749999999999998 0.345625l0.025625000000000002 0.454375l0.00375 0.09375l0.010625 0.385625l0.003125 0.40125l-0.003125 0.40125l-0.010625 0.385l-0.008125 0.18687499999999999l-0.02125 0.36187499999999995l-0.028749999999999998 0.345625c-0.284375 2.9293750000000003 -1.4581250000000001 4.15625 -4.31625 4.47875l-0.18125 0.01875l-0.345625 0.028749999999999998l-0.454375 0.025625000000000002l-0.09375 0.00375l-0.385625 0.010625l-0.40125 0.003125l-0.40125 -0.003125l-0.385 -0.010625l-0.18687499999999999 -0.008125l-0.36187499999999995 -0.02125l-0.345625 -0.028749999999999998c-2.9293750000000003 -0.284375 -4.15625 -1.4581250000000001 -4.47875 -4.31625l-0.01875 -0.18125l-0.028749999999999998 -0.345625l-0.025625000000000002 -0.454375l-0.00375 -0.09375l-0.010625 -0.385625l-0.0025 -0.19875v-0.405l0.0025 -0.19875l0.010625 -0.385l0.008125 -0.18687499999999999l0.02125 -0.36187499999999995l0.028749999999999998 -0.345625c0.284375 -2.9293750000000003 1.4581250000000001 -4.15625 4.31625 -4.47875l0.18125 -0.01875l0.345625 -0.028749999999999998l0.454375 -0.025625000000000002l0.09375 -0.00375l0.385625 -0.010625c0.13125 -0.001875 0.265 -0.003125 0.40125 -0.003125zm0 8.125a0.625 0.625 0 0 0 -0.620625 0.551875l-0.004375 0.07312500000000001l0.004375 0.079375a0.625 0.625 0 0 0 1.24125 0l0.004375 -0.07312500000000001l-0.004375 -0.079375a0.625 0.625 0 0 0 -0.620625 -0.551875zm0.8550000000000001 -4.170625a1.8625 1.8625 0 0 0 -2.2693749999999997 0.45499999999999996a0.625 0.625 0 0 0 0.8999999999999999 0.864375l0.10687500000000001 -0.11249999999999999a0.6125 0.6125 0 0 1 0.6937500000000001 -0.09375a0.625 0.625 0 0 1 -0.21250000000000002 1.17875l-0.14500000000000002 0.0075a0.625 0.625 0 0 0 0.069375 1.24625a1.875 1.875 0 0 0 0.856875 -3.5456250000000002z"></path></svg>
+            Template Defaults
+        </div>
+        <div class="how-to-div">
+            <ul>
+                <li class="info-topic">Basic Information</li>
+                <li>
+                    <ul class="slds-list_dotted">
+                        <li>The Template Defaults are the defaults options that you can set for this template to generate the document with selected options in a single button click.</li>
+                        <li>Select the document type you want to generate.</li>
+                        <li>Select an email template to import email body and email subject, but email template body will not be modifiable and the merge fields won't work.</li>
+                        <li>You can preview HTML body by selecting View as Plain Text and add/Modify your HTML directly in the input box.</li>
+                    </ul>
+                </li>
+                <li class="info-topic">Button Creation</li>
+                <li>
+                    <ul class="slds-list_dotted">
+                        <li>You can name your button as you want.</li>
+                        <li>The Button label can not be modified from here once it's created. but, you can update it from the setup.</li>
+                        <li>You can add the created buttons to the page layout anytime after it's been created. </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="vertical-line" if:true={isCalledFromDefaults}></div>
+    <div class="main-generate-document-div">
+        <div class="close-div" onclick={handleClose} if:true={showCloseButton}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22"  fill="white" stroke="white">
+                <path d="M20.7334 2.5537C20.8179 2.46918 20.885 2.36885 20.9307 2.25843C20.9765 2.14801 21 2.02966 21 1.91013C21 1.79061 20.9765 1.67226 20.9307 1.56184C20.885 1.45142 20.8179 1.35109 20.7334 1.26657C20.6489 1.18206 20.5486 1.11502 20.4382 1.06928C20.3277 1.02354 20.2094 1 20.0899 1C19.9703 1 19.852 1.02354 19.7416 1.06928C19.6311 1.11502 19.5308 1.18206 19.4463 1.26657L11 9.71469L2.5537 1.26657C2.46918 1.18206 2.36885 1.11502 2.25843 1.06928C2.14801 1.02354 2.02966 1 1.91013 1C1.79061 1 1.67226 1.02354 1.56184 1.06928C1.45142 1.11502 1.35109 1.18206 1.26657 1.26657C1.18206 1.35109 1.11502 1.45142 1.06928 1.56184C1.02354 1.67226 1 1.79061 1 1.91013C1 2.02966 1.02354 2.14801 1.06928 2.25843C1.11502 2.36885 1.18206 2.46918 1.26657 2.5537L9.71469 11L1.26657 19.4463C1.09589 19.617 1 19.8485 1 20.0899C1 20.3312 1.09589 20.5627 1.26657 20.7334C1.43726 20.9041 1.66875 21 1.91013 21C2.15152 21 2.38301 20.9041 2.5537 20.7334L11 12.2853L19.4463 20.7334C19.617 20.9041 19.8485 21 20.0899 21C20.3312 21 20.5627 20.9041 20.7334 20.7334C20.9041 20.5627 21 20.3312 21 20.0899C21 19.8485 20.9041 19.617 20.7334 19.4463L12.2853 11L20.7334 2.5537Z"/>
+            </svg>
+        </div>
+        <div class="header-div" if:false={hideHeader}>
+            <div class="info-div">
+                <h1 class="heading"> <b> {openedTabName} </b></h1>
+                <p class="sub-header"> Object: {internalObjectApiName} </p>
+            </div>
+            <img class="docgenius-logo" src="/resource/MVDG__docGeniusLogoSvg"/>
+        </div>
+        <div class="template-select-div" if:false={isOtherModelOpen}>
+            <div class="template-select-inner flex-div">
+                <c-custom-record-picker-v2
+                    class="template-select flex-item"
+                    multiselect="false"
+                    value={selectedTemplate}
+                    placeholder="Select Template"
+                    searchable="true"
+                    onerror={handleRecordPickerError}
+                    onchange={handleSelectTemplate}
+                    query-object-api="MVDG__Template__c"
+                    label-field-api="MVDG__Template_Name__c"
+                    description-field-api="MVDG__Template_Type__c"
+                    search-by-fields="MVDG__Template_Name__c"
+                    show-footer-button="true"
+                    filters={filterForActiveTemplates}
+                    onclickfooterbutton={openViewAllTemplates}
+                ></c-custom-record-picker-v2>
+                <button class="edit-btn flex-item" onclick={handleEditClick} if:true={isEditorAccess}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class={isNotTemplateEditable} viewBox="-0.5 -0.5 16 16" height="15" width="15" fill="white"><path d="m11.943791015625 6.7903681640624995 0.32476171875000004 -0.32476171875000004 -0.97428515625 -0.97428515625 -1.7847509765625 -1.7847509765625 -0.97428515625 -0.97428515625 -0.32476171875000004 0.32476171875000004 -0.6495234375000001 0.6495234375000001L1.8359443359375 9.431572265625c-0.29889550781249996 0.29889550781249996 -0.517318359375 0.669638671875 -0.6380273437499999 1.074873046875L0.1805244140625 13.966737304687499c-0.0718505859375 0.24141503906249998 -0.005748046875 0.5029482421875 0.1753125 0.6811376953125s0.43972265625 0.2442890625 0.6811376953125 0.1753125l3.4574179687499997 -1.0173955078125c0.4052314453125 -0.1207060546875 0.7759775390625 -0.33913183593749996 1.074873046875 -0.6380273437499999L11.294267578125 7.442765625l0.6495205078125 -0.6523974609375Zm-7.19361328125 4.83980859375 -0.261533203125 0.6523974609375c-0.1149609375 0.0890947265625 -0.2442919921875 0.155197265625 -0.3822421875 0.1983076171875l-2.2474658203124998 0.66101953125 0.66101953125 -2.244591796875c0.040236328125 -0.1408271484375 0.10921289062499999 -0.2701552734375 0.1983046875 -0.3822421875l0.6523974609375 -0.261533203125v0.9196787109375c0 0.2529111328125 0.20692968750000001 0.459837890625 0.4598408203125 0.459837890625h0.9196787109375ZM10.575767578125 0.688875l-0.4138564453125 0.4167275390625 -0.6495234375000001 0.6495234375000001 -0.3276328125 0.32476171875000004 0.9742822265625 0.97428515625 1.7847539062500002 1.7847509765625 0.97428515625 0.97428515625 0.32476171875000004 -0.32476171875000004 0.6495205078125 -0.6495234375000001 0.41673046874999997 -0.4167275390625c0.7184999999999999 -0.7184999999999999 0.7184999999999999 -1.8824677734375002 0 -2.6009677734375l-1.1294794921875 -1.1323535156250002c-0.7184999999999999 -0.7184999999999999 -1.8824677734375002 -0.7184999999999999 -2.6009677734375 0ZM9.2134921875 5.5171874999999995 5.074939453125 9.6557431640625c-0.178189453125 0.1781865234375 -0.4713369140625 0.1781865234375 -0.6495234375000001 0s-0.1781865234375 -0.4713369140625 0 -0.6495234375000001l4.138555664062499 -4.138555664062499c0.1781865234375 -0.1781865234375 0.471333984375 -0.1781865234375 0.6495205078125 0s0.178189453125 0.4713369140625 0 0.6495234375000001Z" stroke-width="1"></path></svg>
+                    Edit Template
+                </button>
+            </div>
+        </div>
+        <div class="main-container" data-bool={hideOptionSelection}>
+            <div class="type-select-div">
+                <div class="title-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" height="24" width="24"><g fill="none" fill-rule="evenodd"><path d="M15 0v15H0V0h15ZM7.870625 14.536249999999999l-0.006874999999999999 0.00125 -0.044375 0.021875000000000002 -0.0125 0.0025 -0.00875 -0.0025 -0.044375 -0.021875000000000002c-0.00625 -0.0025 -0.011875 -0.000625 -0.015 0.003125l-0.0025 0.00625 -0.010625 0.2675 0.003125 0.0125 0.00625 0.008125 0.065 0.04625 0.009375 0.0025 0.0075 -0.0025 0.065 -0.04625 0.0075 -0.01 0.0025 -0.010625 -0.010625 -0.266875c-0.00125 -0.00625 -0.005625 -0.010625 -0.010625 -0.01125Zm0.16562500000000002 -0.07062500000000001 -0.008125 0.00125 -0.115625 0.058124999999999996 -0.00625 0.00625 -0.001875 0.006874999999999999 0.01125 0.26875 0.003125 0.0075 0.005 0.004375 0.12562500000000001 0.058124999999999996c0.0075 0.0025 0.014374999999999999 0 0.018125000000000002 -0.005l0.0025 -0.00875 -0.02125 -0.38375c-0.001875 -0.0075 -0.00625 -0.0125 -0.0125 -0.013749999999999998Zm-0.44687499999999997 0.00125a0.014374999999999999 0.014374999999999999 0 0 0 -0.016875 0.00375l-0.00375 0.00875 -0.02125 0.38375c0 0.0075 0.004375 0.0125 0.010625 0.015l0.009375 -0.00125 0.12562500000000001 -0.058124999999999996 0.00625 -0.005 0.0025 -0.006874999999999999 0.010625 -0.26875 -0.001875 -0.0075 -0.00625 -0.00625 -0.11499999999999999 -0.057499999999999996Z" stroke-width="1"></path><path fill="#00aeff" d="M7.5 1.25v4.0625a0.9375 0.9375 0 0 0 0.9375 0.9375H12.5v6.25a1.25 1.25 0 0 1 -1.25 1.25H3.75a1.25 1.25 0 0 1 -1.25 -1.25V2.5a1.25 1.25 0 0 1 1.25 -1.25h3.75Zm1.875 8.125H5.625a0.625 0.625 0 1 0 0 1.25h3.75a0.625 0.625 0 1 0 0 -1.25Zm-3.125 -2.5H5.625a0.625 0.625 0 1 0 0 1.25h0.625a0.625 0.625 0 1 0 0 -1.25Zm2.5 -5.5981250000000005a1.25 1.25 0 0 1 0.625 0.33937500000000004L12.133750000000001 4.375a1.25 1.25 0 0 1 0.33937500000000004 0.625H8.75Z" stroke-width="1"></path></g></svg>                                                                  
+                    Document Type
+                </div>
+                <div class="type-select-inner grid-div">
+                    <template for:each={documentTypesToShow} for:item="option" for:index="index">
+                        <div key={option} data-index={index} data-section="type" data-item={option.name} class="grid-item" onclick={handleOptionSelection}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="21" viewBox={option.viewBox} fill="none">
+                                <template for:each={option.paths} for:item="item">
+                                    <path key={item} d={item.path} fill={item.fill} stroke={item.stroke}></path>
+                                </template>
+                            </svg>
+                            <!-- <span class="option-item">{option.name}</span> -->
+                            <span class="option-item" if:false={option.isDisabled}>{option.name}</span>
+                            <span class="option-item disabled-option" if:true={option.isDisabled}>{option.name}</span>
+                            <div class="select-tick-div" if:true={option.isSelected}>
+                                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M20 1.57718L6.28571 15L0 8.84787L1.61143 7.27069L6.28571 11.8345L18.3886 0L20 1.57718Z" fill="#00AEFF"/></svg> -->
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div class="storage-select-div">
+                <div class="title-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#00aeff"><path d="M21 9.5V12.5C21 14.9853 16.9706 17 12 17C7.02944 17 3 14.9853 3 12.5V9.5C3 11.9853 7.02944 14 12 14C16.9706 14 21 11.9853 21 9.5ZM3 14.5C3 16.9853 7.02944 19 12 19C16.9706 19 21 16.9853 21 14.5V17.5C21 19.9853 16.9706 22 12 22C7.02944 22 3 19.9853 3 17.5V14.5ZM12 12C7.02944 12 3 9.98528 3 7.5C3 5.01472 7.02944 3 12 3C16.9706 3 21 5.01472 21 7.5C21 9.98528 16.9706 12 12 12Z"></path></svg>
+                    Internal Storage
+                </div>
+                <div class="storage-select-inner grid-div">
+                    <template for:each={internalStorageOptions} for:item="option" for:index="index">
+                        <div key={option} data-index={index} data-section="iStorage" data-item={option.name} class="grid-item i-storage-options" onclick={handleOptionSelection}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox={option.viewBox}  fill="none">
+                            <template for:each={option.paths} for:item="item">
+                                <path key={item} d={item.path} fill={item.fill} stroke={item.stroke}></path>
+                            </template>
+                        </svg>
+                        <span class="option-item" if:false={option.isDisabled}>{option.name}</span>
+                        <span class="option-item disabled-option" if:true={option.isDisabled}>{option.name}</span>
+                        <div class="select-tick-div" if:true={option.isSelected}>
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M20 1.57718L6.28571 15L0 8.84787L1.61143 7.27069L6.28571 11.8345L18.3886 0L20 1.57718Z" fill="#00AEFF"/></svg> -->
+                        </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="folder-select-div" if:true={showFolderSelection}>
+                    <span>Folder :</span>
+                    <c-custom-combobox-v2
+                        class="folder-select flex-item"
+                        value={selectedFolder}
+                        placeholder="Select Folder to save document in"
+                        options={allFolders}
+                        onselect={handleFolderSelect}
+                        searchable="true"
+                        multiselect="false"
+                        required="true"
+                    ></c-custom-combobox-v2>
+                </div>
+            </div>
+            <div class="e-storage-select-div">
+                <div class="title-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" width="24" height="24"><g fill="none" fill-rule="evenodd"><path d="m15 0 0 15 -15 0L0 0l15 0ZM7.8709375 14.536125l-0.0072499999999999995 0.0010624999999999999 -0.044375 0.0221875 -0.011875 0.0023125000000000003 -0.0095 -0.0023125000000000003 -0.044375 -0.0221875c-0.0061875 -0.0019375 -0.0116875 -0.0003125 -0.01475 0.0033750000000000004l-0.0025625 0.0068125 -0.0106875 0.2670625 0.003125 0.012750000000000001 0.006874999999999999 0.007625000000000001 0.06475 0.04625 0.009250000000000001 0.0024375 0.007375 -0.0024375 0.06475 -0.04625 0.007875 -0.01 0.0021249999999999997 -0.010375 -0.0106875 -0.2670625c-0.00125 -0.0063124999999999995 -0.005375 -0.0103125 -0.0100625 -0.01125Zm0.1655625 -0.0703125 -0.008687499999999999 0.00125 -0.1154375 0.057749999999999996 -0.0061875 0.0063750000000000005 -0.0016875000000000002 0.007 0.0111875 0.2684375 0.0029999999999999996 0.008 0.0053125 0.0044375000000000005 0.1255625 0.0579375c0.0075625 0.0023125000000000003 0.0143125 -0.000125 0.017812500000000002 -0.005l0.0025 -0.00875 -0.021312499999999998 -0.3841875c-0.0014999999999999998 -0.0074375000000000005 -0.0064375000000000005 -0.0121875 -0.0120625 -0.01325Zm-0.447125 0.00125c-0.006125 -0.0030625 -0.013 -0.00125 -0.017125 0.0033125l-0.0035625 0.008687499999999999 -0.021312499999999998 0.3841875c-0.0004375 0.0071874999999999994 0.004375 0.0129375 0.010499999999999999 0.014625l0.009812499999999998 -0.000875 0.1255625 -0.0579375 0.005875 -0.005062499999999999 0.0024375 -0.007375 0.0111875 -0.2684375 -0.002 -0.007875 -0.005875 -0.0055000000000000005 -0.11549999999999999 -0.057749999999999996Z" stroke-width="1"></path><path fill="#00aeff" d="M3.125 2.5c-0.69035625 0 -1.25 0.55964375 -1.25 1.25l0 2.5c0 0.690375 0.55964375 1.25 1.25 1.25l8.75 0c0.690375 0 1.25 -0.559625 1.25 -1.25l0 -2.5c0 -0.69035625 -0.559625 -1.25 -1.25 -1.25L3.125 2.5Zm0 5.625c-0.69035625 0 -1.25 0.559625 -1.25 1.25l0 2.5c0 0.690375 0.55964375 1.25 1.25 1.25l8.75 0c0.690375 0 1.25 -0.559625 1.25 -1.25l0 -2.5c0 -0.690375 -0.559625 -1.25 -1.25 -1.25L3.125 8.125Zm0.625 2.5c0 -0.3451875 0.279825 -0.625 0.625 -0.625l1.25 0c0.345175 0 0.625 0.2798125 0.625 0.625s-0.279825 0.625 -0.625 0.625l-1.25 0c-0.345175 0 -0.625 -0.2798125 -0.625 -0.625ZM4.375 4.375c-0.345175 0 -0.625 0.279825 -0.625 0.625s0.279825 0.625 0.625 0.625l1.25 0c0.345175 0 0.625 -0.279825 0.625 -0.625s-0.279825 -0.625 -0.625 -0.625L4.375 4.375Z" stroke-width="1"></path></g></svg>
+                    External Storage
+                </div>
+                <div class="e-storage-select-inner grid-div">
+                    <template for:each={externalStorageOptions} for:item="option" for:index="index">
+                        <div key={option} data-index={index} data-section="eStorage" data-item={option.name} class="grid-item e-storage-options" onclick={handleOptionSelection}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox={option.viewBox} fill="none">
+                                <template for:each={option.paths} for:item="item">
+                                    <path key={item} d={item.path} fill={item.fill} stroke={item.stroke}></path>
+                                </template>
+                            </svg>
+                            <span class="option-item" if:false={option.isDisabled}>{option.name}</span>
+                            <span class="option-item disabled-option" if:true={option.isDisabled}>{option.name}</span>
+                            <div class="select-tick-div" if:true={option.isSelected}>
+                                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M20 1.57718L6.28571 15L0 8.84787L1.61143 7.27069L6.28571 11.8345L18.3886 0L20 1.57718Z" fill="#00AEFF"/></svg> -->
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            
+            <div class="output-channel-div">
+                <div class="title-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" width="24" height="24"><g fill="none" fill-rule="nonzero"><path d="M15 0v15H0V0h15ZM7.87125 14.536249999999999l-0.0075 0.00125 -0.044375 0.021875000000000002 -0.0125 0.0025 -0.00875 -0.0025 -0.044375 -0.0225c-0.00625 -0.001875 -0.011875 0 -0.015 0.00375l-0.0025 0.00625 -0.010625 0.2675 0.003125 0.0125 0.00625 0.008125 0.065 0.04625 0.009375 0.0025 0.0075 -0.0025 0.065 -0.04625 0.0075 -0.01 0.0025 -0.010625 -0.010625 -0.266875c-0.00125 -0.00625 -0.005625 -0.010625 -0.01 -0.01125Zm0.165 -0.07062500000000001 -0.00875 0.00125 -0.11499999999999999 0.058124999999999996 -0.00625 0.00625 -0.001875 0.006874999999999999 0.01125 0.26875 0.003125 0.0075 0.005 0.005 0.12562500000000001 0.057499999999999996c0.0075 0.0025 0.014374999999999999 0 0.018125000000000002 -0.005l0.0025 -0.00875 -0.02125 -0.38375c-0.001875 -0.0075 -0.00625 -0.0125 -0.0125 -0.013749999999999998Zm-0.44687499999999997 0.00125a0.014374999999999999 0.014374999999999999 0 0 0 -0.016875 0.00375l-0.00375 0.00875 -0.02125 0.38375c0 0.0075 0.004375 0.0125 0.010625 0.015l0.009375 -0.00125 0.12562500000000001 -0.058124999999999996 0.00625 -0.005 0.001875 -0.006874999999999999 0.01125 -0.26875 -0.001875 -0.0075 -0.00625 -0.00625 -0.11499999999999999 -0.057499999999999996Z" stroke-width="1"></path><path fill="#00aeff" d="M6.25 13.125h5.625a1.25 1.25 0 0 0 1.25 -1.25v-1.25H6.25v2.5Zm0 -3.75h6.875v-3.125H6.25v3.125Zm-1.25 -3.125v3.125H1.875v-3.125h3.125Zm1.25 -1.25h6.875V3.75a1.25 1.25 0 0 0 -1.25 -1.25h-5.625v2.5ZM5 2.5v2.5H1.875V3.75a1.25 1.25 0 0 1 1.25 -1.25h1.875Zm0 8.125v2.5H3.125a1.25 1.25 0 0 1 -1.25 -1.25v-1.25h3.125Z" stroke-width="1"></path></g></svg>                                             
+                    Output Channel
+                </div>
+                <div class="output-channel-inner grid-div">
+                    <template for:each={outputChannels} for:item="option" for:index="index">
+                        <div key={option} data-index={index} data-section="output" data-item={option.name} class="grid-item" onclick={handleOptionSelection}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox={option.viewBox} fill="none">
+                            <template for:each={option.paths} for:item="item">
+                                <path key={item} d={item.path} fill={item.fill} stroke={item.stroke}></path>
+                            </template>
+                        </svg>
+                        <span class="option-item">{option.name}</span>
+                        <div class="select-tick-div" if:true={option.isSelected}>
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M20 1.57718L6.28571 15L0 8.84787L1.61143 7.27069L6.28571 11.8345L18.3886 0L20 1.57718Z" fill="#00AEFF"/></svg> -->
+                        </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div class="email-create-div">
+                <div class="to-div email-element">
+                    <span>To:</span>
+                    <input type="text" class="to-input" data-type="to" placeholder="example1@gmail.com" onkeydown={handleToEmailChange} onblur={handleToEmailChange}></input>
+                    <div class="error-div to-error-div not-display-div"></div>
+                    <div class="added-emails-div">
+                        <template for:each={toEmails} for:item="email" for:index="i">
+                            <div key={email} class="added-mail">{email}
+                                <div data-index={i} class="remove-mail-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" data-type="to" data-index={i} onclick={handleRemoveAddedEmail} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="cc-bcc-div">
+                        <div class="cc-div" onclick={toggleCC} if:false={showCC}>Cc</div>
+                        <div class="bcc-div" onclick={toggleBCC} if:false={showBCC}>Bcc</div>
+                    </div>
+                </div>
+                <div class="cc-bcc-input-div email-element" if:true={showCC}>
+                    <span>Cc:</span>
+                    <input type="text" data-type="cc" placeholder="Enter cc emails" onkeydown={handleToEmailChange} onblur={handleToEmailChange}>
+                    <div class="error-div cc-error-div not-display-div"></div>
+                    <div class="added-emails-div">
+                        <template for:each={ccEmails} for:item="email" for:index="i">
+                            <div key={email} class="added-mail">{email}
+                                <div data-index={i} class="remove-mail-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" data-type="cc" data-index={i} onclick={handleRemoveAddedEmail} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="cc-bcc-input-div email-element" if:true={showBCC}>
+                    <span>Bcc:</span>
+                    <input type="text" data-type="bcc" placeholder="Enter bcc emails" onkeydown={handleToEmailChange} onblur={handleToEmailChange}>
+                    <div class="error-div bcc-error-div not-display-div"></div>
+                    <div class="added-emails-div">
+                        <template for:each={bccEmails} for:item="email" for:index="i">
+                            <div key={email} class="added-mail">{email}
+                                <div data-index={i} class="remove-mail-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" data-type="bcc" data-index={i} onclick={handleRemoveAddedEmail} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="subject-div email-element">
+                    <span>Subject:</span>
+                    <input class="subject-input" value={emailSubject} type="text" placeholder="Enter Subject" onchange={handleSubjectChange} onblur={handleSubjectChange}></input>
+                    <div class="error-div subject-error-div not-display-div"></div>
+                </div>
+                <div class="body-div email-element">
+                    <p>Email Template: </p>
+                    <c-custom-combobox-v2
+                        class="email-template-select"
+                        value={selectedEmailTemplate}
+                        placeholder="Select Email Template"
+                        options={emailTemplatesToShow}
+                        onselect={handleEmailTemplateSelect}
+                        searchable="true"
+                        multiselect="false"
+                    ></c-custom-combobox-v2>
+                    <div class="manual-email-body-div">
+
+                        <div class="label-extend-div">
+                            <span>Body:</span>
+                            <div class="view-as-type-div">
+                                <c-custom-combobox-v2
+                                    class="view-as-type-select"
+                                    value={selectedViewAsType}
+                                    options={viewAsTypeOptions}
+                                    onselect={handleViewAsTypeSelect}
+                                    searchable="false"
+                                    multiselect="false"
+                                ></c-custom-combobox-v2>
+                            </div>
+                        </div>
+                        <lightning-input-rich-text
+                            class="body-input"
+                            value={emailBody}
+                            onchange={handleBodyChange}
+                            onblur={handleBodyChange}
+                            formats="font, bold, italic, underline, strike, list, indent, align, link, clean, code, code-block, color, background, header">
+                        ></lightning-input-rich-text>
+                        <lightning-textarea if:true={isPlainEmailBody} class="html-as-plain-div" onblur={handlePlainBodyChange} value={emailBody} variant="label-hidden"></lightning-textarea>
+                    </div>
+                    <div class="main-email-preview-div">
+                        <p>Email Template Body</p>
+                        <div class="email-preview-div">
+                            <lightning-formatted-rich-text
+                            class="email-template-preview-rich-text"
+                            value={previewEmailBody}
+                          ></lightning-formatted-rich-text>
+                        </div>
+                    </div>
+                    <div class="error-div body-error-div not-display-div"></div>
+                </div>
+            </div>
+        </div>
+        <div class="no-results" if:true={showNoTemplateSelected}>
+            <svg xmlns="http://www.w3.org/2000/svg" class="no-result-svg" width="160" height="210" viewBox="0 0 280 300" fill="none">
+                <use href="/resource/MVDG__noResultImage#no-result-image"></use>
+            </svg>                                
+            <p class="bold-text">No Template Selected!</p>
+            <p>Select any template to generate document.</p>
+        </div>
+        <div class="control-btns" if:false={isOtherModelOpen}>
+            <div class="file-info-div" if:false={isEditDisabled}>
+                <div class="additional-info-div" if:true={isCSVTemplate}>
+                    <input type="checkbox" checked={isAdditionalInfo} onchange={handleAdditionalInfo}><span>Add additional template details in file</span>
+                </div>
+                <div class="file-name-input-div">
+                    <span>File name </span>
+                    <input type="text" maxlength="240" placeholder="Enter file name" value={fileName} onkeyup={handleFileNameChange} onblur={handleFileNameChange}>
+                    <div class="extension-div">{selectedExtension}</div>
+                </div>
+            </div>
+            <button class="close-btn bottom-btn control-btn" onclick={handleClose}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="13" height="13" fill="white" stroke="white"><path d="M20.7334 2.5537C20.8179 2.46918 20.885 2.36885 20.9307 2.25843C20.9765 2.14801 21 2.02966 21 1.91013C21 1.79061 20.9765 1.67226 20.9307 1.56184C20.885 1.45142 20.8179 1.35109 20.7334 1.26657C20.6489 1.18206 20.5486 1.11502 20.4382 1.06928C20.3277 1.02354 20.2094 1 20.0899 1C19.9703 1 19.852 1.02354 19.7416 1.06928C19.6311 1.11502 19.5308 1.18206 19.4463 1.26657L11 9.71469L2.5537 1.26657C2.46918 1.18206 2.36885 1.11502 2.25843 1.06928C2.14801 1.02354 2.02966 1 1.91013 1C1.79061 1 1.67226 1.02354 1.56184 1.06928C1.45142 1.11502 1.35109 1.18206 1.26657 1.26657C1.18206 1.35109 1.11502 1.45142 1.06928 1.56184C1.02354 1.67226 1 1.79061 1 1.91013C1 2.02966 1.02354 2.14801 1.06928 2.25843C1.11502 2.36885 1.18206 2.46918 1.26657 2.5537L9.71469 11L1.26657 19.4463C1.09589 19.617 1 19.8485 1 20.0899C1 20.3312 1.09589 20.5627 1.26657 20.7334C1.43726 20.9041 1.66875 21 1.91013 21C2.15152 21 2.38301 20.9041 2.5537 20.7334L11 12.2853L19.4463 20.7334C19.617 20.9041 19.8485 21 20.0899 21C20.3312 21 20.5627 20.9041 20.7334 20.7334C20.9041 20.5627 21 20.3312 21 20.0899C21 19.8485 20.9041 19.617 20.7334 19.4463L12.2853 11L20.7334 2.5537Z"></path></svg>
+                Close
+            </button>
+            <button class="preview-btn bottom-btn control-btn" onclick={handlePreview} if:false={isCalledFromPreview}>
+                <svg xmlns="http://www.w3.org/2000/svg" class={isEditDisabled} width="15" height="15" fill="white" viewBox="0 0 520 520"><g><path d="M518 251a288 288 0 00-516 0 20 20 0 000 18 288 288 0 00516 0 20 20 0 000-18zM260 370c-61 0-110-49-110-110s49-110 110-110 110 49 110 110-49 110-110 110zm0-180c-39 0-70 31-70 70s31 70 70 70 70-31 70-70-31-70-70-70z"></path></g></svg>
+                Preview
+            </button>
+            <button class="generate-btn bottom-btn control-btn" onclick={handleGenerate}>
+                <svg xmlns="http://www.w3.org/2000/svg" class={isEditDisabled} fill="#fff" viewBox="0 0 48 48" height="15" width="15"><path fill-rule="evenodd" d="M46.4335 17.4999c0.0419 1.6529 0.0663 3.4818 0.0663 5.5001 0 7.5706 -0.343 12.478 -0.6686 15.4319 -0.3196 2.9001 -2.5179 5.1005 -5.4134 5.4314 -2.7438 0.3135 -7.1031 0.6367 -13.4179 0.6367 -0.7881 0 -1.5458 -0.005 -2.2736 -0.0145C27.3703 41.7812 29 38.0809 29 34c0 -8.2843 -6.7157 -15 -15 -15 -2.3235 0 -4.52356 0.5283 -6.48671 1.4713 0.06607 -6.1544 0.36749 -10.2921 0.6553 -12.90321 0.31965 -2.90012 2.51791 -5.10045 5.41341 -5.43136C16.3258 1.82315 20.6851 1.5 26.9999 1.5c1.2419 0 2.4081 0.0125 3.5013 0.03496 -0.0022 0.69708 -0.0019 1.57965 0.006 2.54211 0.0186 2.24829 0.079 4.99812 0.2541 6.82323 0.3212 3.3485 2.9126 6.0053 6.2457 6.325 1.8237 0.1749 4.5957 0.24 6.8667 0.2631 0.9677 0.0098 1.8563 0.0121 2.5598 0.0115Zm-12.6859 -6.8861c-0.161 -1.6785 -0.2218 -4.30719 -0.2405 -6.56152 -0.0061 -0.74456 -0.0076 -1.44113 -0.0069 -2.03907 1.4586 0.63854 3.9496 2.0698 7.1526 5.21C44.0522 10.556 45.4919 13.1061 46.0852 14.5c-0.6308 -0.0004 -1.3786 -0.0033 -2.1809 -0.0115 -2.278 -0.0231 -4.9309 -0.0884 -6.6109 -0.2495 -1.8628 -0.1787 -3.358 -1.6668 -3.5458 -3.6252ZM26 34c0 6.6274 -5.3726 12 -12 12 -6.62742 0 -12 -5.3726 -12 -12s5.37258 -12 12 -12c6.6274 0 12 5.3726 12 12Zm-5.8152 -5.6113c0.8899 0.6543 1.0808 1.9062 0.4265 2.7961l-5.8824 8c-0.3583 0.4873 -0.918 0.7863 -1.5223 0.8132 -0.6044 0.0269 -1.1884 -0.2212 -1.5886 -0.6748l-4.11768 -4.6666c-0.7308 -0.8283 -0.65181 -2.0921 0.17644 -2.8229 0.82824 -0.7308 2.09211 -0.6519 2.82294 0.1764l2.4763 2.8064 4.4127 -6.0013c0.6543 -0.8899 1.9062 -1.0808 2.7961 -0.4265Z" clip-rule="evenodd" stroke-width="1"></path></svg>
+                Generate
+            </button>
+        </div>
+        <div class="all-templates-div" if:true={showAllTemplates}>
+            <div class="sub-header-div" >
+                <div class="title-div">
+                    <svg xmlns="http://www.w3.org/2000/svg" onclick={backToGenerate} viewBox="0 0 512 512" fill="#00AEFF"><path d="M47 239c-9.4 9.4-9.4 24.6 0 33.9L207 433c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L97.9 256 241 113c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L47 239zM399 79L239 239c-9.4 9.4-9.4 24.6 0 33.9L399 433c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-143-143L433 113c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0z"/></svg>
+                    Select Template
+                </div>
+                <div class="search-field-div">
+                    <div class="search-img">
+                        <lightning-icon icon-name="utility:search" alternative-text="Approved" title="Approved" size="x-small" ></lightning-icon>
+                    </div>
+                    <input class="field-search-input" type="search" placeholder="Search template..." onkeyup={handleTemplateSearch} onchange={handleTemplateSearch} onblur={handleTemplateSearch}></input>
+                </div>
+            </div>
+            <div class="template-selection-div">
+                <div class="select-template-option header-flex-div">
+                    <div class="header-item index ">No.</div>
+                    <div class="header-item name ">Template Name</div>
+                    <div class="header-item status ">Status</div>
+                    <div class="header-item last-modified ">Last Modified</div>
+                    <div class="header-item type">Type</div>
+                    <div class="header-item version">Version</div>
+                    <div class="header-item select">Select</div>
+                    <div class="header-item edit" if:true={isEditorAccess}>Edit</div>
+                </div>
+                <div class="all-templates-scroll-div">
+                    <template for:each={updatedTemplates} for:index="i" for:item="option">
+                        <div key={option} data-index={index} class="select-template-option props-div">
+                            <div class="index option-prop">{option.index}</div>
+                            <div class="name option-prop">{option.MVDG__Template_Name__c}</div>
+                            <div class="status active-status option-prop" if:true={option.MVDG__Template_Status__c}>Active</div>
+                            <div class="status inactive-status option-prop" if:false={option.MVDG__Template_Status__c}>Inactive</div>
+                            <div class="last-modified option-prop">{option.LastModifiedDate}</div>
+                            <div class="type option-prop">{option.MVDG__Template_Type__c}</div>
+                            <div class="version option-prop">{option.Name}</div>
+                            <div class="select">
+                                <button class="select-template-button" data-value={option.Id} data-index={index} onclick={handleTemplateSelection}>
+                                   <svg xmlns="http://www.w3.org/2000/svg" class={option.isSelectable} fill="white" stroke-width="1" viewBox="0 0 14 14" ><path d="M3.18027 3.18027C2.44345 3.9171 2 5.04944 2 6.6344c0 1.38413 0.33908 2.42265 0.91107 3.15057 0.56614 0.72043 1.41908 1.21183 2.59918 1.39973 0.40906 0.0652 0.68784 0.4496 0.62269 0.8587 -0.06516 0.409 -0.44959 0.6878 -0.85865 0.6227 -1.48598 -0.2367 -2.70418 -0.8873 -3.54266 -1.9543C0.899011 9.65215 0.5 8.25751 0.5 6.6344c0 -1.86106 0.52574 -3.42092 1.61961 -4.51479C3.21348 1.02574 4.77334 0.5 6.6344 0.5c1.61601 0 3.00555 0.395508 4.0635 1.22082 1.0656 0.83122 1.719 2.03957 1.9619 3.51479 0.0673 0.40872 -0.2095 0.79459 -0.6182 0.86187 -0.4087 0.06728 -0.7946 -0.2095 -0.8619 -0.61821 -0.1924 -1.1689 -0.6846 -2.01426 -1.40436 -2.57574C9.048 2.33616 8.0125 2 6.6344 2c-1.58496 0 -2.7173 0.44345 -3.45413 1.18027Zm2.06842 2.06845c-0.26164 0.26164 -0.45352 0.69519 -0.45352 1.38568 0 0.7446 0.22208 1.19158 0.52235 1.44948 0.31423 0.26988 0.35018 0.74339 0.0803 1.05761 -0.26988 0.31423 -0.74339 0.35018 -1.05762 0.0803 -0.72287 -0.62086 -1.04503 -1.54129 -1.04503 -2.58739 0 -0.9666 0.27417 -1.82765 0.89286 -2.44634 0.61869 -0.61869 1.47974 -0.89286 2.44634 -0.89286 0.89942 0 1.70814 0.23681 2.31726 0.77187 0.3112 0.27336 0.34187 0.74724 0.06851 1.05844 -0.27336 0.3112 -0.74725 0.34188 -1.05845 0.06851 -0.26351 -0.23147 -0.68359 -0.39882 -1.32732 -0.39882 -0.69049 0 -1.12404 0.19188 -1.38568 0.45352Zm3.87846 7.18938c-0.54214 0.4161 -1.32565 0.2464 -1.59675 -0.381 -0.59808 -1.384 -0.91906 -2.90185 -0.65974 -4.42416 0.06739 -0.39563 0.37631 -0.70457 0.77193 -0.77198 1.52229 -0.25939 3.04021 0.06163 4.42421 0.65972 0.6273 0.2711 0.797 1.05457 0.3809 1.59671 -0.1617 0.21072 -0.3323 0.4217 -0.5101 0.63132 0.2725 0.22664 0.5466 0.46379 0.8069 0.72409 0.262 0.262 0.5005 0.538 0.7285 0.8122 0.3542 0.4261 0.3653 1.0564 0.0215 1.4909l-0.72 0.72c-0.4345 0.3438 -1.0648 0.3327 -1.4909 -0.0215 -0.2742 -0.228 -0.5503 -0.4665 -0.8122 -0.7285 -0.2606 -0.2606 -0.49802 -0.5351 -0.7249 -0.8079 -0.20568 0.1742 -0.41264 0.3414 -0.61935 0.5001Z"></path></svg>
+                                </button>
+                            </div>
+                            <div class="edit" if:true={isEditorAccess}>
+                                <button class="edit-template-button" data-value={option.Id} data-index={index} onclick={handleTemplateEditClick}>
+                                    <svg class={option.isEditable} xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 14 14" stroke-width="1"><path d="M1.4375 3.75c0 -0.20711 0.16789 -0.375 0.375 -0.375h0.25c0.34518 0 0.625 -0.27982 0.625 -0.625s-0.27982 -0.625 -0.625 -0.625h-0.25c-0.897463 0 -1.625 0.72754 -1.625 1.625V4c0 0.34518 0.279822 0.625 0.625 0.625 0.34518 0 0.625 -0.27982 0.625 -0.625v-0.25Zm6.75 0c0 -0.20711 -0.16789 -0.375 -0.375 -0.375h-0.25c-0.34518 0 -0.625 -0.27982 -0.625 -0.625s0.27982 -0.625 0.625 -0.625h0.25c0.89746 0 1.625 0.72754 1.625 1.625V4c0 0.34518 -0.27982 0.625 -0.625 0.625s-0.625 -0.27982 -0.625 -0.625v-0.25ZM0.8125 5.875c0.34518 0 0.625 0.27982 0.625 0.625v1c0 0.34518 -0.27982 0.625 -0.625 0.625 -0.345178 0 -0.625 -0.27982 -0.625 -0.625v-1c0 -0.34518 0.279822 -0.625 0.625 -0.625Zm4.5 -2.5c0.34518 0 0.625 -0.27982 0.625 -0.625s-0.27982 -0.625 -0.625 -0.625h-1c-0.34518 0 -0.625 0.27982 -0.625 0.625s0.27982 0.625 0.625 0.625h1Zm2.5 7.25c0.20711 0 0.375 -0.1679 0.375 -0.375V10c0 -0.34518 0.27982 -0.625 0.625 -0.625s0.625 0.27982 0.625 0.625v0.25c0 0.8975 -0.72754 1.625 -1.625 1.625h-0.25c-0.34518 0 -0.625 -0.2798 -0.625 -0.625s0.27982 -0.625 0.625 -0.625h0.25Zm-6.375 -0.375c0 0.2071 0.16789 0.375 0.375 0.375h0.25c0.34518 0 0.625 0.2798 0.625 0.625s-0.27982 0.625 -0.625 0.625h-0.25c-0.897463 0 -1.625 -0.7275 -1.625 -1.625V10c0 -0.34518 0.279822 -0.625 0.625 -0.625 0.34518 0 0.625 0.27982 0.625 0.625v0.25Zm2.25 1c0 -0.3452 0.27982 -0.625 0.625 -0.625h1c0.34518 0 0.625 0.2798 0.625 0.625s-0.27982 0.625 -0.625 0.625h-1c-0.34518 0 -0.625 -0.2798 -0.625 -0.625Zm7.0049 -2.80099c-0.0922 0.24022 -0.0593 0.51361 0.0964 0.71805 0.1715 0.22519 0.4772 0.33717 0.7836 0.22021 0.4365 -0.1666 0.8514 -0.50077 1.1795 -0.88782 0.3307 -0.39007 0.607 -0.87336 0.7332 -1.37823 0.0199 -0.07962 0.0199 -0.16292 0 -0.24254 -0.1262 -0.50487 -0.4025 -0.98815 -0.7332 -1.37822 -0.3281 -0.38706 -0.743 -0.72123 -1.1795 -0.88783 -0.3064 -0.11696 -0.6121 -0.00498 -0.7836 0.22021 -0.1557 0.20444 -0.1886 0.47783 -0.0964 0.71805 0.0612 0.15922 0.1284 0.35692 0.1844 0.57406H6c-0.48325 0 -0.875 0.39175 -0.875 0.875s0.39175 0.875 0.875 0.875h4.8768c-0.056 0.21714 -0.1232 0.41484 -0.1844 0.57406Z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="no-results" if:true={noTemplateFound}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="no-result-svg" width="160" height="210" viewBox="0 0 280 300" fill="none">
+                        <use href="/resource/MVDG__noResultImage#no-result-image"></use>
+                    </svg>                                
+                    <p class="bold-text">No Matching Templates found!</p>
+                    <p>No search result found, try searching something else...</p>
+                </div>
+            </div>
+        </div>
+        <iframe lwc:if={simpleTemplate} class="generate_iframe" src={vfGeneratePageSRC} width="0%" height="0%"></iframe>
+        <c-preview-c-s-v-v2 template-id={selectedTemplate} object-name={internalObjectApiName} show-additional-info={isAdditionalInfo} if:true={showCSVPreview}></c-preview-c-s-v-v2>
+        <c-template-preview-modal-v2 is-called-from-generate-doc="true" objectlabel="tr" templateid={selectedTemplate} objectname={internalObjectApiName} record-id={recordId} template-type={templateType} if:true={showSimplePreview}></c-template-preview-modal-v2>
+        <div class="control-btns" if:true={showBottomButtons}>
+            <button class="back-btn bottom-btn" onclick={backToGenerate}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 512 512" fill="white"><path d="M47 239c-9.4 9.4-9.4 24.6 0 33.9L207 433c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L97.9 256 241 113c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L47 239zM399 79L239 239c-9.4 9.4-9.4 24.6 0 33.9L399 433c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-143-143L433 113c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0z"></path></svg>
+                Back
+            </button>
+            <button class="edit-template-btn bottom-btn" onclick={handleEditClick} if:true={isEditorAccess}>
+                <svg class={isNotTemplateEditable} xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="white" viewBox="0 0 512 512"><path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z"/></svg>
+                Edit Template
+            </button>
+        </div>
+        <div class="control-btns" if:true={isCalledFromDefaults}>
+            <div class="button-name-div">
+                <div class="button-name-input-div">
+                    <span class="button-label"> {buttonType} Button Name</span>
+                    <input class="button-label-input" type="text" maxlength="80" placeholder="Enter button name" value={buttonLabel} onkeyup={handleButtonLabelChange} onblur={handleButtonLabelChange} disabled if:true={isOldButton}>
+                    <input class="button-label-input" type="text" maxlength="80" placeholder="Enter button name" value={buttonLabel} onkeyup={handleButtonLabelChange} onblur={handleButtonLabelChange} if:false={isOldButton}>
+                </div>
+            </div>
+            <button class="bottom-btn create-custom-btn" data-type="new" onclick={handleSetDefaults}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-0.5 -0.5 24 24" height="24" width="24">
+                    <path fill="#fff" d="M3.354166666666667 17.25C2.9708333333333337 17.25 2.635416666666667 17.106250000000003 2.347916666666667 16.81875C2.060416666666667 16.53125 1.9166666666666667 16.195833333333333 1.9166666666666667 15.8125V7.1875C1.9166666666666667 6.804166666666666 2.060416666666667 6.46875 2.347916666666667 6.18125C2.635416666666667 5.893750000000001 2.9708333333333337 5.75 3.354166666666667 5.75H19.645833333333336C20.029166666666665 5.75 20.364583333333336 5.893750000000001 20.652083333333334 6.18125C20.939583333333335 6.46875 21.083333333333336 6.804166666666666 21.083333333333336 7.1875V15.8125C21.083333333333336 16.195833333333333 20.939583333333335 16.53125 20.652083333333334 16.81875C20.364583333333336 17.106250000000003 20.029166666666665 17.25 19.645833333333336 17.25H3.354166666666667ZM6.876041666666667 14.375H8.05V12.098958333333334H10.326041666666667V10.901041666666668H8.05V8.625H6.876041666666667V10.901041666666668H4.6V12.098958333333334H6.876041666666667V14.375Z" stroke-width="1"></path>
+                </svg>
+                {bottomBtnLabel}
+            </button>
+        </div>
+    </div>
+    <c-message-popup-v2 onconfirmation={handleConfirmation}></c-message-popup-v2>
+    <c-custom-timeout-v2 ontimeoutmethod={handleTimeout}></c-custom-timeout-v2>
+    <c-document-loader-v2 display={showSpinner} label={labelOfLoader} full-size="true" ></c-document-loader-v2>
+    <c-generate-google-doc-file-v2 oncomplete={handleGoogleDocFile} onchangespinnerlabel={changeLabelForGDoc} oninternalerror={handleGDocError}></c-generate-google-doc-file-v2>
+</template>

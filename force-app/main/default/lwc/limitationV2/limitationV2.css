@@ -1,0 +1,88 @@
+.main{
+    height: 100%;
+    width: 100%;
+    background-color: white;
+}
+a:hover{
+    text-decoration: none;
+}
+.content .img{
+    display: flex;
+    justify-content: center;
+}
+
+.content img{
+    width: 80%;
+}
+
+.content{
+    font-size: 16px;
+    font-family: Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+
+}
+
+.content p{
+    width: fit-content;
+}
+
+.button{
+    padding-inline: 1rem;
+    margin-inline: 1rem;
+    padding-block: 0.5rem;
+    color: #00AEFF;
+    text-align: center;
+    border-radius: 8px;
+    margin-inline: 1rem;
+    cursor: pointer;
+    font-size: 14px;
+    background-color: white;
+    box-shadow: 0px 0px 12px -1px #21212147;
+    transition: all linear 0.25s;
+}
+
+.button:hover{
+    scale: 1.05;
+}
+
+.button.enable::before{
+    display: none;
+    box-shadow: 0 -8px 0 0 white;
+}
+
+.button.enable::after{
+    display: none;
+    box-shadow: 0 8px 0 0 white;
+}
+
+.button.enable::before, .button.enable::after {
+    display: block;
+}
+
+.button.enable{
+    background-color: #00AEFF !important;
+    color: white !important;
+}
+
+.options{
+    display: flex;
+    align-items: center;
+    height: 32px;
+}
+.content{
+    padding-top: 2rem;
+    padding-left: 1rem;
+    overflow-y: none;
+    height: calc(100% - 32px) !important;
+    width: 100%;
+    box-sizing: border-box;
+    background-image: url('/resource/MVDG__dropAreaBackground');
+    background-repeat: repeat;
+
+}
+
+h2{
+    font-size: 18px;
+    margin-block: 10px;
+    font-weight: 600;
+}
+
