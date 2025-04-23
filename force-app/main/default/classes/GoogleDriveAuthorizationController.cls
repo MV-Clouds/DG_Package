@@ -157,7 +157,7 @@ public with sharing class GoogleDriveAuthorizationController {
               if(!Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() || !Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() || !Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() || !Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()){
                   return null;
               }
-                  upsert settings;
+                  upsert as user settings;
 
 
               return true;
@@ -165,7 +165,7 @@ public with sharing class GoogleDriveAuthorizationController {
           else{
               Response_Handler.store_Callout_Response(response, 'GoogleDriveAuthorizationController', 'getToken');
               settings.MVDG__WorkingStatus__c = false;
-              upsert settings;
+              upsert as user settings;
               return false;
           }
       } catch (Exception e) {

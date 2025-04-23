@@ -2,7 +2,7 @@ import { LightningElement, track } from 'lwc';
 import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.createListViewButtons';
 import getCombinedData from '@salesforce/apex/ButtonGeneratorController.getCombinedData';
 
-import getSessionId from '@salesforce/apex/GenerateDocumentController.getSessionId';
+import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
 import { errorDebugger } from 'c/globalProperties'
 
 export default class ButtonGenerator extends LightningElement {
@@ -230,15 +230,19 @@ export default class ButtonGenerator extends LightningElement {
 
     handleCreateQuickAction(){
         try {
-            getSessionId()
+            generateAccessToken({isUpdateSetting : false})
             .then((data) => {
+                if (!data) {
+                    this.showToast('error', 'Something went wrong!','Please verify connected app from user configuration.', 5000);
+                    return;
+                }
                 let domainURL = window.location.origin.replace('lightning.force.com', 'my.salesforce.com');
                 let endpoint = domainURL + '/services/data/v61.0/tooling/sobjects/QuickActionDefinition';
 
-                let sessionId = data;
+                let accessToken = data;
                 let myHeaders = new Headers();
                 myHeaders.append("Content-Type", "application/json");
-                myHeaders.append("Authorization", "Bearer "+sessionId);
+                myHeaders.append("Authorization", "Bearer "+accessToken);
 
                 let requestBodyExpanded = this.selectedQAObjects.map(obj => ({
                     Metadata: {
@@ -285,7 +289,7 @@ export default class ButtonGenerator extends LightningElement {
             .catch((e)=>{
                 this.showSpinner = false;
                 this.showToast('error','Something went wrong!','Buttons couldn\'t be created please try again.', 5000);
-                errorDebugger('buttonGenerator', 'handleCreateQuickAction > getSessionId', e, 'warn');
+                errorDebugger('buttonGenerator', 'handleCreateQuickAction > generateAccessToken', e, 'warn');
                 this.operationCounter--;
                 this.fetchAlreadyCreatedObjects();
             })

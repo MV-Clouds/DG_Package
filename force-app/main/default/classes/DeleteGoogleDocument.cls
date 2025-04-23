@@ -93,11 +93,11 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
             if(authProvider.SetupOwnerId == UserInfo.getOrganizationId()){
                 authProvider.SetupOwnerId = UserInfo.getOrganizationId();
                 if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isCreateable() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable()) {
-                    upsert authProvider;
+                    upsert as user authProvider;
                 }
             } else {    
                 if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable()) {
-                    update authProvider;
+                    update as user authProvider;
                 }
             }
         }

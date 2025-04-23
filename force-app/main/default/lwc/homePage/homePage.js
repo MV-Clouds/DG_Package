@@ -5,6 +5,7 @@ import docGeniusImgs from "@salesforce/resourceUrl/homePageImgs";
 import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getTemplateList from '@salesforce/apex/HomePageController.getTemplateList';
 import updateTemplate from '@salesforce/apex/HomePageController.updateTemplate';
+import checkAccessToken from '@salesforce/apex/HomePageController.getAuthProviderSettings';
 import {nameSpace,navigationComps, errorDebugger} from 'c/globalProperties';
 
 export default class HomePage extends NavigationMixin(LightningElement) {
@@ -236,6 +237,22 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     fetchTemplateRecords(){
         try {
             this.isSpinner = true;
+            checkAccessToken()
+                .then(result => {
+                  if (result == false) {
+                    this.showMessagePopup('info', 'Complete Prerequisites', 'Please complete the prerequisites to have a great experience with DocGenius!', 'DG Setup');
+                    this.isSetUpRedirect = true;
+                  } else {
+                    this.dataLoaded = true;
+                    // check empty state image loaded or not?
+                    this.displayEmptyState();
+                  }
+              })
+                .catch(error => {
+                    this.isSpinner = false;
+                    errorDebugger('HomePage', 'checkAccessToken', error, 'warn', 'error in apex method getAuthProviderSettings');
+                   
+            });
             getTemplateList()
             .then(result => {
                 if(result.isSuccess === true){
@@ -896,8 +913,9 @@ export default class HomePage extends NavigationMixin(LightningElement) {
                 }
             }
             if(this.isSetUpRedirect){
+                const pageName = nameSpace == 'c' ? navigationComps.configPage : `${nameSpace}__${navigationComps.configPage}`;
                 if(typeof window !== 'undefined'){
-                    window.location.replace('/lightning/n/MVDG__User_Configuration#isSetup');
+                    window.location.replace('/lightning/n/'+pageName);
                 }
             }
             this.isSetUpRedirect = false;

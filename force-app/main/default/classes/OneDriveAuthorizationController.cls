@@ -90,7 +90,7 @@ public with sharing class OneDriveAuthorizationController {
                 Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isCreateable() &&
                 Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isCreateable() &&
                 Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()) {
-                    update settings;
+                    update as user settings;
                     return true;
 
                     }

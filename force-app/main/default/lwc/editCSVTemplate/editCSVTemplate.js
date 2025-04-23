@@ -2,7 +2,7 @@ import { LightningElement, track , api} from 'lwc';
 import getFieldMappingKeys from '@salesforce/apex/KeyMappingController.getFieldMappingKeys';
 import saveTemplateFields from '@salesforce/apex/EditCSVTemplateController.saveTemplateFields';
 import getCombinedData from '@salesforce/apex/EditCSVTemplateController.getCombinedData';
-import getSessionId from '@salesforce/apex/GenerateDocumentController.getSessionId';
+import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
 import updateTemplate from '@salesforce/apex/EditCSVTemplateController.updateTemplate';
 import {NavigationMixin} from 'lightning/navigation';
 import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
@@ -2247,15 +2247,15 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 //method calls 
                 this.showSpinner = true;
                 this.showListViewPopup=false;
-                getSessionId()
-                .then((sessionId) => {
-                    if(!sessionId){
-                        this.showToast('error', 'Oops, Something went wrong!.', 'There was a technical issue, please try again.');
+                generateAccessToken({isUpdateSetting : false})
+                .then((accessToken) => {
+                    if(!accessToken){
+                        this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
                         return;
                     }
                     let queryURL = '/services/data/v58.0/sobjects/'+this.objectName+'/listviews/'+this.selectedListView+'/describe';
                     const myHeaders = new Headers();
-                    let bearerString = "Bearer " + sessionId;
+                    let bearerString = "Bearer " + accessToken;
                     myHeaders.append("Authorization", bearerString);
             
                     const requestOptions = {
@@ -2382,7 +2382,7 @@ export default class EditCSVTemplate extends NavigationMixin(LightningElement) {
                 })
                 .catch(e => {
                     this.showToast('error', 'Oops, a technical issue!', 'We couldn\'t fetch the list view data, please try again..');
-                    errorDebugger('editCSVTemplate', 'handleListView > getSessionId', e, 'warn');
+                    errorDebugger('editCSVTemplate', 'handleListView > generateAccessToken', e, 'warn');
                 })
             }
         }catch(e){

@@ -24,6 +24,7 @@ export var navigationComps = {
     dNdTemplateBuilder : 'editDragDropTemplate',
     home : 'homePage',
     googleDocTemplateEditor : 'googleDocTemplateEditor',
+    configPage : 'User_Configuration#isSetup'
 }
 
 
