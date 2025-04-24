@@ -5,7 +5,7 @@ import getCombinedData from '@salesforce/apex/EditCSVTemplateController.getCombi
 import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
 import updateTemplate from '@salesforce/apex/EditCSVTemplateController.updateTemplate';
 import {NavigationMixin} from 'lightning/navigation';
-import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalPropertiesV2';
 
 
 export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement) {
@@ -2392,7 +2392,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
 
     showToast(status, title, message, duration){
         this.showSpinner = false;
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
         messageContainer.showMessageToast({
             status: status,
             title: title,
@@ -2403,7 +2403,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
 
     showWarningPopup(status, title, message){
         this.showSpinner = false;
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
         messageContainer.showMessagePopup({
             status: status,
             title: title,

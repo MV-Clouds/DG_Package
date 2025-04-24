@@ -1,5 +1,5 @@
 import { LightningElement, api, track } from "lwc";
-import { errorDebugger } from "c/globalProperties";
+import { errorDebugger } from "c/globalPropertiesV2";
 
 // import { CloseActionScreenEvent } from 'lightning/actions';
 export default class MessagePopupV2 extends LightningElement {

@@ -1,4 +1,4 @@
-import {customeIcons, errorDebugger} from 'c/globalProperties';
+import {customeIcons, errorDebugger} from 'c/globalPropertiesV2';
 var _self;
 
 /**

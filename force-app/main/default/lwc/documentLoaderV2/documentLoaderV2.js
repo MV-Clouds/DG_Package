@@ -1,5 +1,5 @@
 import { LightningElement, api } from "lwc";
-import { errorDebugger } from "c/globalProperties";
+import { errorDebugger } from "c/globalPropertiesV2";
 export default class DocumentLoaderV2 extends LightningElement {
 		
 

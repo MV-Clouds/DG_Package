@@ -385,7 +385,7 @@
         </div>
     </div>
     <c-message-popup-v2 onconfirmation={handleConfirmation}></c-message-popup-v2>
-    <c-custom-timeout-v2 ontimeoutmethod={handleTimeout}></c-custom-timeout-v2>
+    <c-custom-timeout ontimeoutmethod={handleTimeout}></c-custom-timeout>
     <c-document-loader-v2 display={showSpinner} label={labelOfLoader} full-size="true" ></c-document-loader-v2>
     <c-generate-google-doc-file-v2 oncomplete={handleGoogleDocFile} onchangespinnerlabel={changeLabelForGDoc} oninternalerror={handleGDocError}></c-generate-google-doc-file-v2>
 </template>

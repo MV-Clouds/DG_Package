@@ -2,7 +2,7 @@ import { LightningElement , api, track} from 'lwc';
 import Popupimg from "@salesforce/resourceUrl/popupImage";
 import { NavigationMixin } from 'lightning/navigation';
 import isOrgWide from '@salesforce/apex/GoogleDriveAuthorizationController.isOrgWide';
-import {errorDebugger} from 'c/globalProperties';
+import {errorDebugger} from 'c/globalPropertiesV2';
 
 export default class integrationPopupV2 extends NavigationMixin(LightningElement) {
 

@@ -2,7 +2,7 @@ import { api, track, LightningElement } from "lwc";
 import copyGoogleDoc from "@salesforce/apex/GoogleDocPreview.copyGoogleDoc";
 import doPreview from "@salesforce/apex/GoogleDocPreview.doPreview";
 import mapFieldValues from "@salesforce/apex/GoogleDocPreview.mapFieldValues";
-import { errorDebugger } from "c/globalProperties";
+import { errorDebugger } from "c/globalPropertiesV2";
 
 export default class GenerateGoogleDocFileV2 extends LightningElement {
     @api objectlabel;

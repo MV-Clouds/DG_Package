@@ -3,7 +3,7 @@ import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.cr
 import getCombinedData from '@salesforce/apex/ButtonGeneratorController.getCombinedData';
 
 import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
-import { errorDebugger } from 'c/globalProperties'
+import { errorDebugger } from 'c/globalPropertiesV2'
 
 export default class ButtonGeneratorV2 extends LightningElement {
 
@@ -303,7 +303,7 @@ export default class ButtonGeneratorV2 extends LightningElement {
 
     showToast(status, title, message, duration){
         this.showSpinner = false;
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
         messageContainer.showMessageToast({
             status: status,
             title: title,

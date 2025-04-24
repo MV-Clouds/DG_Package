@@ -1,5 +1,5 @@
 import { LightningElement, api, track } from "lwc";
-import { errorDebugger } from 'c/globalProperties'
+import { errorDebugger } from 'c/globalPropertiesV2'
 export default class CustomComboboxV2 extends LightningElement {
 
     // ***************************************************************************** //

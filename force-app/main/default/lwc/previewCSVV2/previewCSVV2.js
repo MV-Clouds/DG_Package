@@ -1,6 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import fetchPreviewData from '@salesforce/apex/PreviewCSVController.fetchPreviewData';
-import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalPropertiesV2';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class previewCSVV2 extends NavigationMixin(LightningElement) {

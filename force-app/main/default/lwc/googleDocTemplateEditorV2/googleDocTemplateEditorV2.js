@@ -9,7 +9,7 @@ import new_template_bg from "@salesforce/resourceUrl/new_template_bg";
 
 import homePageImgs from "@salesforce/resourceUrl/homePageImgs";
 import { NavigationMixin } from "lightning/navigation";
-import { errorDebugger, nameSpace } from 'c/globalProperties';
+import { errorDebugger, nameSpace } from 'c/globalPropertiesV2';
 
 export default class GoogleDocTemplateEditorV2 extends NavigationMixin(LightningElement) {
     @api templateId;
@@ -89,7 +89,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
 
             this.template.host.style.setProperty("--background-image-url", `url(${homePageImgs}/HomBg.png)`);
             this.template.host.style.setProperty("--main-background-image-url", `url(${homePageImgs}/HomBg.png)`);
-            if (this.initialRender && this.template.querySelector("c-key-mapping-container")) {
+            if (this.initialRender && this.template.querySelector("c-key-mapping-container-v2")) {
                 this.resizeFunction();
                 this.initialRender = false;
             }
@@ -129,7 +129,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                     if (result.error) {
                         let errorList = result.error.split(":");
                         
-                        const popup = this.template.querySelector("c-message-popup");
+                        const popup = this.template.querySelector("c-message-popup-v2");
                         popup.showMessagePopup({
                             title: "Error",
                             message: errorList[2],
@@ -144,7 +144,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                         this.previousTemplateData = JSON.parse(result.template);
                     } else {
                         this.isSpinner = false;
-                        const popup = this.template.querySelector("c-message-popup");
+                        const popup = this.template.querySelector("c-message-popup-v2");
                         popup.showMessagePopup({
                             title: "No Template Found",
                             message: "No template found for the given object. Please try again.",
@@ -187,7 +187,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                     // Showing error
                     if (result.templateData == null && this.allTemplates == null) {
                         this.isSpinner = false;
-                        const popup = this.template.querySelector("c-message-popup");
+                        const popup = this.template.querySelector("c-message-popup-v2");
                         popup.showMessagePopup({
                             title: "No Google Integration Found",
                             message: "To create a new template, Google Drive integration is neccessary.",
@@ -210,9 +210,9 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
         
         // To Open/close keyMapping Container...
         if (window.innerWidth > 1435) {
-            this.template.querySelector("c-key-mapping-container")?.toggleMappingContainer(false);
+            this.template.querySelector("c-key-mapping-container-v2")?.toggleMappingContainer(false);
         } else {
-            this.template.querySelector("c-key-mapping-container")?.toggleMappingContainer(true);
+            this.template.querySelector("c-key-mapping-container-v2")?.toggleMappingContainer(true);
         }
     };
 
@@ -346,7 +346,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
         
         if (this.previousTemplateData.MVDG__Template_Name__c != this.templateRecord.MVDG__Template_Name__c || this.previousTemplateData.MVDG__Description__c != this.templateRecord.MVDG__Description__c || 
             this.previousTemplateData.MVDG__Template_Status__c != this.templateRecord.MVDG__Template_Status__c) {
-                const popup = this.template.querySelector("c-message-popup");
+                const popup = this.template.querySelector("c-message-popup-v2");
                 popup.showMessagePopup({
                     title: "Do You Want to Leave?",
                     message: "Your unsaved changes will be discarded once you leave this page.",
@@ -589,7 +589,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                     
                     this.isSpinner = false;
                     this.loaderLabel = 'Loading... Please wait a while';
-                    const popup = this.template.querySelector("c-message-popup");
+                    const popup = this.template.querySelector("c-message-popup-v2");
 
                     if (result) {
                         this.previousTemplateData = JSON.parse(JSON.stringify(this.templateRecord));
@@ -610,7 +610,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 .catch((error) => {
                     this.isSpinner = false;
                     this.loaderLabel = 'Loading... Please wait a while';
-                    const popup = this.template.querySelector("c-message-popup");
+                    const popup = this.template.querySelector("c-message-popup-v2");
                     popup.showMessageToast({
                         title: "Error Saving Template",
                         message: "Error saving template data to backend. Please try again later.",
@@ -631,7 +631,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
 
             if (this.previousTemplateData.MVDG__Template_Name__c != this.templateRecord.MVDG__Template_Name__c || this.previousTemplateData.MVDG__Description__c != this.templateRecord.MVDG__Description__c || 
                 this.previousTemplateData.MVDG__Template_Status__c != this.templateRecord.MVDG__Template_Status__c) {
-                    const popup = this.template.querySelector("c-message-popup");
+                    const popup = this.template.querySelector("c-message-popup-v2");
                     popup.showMessagePopup({
                         title: "Do You Want to Leave?",
                         message: "Your unsaved changes will be discarded once you leave this page.",

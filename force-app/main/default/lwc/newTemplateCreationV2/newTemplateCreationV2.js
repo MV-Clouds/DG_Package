@@ -3,7 +3,7 @@ import getAllObjects from '@salesforce/apex/ButtonGeneratorController.getAllObje
 import getCombinedData from '@salesforce/apex/NewTemplateCreationController.getCombinedData';
 import saveTemplate from '@salesforce/apex/NewTemplateCreationController.saveTemplate';
 import { NavigationMixin } from 'lightning/navigation';
-import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalPropertiesV2';
 
 export default class NewTemplateCreationV2 extends NavigationMixin(LightningElement) {
 
@@ -212,7 +212,7 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
     }
 
     showToast(status, title, message){
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
         messageContainer.showMessageToast({
             status: status,
             title: title,

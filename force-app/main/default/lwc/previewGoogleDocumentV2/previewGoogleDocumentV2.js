@@ -1,7 +1,7 @@
 import { LightningElement, api, track } from "lwc";
 import pdfLibs from "@salesforce/resourceUrl/pdfLibs";
 import { loadScript } from "lightning/platformResourceLoader";
-import { errorDebugger } from "c/globalProperties";
+import { errorDebugger } from "c/globalPropertiesV2";
 
 export default class PreviewGoogleDocumentV2 extends LightningElement {
     @api templateid;
@@ -110,7 +110,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
             
             
             this.isSpinner = false;
-            let messagePopup = this.template.querySelector("c-message-popup");
+            let messagePopup = this.template.querySelector("c-message-popup-v2");
             messagePopup?.showMessagePopup({
                 status: "error",
                 title: event.detail.title,

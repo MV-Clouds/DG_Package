@@ -603,7 +603,7 @@ c-generate-document {
 }
 
 @media only screen and (max-width >= 1440) {
-    c-key-mapping-container {
+    c-key-mapping-container-v2 {
         width: 33rem;
         min-width: 33rem;
     }

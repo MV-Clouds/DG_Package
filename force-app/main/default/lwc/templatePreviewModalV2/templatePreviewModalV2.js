@@ -1,7 +1,7 @@
 import { LightningElement, api, track } from "lwc";
 import previewModalImg from "@salesforce/resourceUrl/previewModal_img";
 import getObjectNameField from '@salesforce/apex/TemplateBuilder_Controller.getObjectNameField';
-import { errorDebugger } from "c/globalProperties";
+import { errorDebugger } from "c/globalPropertiesV2";
 export default class TemplatePreviewModalV2 extends LightningElement {
 
     @api templateid;
@@ -27,6 +27,7 @@ export default class TemplatePreviewModalV2 extends LightningElement {
     @track showPreview;
     @track vfPageSRC; 
     @track errorDetail = {};
+    @track vsfError = false;
 
     customSetTimeout;
     customSetTimeoutMethod;
@@ -86,7 +87,7 @@ export default class TemplatePreviewModalV2 extends LightningElement {
     }
 
     get disableGenerateBtn(){
-        return !this.selectedRecordId || !this.isActive;
+        return !this.selectedRecordId || !this.isActive || this.vsfError;
     }
 
     get loadingInfo(){
@@ -100,6 +101,10 @@ export default class TemplatePreviewModalV2 extends LightningElement {
 
     connectedCallback(){
         try {
+            if (typeof window !== 'undefined') {
+                
+                window.addEventListener('message', this.simpleTempFileGenResponse);
+            }
             // Set pre-selected Record Id...
             if(this.recordId){
                 this.selectedRecordId = this.recordId;    
@@ -131,6 +136,16 @@ export default class TemplatePreviewModalV2 extends LightningElement {
 
         } catch (error) {
             errorDebugger('TemplatePreviewModal', 'connectedCallback', error, 'warn');
+        }
+    }
+
+    simpleTempFileGenResponse = (message) => {
+        try{ 
+            if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel === 'Generate Preview Error'){
+                this.vsfError = true;
+            }
+        }catch(e){
+            errorDebugger('generateDocument', 'simpleTempFileGenResponse', e, 'error');
         }
     }
 
@@ -241,7 +256,7 @@ export default class TemplatePreviewModalV2 extends LightningElement {
     }
 
     generateGoogleDocPreview(){
-        this.template.querySelector('c-preview-google-document')?.previewDocument();
+        this.template.querySelector('c-preview-google-document-v2')?.previewDocument();
     }
 
     contentLoaded(){

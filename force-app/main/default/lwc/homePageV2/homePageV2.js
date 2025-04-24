@@ -6,7 +6,7 @@ import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getTemplateList from '@salesforce/apex/HomePageController.getTemplateList';
 import updateTemplate from '@salesforce/apex/HomePageController.updateTemplate';
 import checkAccessToken from '@salesforce/apex/HomePageController.getAuthProviderSettings';
-import {nameSpace,navigationComps, errorDebugger} from 'c/globalProperties';
+import {nameSpace,navigationComps, errorDebugger} from 'c/globalPropertiesV2';
 
 export default class HomePageV2 extends NavigationMixin(LightningElement) {
     @track isDisplayOption = false;
@@ -978,7 +978,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
 
         // ====== ======= ====== Generic Method to test Message Popup and Toast... ==== ==== ==== ==== ==== ==== ====
         showMessagePopup(Status, Title, Message, DoneButtonLabel){
-            const messageContainer = this.template.querySelector('c-message-popup')
+            const messageContainer = this.template.querySelector('c-message-popup-v2')
             messageContainer?.showMessagePopup({
                 status: Status,
                 title: Title,
@@ -988,7 +988,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
         }
 
         showMessageToast(Status, Title, Message, Duration){
-            const messageContainer = this.template.querySelector('c-message-popup')
+            const messageContainer = this.template.querySelector('c-message-popup-v2')
             messageContainer?.showMessageToast({
                 status: Status,
                 title: Title,

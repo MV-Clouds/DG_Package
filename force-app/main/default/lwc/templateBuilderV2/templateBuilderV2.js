@@ -9,7 +9,7 @@ import saveTemplateApex from '@salesforce/apex/TemplateBuilder_Controller.saveTe
 import saveTempDataRecordsInBatch from '@salesforce/apex/TemplateBuilder_Controller.saveTempDataRecordsInBatch';
 import updateTemplate from '@salesforce/apex/HomePageController.updateTemplate';
 import { initializeSummerNote } from './editorConf.js';
-import {navigationComps, nameSpace, pageFormats, unitMultiplier, unitConverter, errorDebugger} from 'c/globalProperties';
+import {navigationComps, nameSpace, pageFormats, unitMultiplier, unitConverter, errorDebugger} from 'c/globalPropertiesV2';
 
 export default class TemplateBuilderV2 extends NavigationMixin(LightningElement) {
 
@@ -698,7 +698,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
     // #fieldMapping...
     toggleMappingContainerHeight(){
         try {
-            const keyMappingContainer = this.template.querySelector('c-key-mapping-container');
+            const keyMappingContainer = this.template.querySelector('c-key-mapping-container-v2');
             if(this.isMappingContainerExpanded){
                 this.isMappingContainerExpanded = false;
                 keyMappingContainer.style = ``;
@@ -969,7 +969,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             if (typeof window !== 'undefined') {
                 root = document?.querySelector(':root');
             }
-            let keyMappingContainer = this.template.querySelector('c-key-mapping-container');
+            let keyMappingContainer = this.template.querySelector('c-key-mapping-container-v2');
 
             if (typeof window !== 'undefined') {   
                 if(window.innerWidth > 1350){
@@ -1046,7 +1046,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
     //  Method to Calculation Related List (Child Table) --- ---- -----
     calculateRelatedListTable(note){
         try {
-            const keyMappingChildComp = this.template.querySelector('c-key-mapping-container ');
+            const keyMappingChildComp = this.template.querySelector('c-key-mapping-container-v2 ');
             if(keyMappingChildComp){
               const page = note.noteEditorFrame.querySelector('.note-editable');
               let relatedListTables = page?.querySelectorAll(`[data-name="childRecords"]`);
@@ -1506,7 +1506,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
     // ====== ======= ======== ======= ======= ====== GENERIC Method ====== ======= ======== ======= ======= ======
      // Generic Method to test Message Popup and Toast
         showMessagePopup(Status, Title, Message, doneBtnLabel){
-            const messageContainer = this.template.querySelector('c-message-popup')
+            const messageContainer = this.template.querySelector('c-message-popup-v2')
             if(messageContainer){
                 messageContainer.showMessagePopup({
                     status: Status,
@@ -1518,7 +1518,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
         }
 
         showMessageToast(Status, Title, Message, Duration){
-            const messageContainer = this.template.querySelector('c-message-popup')
+            const messageContainer = this.template.querySelector('c-message-popup-v2')
             if(messageContainer){
                 messageContainer.showMessageToast({
                     status: Status,

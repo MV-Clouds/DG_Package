@@ -1,6 +1,6 @@
 import { LightningElement, api, track, wire } from "lwc";
 import { gql, graphql } from "lightning/uiGraphQLApi";
-import {errorDebugger} from 'c/globalProperties';
+import {errorDebugger} from 'c/globalPropertiesV2';
 
 
 export default class CustomRecordPickerV2 extends LightningElement {

@@ -10,7 +10,7 @@ import getJsonFaqs from '@salesforce/apex/ChatBotController.getJsonFaqs';
 import storeMessages from '@salesforce/apex/ChatBotController.storeMessages';
 import checkOldChats from '@salesforce/apex/ChatBotController.checkOldChats';
 import deleteOldChats from '@salesforce/apex/ChatBotController.deleteOldChats';
-import { errorDebugger } from 'c/globalProperties';
+import { errorDebugger } from 'c/globalPropertiesV2';
 
 export default class ChatBotV2 extends LightningElement {
     @track uploadedFiles = [];

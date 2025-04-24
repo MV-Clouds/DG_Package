@@ -7,7 +7,7 @@ import sendEmail from '@salesforce/apex/GenerateDocumentController.sendEmail';
 import upsertActivity from '@salesforce/apex/GenerateDocumentController.upsertActivity';
 import getButtonNames from '@salesforce/apex/GenerateDocumentController.getButtonNames';
 import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.createListViewButtons';
-import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalPropertiesV2';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import { CloseActionScreenEvent } from "lightning/actions";
 
@@ -2243,7 +2243,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 // --------------------------------------------------------General Use Methods ---------------------------------------------------------
     showToast(status, title, message, duration){
         this.showSpinner = false;
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
         messageContainer.showMessageToast({
             status: status,
             title: title,
@@ -2254,7 +2254,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     showWarningPopup(status, title, message){
         this.showSpinner = false;
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
         messageContainer.showMessagePopup({
             status: status,
             title: title,

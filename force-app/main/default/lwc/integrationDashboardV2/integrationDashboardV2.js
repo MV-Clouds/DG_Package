@@ -30,7 +30,7 @@ import getAuthProviderSettings from '@salesforce/apex/GenerateDocumentController
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 // for trusted Url Verification
 import checkTrustedUrl from '@salesforce/apex/HomePageController.checkTrustedUrl';
-import {errorDebugger} from 'c/globalProperties';
+import {errorDebugger} from 'c/globalPropertiesV2';
 
 
 export default class IntegrationDashboradV2 extends NavigationMixin(LightningElement) {
@@ -329,7 +329,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
 
     showToast(status, title, message){
         this.isSpinner = false;
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
         messageContainer.showMessageToast({
             status: status,
             title: title,
@@ -383,7 +383,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                 this.obj.dropboxKey = false;
              }
              if (this.activeTab == 'isSetup' && !this.isAccess) {
-                const messageContainer = this.template.querySelector('c-message-popup')
+                const messageContainer = this.template.querySelector('c-message-popup-v2')
                 messageContainer.showMessageToast({
                     status: 'error',
                     title: 'error',
@@ -705,7 +705,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
            cursor?.forEach(ele => {
                 if(ele.dataset.name == tabName && tabName == 'isSetup' && !this.isAccess){
                     this.isSpinner = false;
-                    const messageContainer = this.template.querySelector('c-message-popup')
+                    const messageContainer = this.template.querySelector('c-message-popup-v2')
                        messageContainer.showMessageToast({
                            status: 'error',
                            title: 'error',
@@ -749,7 +749,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                    if(result === 'success'){
                       
                        this.isSpinner = false;
-                       const messageContainer = this.template.querySelector('c-message-popup')
+                       const messageContainer = this.template.querySelector('c-message-popup-v2')
                        messageContainer.showMessageToast({
                            status: 'success',
                            title: 'Success',
@@ -763,7 +763,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                    else{
                        this.ispopup = false;
                        this.isSpinner = false;
-                       const messageContainer = this.template.querySelector('c-message-popup')
+                       const messageContainer = this.template.querySelector('c-message-popup-v2')
                        messageContainer.showMessageToast({
                            status: 'error',
                            title: 'error',
@@ -803,7 +803,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
            .then(result =>{
                this.isSpinner = false;
                if(result === 'Success'){
-               const messageContainer = this.template.querySelector('c-message-popup')
+               const messageContainer = this.template.querySelector('c-message-popup-v2')
                    messageContainer.showMessageToast({
                        status: 'success',
                        title: 'Integration successfull',
@@ -813,7 +813,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                    this.checkingawsauth();
                }
                else{
-                   const messageContainer = this.template.querySelector('c-message-popup')
+                   const messageContainer = this.template.querySelector('c-message-popup-v2')
                    messageContainer.showMessageToast({
                        status: 'error',
                        title: 'Integration failed',
@@ -843,7 +843,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
            .then(result =>{
                this.isSpinner = false;
                if(result === 'Success'){
-               const messageContainer = this.template.querySelector('c-message-popup')
+               const messageContainer = this.template.querySelector('c-message-popup-v2')
                    messageContainer.showMessageToast({
                        status: 'success',
                        title: 'Integration successfull',
@@ -853,7 +853,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                    this.checkingawsauth();
                }
                else{
-                   const messageContainer = this.template.querySelector('c-message-popup')
+                   const messageContainer = this.template.querySelector('c-message-popup-v2')
                    messageContainer.showMessageToast({
                        status: 'error',
                        title: 'Integration failed',
@@ -874,7 +874,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
    unauthorize(event) {
     if(this.isAccess){
         this.invoke = event.target.dataset.key;
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
                 messageContainer.showMessagePopup({
                         status: 'Warning',
                         title: 'Confirm',
@@ -883,7 +883,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
         }
     else if(this.isPartialAccess && event.target.dataset.key == 'google'){
         this.invoke = event.target.dataset.key;
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
                 messageContainer.showMessagePopup({
                         status: 'Warning',
                         title: 'Confirm',
@@ -902,7 +902,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                    this.isActiveGoogleAuth = false;
                    this.checkinggoogleauth();
                    this.isSpinner = false;
-                   const messageContainer = this.template.querySelector('c-message-popup')
+                   const messageContainer = this.template.querySelector('c-message-popup-v2')
                    messageContainer.showMessageToast({
                        status: 'success',
                        title: 'Deleted Successfully',
@@ -927,7 +927,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                    this.isActiveOrgGoogleAuth = false;
                    this.checkingorggoogleauth();
                    this.isSpinner = false;
-                   const messageContainer = this.template.querySelector('c-message-popup')
+                   const messageContainer = this.template.querySelector('c-message-popup-v2')
                    messageContainer.showMessageToast({
                        status: 'success',
                        title: 'Deleted Successfully',
@@ -951,7 +951,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                    this.isActiveAwsAuth = false;
                    this.checkingawsauth();
                    this.isSpinner = false;
-                   const messageContainer = this.template.querySelector('c-message-popup')
+                   const messageContainer = this.template.querySelector('c-message-popup-v2')
                    messageContainer.showMessageToast({
                        status: 'success',
                        title: 'Deleted successfully',
@@ -978,7 +978,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                    this.isActiveOnedriveAuth = false;
                    this.checkingonedriveauth();
                    this.isSpinner = false;
-                   const messageContainer = this.template.querySelector('c-message-popup')
+                   const messageContainer = this.template.querySelector('c-message-popup-v2')
                    messageContainer.showMessageToast({
                        status: 'success',
                        title: 'Deleted successfully',
@@ -1003,7 +1003,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                    this.isActiveDropboxAuth = false;
                    this.checkingdropboxauth();
                    this.isSpinner = false;
-                   const messageContainer = this.template.querySelector('c-message-popup')
+                   const messageContainer = this.template.querySelector('c-message-popup-v2')
                    messageContainer.showMessageToast({
                        status: 'success',
                        title: 'Deleted successfully',

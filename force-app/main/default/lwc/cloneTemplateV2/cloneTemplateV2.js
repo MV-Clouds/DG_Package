@@ -4,7 +4,7 @@ import newTemplateBg from '@salesforce/resourceUrl/new_template_bg';
 import cloneTempData from '@salesforce/apex/CloneTemplateDataController.cloneTempData'
 // import { NavigationMixin } from 'lightning/navigation';
 import { NavigationMixin } from 'lightning/navigation';
-import {navigationComps, nameSpace, errorDebugger} from 'c/globalProperties';
+import {navigationComps, nameSpace, errorDebugger} from 'c/globalPropertiesV2';
 
 
 export default class CloneTemplateV2 extends NavigationMixin(LightningElement) {
@@ -196,7 +196,7 @@ export default class CloneTemplateV2 extends NavigationMixin(LightningElement) {
     }
     showToast(status, title, message, duration){
         this.showSpinner = false;
-        const messageContainer = this.template.querySelector('c-message-popup')
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
         messageContainer.showMessageToast({
             status: status,
             title: title,
