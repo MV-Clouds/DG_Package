@@ -48,9 +48,9 @@ public with sharing class HomePageController {
                 // Create List of Only Date Field form Templare Object...
                 returnValue.dateFields = createTempFieldInstance('MVDG__Template__c');
 
-                // returnValue.isGoogleDocEnable = MVDG__AuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c || MVDG__AuthProviderSettings__c.getInstance().MVDG__WorkingStatus__c;
-                // returnValue.isGoogleDocEnable = MVDG__AuthProviderSettings__c.getInstance().MVDG__WorkingStatus__c;
-                returnValue.isGoogleDocEnable = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1]?.MVDG__WorkingStatus__c;
+                // returnValue.isGoogleDocEnable = MVDG__Google_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c || MVDG__Google_Credentials__c.getInstance().MVDG__WorkingStatus__c;
+                // returnValue.isGoogleDocEnable = MVDG__Google_Credentials__c.getInstance().MVDG__WorkingStatus__c;
+                returnValue.isGoogleDocEnable = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1]?.MVDG__WorkingStatus__c;
                 
                 // Assign Values to returnValue Object...
                 returnValue.isSuccess = true;

@@ -8,7 +8,7 @@
 public with sharing class DeleteGoogleDocument implements Schedulable{
     public String templateId;
     public String documentId;
-    public static MVDG__AuthProviderSettings__c authProvider;
+    public static MVDG__Google_Credentials__c authProvider;
 
      /**
     * Method Name : DeleteGoogleDocument
@@ -92,13 +92,9 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
         } finally {
             if(authProvider.SetupOwnerId == UserInfo.getOrganizationId()){
                 authProvider.SetupOwnerId = UserInfo.getOrganizationId();
-                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isCreateable() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable()) {
-                    upsert as user authProvider;
-                }
+                upsert as user authProvider;
             } else {    
-                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable()) {
-                    update as user authProvider;
-                }
+                update as user authProvider;
             }
         }
     }
@@ -147,7 +143,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
      /**
     * Method Name : getAuthProviderSettings
     * @description : Gets the authProviderSettings Custom Settings record
-    * @return the custom setting record - MVDG__AuthProviderSettings__c.
+    * @return the custom setting record - MVDG__Google_Credentials__c.
     */ 
     /***********************************************************************
     MODIFICATION LOG* 
@@ -156,14 +152,14 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
     * Name of methods changed (Comma separated if more then one) : method1 
     * Change Description : 
     ***********************************************************************/
-    public static MVDG__AuthProviderSettings__c getAuthProviderSettings() {
-        List<MVDG__AuthProviderSettings__c> aps = new List<MVDG__AuthProviderSettings__c>();
-        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+    public static MVDG__Google_Credentials__c getAuthProviderSettings() {
+        List<MVDG__Google_Credentials__c> aps = new List<MVDG__Google_Credentials__c>();
+        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId()];
         if (aps.size() > 0) {
             
             return aps[0];
         }
         
-        return MVDG__AuthProviderSettings__c.getOrgDefaults();
+        return MVDG__Google_Credentials__c.getOrgDefaults();
     }
 }

@@ -2,7 +2,7 @@
 public class GoogleDocTemplateEditorControllerTest {
     @TestSetup
     static void makeData(){
-        MVDG__AuthProviderSettings__c authProvider = new MVDG__AuthProviderSettings__c();
+        MVDG__Google_Credentials__c authProvider = new MVDG__Google_Credentials__c();
         authProvider.SetupOwnerId = UserInfo.getUserId();
         authProvider.MVDG__ClientId__c = 'dummyClientId';
         authProvider.MVDG__ClientSecret__c = 'dummyClientSecret';
@@ -46,7 +46,7 @@ public class GoogleDocTemplateEditorControllerTest {
         request.setEndpoint(endpoint);
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/json');
-        GoogleDocTemplateEditorController.refreshAccessToken(MVDG__AuthProviderSettings__c.getInstance(), request);
+        GoogleDocTemplateEditorController.refreshAccessToken(MVDG__Google_Credentials__c.getInstance(), request);
 
         GoogleDocTemplateEditorController.ResponseWrapper response = new GoogleDocTemplateEditorController.ResponseWrapper();
         response = GoogleDocTemplateEditorController.getAllData(temp.Id, 'Account');
@@ -90,8 +90,8 @@ public class GoogleDocTemplateEditorControllerTest {
     public static void testCatchBlocks() {
 
         Test.startTest();
-        List<MVDG__AuthProviderSettings__c> authprovider = new List<MVDG__AuthProviderSettings__c>();
-        authprovider.add(MVDG__AuthProviderSettings__c.getInstance());
+        List<MVDG__Google_Credentials__c> authprovider = new List<MVDG__Google_Credentials__c>();
+        authprovider.add(MVDG__Google_Credentials__c.getInstance());
         GoogleDocTemplateEditorController.authProvider = authprovider;
         GoogleDocTemplateEditorController.updateAuthProviderSettings();
         String endpoint = 'https://docs.googleapis.com/v1/documents';
@@ -99,7 +99,7 @@ public class GoogleDocTemplateEditorControllerTest {
         request.setEndpoint(endpoint);
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/json');
-        GoogleDocTemplateEditorController.refreshAccessToken(MVDG__AuthProviderSettings__c.getInstance(), request);
+        GoogleDocTemplateEditorController.refreshAccessToken(MVDG__Google_Credentials__c.getInstance(), request);
         String res = GoogleDocTemplateEditorController.createNewDocument();
         System.assertEquals(null, res);
         GoogleDocTemplateEditorController.getAllDocs();

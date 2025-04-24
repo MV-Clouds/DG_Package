@@ -6,7 +6,7 @@
 * Created By: Dhairya Koshti
 */
 public with sharing class GoogleDocPreview {
-    public static MVDG__AuthProviderSettings__c authProvider;
+    public static MVDG__Google_Credentials__c authProvider;
     public static List<MVDG__Template_Data__c> templateData = new List<MVDG__Template_Data__c>();
     public static Map<String, HttpResponse> responseList = new Map<String, HttpResponse>();
     public static String refreshToken;
@@ -224,7 +224,7 @@ public with sharing class GoogleDocPreview {
                     return responseWrapper;
                 }
             } else if (response.getStatusCode() == 404 && authProvider.SetupOwnerId != null && authProvider.SetupOwnerId != UserInfo.getOrganizationId()) {
-                authProvider = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+                authProvider = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
                 refreshToken = authProvider.SetupOwnerId;
                 responseWrapper = copyGoogleDoc(templateId);
                 return responseWrapper;
@@ -278,7 +278,7 @@ public with sharing class GoogleDocPreview {
                     updateGoogleDoc(googleDocId, requests);
                 }
             } else if (response.getStatusCode() == 403 && authProvider.SetupOwnerId != null && authProvider.SetupOwnerId != UserInfo.getOrganizationId()) {
-                authProvider = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+                authProvider = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
                 refreshToken = authProvider.SetupOwnerId;
                 updateGoogleDoc(googleDocId, requests);
             }
@@ -578,7 +578,7 @@ public with sharing class GoogleDocPreview {
     /**
     * Method Name : getAuthProviderSettings
     * @description : Gets the authProviderSettings Custom Settings record
-    * @return the custom setting record - MVDG__AuthProviderSettings__c.
+    * @return the custom setting record - MVDG__Google_Credentials__c.
     */ 
     /***********************************************************************
     MODIFICATION LOG* 
@@ -587,15 +587,15 @@ public with sharing class GoogleDocPreview {
     * Name of methods changed (Comma separated if more then one) : method1 
     * Change Description : 
     ***********************************************************************/
-    public static MVDG__AuthProviderSettings__c getAuthProviderSettings() {
+    public static MVDG__Google_Credentials__c getAuthProviderSettings() {
         try {
-            List<MVDG__AuthProviderSettings__c> aps = new List<MVDG__AuthProviderSettings__c>();
+            List<MVDG__Google_Credentials__c> aps = new List<MVDG__Google_Credentials__c>();
             // User
-            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
             if (aps.size() > 0) {
                 return aps[0];
             }
-            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
             if (aps.size() > 0) {
                 return aps[0];
             }
@@ -621,13 +621,9 @@ public with sharing class GoogleDocPreview {
         try {
             if(authProvider.SetupOwnerId == UserInfo.getOrganizationId()){
                 authProvider.SetupOwnerId = UserInfo.getOrganizationId();
-                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isCreateable() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable()) {
-                    upsert as user authProvider;
-                }
+                upsert as user authProvider;
             } else {    
-                if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable()) {
-                    update as user authProvider;
-                }
+                update as user authProvider;
             }
         } catch (Exception e) {
             

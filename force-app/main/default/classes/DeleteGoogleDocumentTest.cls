@@ -2,7 +2,7 @@
 public class DeleteGoogleDocumentTest {
     @testSetup
     static void setup() {
-        MVDG__AuthProviderSettings__c authProvider = new MVDG__AuthProviderSettings__c();
+        MVDG__Google_Credentials__c authProvider = new MVDG__Google_Credentials__c();
         authProvider.MVDG__access_token__c = 'mock_access_token';
         authProvider.MVDG__refresh_token__c = 'mock_refresh_token';
         authProvider.MVDG__ClientId__c = 'mock_client_id';
@@ -51,13 +51,13 @@ public class DeleteGoogleDocumentTest {
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(mockResponse));
 
         Test.startTest();
-        DeleteGoogleDocument.authProvider = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        DeleteGoogleDocument.authProvider = MVDG__Google_Credentials__c.getOrgDefaults();
         String newToken = DeleteGoogleDocument.refreshAccessToken();
         Test.stopTest();
 
         System.assertEquals('new_mock_access_token', newToken, 'Access token is invalid');
 
-        // MVDG__AuthProviderSettings__c authProvider = MVDG__AuthProviderSettings__c.getInstaxnce();
+        // MVDG__Google_Credentials__c authProvider = MVDG__Google_Credentials__c.getInstaxnce();
         // System.assertEquals('new_mock_access_token', authProvider.MVDG__access_token__c);
     }
 
