@@ -68,8 +68,8 @@ public with sharing class GenerateDocumentController {
             IntegrationWrapper listOfStatus = new IntegrationWrapper();
             listOfStatus.isGoogleDriveIntegrated = MVDG__AuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
             listOfStatus.isAWSIntegrated = MVDG__AwsAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isDropBoxIntegrated = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isOneDriveIntegrated = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            listOfStatus.isDropBoxIntegrated = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__Dropbox_Credential__mdt WITH SECURITY_ENFORCED LIMIT 1].MVDG__WorkingStatus__c;
+            listOfStatus.isOneDriveIntegrated = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__OneDrive_Credentials__mdt WITH SECURITY_ENFORCED LIMIT 1].MVDG__WorkingStatus__c;
             List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
                 listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;

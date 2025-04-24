@@ -13,15 +13,18 @@ public with sharing class OneDriveAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkonedriveauth(){
         try {
-            MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id,MVDG__access_token__c,MVDG__access_token1__c,MVDG__access_token2__c,MVDG__access_token3__c,MVDG__access_token4__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__username__c,MVDG__refresh_token__c,MVDG__refresh_token1__c,MVDG__email__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            List<MVDG__OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
+            FROM MVDG__OneDrive_Credentials__mdt 
+            WITH SECURITY_ENFORCED 
+            LIMIT 1];
             Map<String, Object> result = new Map<String, Object>();
-            if (settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null && settings.MVDG__email__c != null && settings.MVDG__LinkedDate__c != null) {
+            if (!settingsList.isEmpty() && settingsList[0].MVDG__refresh_token__c != null && settingsList[0].MVDG__access_token__c != null && settingsList[0].MVDG__LinkedDate__c != null) {
+                MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
                 Boolean working = getToken();
-                settings = [SELECT Id,MVDG__access_token__c,MVDG__access_token1__c,MVDG__access_token2__c,MVDG__access_token3__c,MVDG__access_token4__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__username__c,MVDG__refresh_token__c,MVDG__refresh_token1__c,MVDG__email__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+                result.put('name', settings.MVDG__username__c);
                 result.put('email', settings.MVDG__email__c);
                 result.put('linkdate', settings.MVDG__LinkedDate__c);
-                result.put('active', settings.MVDG__WorkingStatus__c);
-                result.put('name', settings.MVDG__username__c);
+                result.put('active', working);
                 return result;
             }
             result.put('error', 'Error obtaining details: ');
@@ -33,12 +36,16 @@ public with sharing class OneDriveAuthorizationController {
     }
 
     public static Boolean getToken(){
-        MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id,MVDG__access_token__c,MVDG__access_token1__c,MVDG__access_token2__c,MVDG__access_token3__c,MVDG__access_token4__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__username__c,MVDG__refresh_token__c,MVDG__refresh_token1__c,MVDG__email__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+        MVDG__OneDrive_Credentials__mdt settings = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
+                                               FROM MVDG__OneDrive_Credentials__mdt 
+                                               WITH SECURITY_ENFORCED 
+                                               LIMIT 1];
+                                               
         HttpRequest request = new HttpRequest();
         request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + settings.MVDG__refresh_token1__c +
+        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
             '&client_id=' + settings.MVDG__ClientId__c +
             '&client_secret=' + settings.MVDG__ClientSecret__c +
             '&grant_type=refresh_token');
@@ -47,59 +54,44 @@ public with sharing class OneDriveAuthorizationController {
         Map < String, String > result1 = new Map < String, String > ();
         if (response1.getStatusCode() == 200) {
             Map < String, Object > jsonResponse = (Map < String, Object > ) JSON.deserializeUntyped(response1.getBody());
-            String newtoken = (String) jsonResponse.get('access_token');
-            List<String> parts1 = new List<String>();
-                if (newtoken != null && newtoken.length() > 254) {
-                    parts1.add(newtoken.substring(0, 254));
-                    parts1.add(newtoken.substring(254, 508));
-                    parts1.add(newtoken.substring(508, 762));
-                    parts1.add(newtoken.substring(762, 1016));
-                    parts1.add(newtoken.substring(1016));
-                } else {
-                    parts1.add(newtoken);
-                }
-                String newtoken1 = parts1[0];
-                String newtoken2 = parts1[1];
-                String newtoken3 = parts1[2];
-                String newtoken4 = parts1[3];
-                String newtoken5 = parts1[4];
-                if(newtoken1 != null){
-                    settings.MVDG__access_token__c = newtoken1;
-                    settings.MVDG__access_token1__c = newtoken2;
-                    settings.MVDG__access_token2__c = newtoken3;
-                    settings.MVDG__access_token3__c = newtoken4;
-                    settings.MVDG__access_token4__c = newtoken5;
-                }
-                settings.MVDG__WorkingStatus__c = true;
-                if (
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isAccessible() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isAccessible() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isAccessible() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isAccessible() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isAccessible() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isAccessible() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isCreateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isCreateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isCreateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isCreateable() &&
-                Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()) {
-                    update as user settings;
-                    return true;
+            String newAccessToken = (String) jsonResponse.get('access_token');
+            if (newAccessToken != null) {
+                // Update Custom Metadata with new access token
+                Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+                Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
+                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+                metadataRec.label = settings.MasterLabel;
 
-                    }
+                Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
+                accessTokenField.field = 'MVDG__access_token__c';
+                accessTokenField.value = newAccessToken;
+                metadataRec.values.add(accessTokenField);
+
+                Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
+                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.value = true;
+                metadataRec.values.add(workingStatusField);
+
+                mdContainer.addMetadata(metadataRec);
+                Metadata.Operations.enqueueDeployment(mdContainer, null);
+                return true;
+            }
             return false;
         }
         else {
             Response_Handler.store_Callout_Response(response1, 'OneDriveAuthorizationController', 'getToken');
-            settings.MVDG__WorkingStatus__c = false;
-            update as user settings;
+            Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+                Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
+                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+                metadataRec.label = settings.MasterLabel;
+
+                Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
+                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.value = false;
+                metadataRec.values.add(workingStatusField);
+
+                mdContainer.addMetadata(metadataRec);
+                Metadata.Operations.enqueueDeployment(mdContainer, null);
             return false;
         }
     }
@@ -108,22 +100,60 @@ public with sharing class OneDriveAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id,MVDG__access_token__c,MVDG__access_token1__c,MVDG__access_token2__c,MVDG__access_token3__c,MVDG__access_token4__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__username__c,MVDG__refresh_token__c,MVDG__refresh_token1__c,MVDG__email__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-            if(settings != null){
-                settings.MVDG__access_token__c = '';
-                settings.MVDG__access_token1__c = '';
-                settings.MVDG__access_token2__c = '';
-                settings.MVDG__access_token3__c = '';
-                settings.MVDG__access_token4__c = '';
-                settings.MVDG__ClientId__c = '';
-                settings.MVDG__ClientSecret__c = '';
-                settings.MVDG__LinkedDate__c = '';
-                settings.MVDG__WorkingStatus__c = false;
-                settings.MVDG__username__c = '';
-                settings.MVDG__refresh_token__c = '';
-                settings.MVDG__refresh_token1__c = '';
-                settings.MVDG__email__c = '';
-                upsert as user settings;
+            List<MVDG__OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
+                                                         FROM MVDG__OneDrive_Credentials__mdt 
+                                                         WITH SECURITY_ENFORCED 
+                                                         LIMIT 1];
+            if (!settingsList.isEmpty()) {
+                MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
+                // Clear credentials using Metadata API
+                Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+                Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
+                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+                metadataRec.label = settings.MasterLabel;
+
+                Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
+                clientIdField.field = 'MVDG__ClientId__c';
+                clientIdField.value = '';
+                metadataRec.values.add(clientIdField);
+
+                Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
+                clientSecretField.field = 'MVDG__ClientSecret__c';
+                clientSecretField.value = '';
+                metadataRec.values.add(clientSecretField);
+
+                Metadata.CustomMetadataValue usernameField = new Metadata.CustomMetadataValue();
+                usernameField.field = 'MVDG__username__c';
+                usernameField.value = '';
+                metadataRec.values.add(usernameField);
+
+                Metadata.CustomMetadataValue linkedDateField = new Metadata.CustomMetadataValue();
+                linkedDateField.field = 'MVDG__LinkedDate__c';
+                linkedDateField.value = '';
+                metadataRec.values.add(linkedDateField);
+
+                Metadata.CustomMetadataValue emailField = new Metadata.CustomMetadataValue();
+                emailField.field = 'MVDG__email__c';
+                emailField.value = '';
+                metadataRec.values.add(emailField);
+
+                Metadata.CustomMetadataValue refreshTokenField = new Metadata.CustomMetadataValue();
+                refreshTokenField.field = 'MVDG__refresh_token__c';
+                refreshTokenField.value = '';
+                metadataRec.values.add(refreshTokenField);
+
+                Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
+                accessTokenField.field = 'MVDG__access_token__c';
+                accessTokenField.value = '';
+                metadataRec.values.add(accessTokenField);
+
+                Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
+                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.value = false;
+                metadataRec.values.add(workingStatusField);
+
+                mdContainer.addMetadata(metadataRec);
+                Metadata.Operations.enqueueDeployment(mdContainer, null);
                 return true;
             }
             return false;
@@ -177,18 +207,37 @@ public with sharing class OneDriveAuthorizationController {
             if (String.isBlank(clientId) || String.isBlank(clientSecret) ) {
                 return 'Both Client ID and Client Secret are required.';
             }
-            List<MVDG__OneDriveAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__ClientId__c,MVDG__ClientSecret__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId=: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-            MVDG__OneDriveAuthProviderSettings__c settings;
-            if (!settingsList.isEmpty()) {
-                settings = settingsList[0];
+            List<MVDG__OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
+            FROM MVDG__OneDrive_Credentials__mdt 
+            WITH SECURITY_ENFORCED 
+            LIMIT 1];
+
+            if (settingsList.isEmpty()) {
+                throw new HandledException('No Dropbox credential settings found.');
             }
-            else{
-                settings = new MVDG__OneDriveAuthProviderSettings__c();
-            }
+            MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
+            // Update Custom Metadata with client ID and secret
+            Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+            Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
+            metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+            metadataRec.label = settings.MasterLabel;
+
+            Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
+            clientIdField.field = 'MVDG__ClientId__c';
+            clientIdField.value = clientId;
+            metadataRec.values.add(clientIdField);
+
+            Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
+            clientSecretField.field = 'MVDG__ClientSecret__c';
+            clientSecretField.value = clientSecret;
+            metadataRec.values.add(clientSecretField);
+
+            mdContainer.addMetadata(metadataRec);
+            Metadata.Operations.enqueueDeployment(mdContainer, null);
             settings.MVDG__ClientId__c = clientId;
             settings.MVDG__ClientSecret__c = clientSecret;
+
             String durl = authcode(clientId, clientSecret);
-            upsert as user settings;
             return durl;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'OneDriveAuthorizationController', 'authorize');
