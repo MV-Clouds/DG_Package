@@ -1,0 +1,560 @@
+<template>
+  
+  <div class="templateBuilder_Maindiv" lwc:ref="mainDiv" data-name="mainDiv" style={loadStyle}>
+    <div class="contentSection">
+      <div class="editorSection">
+        <div class="tabSection" data-hide-toolbar={hideToolbar}>
+          <div class="tabSection_sub">
+            <button class="homeBtn" title="Home" onclick={handleCloseEdit}>
+              <svg viewBox="0 0 24 24">
+                <g stroke-width="0"></g>
+                <g stroke-linecap="round" stroke-linejoin="round"></g>
+                <g>
+                  <path
+                    d="M21.71,11.29l-9-9a1,1,0,0,0-1.42,0l-9,9a1,1,0,0,0,1.42,1.42l.29-.3V20.3A1.77,1.77,0,0,0,5.83,22H8.5a1,1,0,0,0,1-1V16.1a1,1,0,0,1,1-1h3a1,1,0,0,1,1,1V21a1,1,0,0,0,1,1h2.67A1.77,1.77,0,0,0,20,20.3V12.41l.29.3a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,11.29Z">
+                  </path>
+                </g>
+              </svg>
+            </button>
+            <div class="tab" data-display={tabs.contentTab} data-name="contentTab" onclick={activeTab}>
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M1 2V5H3V4H5V9H3.5V11H8.5V9H7V4H9V5H11V2H1ZM21 3H14V5H20V19H4V14H2V20C2 20.5523 2.44772 21 3 21H21C21.5523 21 22 20.5523 22 20V4C22 3.44772 21.5523 3 21 3Z">
+                </path>
+              </svg>
+              <div>Template Content</div>
+            </div>
+            <div class="tab" data-display={tabs.headerTab} data-name="headerTab" onclick={activeTab}>
+              <svg viewBox="0 0 92.344 92.344"><g  stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <g> <g> <path d="M9.932,0v92.344h72.48V0H9.932z M75.645,85.577H16.699V6.768h58.946V85.577L75.645,85.577z"></path><rect x="24.178" y="13.818" width="43.988" height="12.707"></rect> </g> </g> </g></svg>
+              <div>Header</div>
+            </div>
+            <div class="tab" data-display={tabs.footerTab} data-name="footerTab" onclick={activeTab}>
+              <svg viewBox="0 0 92.344 92.344"><g  stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <g> <g> <path d="M9.932,0v92.344h72.48V0H9.932z M75.645,85.577H16.699V6.768h58.946V85.577L75.645,85.577z"></path> <rect x="24.178" y="65.818" width="43.988" height="12.707"></rect></g> </g> </g></svg>
+              <!-- <svg viewBox="0 0 24 24"><path d="M17 21V17H7V21H5V16C5 15.4477 5.44772 15 6 15H18C18.5523 15 19 15.4477 19 16V21H17ZM7 3V7H17V3H19V8C19 8.55228 18.5523 9 18 9H6C5.44772 9 5 8.55228 5 8V3H7ZM2 9L6 12L2 15V9ZM22 9V15L18 12L22 9Z"></path></svg> -->
+              <div>Footer</div>
+            </div>
+             <!-- ====  Watermark is Disable and it is development... DO NOT Remove this commented code -->
+            <!-- <div class="tab" data-display={tabs.waterMarkTab} data-name="waterMarkTab" onclick={activeTab}>
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M15 8V4H5V20H19V8H15ZM3 2.9918C3 2.44405 3.44749 2 3.9985 2H16L20.9997 7L21 20.9925C21 21.5489 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5447 3 21.0082V2.9918ZM11 9.5C11 10.3284 10.3284 11 9.5 11C8.67157 11 8 10.3284 8 9.5C8 8.67157 8.67157 8 9.5 8C10.3284 8 11 8.67157 11 9.5ZM17.5 17L13.5 10L8 17H17.5Z">
+                </path>
+              </svg>
+              <div>Watermark</div>
+            </div> -->
+            <div class="tab" data-display={tabs.basicTab} data-name="basicTab" onclick={activeTab}>
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM19 20V4H5V20H19ZM7 6H11V10H7V6ZM7 12H17V14H7V12ZM7 16H17V18H7V16ZM13 7H17V9H13V7Z">
+                </path>
+              </svg>
+              <div>Basic Details</div>
+            </div>
+            <div class="tab templateDefault" data-display={tabs.templateDefault} data-name="templateDefault" onclick={activeTab}>
+              <svg viewBox="0 0 24 24">
+                <g clip-path="url(#clip0_32_51)">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M5 5C5 4.73478 5.10536 4.48043 5.29289 4.29289C5.48043 4.10536 5.73478 4 6 4H15C15.2652 4 15.5196 4.10536 15.7071 4.29289C15.8946 4.48043 16 4.73478 16 5V12.0275C16.341 12.0653 16.6765 12.142 17 12.256V5C17 4.46957 16.7893 3.96086 16.4142 3.58579C16.0391 3.21071 15.5304 3 15 3H6C5.46957 3 4.96086 3.21071 4.58579 3.58579C4.21071 3.96086 4 4.46957 4 5V17C4 17.5304 4.21071 18.0391 4.58579 18.4142C4.96086 18.7893 5.46957 19 6 19H11.758C11.5497 18.6888 11.3811 18.3529 11.256 18H6C5.73478 18 5.48043 17.8946 5.29289 17.7071C5.10536 17.5196 5 17.2652 5 17V5Z" fill="black"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M6 7C6 6.86739 6.05268 6.74021 6.14645 6.64645C6.24021 6.55268 6.36739 6.5 6.5 6.5H14.5C14.6326 6.5 14.7598 6.55268 14.8536 6.64645C14.9473 6.74021 15 6.86739 15 7C15 7.13261 14.9473 7.25979 14.8536 7.35355C14.7598 7.44732 14.6326 7.5 14.5 7.5H6.5C6.36739 7.5 6.24021 7.44732 6.14645 7.35355C6.05268 7.25979 6 7.13261 6 7ZM6 9.5C6 9.36739 6.05268 9.24021 6.14645 9.14645C6.24021 9.05268 6.36739 9 6.5 9H14.5C14.6326 9 14.7598 9.05268 14.8536 9.14645C14.9473 9.24021 15 9.36739 15 9.5C15 9.63261 14.9473 9.75979 14.8536 9.85355C14.7598 9.94732 14.6326 10 14.5 10H6.5C6.36739 10 6.24021 9.94732 6.14645 9.85355C6.05268 9.75979 6 9.63261 6 9.5ZM6.5 11.5C6.36739 11.5 6.24021 11.5527 6.14645 11.6464C6.05268 11.7402 6 11.8674 6 12C6 12.1326 6.05268 12.2598 6.14645 12.3536C6.24021 12.4473 6.36739 12.5 6.5 12.5H10.5C10.6326 12.5 10.7598 12.4473 10.8536 12.3536C10.9473 12.2598 11 12.1326 11 12C11 11.8674 10.9473 11.7402 10.8536 11.6464C10.7598 11.5527 10.6326 11.5 10.5 11.5H6.5ZM6 14.5C6 14.3674 6.05268 14.2402 6.14645 14.1464C6.24021 14.0527 6.36739 14 6.5 14H9C9.13261 14 9.25979 14.0527 9.35355 14.1464C9.44732 14.2402 9.5 14.3674 9.5 14.5C9.5 14.6326 9.44732 14.7598 9.35355 14.8536C9.25979 14.9473 9.13261 15 9 15H6.5C6.36739 15 6.24021 14.9473 6.14645 14.8536C6.05268 14.7598 6 14.6326 6 14.5ZM15.5 20C15.9596 20 16.4148 19.9095 16.8394 19.7336C17.264 19.5577 17.6499 19.2999 17.9749 18.9749C18.2999 18.6499 18.5577 18.264 18.7336 17.8394C18.9095 17.4148 19 16.9596 19 16.5C19 16.0404 18.9095 15.5852 18.7336 15.1606C18.5577 14.736 18.2999 14.3501 17.9749 14.0251C17.6499 13.7001 17.264 13.4423 16.8394 13.2664C16.4148 13.0905 15.9596 13 15.5 13C14.5717 13 13.6815 13.3687 13.0251 14.0251C12.3687 14.6815 12 15.5717 12 16.5C12 17.4283 12.3687 18.3185 13.0251 18.9749C13.6815 19.6313 14.5717 20 15.5 20ZM15.5 21C16.0909 21 16.6761 20.8836 17.2221 20.6575C17.768 20.4313 18.2641 20.0998 18.682 19.682C19.0998 19.2641 19.4313 18.768 19.6575 18.2221C19.8836 17.6761 20 17.0909 20 16.5C20 15.9091 19.8836 15.3239 19.6575 14.7779C19.4313 14.232 19.0998 13.7359 18.682 13.318C18.2641 12.9002 17.768 12.5687 17.2221 12.3425C16.6761 12.1164 16.0909 12 15.5 12C14.3065 12 13.1619 12.4741 12.318 13.318C11.4741 14.1619 11 15.3065 11 16.5C11 17.6935 11.4741 18.8381 12.318 19.682C13.1619 20.5259 14.3065 21 15.5 21Z" fill="black"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M17.4985 14.514C17.4048 14.4203 17.2776 14.3676 17.145 14.3676C17.0125 14.3676 16.8853 14.4203 16.7915 14.514L16.3965 14.909L17.103 15.6165L17.4985 15.221C17.5923 15.1272 17.6449 15.0001 17.6449 14.8675C17.6449 14.7349 17.5923 14.6078 17.4985 14.514ZM16.75 15.97L16.043 15.263L13.5085 17.7975V18.5045H14.2155L16.75 15.97Z" fill="black"/>
+                </g>
+                <defs>
+                <clipPath id="clip0_32_51">
+                <rect width="24" height="24" fill="white"/>
+                </clipPath>
+                </defs>
+                </svg>
+              <div>Template Default</div>
+            </div>
+            <div class="templateName" onclick={activeTab} data-name="basicTab" title="Edit Template Detail">
+              <div class="recordSVG">
+                <svg viewBox="0 0 1024 1024">
+                  <g stroke-width="0"></g>
+                  <g stroke-linecap="round" stroke-linejoin="round"></g>
+                  <g>
+                    <path
+                      d="M714 762.2h-98.2c-16.6 0-30 13.4-30 30s13.4 30 30 30H714c16.6 0 30-13.4 30-30s-13.4-30-30-30zM487.4 762.2H147.1c-16.6 0-30 13.4-30 30s13.4 30 30 30h340.3c16.6 0 30-13.4 30-30s-13.4-30-30-30z"
+                      fill="#33CC99"></path>
+                    <path d="M838.253 130.023l65.548 65.548-57.982 57.983-65.549-65.549z" fill="#6be6ff"></path>
+                    <path
+                      d="M743.7 955.9H195.8c-53.7 0-97.4-43.7-97.4-97.4V174.8c0-53.7 43.7-97.4 97.4-97.4H615c16.6 0 30 13.4 30 30s-13.4 30-30 30H195.8c-20.6 0-37.4 16.8-37.4 37.4v683.7c0 20.6 16.8 37.4 37.4 37.4h547.9c20.6 0 37.4-16.8 37.4-37.4v-395c0-16.6 13.4-30 30-30s30 13.4 30 30v395.1c0 53.6-43.7 97.3-97.4 97.3z"
+                      fill="#000000"></path>
+                    <path
+                      d="M907.7 122.1l-39.2-39.2c-24-24-65.1-21.9-91.7 4.7L419.5 445 347 643.6l198.6-72.4L903 213.8c12.1-12.1 19.6-27.7 21.1-44 1.8-18.1-4.3-35.5-16.4-47.7zM512.6 519.3L447.5 543l23.7-65.1 264.7-264.7 40.9 41.7-264.2 264.4z m348-347.9l-41.3 41.3-40.9-41.7 40.9-40.9c3.1-3.1 6.2-3.9 7.6-3.9l37.6 37.6c-0.1 1.3-0.9 4.5-3.9 7.6z">
+                    </path>
+                  </g>
+                </svg>
+              </div>
+              <div class="templateNameText">
+                {templateRecord.MVDG__Template_Name__c}
+              </div>
+            </div>
+            <div class="activeTabBar"></div>
+          </div>
+        </div>
+        <!-- === ==== ==== Main Editing Tab Section - Start - === ==== ==== -->
+        <div class="editingSection">
+          <!-- === ==== ==== ## Content Editor Tab Section === ==== ==== -->
+          <div class="tabArea" data-section="contentTab" data-display={tabs.contentTab} data-key-mapping="true" data-toolbar="true">
+            <div data-name="templateContent"></div>
+          </div>
+           <!-- === ==== ==== ## Header Editor - === ==== ==== -->
+          <div class="headerSection tabArea" data-display={tabs.headerTab} data-section="headerTab" data-key-mapping="true" data-toolbar="true">
+            <div data-name="headerEditor"></div>
+            <div class="footerConfigSection">
+              <div class="headerConfig_sub">
+                <div class="headerConfigTitle">Header</div>
+                <div class="headerConfigOptions">
+                  <lightning-input class="showHeaderToggle" type="toggle" label="Show Header" data-config="header" data-name="show" onchange={managePageConfigs} checked={pageConfigs.header.show}  message-toggle-active="" message-toggle-inactive=""></lightning-input>
+                  <div class="marginInputContainer" >Header From Top  : 
+                    <input class="pageMarginInput" step={inputStep} type="number" data-config="header" onkeyup={managePageConfigs} value={pageConfigs.header.marginTop} data-name="marginTop" onfocus={selectAllOnFocus}/>
+                    <p class="pageConfigUnitText">{pageConfigs.unit}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- === ==== ====  ## Footer Editor === ==== ==== -->
+          <div class="footerSection tabArea" data-display={tabs.footerTab} data-section="footerTab" data-key-mapping="true" data-toolbar="true">
+            <div data-name="footerEditor"></div>
+            <div class="headerConfigSection">
+              <div class="footerConfig_sub">
+                <div class="footerConfigTitle">Footer</div>
+                <div class="footerConfigOptions">
+                  <lightning-input class="showFooterToggle" type="toggle" label="Show Footer" data-config="footer" data-name="show" onchange={managePageConfigs} checked={pageConfigs.footer.show}  message-toggle-active="" message-toggle-inactive=""></lightning-input>
+                  <div class="marginInputContainer" >Footer From Bottom : 
+                    <input class="pageMarginInput" step={inputStep} type="number" data-config="footer" onkeyup={managePageConfigs} value={pageConfigs.footer.marginBottom} data-name="marginBottom" onfocus={selectAllOnFocus}/>
+                    <p class="pageConfigUnitText">{pageConfigs.unit}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- #fieldMapping... -->
+          <c-key-mapping-container-v2
+              class="keyMappingContainer desicionContainer" 
+              data-display={showKeyMapping}
+              object-name={objectName}
+              template-id={templateId}
+              save-button-label="Save" 
+              preview-button-label="Save &#38; Preview"
+              cancel-button-label="Close" 
+              onsave={saveTemplateData} 
+              onpreview={handleSaveNPreview}
+              onclose={handleCloseEdit} 
+              onfullheight={toggleMappingContainerHeight}
+              ontogglemapping={showHideMappingContainer}
+              onopengenchildtable={openGenChildTablePopup}
+              >
+            </c-key-mapping-container-v2>
+          <!-- === ==== ==== ## Watermark Tab Section === ==== ==== -->
+          <div class="waterMarkSection tabArea" data-display={tabs.waterMarkTab} data-section="waterMarkTab" data-key-mapping="false" data-toolbar="true" >
+            <div class="nonEditor_toobar_outer">
+              <div class="nonEditor_toobar">
+                <div class="watermarkOptionSection">
+
+                </div>
+                <div class="logoSection">
+                  <div class="docGeniusLogo"><img src={setdocGeniusLogoSvg}></img></div>
+                </div>
+              </div>
+            </div>
+            <div class="waterMark_SubSection">
+              <div class="dummpy_page_container">
+                  <div class="dummpy_page">
+                    <img lwc:if={watermark.image.src} class="watermarkPreview" data-name="watermarkPreviewImage" src={watermark.image.src} alt=" ">
+                    <div lwc:if={watermark.text.text} class="watermarkPreview" data-name="watermarkPreviewText">{watermark.text.text}</div>
+                  </div>
+              </div>
+              <div class="waterMarkOptsContainer desicionContainer">
+                <div class="WatermarkOptionHeader">
+                  <div class="WatermarkOptTitle">
+                    <div class="text">Watermark</div>
+                    <lightning-input class="showWatermarkToogle" type="toggle" label="Show Watermark" data-name="show" onchange={setWatermarkShowHideOpt} checked={pageConfigs.watermark.show}  message-toggle-active="" message-toggle-inactive=""></lightning-input>
+                  </div>
+                  <div class="watermarkOptTabArea">
+                      <div class="watermarkOptTab selected" data-name="watermarkImage" onclick={setWatermarkOptsTab}>Image</div>
+                      <div class="watermarkOptTab" data-name="watermarkText" onclick={setWatermarkOptsTab}>Text</div>
+                  </div>
+                </div>
+                <div class="watermarkOptionBody">
+                  <div lwc:if={watermarkOptsTabs.watermarkImage} class="watermarkOptsTab watermarkImageOpts">
+                    <div class="watermarkImageUploader">
+                      <input id="watermarkImage" type="file" accept={allowFileExtensions} onchange={setWatermarkImageUpload}>
+                      <label for="watermarkImage">
+                       <div class="ImageUploadIcon">
+                         <svg viewBox="0 0 24 24" ><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M19 13h2v6c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h6v2H5v14h14v-6zm-1-5h3V6h-3V3h-2v3h-3v2h3v3h2V8zm0 9H6l3-4 2 2.72L14 12l4 5z"></path></svg>
+                         <div>Select Image</div>
+                       </div>
+                      </label>
+                     </div>
+                      <div class="imageOpacityOpts">
+                          <div class="label">Opacity : </div>
+                          <input class="slds-slider__range" type="range" value={watermark.image.opacity} data-name="opacity" oninput={setWatermarkImage} min="0" max="100">
+                          <div>{watermark.image.opacity}%</div>
+                      </div>
+                      <div class="imageSizeOpts">
+                          <div class="label">Size : </div>
+                          <input class=" slds-slider__range" type="range" value={watermark.image.size} data-name="size" oninput={setWatermarkImage} min="0" max="100">
+                          <div>{watermark.image.size}%</div>
+                      </div>
+                      <div class="imagePositionOpts">
+                          <div class="label">Position From Top : </div>
+                          <input class=" slds-slider__range" type="range" value={watermark.image.top} data-name="top" oninput={setWatermarkImage} min="0" max="100">
+                          <div>{watermark.image.top}%</div>
+                    </div>
+                    <div class="imagePositionOpts">
+                        <div class="label">Position From Left : </div>
+                        <input class=" slds-slider__range" type="range" value={watermark.image.left} data-name="left" oninput={setWatermarkImage} min="0" max="100">
+                        <div>{watermark.image.left}%</div>
+                    </div>
+                    <div class="imageRotationOpts">
+                        <div class="label">Rotate : </div>
+                        <input class=" slds-slider__range" type="range" value={watermark.image.rotate} data-name="rotate" oninput={setWatermarkImage} min="0" max="360">
+                        <div>{watermark.image.rotate}%</div>
+                    </div>
+                  </div>
+                  <div lwc:if={watermarkOptsTabs.watermarkText} class="watermarkOptsTab watermarkTextOpts">
+                      <div class="watermarkTextInput">
+                        <input type="text" value={watermark.text.text} data-name="text" onkeyup={setWatermarkText}>
+                      </div>
+                      <div class="fontStyleOptions">
+                          <div title="Bold">
+                            <input id="boldFont" type="checkbox" checked={watermark.text.bold} data-name="bold" onchange={setWatermarkText}>
+                            <label class="fontStyle" for="boldFont">
+                              <svg viewBox="0 0 24 24"><path d="M8 11H12.5C13.8807 11 15 9.88071 15 8.5C15 7.11929 13.8807 6 12.5 6H8V11ZM18 15.5C18 17.9853 15.9853 20 13.5 20H6V4H12.5C14.9853 4 17 6.01472 17 8.5C17 9.70431 16.5269 10.7981 15.7564 11.6058C17.0979 12.3847 18 13.837 18 15.5ZM8 13V18H13.5C14.8807 18 16 16.8807 16 15.5C16 14.1193 14.8807 13 13.5 13H8Z"></path></svg>
+                            </label>
+                          </div>
+                          <div title="Italic">
+                            <input id="intalicFont" type="checkbox" checked={watermark.text.italic} data-name="italic" onchange={setWatermarkText}>
+                            <label class="fontStyle" for="intalicFont">
+                              <svg viewBox="0 0 24 24"><path d="M15 20H7V18H9.92661L12.0425 6H9V4H17V6H14.0734L11.9575 18H15V20Z"></path></svg>
+                            </label>
+                          </div>
+                          <div title="Underline">
+                            <input id="underlineFont" type="checkbox" checked={watermark.text.underline} data-name="underline" onchange={setWatermarkText}>
+                            <label class="fontStyle" for="underlineFont">
+                              <svg viewBox="0 0 24 24"><path d="M8 3V12C8 14.2091 9.79086 16 12 16C14.2091 16 16 14.2091 16 12V3H18V12C18 15.3137 15.3137 18 12 18C8.68629 18 6 15.3137 6 12V3H8ZM4 20H20V22H4V20Z"></path></svg>
+                            </label>
+                          </div>
+                          <div title="Strike Through">
+                            <input id="strikeFont" type="checkbox" checked={watermark.text.strikethrough} data-name="strikethrough" onchange={setWatermarkText}>
+                            <label for="strikeFont" class="fontStyle">
+                              <svg viewBox="0 0 24 24"><path d="M17.1538 14C17.3846 14.5161 17.5 15.0893 17.5 15.7196C17.5 17.0625 16.9762 18.1116 15.9286 18.867C14.8809 19.6223 13.4335 20 11.5862 20C9.94674 20 8.32335 19.6185 6.71592 18.8555V16.6009C8.23538 17.4783 9.7908 17.917 11.3822 17.917C13.9333 17.917 15.2128 17.1846 15.2208 15.7196C15.2208 15.0939 15.0049 14.5598 14.5731 14.1173C14.5339 14.0772 14.4939 14.0381 14.4531 14H3V12H21V14H17.1538ZM13.076 11H7.62908C7.4566 10.8433 7.29616 10.6692 7.14776 10.4778C6.71592 9.92084 6.5 9.24559 6.5 8.45207C6.5 7.21602 6.96583 6.165 7.89749 5.299C8.82916 4.43299 10.2706 4 12.2219 4C13.6934 4 15.1009 4.32808 16.4444 4.98426V7.13591C15.2448 6.44921 13.9293 6.10587 12.4978 6.10587C10.0187 6.10587 8.77917 6.88793 8.77917 8.45207C8.77917 8.87172 8.99709 9.23796 9.43293 9.55079C9.86878 9.86362 10.4066 10.1135 11.0463 10.3004C11.6665 10.4816 12.3431 10.7148 13.076 11H13.076Z"></path></svg>
+                            </label>
+                          </div>
+                          <div title="Font Color" class="fontColor">
+                            <input id="watermarkFontColor" type="color" value={watermark.text.color} data-name="color" onchange={setWatermarkText}>
+                            <label for="watermarkFontColor">
+                              <div class="fontColorSelector"></div>
+                            </label>
+                          </div>
+                          <div title="Font Size" class="fontSize">
+                            <svg class="minus" viewBox="0 0 24 24" data-name="minus" onclick={setWatermarkTextSize}><path d="M5 11V13H19V11H5Z"></path></svg>
+                            <input type="number" min="0" max="100" value={watermark.text.size} data-name="size" onchange={setWatermarkText} onblur={setWatermarkTextSize}>
+                            <svg class="plus" viewBox="0 0 24 24" data-name="plus" onclick={setWatermarkTextSize}><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
+                          </div>
+                          <select title="Font Family" class="fontFamily" data-name="fontFamily" onchange={setWatermarkText}>
+                            <template for:each={allowFontFamily} for:item="option">
+                              <option value={option} selected={watermark.text.fontFamily} key={option}>{option}</option>
+                            </template>
+                          </select>
+                      </div>
+                      <div class="fontOpacityOpts">
+                          <div class="label">Opacity : </div>
+                          <input class=" slds-slider__range" type="range" value={watermark.text.opacity} data-name="opacity" oninput={setWatermarkText} min="0" max="100">
+                          <div>{watermark.text.opacity}%</div>
+                      </div>
+                      <div class="fontPositionOpts">
+                          <div class="label">Position From Top : </div>
+                          <input class=" slds-slider__range" type="range" value={watermark.text.top} data-name="top" oninput={setWatermarkText} min="0" max="100" >
+                          <div>{watermark.text.top}%</div>
+                      </div>
+                      <div class="fontPositionOpts">
+                          <div class="label">Position From Left : </div>
+                          <input class=" slds-slider__range" type="range" value={watermark.text.left} data-name="left" oninput={setWatermarkText} min="0" max="100">
+                          <div>{watermark.text.left}%</div>
+                      </div>
+                      <div class="fontRotationOpts">
+                          <div class="label">Rotate : </div>
+                          <input class=" slds-slider__range" type="range" value={watermark.text.rotate} data-name="rotate" oninput={setWatermarkText} min="0" max="360">
+                          <div>{watermark.text.rotate}%</div>
+                      </div>
+                  </div>
+                </div>
+                <div class="watermarkOptionFooter">
+                  <div class="buttonSection">
+                    <button class="footerBtn" title="Cancel" onclick={handleCloseEdit}>
+                      <svg viewBox="0 0 520 520" ><g><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z"></path></g></svg>
+                      Close
+                    </button>
+                    <button class="footerBtn" title="Preview" onclick={handleSaveNPreview} >
+                      <svg viewBox="0 0 520 520"><g lwc-3pd22r3mk56=""><path d="M518 251a288 288 0 00-516 0 20 20 0 000 18 288 288 0 00516 0 20 20 0 000-18zM260 370c-61 0-110-49-110-110s49-110 110-110 110 49 110 110-49 110-110 110zm0-180c-39 0-70 31-70 70s31 70 70 70 70-31 70-70-31-70-70-70z" ></path></g></svg>
+                      Save &#38; Preview
+                    </button>
+                    <button class="footerBtn" title="Save" onclick={saveTemplateData}>
+                      <svg viewBox="0 0 520 520" ><g><path d="M371 40v136c0 10-8 19-19 19H139c-10 0-19-8-19-19V40H80a40 40 0 00-40 40v360a40 40 0 0040 40h360a40 40 0 0040-40V112l-72-72zm70 381c0 10-8 19-19 19H99c-10 0-19-8-19-19V254c0-10 8-19 19-19h323c10 0 19 8 19 19zM248 136c0 10 8 19 19 19h46c10 0 19-8 19-19V40h-83z" ></path></g></svg>
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+           <!-- === ==== ==== ## Basic Detail Edit Tab Section === ==== ==== -->
+          <div class="basicDetailSetion tabArea" data-display={tabs.basicTab} data-section="basicTab" data-key-mapping="false" data-toolbar="false">
+            <!-- <div class="nonEditor_toobar_outer">
+              <div class="nonEditor_toobar">
+                <div class="toolBarHeaderText">
+                  Edit Template Detail &#38; Manage Page Configurations
+                </div>
+                <div class="logoSection">
+                  <div class="docGeniusLogo"><img src={setdocGeniusLogoSvg}></img></div>
+                </div>
+              </div>
+            </div> -->
+            <div class="desicionContainer updateDetailContainer">
+              <div class="basicDetails">
+                <div class="basicDetails_sub">
+                  <!-- === ==== ## Basic Detail Section  === ==== -->
+                  <div class="templateDetails">
+                    <div class="detailHeader">Template Basic Detail</div>
+                    <div class="detailEditSection">
+                      <template lwc:if={showTempDetail}>
+                        <div class="editName editField">
+                          <div class="floatingLabel"><abbr title="required" class="slds-required asterisk">*</abbr>Template Name</div>
+                          <lightning-input type="text" pattern="\S(.*\S)?" message-when-pattern-mismatch="Complete this field."  maxlength="255" required="true" variant="label-hidden"
+                          class="fieldInput" value={templateRecord.MVDG__Template_Name__c} data-name="MVDG__Template_Name__c" onkeyup={handleEditDetail}></lightning-input>
+                        </div>
+                        <div class="editDescription editField">
+                          <div class="floatingLabel">Description</div>
+                          <lightning-textarea class="descriptionInput" value={templateRecord.MVDG__Description__c} variant="label-hidden" data-name="MVDG__Description__c" onkeyup={handleEditDetail}></lightning-textarea>
+                        </div>
+                        <div class="editStatus">
+                          <span class="statusLabel">Status: </span>
+                          <div class="tempToggle">
+                            <input class="checkBox" type="checkbox" id={templateRecord.Id} data-name="MVDG__Template_Status__c" onchange={handleEditDetail} style="display: none;" checked={templateRecord.MVDG__Template_Status__c}/>
+                            <label for={templateRecord.Id}> 
+                              <div class="toggleDiv">
+                                <div class="toggleBtnBg">
+                                  <div class="StatusText">
+                                    <span>Inactive</span>
+                                    <span>Active</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </label>
+                          </div>
+                        </div>
+                        <div class="previewTwise">
+                          <div class="previewField">
+                            <div class="previewLabel">Source Object</div>
+                            <lightning-input type="text" class="nonEditInput" value={templateRecord.MVDG__Object_API_Name__c} variant="label-hidden" disabled="true"></lightning-input>
+                          </div>
+                          <div class="previewField">
+                            <div class="previewLabel">Template Type</div>
+                            <lightning-input type="text" class="nonEditInput" value={templateRecord.MVDG__Template_Type__c} variant="label-hidden" disabled="true"></lightning-input>
+                          </div>
+                        </div>
+                        <div class="previewTwise">
+                          <div class="previewField ">
+                            <div class="previewLabel">Create Date and Time</div>
+                            <lightning-input type="datetime" class="nonEditInput" value={templateRecord.CreatedDate} variant="label-hidden" disabled="true"></lightning-input>
+                          </div>
+                          <div class="previewField">
+                            <div class="previewLabel">Last Modified Date and Time</div>
+                            <lightning-input type="datetime" class="nonEditInput" value={templateRecord.LastModifiedDate} variant="label-hidden" disabled="true"></lightning-input>
+                          </div>
+                        </div>
+                        <div class="previewTwise">
+                          <div class="previewField ">
+                            <div class="previewLabel">Create By</div>
+                            <lightning-input type="text" class="nonEditInput" value={templateRecord.CreatedBy.Name} variant="label-hidden" disabled="true"></lightning-input>
+                          </div>
+                          <div class="previewField">
+                            <div class="previewLabel">Last Modified By</div>
+                            <lightning-input type="text" class="nonEditInput" value={templateRecord.LastModifiedBy.Name} variant="label-hidden" disabled="true"></lightning-input>
+                          </div>
+                        </div>
+                      </template>
+                      </div>
+                  </div>
+                  <div class="vertical-line"></div>
+                  <!-- === ==== ## Page Configuration Section  === ==== -->
+                  <div class="pageConfigs">
+                    <div class="pageConfigTitle">Page Configurations</div>
+                    <div class="pageConfig_sub">
+                        <div class="pageConfigOptions">
+                          <lightning-accordion allow-multiple-sections-open
+                                              active-section-name={activePageConfigs}>
+                              <lightning-accordion-section name="pageMarginConfig" label="Page Margin">
+                                <div class="pageConfigSections">
+                                    <!-- <div class="pageOptiontitle">Page Margin</div> -->
+                                    <div class="pageMarginConfig configOpt">
+                                      <div class="optionInputs">
+                                        <template for:each={pageConfigs.pageMargins} for:item="margin">
+                                          <div class="marginInputContainer" key={margin.name}>{margin.name} : 
+                                            <input class="pageMarginInput" step={inputStep} type="number" data-config="pageMargins" onchange={managePageConfigs} onfocus={selectAllOnFocus} value={margin.value} data-name={margin.name} />
+                                          </div>
+                                        </template>
+                                        <div class="marginInputContainer">Unit : 
+                                          <select class="marginUnitOption" data-config="unitOptions" onchange={managePageConfigs}>
+                                            <template for:each={pageConfigs.unitOptions} for:item="option">
+                                              <option value={option.value} selected={option.selected} key={option.name}>{option.name}</option>
+                                            </template>
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                              </lightning-accordion-section>
+                              <lightning-accordion-section name="pageSizeConfig" label="Page Size">
+                                <div class="pageConfigSections">
+                                    <!-- <div class="pageOptiontitle">Page Size</div> -->
+                                    <div class="pageSizeConfig">
+                                      <div class="optionInputs pageSizeInout">
+                                        <template for:each={pageConfigs.pageSize} for:item="pageSize">
+                                          <div class="sizeInputContainer" key={pageSize.value}>
+                                            <input type="radio" id={pageSize.value} style="display : none;" checked={pageSize.selected} data-config="pageSize" value={pageSize.value} data-name={pageSize.name} onchange={managePageConfigs} />
+                                            <label for={pageSize.value}>
+                                                <div class="sizeInputLable">{pageSize.name}<span class="subLabel"> ({pageSize.size})</span></div>
+                                            </label>
+                                          </div>
+                                        </template>
+                                      </div>
+                                    </div>
+                                </div>
+                              </lightning-accordion-section>
+                              <lightning-accordion-section name="pageOrientationConfig" label="Page Orientation">
+                                <div class="pageConfigSections">
+                                  <!-- <div class="pageOptiontitle oriTitle">Page Orientation</div> -->
+                                    <div class="pageOrientationConfig">
+                                      <div class="optionInputs pageOriInputs">
+                                        <template for:each={pageConfigs.pageOrientation} for:item="pageOri">
+                                          <div class="oriInputContainer" key={pageOri.value}>
+                                            <input type="radio" id={pageOri.value} checked={pageOri.selected} style="display : none;" data-config="pageOrientation" value={pageOri.value} data-oriantation={pageOri.value} data-name={pageOri.name} onchange={managePageConfigs} />
+                                            <label for={pageOri.value}>
+                                              <div class="sizeInputLable">{pageOri.name}</div>
+                                              </label>
+                                        </div>
+                                        </template>
+                                      </div>
+                                    </div>
+                                  </div>
+                              </lightning-accordion-section>
+                              <lightning-accordion-section name="pageHeaderConfig" label="Page Header">
+                                <div class="pageConfigSections">
+                                  <lightning-input class="showHeaderToggle" type="toggle" label="Show Header" data-config="header" data-name="show" onchange={managePageConfigs} checked={pageConfigs.header.show}  message-toggle-active="" message-toggle-inactive=""></lightning-input>
+                                  <div class="marginInputContainer" >Header From Top  : 
+                                    <input class="pageMarginInput" step={inputStep} type="number" data-config="header" onkeyup={managePageConfigs} value={pageConfigs.header.marginTop} data-name="marginTop" onfocus={selectAllOnFocus}/>
+                                    <p class="pageConfigUnitText">{pageConfigs.unit}</p>
+                                  </div>
+                                </div>
+                              </lightning-accordion-section>
+                              <lightning-accordion-section class="lastAccordion" name="pageFooterConfig" label="Page Footer">
+                                <div class="pageConfigSections">
+                                  <lightning-input class="showFooterToggle" type="toggle" label="Show Footer" data-config="footer" data-name="show" onchange={managePageConfigs} checked={pageConfigs.footer.show}  message-toggle-active="" message-toggle-inactive=""></lightning-input>
+                                  <div class="marginInputContainer" >Footer From Bottom : 
+                                    <input class="pageMarginInput" step={inputStep} type="number" data-config="footer" onkeyup={managePageConfigs} value={pageConfigs.footer.marginBottom} data-name="marginBottom" onfocus={selectAllOnFocus}/>
+                                    <p class="pageConfigUnitText">{pageConfigs.unit}</p>
+                                  </div>
+                                </div>
+                              </lightning-accordion-section>
+                          </lightning-accordion>
+                        </div>
+                        <!-- <div class="dummyPageContainer">
+                            <div class="dummyPage">
+                              <div class="bar1"></div>
+                              <div class="bar2"></div>
+                              <div class="bar2"></div>
+                              <div class="bar2"></div>
+                              <div class="bar3"></div>
+                              <div class="bar2"></div>
+                              <div class="bar2"></div>
+                              <div class="bar2"></div>
+                              <div class="bar2"></div>
+                              <div class="bar2"></div>
+                            </div>
+                        </div>  -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="buttonSection">
+                <button class="footerBtn" title="Cancel" onclick={handleCloseEdit}>
+                  <svg viewBox="0 0 520 520" ><g><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z"></path></g></svg>
+                  Close
+                </button>
+                <button class="footerBtn" title="Cancel" onclick={cancelEditTemplate} >
+                  <svg viewBox="0 0 24 24" ><path d="M5.82843 6.99955L8.36396 9.53509L6.94975 10.9493L2 5.99955L6.94975 1.0498L8.36396 2.46402L5.82843 4.99955H13C17.4183 4.99955 21 8.58127 21 12.9996C21 17.4178 17.4183 20.9996 13 20.9996H4V18.9996H13C16.3137 18.9996 19 16.3133 19 12.9996C19 9.68584 16.3137 6.99955 13 6.99955H5.82843Z"></path></svg>
+                  Cancel
+                </button>
+                <button class="footerBtn" title="Save" onclick={saveTemplateData} disabled={isSaveDisable}>
+                  <svg viewBox="0 0 520 520" ><g><path d="M371 40v136c0 10-8 19-19 19H139c-10 0-19-8-19-19V40H80a40 40 0 00-40 40v360a40 40 0 0040 40h360a40 40 0 0040-40V112l-72-72zm70 381c0 10-8 19-19 19H99c-10 0-19-8-19-19V254c0-10 8-19 19-19h323c10 0 19 8 19 19zM248 136c0 10 8 19 19 19h46c10 0 19-8 19-19V40h-83z" ></path></g></svg>
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- === ==== ==== ## Set Default Tab Section === ==== ==== -->
+           <div class="templateDefaultSection tabArea" data-display={tabs.templateDefault} data-section="templateDefault" data-key-mapping="false" data-toolbar="false">
+            <template lwc:if={templateRecord.Id}>
+              <template lwc:if={tabs.templateDefault}>
+                <c-generate-document-v2
+                    object-api-name={templateRecord.MVDG__Object_API_Name__c}
+                    called-from-where="defaults"
+                    template-type-from-parent="Simple Template"
+                    template-id-from-parent={templateRecord.Id}
+                    object-name-from-parent={templateRecord.MVDG__Object_API_Name__c}
+                    template-name-from-parent={templateRecord.MVDG__Template_Name__c}
+                    onclose={moveToBasicDetail}
+                    onactivate={updateTemplateStatus}
+                ></c-generate-document-v2>
+              </template>
+            </template>
+           </div>
+        </div>
+         <!-- === ==== ==== Main Editing Section - END - === ==== ==== -->
+      </div>
+    </div>
+    <!-- === ==== ==== ### Page Configuration Popover === ==== ==== -->
+    <div class="pageConfigPopover close" onclick={togglePageConfigPopover}>
+      <div class="pageConfigPopover_sub" onclick={eventStopPropagation}>
+        <div class="pageConfigDiv"></div>
+        <div class="pageConfigPopover_footer">
+          <button class="footerBtn" title="Discard" onclick={discardPageConfig} >
+            <svg viewBox="0 0 24 24" ><path d="M5.82843 6.99955L8.36396 9.53509L6.94975 10.9493L2 5.99955L6.94975 1.0498L8.36396 2.46402L5.82843 4.99955H13C17.4183 4.99955 21 8.58127 21 12.9996C21 17.4178 17.4183 20.9996 13 20.9996H4V18.9996H13C16.3137 18.9996 19 16.3133 19 12.9996C19 9.68584 16.3137 6.99955 13 6.99955H5.82843Z"></path></svg>
+            Discard
+          </button>
+          <button class="footerBtn done" title="Done" onclick={togglePageConfigPopover}>
+            <svg viewBox="0 0 24 24" fill="none"><g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g> <path d="M5 14L9 17L18 6" stroke="#ffffff" stroke-width="2"></path> </g></svg>
+            <!-- <svg viewBox="0 0 520 520" ><g><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14z"></path></g></svg> -->
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div data-name="custom_timeout"></div>
+
+
+  <!-- ### #Child Object Table Builder.... -->
+  <c-child-object-table-builder-v2></c-child-object-table-builder-v2>
+
+  <template lwc:if={isPreview}>
+    <c-template-preview-modal-v2 
+      templateid={templateRecord.Id}
+      objectname={templateRecord.MVDG__Object_API_Name__c} 
+      template-type="Simple Template"
+      is-active={templateRecord.MVDG__Template_Status__c}
+      onclosepreview={closeTemplatePreview}>
+    </c-template-preview-modal-v2>
+  </template>
+
+  <c-message-popup-v2 onconfirmation={handleMsgPopConfirmation} done-button-label={doneButtonLabel}></c-message-popup-v2>
+
+  <c-document-loader-v2 display={isSpinner} label={loaderLabel} onclose={handleSpinnerClose}></c-document-loader-v2>
+
+  <c-chat-bot-v2 onclick={openChatBot} ontoggleclose={updateChatStatus}></c-chat-bot-v2>
+  
+</template>

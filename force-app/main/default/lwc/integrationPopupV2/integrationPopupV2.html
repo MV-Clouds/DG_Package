@@ -1,0 +1,135 @@
+<template>
+    <template if:true={showModelTrack}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
+            <c-message-popup-v2></c-message-popup-v2>
+            <!-- <div class="spinner-div" if:true={doShowSpinner}>
+                <c-spinner></c-spinner>
+            </div> -->
+            <div class="main-div">
+                <div class="image-div">
+                    <img class="image" onload={imageLoaded} src={popupimg} alt="New Template Image">
+                </div>
+                <div class="form-div">
+                     <div class="close-div" onclick={closeModel}>
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M20.7334 2.5537C20.8179 2.46918 20.885 2.36885 20.9307 2.25843C20.9765 2.14801 21 2.02966 21 1.91013C21 1.79061 20.9765 1.67226 20.9307 1.56184C20.885 1.45142 20.8179 1.35109 20.7334 1.26657C20.6489 1.18206 20.5486 1.11502 20.4382 1.06928C20.3277 1.02354 20.2094 1 20.0899 1C19.9703 1 19.852 1.02354 19.7416 1.06928C19.6311 1.11502 19.5308 1.18206 19.4463 1.26657L11 9.71469L2.5537 1.26657C2.46918 1.18206 2.36885 1.11502 2.25843 1.06928C2.14801 1.02354 2.02966 1 1.91013 1C1.79061 1 1.67226 1.02354 1.56184 1.06928C1.45142 1.11502 1.35109 1.18206 1.26657 1.26657C1.18206 1.35109 1.11502 1.45142 1.06928 1.56184C1.02354 1.67226 1 1.79061 1 1.91013C1 2.02966 1.02354 2.14801 1.06928 2.25843C1.11502 2.36885 1.18206 2.46918 1.26657 2.5537L9.71469 11L1.26657 19.4463C1.09589 19.617 1 19.8485 1 20.0899C1 20.3312 1.09589 20.5627 1.26657 20.7334C1.43726 20.9041 1.66875 21 1.91013 21C2.15152 21 2.38301 20.9041 2.5537 20.7334L11 12.2853L19.4463 20.7334C19.617 20.9041 19.8485 21 20.0899 21C20.3312 21 20.5627 20.9041 20.7334 20.7334C20.9041 20.5627 21 20.3312 21 20.0899C21 19.8485 20.9041 19.617 20.7334 19.4463L12.2853 11L20.7334 2.5537Z" fill="black" stroke="black"/>
+                            </svg>
+                                                                   
+                    </div>
+                    <div class="title-div">
+                        <template if:true={isGoogleDrive}><p>Connect Google Drive</p></template>
+                        <template if:true={isDropbox}><p>Connect Dropbox</p></template>
+                        <template if:true={isOneDrive}><p>Connect OneDrive</p></template>
+                        <template if:true={isAws}><p>Connect AWS</p></template>
+                    </div>
+                    <template if:true={isRedirectUri}>
+                        <div class="label-float">
+                            <input type="text" class="t-name copy inputhelp" placeholder="Redirect Url" value={redirectUrl} disabled/>
+                            <label>Redirect URI </label>
+                            <lightning-helptext class="help" content={redirectText}></lightning-helptext>
+                        </div>
+                        <div class="icon-copy">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none" onclick={copyToClipboard} class="icon copy-icon">
+                                    <path d="M16.7587 5.89744L10.6935 0.225641C10.5394 0.0813411 10.3303 0.000179541 10.1123 0H7.40323C6.6033 0 5.83613 0.29716 5.2705 0.826109C4.70487 1.35506 4.3871 2.07247 4.3871 2.82051V4.10256H3.01613C2.2162 4.10256 1.44904 4.39972 0.883404 4.92867C0.31777 5.45762 0 6.17503 0 6.92308V17.1795C0 17.9275 0.31777 18.6449 0.883404 19.1739C1.44904 19.7028 2.2162 20 3.01613 20H10.6935C11.4935 20 12.2606 19.7028 12.8263 19.1739C13.3919 18.6449 13.7097 17.9275 13.7097 17.1795V15.8974H13.9839C14.7838 15.8974 15.551 15.6003 16.1166 15.0713C16.6822 14.5424 17 13.825 17 13.0769V6.41026C16.9914 6.21703 16.9052 6.03393 16.7587 5.89744ZM10.9677 2.62564L14.1923 5.64103H10.9677V2.62564ZM12.0645 17.1795C12.0645 17.5195 11.9201 17.8456 11.663 18.086C11.4059 18.3265 11.0572 18.4615 10.6935 18.4615H3.01613C2.65253 18.4615 2.30381 18.3265 2.04671 18.086C1.7896 17.8456 1.64516 17.5195 1.64516 17.1795V6.92308C1.64516 6.58306 1.7896 6.25696 2.04671 6.01653C2.30381 5.7761 2.65253 5.64103 3.01613 5.64103H4.3871V13.0769C4.3871 13.825 4.70487 14.5424 5.2705 15.0713C5.83613 15.6003 6.6033 15.8974 7.40323 15.8974H12.0645V17.1795ZM13.9839 14.359H7.40323C7.03962 14.359 6.69091 14.2239 6.43381 13.9835C6.1767 13.743 6.03226 13.4169 6.03226 13.0769V2.82051C6.03226 2.48049 6.1767 2.1544 6.43381 1.91397C6.69091 1.67353 7.03962 1.53846 7.40323 1.53846H9.32258V6.41026C9.32542 6.61344 9.413 6.80756 9.56665 6.95125C9.7203 7.09493 9.92788 7.17683 10.1452 7.17949H15.3548V13.0769C15.3548 13.4169 15.2104 13.743 14.9533 13.9835C14.6962 14.2239 14.3475 14.359 13.9839 14.359Z" fill="#00AEFF"/>
+                                </svg>
+
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px" class="icon copied-icon hide"><path fill="#c8e6c9" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"/><path fill="#4caf50" d="M34.586,14.586l-13.57,13.586l-5.602-5.586l-2.828,2.828l8.434,8.414l16.395-16.414L34.586,14.586z"/></svg>
+                            </div>
+                    </template>
+
+                    <template if:true={isAws}>
+                        <div class="toggleNamedCredential" style="height: 30px;">
+                        <!-- <div class="slds-form-element"> -->
+                          <!-- <label class="slds-checkbox_toggle slds-grid"> -->
+                            <!-- <span class="slds-form-element__label slds-m-bottom_none" style="font-size: 15px; margin-top: -3px;">Named Credential</span> -->
+                            <label>Named Credential</label>
+                                                        <lightning-helptext class="helpalign" content='Use Named Credential to increase upload limit to AWS s3 Bucket. For more details refer User guide.'></lightning-helptext>
+
+                            <!-- <input type="checkbox" name="checkbox-toggle-16" value="checkbox-toggle-16" aria-describedby="checkbox-toggle-16" onchange={toggleNamedCredential}/> -->
+                            <lightning-input type="toggle" name="input1" message-toggle-active="" message-toggle-inactive="" onchange={toggleNamedCredential}></lightning-input>
+
+                            <!-- <span id="checkbox-toggle-16" class="slds-checkbox_faux_container">
+                              <span class="slds-checkbox_faux"></span>
+                            </span> -->
+                          <!-- </label>
+                        </div> -->
+                        </div>
+                    </template>
+
+                    <template if:true={isNamedCredential}>
+                        <div class="label-float">
+                            <input type="text" class="t-named" placeholder="Enter API Name" oninput={handleNamedCredentials} onkeypress={handleNamedCredentials}/>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Named Credential</label>
+                        </div>
+                    </template>
+                    <template if:false={isGoogleDrive}>
+                        <template if:false={isNamedCredential}>
+                        <div class="label-float">
+                            <input type="text" class="t-clientid inputhelp" placeholder="Enter Client Id" oninput={handleClientId} onkeypress={handleClientId}/>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Client Id</label>
+                        </div>
+                        </template>
+                    </template>
+                    <template if:false={isGoogleDrive}>
+                        <template if:false={isNamedCredential}>
+                        <div class="label-float">
+                            <input type="password" class="t-clientsecret inputhelp" placeholder="Enter Client Secret" oninput={handleClientSecret} onkeypress={handleClientSecret}/>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Client Secret</label>
+                            
+                        </div>
+                        </template>
+                    </template>
+                    <template if:true={isAws}>
+                        <template if:false={isNamedCredential}>
+                        <div class="label-float">
+                            <input type="text" class="t-name" placeholder="Enter Nickname" oninput={handleNickname} onkeypress={handleNickname}/>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Nickname</label>
+                        </div>
+                        </template>
+                    </template>
+                    <template if:true={isAws}>
+                        <template if:false={isNamedCredential}>
+                        <div class="label-float">
+                            <input type="text" class="t-bucket" placeholder="Enter Bucket Name" oninput={handleBucket} onkeypress={handleBucket}/>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Bucket Name</label>
+                        </div>
+                        </template>
+                    </template>
+                    <div if:true={isGoogleDrive} style="width: 100%;">
+                        <button class="auth-btn" onclick={handleGenAuthCode} style="width: 100%;">Generate Authorization Code</button>
+                    </div>
+                    <template if:true={isGoogleDrive}>
+                        <div class="label-float">
+                            <input type="text" class="t-authorizationcode" placeholder="Enter Authorization code" oninput={handleAuthorizationCode} onkeypress={handleAuthorizationCode} onchange={handleAuthorizationCode}/>
+                            <label><abbr title="required" class="slds-required asterisk">*</abbr>Authorization Code</label>
+                        </div>
+                    </template>
+
+                    <template if:true={isGoogleDrive}>
+                        <div class="toggleNamedCredential" style="height: 30px;">
+                        <!-- <div class="slds-form-element">
+                          <label class="slds-checkbox_toggle slds-grid">
+                            <span class="slds-form-element__label slds-m-bottom_none" style="font-size: 15px; margin-top: -3px;">Set as Org Wide</span> -->
+                                <label>Set as Org Wide</label>
+                                <lightning-helptext class="helpalign" content='Files will be uploaded to Google Drive which is set as Org Wide. For more details refer User Guide.'></lightning-helptext>
+                                <lightning-input type="toggle" class="googleOrg" name="input1" message-toggle-active="" message-toggle-inactive="" onchange={toggleIsOrg}></lightning-input>
+                            
+                        </div>
+                    </template>
+                    
+                
+                    <div class="save-div">
+                        <button class="save-btn slds-button slds-button_brand" disabled onclick={authorize}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" style="margin-right: 5px;">
+                                <path d="M12 21.75C16.5215 20.1915 19.7445 16.5685 20.25 11.9555C20.39 9.953 20.3785 7.943 20.2145 5.942C20.1929 5.6266 20.0545 5.33057 19.8263 5.1118C19.5981 4.89302 19.2965 4.76722 18.9805 4.759C16.935 4.696 14.5575 4.355 12.7205 2.5455C12.5287 2.35603 12.2699 2.24979 12.0002 2.24979C11.7306 2.24979 11.4718 2.35603 11.28 2.5455C9.4425 4.355 7.065 4.696 5.02 4.759C4.70397 4.76722 4.40237 4.89302 4.17416 5.1118C3.94595 5.33057 3.80755 5.6266 3.786 5.942C3.62198 7.9427 3.60994 9.95297 3.75 11.9555C4.256 16.5685 7.4785 20.1915 12 21.75Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8.80599 9.902H15.194C15.436 9.902 15.6325 10.098 15.6325 10.3405V15.0615C15.6325 15.1778 15.5863 15.2893 15.5041 15.3716C15.4218 15.4538 15.3103 15.5 15.194 15.5H8.80599C8.68969 15.5 8.57816 15.4538 8.49593 15.3716C8.41369 15.2893 8.36749 15.1778 8.36749 15.0615V10.34C8.36749 10.0975 8.56399 9.901 8.80599 9.901" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9.59599 9.90199V8.89499C9.60882 8.26643 9.86752 7.66793 10.3166 7.22794C10.7657 6.78794 11.3693 6.5415 11.998 6.5415C12.6267 6.5415 13.2303 6.78794 13.6794 7.22794C14.1285 7.66793 14.3872 8.26643 14.4 8.89499V9.90199" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M11.998 13.6325C12.5125 13.6325 12.9295 13.2155 12.9295 12.701C12.9295 12.1865 12.5125 11.7695 11.998 11.7695C11.4835 11.7695 11.0665 12.1865 11.0665 12.701C11.0665 13.2155 11.4835 13.6325 11.998 13.6325Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>Authorize</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+</template>

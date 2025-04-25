@@ -22,7 +22,7 @@ public with sharing class TemplateBuilder_Controller {
 
                     retrunWrapper.isSuccess = true;
 
-                    List<MVDG__Template_Page__c> pageConfigs = [SELECT Id, Name, MVDG__Template__c, MVDG__Page_Margin__c, MVDG__Page_Orientation__c, MVDG__Page_Size__c, MVDG__Unit_of_Page_Configs__c, MVDG__Show_Header__c, MVDG__Show_Footer__c, MVDG__Show_Watermark__c, MVDG__Header_margin_top__c, MVDG__Footer_margin_bottom__c 
+                    List<MVDG__Template_Page__c> pageConfigs = [SELECT Id, MVDG__Page_Margin__c, MVDG__Page_Orientation__c, MVDG__Page_Size__c, MVDG__Unit_of_Page_Configs__c, MVDG__Show_Header__c, MVDG__Show_Footer__c, MVDG__Show_Watermark__c, MVDG__Header_margin_top__c, MVDG__Footer_margin_bottom__c 
                                                             FROM MVDG__Template_Page__c 
                                                             WHERE MVDG__Template__c =: temp[0].Id WITH SECURITY_ENFORCED ORDER BY MVDG__Page_Number__c ASC  LIMIT 1];
 
@@ -108,8 +108,8 @@ public with sharing class TemplateBuilder_Controller {
     public static string saveTemplateApex(MVDG__Template__c templateRecord, Map<String, List<String>> templateValues, MVDG__Template_Page__c pageConfigs){
         try {
 
-            List<MVDG__Template__c> temp = [SELECT Id, Name, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c, CreatedDate, LastModifiedDate,
-                                                (SELECT Id, Name, MVDG__Template__c, MVDG__Template_Value_Simple__c, MVDG__Order_No_Simple__c, MVDG__Value_Type__c FROM MVDG__Template_Data__r ORDER BY MVDG__Order_No_Simple__c),
+            List<MVDG__Template__c> temp = [SELECT Id, MVDG__Object_API_Name__c, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Template_Status__c, MVDG__Description__c,
+                                                (SELECT Id, MVDG__Template__c, MVDG__Template_Value_Simple__c, MVDG__Order_No_Simple__c, MVDG__Value_Type__c FROM MVDG__Template_Data__r ORDER BY MVDG__Order_No_Simple__c),
                                                 (SELECT Id FROM MVDG__Template_Pages__r)
                                                 FROM MVDG__Template__c WHERE Id =: templateRecord.Id WITH SECURITY_ENFORCED LIMIT 1];
 

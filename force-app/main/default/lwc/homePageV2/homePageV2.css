@@ -1,0 +1,1318 @@
+:host{
+
+  /* --- --- --- --- Custome combobox css variable --- --- --- ---  */
+  --selectedItemBGColor : rgba(0, 174, 255, 0.251);
+  --overlayOpacity : 0.25;
+  --selecteditemTextColor : black;
+
+  --mainThemeColor : #00aeff;
+  --topSection_height : 4.5rem;
+  --upperSection_height : 6rem;
+  --ff_Bahnschrift : Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+  /* --ff_Bahnschrift : "Montserrat"; */
+  --ff_Poppins : Poppins;
+}
+.csvPreview{
+  background: #00000066;
+  width: calc(100% + 1.5rem);
+  height: calc(100% + 1.5rem);
+  margin-left: -0.75rem;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  display: block;
+  z-index: 1000;
+}
+.mainDiv_Home {
+  width: calc(100% + 1.5rem);
+  height: calc(100% + 1.5rem);
+  margin-left: -0.75rem;
+  margin-top: -0.75rem;
+  background: white;
+  overflow: hidden;
+}
+.backDrop{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+.outerDiv{
+  height: 100%;
+  overflow: auto;
+  background : transparent url('/resource/MVDG__homePageImgs/HomBg.png') 0% 0% round padding-box;
+  background-size: contain;
+  background-repeat: round;
+}
+/* ====== ====== ======= Top Section ===== ===== ========== */
+.topSection {
+  display: none;
+  width: 100%;
+  padding: 1rem 1.5rem;
+}
+.topSection_Sub{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  height: var(--topSection_height);
+  background: linear-gradient(269.86deg, #b3feeb 0%, #b3e7ff 100%);
+}
+.topSection h1{
+    font-size: 24px;
+    font-weight: 700;
+}
+/* ===== ===== ========== ===== ===== ========== ===== ===== ========== */
+
+.contentSection {
+    flex-grow: 1;
+    width: 100%;
+    height: calc(100%);
+    /* padding: 1.5rem 3rem; */
+    background-size: 100%;
+    padding-top: 1rem;
+}
+.createNOption{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 160px;
+  height: 100%;
+  gap: 1rem;
+}
+/* ===== ===== ========== Upper Section  ==== ===== ================= ===== */
+.createTemplateBorder{
+  padding: 0.5rem;
+  border-radius: 50%;
+  border: 1px #00adff;
+  border-style: dashed;
+  transition: all linear 0.2s;
+
+  &:hover{
+    scale: 1.1;
+  }
+}
+.createSection{
+  min-width: 4rem;
+  width: 4rem;
+
+  height: 100%;
+  /* box-shadow: 0px 0px 15px 0px #00000040; */
+  box-shadow: 0px 0px 15px 0px #02afff21;
+  border-radius: 0.5rem;  
+  background-color: white;
+  cursor: pointer;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.createTemplateImg{
+  width: 1.75rem;
+  height: 1.75rem;
+}
+      /* ----- ------- ------- ------ Option Section ------ ------ ------ ------ ------- */
+  .optionSection{
+    border-radius: 0.5rem;
+    background-color: white;
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+  }
+  .optionCloseBtn{
+    /* fill: var(--mainThemeColor); */
+    stroke: var(--mainThemeColor);
+    stroke-width: 1px;
+    width: 20px;
+    aspect-ratio: 1;
+    transition: all linear 0.2s;
+
+    &:hover{
+      scale: 1.1;
+      fill:brightness(.7);
+    }
+  }
+  .upperSection{
+    max-width: 100%;
+    height: var(--upperSection_height);
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0rem 1.5rem;
+    background: linear-gradient(269.86deg, #b3feeb 0%, #b3e7ff 100%);
+    padding: 1rem;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0px 0px 8px -1px #00000026;
+    /* overflow: scroll;
+    scrollbar-color: transparent transparent;
+    scrollbar-width: thin; */
+  }
+  .optionBtn{
+    width: 4rem;
+
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all cubic-bezier(0.4, 0, 1, 1) 0.4s;
+    /* box-shadow: 0px 0px 15px 0px #00000040; */
+    box-shadow: 0px 0px 15px 0px #02afff78;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    position: relative;
+  }
+  .optionOpeneBtn{
+    stroke: var(--mainThemeColor);
+    width: 2rem;
+    aspect-ratio: 1;
+    transition: all linear 0.2s;
+
+    &:hover{
+      scale: 1.1;
+    }
+  }
+
+  .optionOpeneBtn:hover ~ .filterApplied{
+    scale: 1.1;
+  }
+
+  .filterApplied{
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    fill: var(--mainThemeColor);
+    width: 1.115rem;
+    background: white;
+    aspect-ratio: 1;
+    transition: all linear 0.2s;
+  }
+  .optionContainer{
+    width: 28rem;
+    height: 0px;
+    overflow: hidden;
+    opacity: 0;
+    transition: all cubic-bezier(0.4, 0, 1, 1) 0.4s;
+    position: absolute;
+    top: 0%;
+    left: 125%;
+    transform: translateY(20px);
+    z-index: 10;
+    background: white;
+    box-shadow: 0px 0px 26px 0px #00000040;
+    border-bottom-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    border-radius: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .optionContainer::after{
+    position: absolute;
+    top: calc(var(--upperSection_height) / 3);
+    transform: translateY(-50%);
+    right: 95%;
+    content: '';
+    width: 0px;
+    height: 0px;
+    border-style: solid;
+    border-width: 6px 12px 6px 0;
+    border-color: transparent #ffffff transparent transparent;
+    transition: all cubic-bezier(0.4, 0, 1, 1) 0.4s;
+  }
+  .optionContainer_Sub{
+    width: 100%;
+    height: max-content;
+    padding: 1rem 1rem;
+    display: flex;
+    border-radius: 6px;
+    gap: 0.75rem;
+    justify-content: flex-start;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+  .showOptionContainer .optionContainer {
+    height: 37.125rem !important;
+    opacity: 1;
+    transform: translateY(0px);
+    animation: dummy 0.4s linear 0s 1 forwards normal;
+  }
+  /* This animation is dummy animation and use to replace setTimeout */
+  @keyframes dummy { to{} }
+
+  .showOptionContainer .optionContainer::after{
+    right: 100%;
+  }
+  .showOptionContainer .optionBtn{
+    width: 4rem;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    box-shadow: #02afff95 0px 0px 10px, #02afff89 0px 0px 14px;
+  }
+  
+   /* -- --- --- --- -- -- -- -- -- Sort Section -- -- -- -- -- -- -- -- -- - -- -- - */
+    .sortOption {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-left: 0.1rem;
+    }
+     .lableBox{
+      /* border-block: 1px dashed var(--mainThemeColor); */
+      padding-inline: 0px;
+      border-inline: none;
+      width: 100%;
+      height: fit-content;
+      transform: none;
+      /* padding-block: 0.25rem; */
+    }
+    .lableText {
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      text-transform: uppercase;
+      writing-mode: inherit;
+      background: var(--mainThemeColor);
+      color: white;
+      font-weight: 700;
+      padding-block: 0.15rem;
+      border-radius : 4px;
+    }
+     .sortSection {
+      height: min-content;
+      width: 100%;
+      padding-block: 0.25rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+    .sortFieldDrop {
+      width: 8rem;
+      flex-grow: 1;
+      margin-bottom: 0px;
+    }
+    .asc_desc_section {
+      width: max-content;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap : 0.5rem;
+    }
+    .asc_descBtn {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 0.5rem;
+      padding: 0.25rem .25rem;
+      border: 1px solid var(--mainThemeColor);
+      border-radius: 4px;
+      background-color: white;
+      cursor: pointer;
+
+      height: 2rem;
+      width: 4rem;
+    }
+    .asc_desc_SVG{
+      width: 1.75rem;
+      height: 1.75rem;
+      fill: var(--mainThemeColor);
+      stroke: var(--mainThemeColor);
+    }
+    .asc_desc_SVG path{
+      fill: var(--mainThemeColor);
+      stroke: var(--mainThemeColor);
+    }
+    .asc_descText {
+      color: var(--mainThemeColor);
+      font-size: 12px;
+    }
+    input[type="radio"]:checked + label .asc_descBtn{
+      background-color: var(--mainThemeColor);
+    }
+    input[type="radio"]:checked + label .asc_descText{
+      color: white;
+    }
+    input[type="radio"]:disabled + label .asc_descBtn{
+      filter: grayscale(1) saturate(0);
+      cursor: not-allowed;
+    }
+
+    input[type="radio"]:checked + label .asc_desc_SVG,
+    input[type="radio"]:checked + label .asc_desc_SVG path{
+      fill: white;
+      stroke: white;
+    }
+    /* -- --- --- --- -- -- -- -- -- Sort Section End-- -- -- -- -- -- -- -- -- - -- -- - */
+  
+    /* -- --- --- --- -- -- -- -- -- Filter Section-- -- -- -- -- -- -- -- -- - -- -- - */
+    .filertOptions{
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .filertOptions_Sub{
+      height: 100%;
+      width: 100%;
+    }
+    .filertOptions_Sub2{
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      gap: 1.5rem;
+    }
+    .objectFilterSection{
+      width: 100%;
+      height: 100%;
+      padding-block: 0rem;
+    }
+    .objectPills{
+      width: 100%;
+      min-height: 1.3rem;
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+      overflow: auto;
+    }
+    .objPill{
+      width: max-content;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+      flex-direction: row;
+      gap: 0.125rem;
+      padding: 1px 2px;
+      border: 0.5px solid #c6c6c6;
+      border-radius: 4px;
+    }
+    .objPillLabel{
+      font-size: 11px;
+      user-select: none;
+      max-width: 6rem;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .objPill svg{
+      width: 14px;
+      height: 14px;
+      stroke: black;
+      cursor: pointer;
+    }
+    .objPillnone{
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      font-size: 12px;
+      user-select: none;
+      color: #828282;
+    }
+    .tempFilterSection{
+      padding-inline: 0rem;
+      width: 100%;
+      border-inline: none;
+    }
+    .statusFilterSection{
+      padding-inline: 0rem;
+      width: 100%;
+      border-inline: none;
+    }
+    .statusFilterInputs{
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 1rem;
+    }
+    .tempStatusInputLabel{
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-direction: row;
+    }
+    .tempStatusInput{
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 2px;
+      border: 1px solid #747474;
+      margin-right: 0.5rem;
+    }
+    .tempStatusText{
+      font-size: 12px;
+      color: #444444;
+    }
+    .bottomBorder{
+      position: relative;
+    }
+    .bottomBorder::after{
+      content: '';
+      width: 100%;
+      position: absolute;
+      bottom: -0.9rem;
+      left: 0px;
+      border-bottom: 1px dashed var(--mainThemeColor);
+    }
+    .dateFilterSection{
+      width: 100%;
+      height: 100%;
+      padding-block: 0rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .dateSection{
+      display: flex;
+      justify-content: flex-start;
+      gap: 0.25rem;
+    }
+    .dateCombo{
+      width: 100%;
+    }
+    .rangeSelection{
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+    .datafields{
+      flex-grow: 1;
+    }
+  
+    .fromTo{
+      width: 6rem;
+      /* override standard css of date picker */
+      /* --lwc-colorTextLabel : black;
+      --lwc-spacingXLarge : 0.5rem;
+      --lwc-spacingMedium : 0.5rem;
+      --lwc-spacingSmall: 0.5rem;
+      --lwc-squareIconMediumContentAlt : 0px;
+      --lwc-fontSize3 : 12px; */
+  
+      position: relative;
+    }
+    .errorBorder{
+      border-color: rgb(238 72 65);
+      box-shadow: rgb(243 82 76) 0px 0px 2px 1px;
+      border-radius: 4px;
+    }
+    .errorText{
+      color: red !important;
+    }
+  
+    .saveSection{
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .saveSection button{
+      width: max-content;
+      min-width: 6rem;
+      height: 2rem;
+      border: none;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ff_Bahnschrift);
+      color: white;
+      background: #00AEFF;
+      border-radius: 6px;
+      padding-inline: 1rem;
+      transition: all linear 0.1s;
+      cursor: pointer;
+    }
+
+    .saveSection button:hover {
+      background: #0084c1;
+    }
+  
+    .saveSection button svg {
+        width: 14px;
+        height: 14px;
+        margin-right: 0.5rem;
+        fill: white;
+    }
+
+    .saveSection button.apply svg{
+      fill: none;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .saveSection button:disabled{
+      cursor: not-allowed;
+      background: #cbcbcb;
+    }
+  
+    .refrenceTimeSection{
+      width: 100%;
+      flex-grow: 1;
+      overflow-x: hidden;
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+    }
+  
+    .refrencePill{
+      width: max-content;
+      max-width: 6rem;
+      padding-inline: 2px;
+      height: 1.25rem;
+      font-size: 9px;
+      color: var(--mainThemeColor);
+      border: 0.6px solid var(--mainThemeColor);
+      border-radius: 4px;
+      transition: all linear 0.2s;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+    }
+  
+    .clear_refrencePills{
+      width: max-content;
+      padding-inline: 2px;
+      height: 1.25rem;
+      border: 0.6px solid #ff4444;
+      border-radius: 4px;
+      transition: all linear 0.2s;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  
+    .clear_refrencePills svg{
+      width: 18px;
+      height: 18px;
+      fill: #ff4444;
+    }
+  
+    input[type="radio"]:checked + label .refrencePill
+    {
+      background-color: var(--mainThemeColor);
+      color: white;
+      border-color: var(--mainThemeColor);
+    }
+
+    /* ----- ------- ------- ------ ------ ------ ------ ------ -------  */
+    .upperSection_Logo{
+      /* position: absolute;
+      height: 65%;
+      left: 50%;
+      transform: translateX(-50%); */
+      flex-grow: 1;
+      height: 100%;
+    }
+    /* ----- ------ ------- ------- --- Search Section --------------- ------- ---------- */
+    .searchSection_Variables{
+      --searchIcon_Width: 42px;
+      --searchIcon_Height: 42px;
+    }
+    .searchSection{
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      width: 20rem;
+      /* flex-grow: 1; */
+      height: 100%;
+    }
+    .seachContainer{
+    /* width: 14rem; */
+    width: 100%;
+    max-width: 20rem;
+    height: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    border-radius: 0.5rem;
+    /* box-shadow: 0px 0px 15px 0px #00000033; */
+    box-shadow: 0px 0px 15px 0px #0aa88252;
+    padding-inline: .5rem;
+    }
+    .iconSection{      
+      min-width: var(--searchIcon_Width);
+      width: var(--searchIcon_Width);
+      height: var(--searchIcon_Height);
+      transition: all linear 0.4s;
+    }
+    .iconSection path{
+      stroke: #ABB7C2;
+    }
+    .searchInput{
+      width: 100%;
+      min-width: calc(100% - var(--searchIcon_Width) -2px) ;
+      max-width: 100%;
+      height: 2.25rem;
+      font-family: var(--ff_Bahnschrift);
+      font-size: 14px;
+      border: none;
+      flex-grow: 1;
+      transition: all linear 0.4s;
+    }
+    .searchInput::placeholder{
+      font-size: 18px;
+      color: #ABB7C2;
+      font-family: var(--ff_Bahnschrift);
+      padding-top: 10px;
+      vertical-align: middle;
+    }
+    .searchInput:focus-visible{
+      /* width: 20rem; */
+      outline: none;
+      border: none;
+    }
+    .seachContainer .searchInput:focus-visible {
+      box-shadow: none;
+    }
+    
+    /* ----- ------ ------- ------- --- Search END Section --------------- ------- ---------- */
+
+/* ===== ===== ========== ===== ===== ========== ===== ===== ========== ===== ===== ==========  */
+
+ /* ******** ********** ********* Template List Section CSS  ******** ********** ********* */
+.templateListSection {
+  height: calc(100% - var(--upperSection_height) - 1rem);
+}
+.template_Sub{
+  height: 100%;
+  padding: 1rem 1rem 1rem 1.5rem;
+  margin-top: 1rem;
+  overflow-y: scroll;
+  scrollbar-color: #28b3f4 #28b3f400;
+  scrollbar-width: thin;
+
+  display: flex;
+  scrollbar-width: thin;
+  flex-direction: column;
+  gap: 1rem;
+}
+.templateCardContainer {
+  min-width: 100%;
+  min-height: 6.25rem;
+  box-shadow: 0px 0px 15px 0px #00000040;
+  border-radius: 8px;
+  background-color: white;
+  /* margin-bottom: 1rem; */
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* gap: 1rem; */
+  overflow: hidden;
+}
+.templateCardContainer:last-child{
+  margin-bottom: 0rem;
+}
+  .tempNumerSec {
+    background: linear-gradient(269deg, #00AEFF 0%, #003A55 74%, #FFFFFF 100%);
+    border-bottom-right-radius: 50%;
+    border-top-right-radius: 50%;
+    min-width: 6rem;
+    margin-left: -2.75rem;
+    margin-right: 0.75rem;
+    height: 114%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    padding-left: 41px;
+  }
+  .tempNumerSec[data-disable=true],
+  .statusNType[data-disable=true]{
+    filter : grayscale(1);
+    cursor: not-allowed;
+  }
+  .tempDetailSection {
+    height: 100%;
+    width: 65%;
+    flex-grow: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+    overflow: hidden;
+    white-space: pre;
+    text-overflow: clip;
+    padding-right: 0.5rem;
+    margin-right: 0.5rem;
+  }
+  .tempDetailFields {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    row-gap: 0.25rem;
+    column-gap: 1.5rem;
+  }
+    .tempName{
+      width: 90%;
+      overflow: hidden;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .tempName h1{
+      max-width: 100%;
+      overflow: hidden;
+      white-space: pre;
+      word-wrap: break-word;
+      text-overflow: ellipsis;
+    }
+    .tempField{
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 14px;
+    }
+    .fieldLable{
+      width: 5.25rem;
+    }
+    .tempDecription{
+      position: relative;
+    }
+    .fieldValue:hover > .customToolTip{
+      animation: fadeUp 0.1s linear 0.6s 1 forwards normal;
+      opacity: 0;
+      display: block !important;
+    }
+    .fieldValue{
+      white-space: nowrap;
+      overflow: hidden;
+      word-wrap: break-word;
+      text-overflow: ellipsis;
+    }
+    .customToolTip{
+      display: none;
+      position: absolute;
+      max-width: 100%;
+      height: max-content;
+      white-space: normal;
+      font-size: 12px;
+      color: rgb(82, 82, 82);
+      background-color: #f1faff54;
+      border-radius: 6px;
+      z-index: 100;
+      border: 0.5px solid #eeeeee;
+      padding: 0.5rem 1rem;
+      backdrop-filter: blur(4px);
+    }
+    .customToolTip.top{
+      bottom: calc(100% + 0.25rem);
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 0px 12px 0px, rgba(0, 0, 0, 0.3) 0px 0px 7px -3px;
+  
+    }
+    .customToolTip.bottom{
+      top: calc(100% + 0.25rem);
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 0px 12px 0px, rgba(0, 0, 0, 0.3) 0px 0px 7px -3px;
+  
+    }
+    .customToolTip.left{
+      left: auto;
+      right: 0%;
+    }
+    .customToolTip.right{
+      right: auto;
+      left: 0%;
+    }
+    @keyframes fadeUp {
+      0%{
+        opacity: 0;
+      }
+      100%{
+        opacity: 1;
+      }
+    }
+    
+    .clone-bt-main{
+      width: 8rem;
+
+    }
+      .clone-bt{
+        background-color: #A2FEE7;
+        /* border: 1px solid; */
+        border-radius: 8px;
+        padding: 3px;
+        cursor: pointer;
+        transition: all linear 0.1s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #00aeff;
+        &:hover{
+          scale: 1.2;
+        }
+      }
+  
+    .tempToggle {
+      width: fit-content;
+      height: max-content;
+      position: relative;
+      overflow: hidden;
+    }
+    .toggleDiv, .tempVersion{
+      width: 8rem;
+      height: 1.75rem;
+      padding: 0.25rem;
+      border-radius: 32px;
+      /* background-color: #FF310B; */
+      background-color: #adadad;
+      transition: 0.4s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
+      cursor: pointer;
+      white-space: pre;
+      user-select: none;
+    }
+    .toggleBtnBg{
+      height: 100%;
+      width: 100%;
+      position: relative;
+    }
+    .toggleBtnBg::before{
+      position: absolute;
+      top: 0px;
+      right: auto;
+      transform: translateX(0%);
+      left: 0% !important;
+      content: "";
+      height: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background-color: #fff;
+      transition: 0.4s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
+    }
+    .StatusText{
+      width: 200%;
+      height: 100%;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      /* left: auto; */
+      transform: translateX(0%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: 0.4s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
+    }
+    .StatusText span{
+      width: 45%;
+      height: 100%;
+      color: white;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      font-family: var(--ff_Bahnschrift);
+      user-select: none;
+      line-height: 22px;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .checkBox:checked + label .toggleBtnBg::before{
+      transform: translateX(-100%);
+      left: 100% !important;
+    }
+    .checkBox:checked + label .StatusText{
+      transform: translateX(-50%);
+    }
+
+    .checkBox:checked + label .toggleDiv{
+      /* background-color: #14AD00; */
+      background-color: #00aeff;
+    }
+    .tempVersion{
+      background: white;
+      margin-top: 0.5rem;
+      color: #00aeff;
+      font-size: 12px;
+      font-family: var(--ff_Bahnschrift);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #06aeff;
+      padding-inline: 0.5rem;
+      font-weight: 500;
+      cursor: auto;
+    }
+    .tempVersion[title="Google Doc Template"]{
+      font-size: 11px;
+    }
+  
+    .tempBtnSection {
+      width: max-content;
+      height: 100%;
+      padding: 1rem 1rem;
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-inline: 2rem 0.5rem;
+    }
+    .tempActionBtnSection {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      height: max-content;
+      align-items: center;
+    }
+
+      .previewBtn,
+      .editBtn,
+      .cloneBtn,
+      .deleteBtn{
+        padding: 2px;
+        border: 1px solid #00AEFF;
+        border-radius: 4px;
+        aspect-ratio: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;  
+        transition: all linear 0.15s;
+        outline: none;
+        background: white;
+
+        &:hover{
+          scale: 1.2;
+        }
+      }
+
+      .previewBtn svg {
+        width: 22px;
+        height: 22px;
+        fill: #00AEFF;
+      }
+      .previewBtn g:last-child circle{
+        transform: none;
+        transition: all linear 0.25s;
+      }
+      .previewBtn g:last-child path:nth-child(3){
+        transform: none;
+        transition: all linear 0.25s;
+      }
+
+      .editBtn svg{
+        width: 20px;
+        height: 20px;
+
+        transition: all linear 0.25s;
+      }
+      .editBtn path,
+      .deleteBtn path{
+        fill : #00AEFF;
+      }
+
+      .cloneBtn svg{
+        width: 20px;
+        height: 20px;
+      }
+
+      .cloneBtn path:nth-child(6), .cloneBtn rect{
+        transition: all linear 0.3s;
+      }
+
+      .deleteBtn svg{
+        width: 15px;
+        height: 20px;
+        margin-bottom: 1px;
+        margin-right: 0.25px;
+      }
+      .deleteBtn path:last-child{
+        transform: rotate(13deg) translateX(1.25px);
+        transition: all linear 0.25s;
+      }
+
+      .previewBtn:hover > svg g:last-child circle,
+      .previewBtn:hover > svg g:last-child path:nth-child(3){
+        transform: translateX(-5px) translateY(-4px);
+        transition: all linear 0.25s;
+      }
+      
+      .editBtn:hover > svg{
+        transform: rotate(-25deg);
+        scale: 0.8;
+      }
+
+      .cloneBtn:hover > svg{
+        scale: 1.25;
+      }
+      .cloneBtn:hover > svg rect{
+        transform: translate(20%, 13%);
+      }
+      .cloneBtn:hover > svg rect:nth-child(2){
+        transform: translate(-14.5%, -8.5%);
+      }
+      .cloneBtn:hover > svg path:nth-child(6){
+        transform: translateX(2px);
+      }
+
+      .deleteBtn:hover > svg path:last-child{
+        transform: none;
+      }
+
+      /* Disable Properties  */
+      .previewBtn:disabled,
+      .editBtn:disabled,
+      .cloneBtn:disabled,
+      .deleteBtn:disabled{
+        cursor: not-allowed;
+        filter: grayscale(1) saturate(0);
+
+        &:hover{
+          scale: unset;
+        }
+      }
+
+      .previewBtn:disabled:hover > svg g:last-child circle,
+      .previewBtn:disabled:hover > svg g:last-child path:nth-child(3){
+        transform: translateX(0px) translateY(0px);
+      }
+
+      .editBtn:disabled:hover > svg{
+        transform: rotate(0deg);
+        scale: 1;
+      }
+
+      .cloneBtn:disabled:hover > svg{
+        scale: unset;
+      }
+      .cloneBtn:disabled:hover > svg rect,
+      .cloneBtn:disabled:hover > svg rect:nth-child(2),
+      .cloneBtn:disabled:hover > svg path:nth-child(6){
+        transform: none;
+      }
+/* ******** ********** ********* Template List Section CSS -- END -- ******** ********** ********* */
+
+
+
+/* ======================================= Empty State CSS -- START --  ================================================== */
+
+  .emptyStateDiv{
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    user-select: none;
+  }
+  .emptyStateText{
+    font-size: 22px;
+    color: #00aeff;
+    font-family: var(--ff_Bahnschrift);
+    animation: scaleUp 1s cubic-bezier(0, 0.8, 0, 0.9) 0s 1 forwards normal, float 2.5s ease-in-out 1s infinite;
+  }
+  .emptyStateImg{
+    width: 25%;
+    min-height: 14rem;
+    animation: scaleUp 1s cubic-bezier(0, 0.8, 0, 0.9) 0s 1 forwards normal, float 2.5s ease-in-out 1s infinite;
+    /* animation: name duration timing-function delay iteration-count direction fill-mode; */
+  }
+  @keyframes float {
+    0% {
+      transform: translatey(0px);
+    }
+    50% {
+      transform: translatey(-16px);
+    }
+    100% {
+      transform: translatey(0px);
+    }
+  }
+  @keyframes scaleUp {
+    0% {
+      scale: 0;
+    }
+    100% {
+      scale: 1;
+    }
+  }
+  .Empty_CreateNewBtn{
+    width: max-content;
+    height: max-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+    background: white;
+    gap: .5rem;
+    padding: .25rem 0.75rem;
+    cursor: pointer;
+    box-shadow: rgb(0 174 255 / 83%) 0px 0px 3px 0px, rgb(0 174 255 / 45%) 0px 0px 8px 0px;
+    transition: all linear 0.2s;
+    animation: scaleUp 1s cubic-bezier(0, 0.8, 0, 0.9) 0s 1 forwards normal;
+  }
+  .Empty_CreateNewBtn:hover{
+    scale: 1.019;
+  }
+  .empty_createNewIMg{
+    padding: 0.5rem;
+    border: 1px dashed #00aeff;
+    border-radius: 50%;
+    animation: blink 0.9s cubic-bezier(0, 0, 0.68, 1.03) 0s infinite forwards alternate;
+  }
+  .Empty_createNewText{
+    font-size: 16px;
+    font-weight: 500;
+    color: #00aeff;
+    animation: blink 0.9s cubic-bezier(0, 0, 0.68, 1.03) 0.4s infinite forwards alternate;
+  }
+  @keyframes blink{
+    from{
+      opacity: 0.5;
+    }
+    to{
+      opacity: 1;
+    }
+  }
+    /* ======================================= Empty State CSS --END -- ================================================== */
+    
+  .filerOptBackDrop{
+    display: none;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: transparent;
+  }
+
+  .noSearchResult{
+    width: 100%;
+    height: 100%;
+    color: #00adff;
+    font-size: 22px;
+    font-family: var(--ff_Bahnschrift);
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .noSearchResult svg{
+    width: 17.5rem;
+    height: 17.5rem;
+    margin-bottom: 2rem;
+    animation: blink 0.9s cubic-bezier(0, 0, 0.68, 1.03) 0s infinite forwards alternate;
+
+  }
+  .noSearchResult p{
+    font-size: 16px;
+  }
+
+  .csvPreview{
+    background: #00000066;
+    width: calc(100% + 1.5rem);
+    height: calc(100% + 1.5rem);
+    margin-left: -0.75rem;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    display: block;
+    z-index: 1000;
+  }
+
+  /* ==== ======= ========= =========  ===== ====== Media Query Section ====== ======== ========== =========== */
+  @media only screen and (max-width: 1440px){
+    .tempDetailFields {
+      column-gap: 1rem;
+    }
+  }
+  @media only screen and (max-width: 1180px){
+    .tempDetailFields {
+      grid-template-columns: 50% 50%;
+      column-gap: 1rem;
+    }
+  }
+  @media only screen and (max-width: 980px){
+    .upperSection_Logo{
+      height: 85%;
+    }
+    .searchSection{
+      width: 15rem;
+    }
+    .tempField{
+      font-size: 13px;
+    }
+    /* .toggleDiv{
+      width: 6rem;
+    } */
+    .StatusText span{
+      font-size: 12px;
+      margin-bottom: 0px;
+    }
+    .tempVersion{
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .tempBtnSection{
+      gap: 0.5rem;
+      margin-inline: 0px;
+    }
+  }
+  @media only screen and (max-height: 800px) {
+    .showOptionContainer .optionContainer {
+      height: 34.725rem !important;
+      /* top: -1rem; */
+    }
+
+    .optionContainer_Sub{
+      padding: 0.75rem;
+    }
+
+    .sortOption{
+      gap: 0.5rem;
+    }
+
+    .filertOptions_Sub2{
+      gap: 1rem;
+    }
+    .bottomBorder::after{
+      bottom: -0.6rem;
+    }
+  }
+  
+  /* @media only screen and (max-height: 740px) {
+    .showOptionContainer .optionContainer {
+      top: -2rem;
+    }
+    .showOptionContainer .optionContainer::after{
+      top: calc((var(--upperSection_height)/2) + 1rem);
+    }
+  } */
