@@ -11,13 +11,6 @@ public class AwsUploaderTest {
         settings.MVDG__ClientSecret__c = 'testClientSecret';
         settings.MVDG__NamedCredential__c = 'namedCredentials';
         upsert settings;
-
-        // MVDG__Aws_Credentials__c settings2 = new MVDG__Aws_Credentials__c();
-        // settings2.MVDG__BucketName__c = 'S3';
-        // settings2.MVDG__ClientId__c = 'testClientId';
-        // settings2.MVDG__ClientSecret__c = 'testClientSecret';
-        // settings2.MVDG__NamedCredential__c = 'namedCredentials';
-        // insert settings2;
         
         Account acc = new Account();
         acc.Name = 'Test Account';
@@ -125,4 +118,101 @@ public class AwsUploaderTest {
             return res;
         }
     }
+
+    @isTest
+    static void testCreateAuthHeader() {
+        Test.startTest();
+        MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
+        System.assertNotEquals(null, settings, 'AWS Credentials should be set up');
+        AwsUploader.SignatureDetails params = new AwsUploader.SignatureDetails();
+        params.methodName = 'PUT';
+        params.fileExtension = 'png';
+        params.formatedDateString = 'Wed, 25 Apr 2025 12:00:00 GMT';
+        params.bucketName = settings.MVDG__BucketName__c;
+        params.filename = 'TestImage';
+        params.awsKey = settings.MVDG__ClientId__c;
+        params.awsSecret = settings.MVDG__ClientSecret__c;
+        String authHeader = AwsUploader.createAuthHeader(params);
+        System.assertNotEquals(null, authHeader, 'Auth header should not be null');
+        System.assert(authHeader.startsWith('AWS ' + params.awsKey + ':'), 'Auth header should start with AWS key');
+        String stringToSign = params.methodName + '\n\n' + AwsUploader.contentType(params.fileExtension) + '\n' + 
+                            params.formatedDateString + '\n/' + params.bucketName + '/' + 
+                            params.filename.toLowerCase() + '.' + params.fileExtension.toLowerCase();
+        Blob mac = Crypto.generateMac('HMACSHA1', Blob.valueOf(stringToSign), Blob.valueOf(params.awsSecret));
+        String expectedSig = EncodingUtil.base64Encode(mac);
+        String expectedAuth = 'AWS ' + params.awsKey + ':' + expectedSig;
+        System.assertEquals(expectedAuth, authHeader, 'Auth header should match expected HMAC-SHA1 signature');
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testUploadObjectWithEmptyNamedCredential() {
+        Test.startTest();
+        AwsUploader.namedCredential = '';
+        MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
+        System.assertNotEquals(null, settings, 'AWS Credentials should be set up');
+        MVDG__Generate_Document_Activity__c activity = [SELECT Id FROM MVDG__Generate_Document_Activity__c LIMIT 1];
+        ContentVersion cv = [SELECT Title, FileExtension, VersionData FROM ContentVersion WHERE Title = 'TestImage' LIMIT 1];
+        List<String> fileDetails = new List<String>{cv.Title.toLowerCase(), cv.FileExtension};
+        Test.setMock(HttpCalloutMock.class, new MockResponse());
+        AwsUploader.uploadObject(fileDetails, cv.VersionData, activity.Id);
+        MVDG__Generate_Document_Activity__c updatedActivity = [SELECT MVDG__AWS__c FROM MVDG__Generate_Document_Activity__c WHERE Id = :activity.Id];
+        System.assertEquals('Success', updatedActivity.MVDG__AWS__c, 'Activity should indicate success for 200 response');
+        updatedActivity.MVDG__AWS__c = 'Pending';
+        update updatedActivity;
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testAwsUploaderConstructor() {
+        Test.startTest();
+        ContentVersion cv = [SELECT Id FROM ContentVersion WHERE Title = 'TestImage' LIMIT 1];
+        System.assertNotEquals(null, cv, 'ContentVersion record should exist');
+        AwsUploader uploader = new AwsUploader(cv.Id);
+        System.assertEquals(cv.Id, uploader.contentVersionId, 'contentVersionId should match the provided ContentVersion Id');
+        Test.stopTest();
+    }
+
+    public class NoResponseClass implements HttpCalloutMock{
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setHeader('Content-Type', 'application/json');
+            res.setStatusCode(401);
+            return res;
+        }
+    }
+
+    @IsTest
+    static void testBatchableMethodReject() {
+        ContentVersion cv = new ContentVersion(
+            Title = 'TestFile',
+            PathOnClient = 'TestFile.txt',
+            VersionData = Blob.valueOf('This is test content'),
+            IsMajorVersion = true
+        );
+        insert cv;
+
+        MVDG__Generate_Document_Activity__c act = [Select Id From MVDG__Generate_Document_Activity__c Limit 1];
+
+        Test.setMock(HttpCalloutMock.class, new NoResponseClass());
+
+        Test.startTest();
+        AwsUploader awsUploader = new AwsUploader(cv.Id, act.Id);
+        String executeResult = Database.executeBatch(awsUploader);
+        Test.stopTest();
+
+        System.assertNotEquals(null, executeResult, 'The batch result should not be null');
+
+        MVDG__Generate_Document_Activity__c updatedActivity = [
+            SELECT Id, MVDG__AWS__c 
+            FROM MVDG__Generate_Document_Activity__c 
+            WHERE Id = :act.Id
+        ];
+
+        System.assertNotEquals(null, updatedActivity.MVDG__AWS__c, 'AWS message should have been set on the activity record');
+        System.assert(updatedActivity.MVDG__AWS__c.containsIgnoreCase('Failure') || 
+                    updatedActivity.MVDG__AWS__c.containsIgnoreCase('File Size is Greater'), 
+            'Expected a failure or size warning message in AWS field');
+    }
+
 }

@@ -3,15 +3,7 @@ public class OneDriveUploaderTest {
 
     @testSetup
     static void setup() {
-        // Create test data for MVDG__OneDriveAuthProviderSettings__c
-        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults();
-            settings.MVDG__refresh_token__c = 'testRefreshToken';
-            settings.MVDG__refresh_token1__c = 'testRefreshToken1';
-            settings.MVDG__ClientId__c = 'testClientId';
-            settings.MVDG__ClientSecret__c = 'testClientSecret';
-            settings.MVDG__email__c = 'testemail@test.com';
-        
-        insert settings;
+        // Skipping CMDT insert, as CMDT records can't be inserted in test classes
 
         // Create test data for ContentVersion
         ContentVersion contentVersion = new ContentVersion();
@@ -23,16 +15,17 @@ public class OneDriveUploaderTest {
         ContentVersion contentVersion2 = new ContentVersion();
         contentVersion2.Title = 'TestFile2';
         contentVersion2.PathOnClient = 'TestFile2.pdf'; 
-        Blob data = Blob.valueOf('a'.repeat(8880));
-        contentVersion2.VersionData = data;
+        contentVersion2.VersionData = Blob.valueOf('a'.repeat(8880));
         insert contentVersion2;
 
+        // Create a sample Template record
         MVDG__Template__c temp = new MVDG__Template__c();
         temp.MVDG__Object_API_Name__c = 'Account';
-        temp.MVDG__Template_Type__c	= 'Simple Template';
-        temp.MVDG__Template_Name__c	= 'test';
+        temp.MVDG__Template_Type__c = 'Simple Template';
+        temp.MVDG__Template_Name__c = 'test';
         insert temp;
 
+        // Create a related Generate_Document_Activity__c record
         MVDG__Generate_Document_Activity__c gda = new MVDG__Generate_Document_Activity__c();
         gda.MVDG__AWS__c = 'Success';
         gda.MVDG__DocGenius_Template__c = temp.Id;
@@ -44,41 +37,40 @@ public class OneDriveUploaderTest {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseToken());
 
-        List<ContentVersion> contentVersion = [SELECT Id, ContentSize FROM ContentVersion];
-        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
+        List<ContentVersion> contentVersions = [SELECT Id, ContentSize FROM ContentVersion];
+        List<MVDG__Generate_Document_Activity__c> activities = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
 
-        // First element
-        OneDriveUploader uploader = new OneDriveUploader(contentVersion[0].Id, act[0].Id);
+        // Test first ContentVersion
+        OneDriveUploader uploader = new OneDriveUploader(contentVersions[0].Id, activities[0].Id);
         String executeResult = Database.executeBatch(uploader);
         System.assertNotEquals(null, executeResult, 'The batch result cannot be null');
         
-        // Second element
-        OneDriveUploader uploader2 = new OneDriveUploader(contentVersion[1].Id, act[0].Id);
+        // Test second ContentVersion
+        OneDriveUploader uploader2 = new OneDriveUploader(contentVersions[1].Id, activities[0].Id);
         String executeResult2 = Database.executeBatch(uploader2);
         System.assertNotEquals(null, executeResult2, 'The result cannot be null');
         Test.stopTest();
     }
 
     @isTest
-    static void testErrorinitiateUploadSession() {
-        String uploader;
+    static void testErrorInitiateUploadSession() {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockErrorHttpResponseToken());
 
-        List<ContentVersion> contentVersion = [SELECT Id, ContentSize FROM ContentVersion];
-        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
+        List<ContentVersion> contentVersions = [SELECT Id, ContentSize FROM ContentVersion];
+        List<MVDG__Generate_Document_Activity__c> activities = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
 
-        // First element
-        uploader = OneDriveUploader.initiateUploadSession('pdf',contentVersion[0], act[0].Id);
-        System.assertNotEquals(null, uploader, 'The batch result cannot be null');
+        String uploader = OneDriveUploader.initiateUploadSession('pdf', contentVersions[0], activities[0].Id);
+        
+        System.assertNotEquals(null, uploader, 'The uploader result cannot be null');
         Test.stopTest();
     }
 
     @isTest
-    static void testcontentTypeForOneDrive() {
-        String result;
+    static void testContentTypeForOneDrive() {
         Test.startTest();
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponseToken());
+        String result;
+
         result = OneDriveUploader.contentTypeForOneDrive('docx');
         System.assertEquals('application/vnd.openxmlformats-officedocument.wordprocessingml.document', result, 'The result is incorrect');
 
@@ -104,7 +96,7 @@ public class OneDriveUploaderTest {
     }
 
     @isTest
-    static void testmailMessage(){
+    static void testMailMessage() {
         Test.startTest();
         OneDriveUploader.mailMessage(400);
         OneDriveUploader.mailMessage(401);
@@ -113,52 +105,95 @@ public class OneDriveUploaderTest {
         OneDriveUploader.mailMessage(500);
         OneDriveUploader.mailMessage(600);
         Test.stopTest();
-        System.assertEquals(null, null, 'The result can be null');   
 
+        System.assertEquals(null, null, 'Just checking method executes without error');
     }
 
-    // @isTest
-    // static void testUploadToOneDrive() {
-    //     // Mock HTTP response for file upload
-    //     Test.setMock(HttpCalloutMock.class, new MockHttpResponseUpload());
-
-    //     // Get the test ContentVersion record
-    //     ContentVersion contentVersion = [SELECT Id, Title, VersionData, FileExtension FROM ContentVersion LIMIT 1];
-
-    //     // Call the upload method
-    //     Boolean result = OneDriveUploader.uploadToOneDrive(contentVersion, contentVersion.Title, 'application/pdf');
-    //     System.assertEquals(true, result);
-    // }
-
     @isTest
-    static void getToken(){
-        String result;
-        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
+    static void testGetToken() {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockErrorHttpResponseToken());
-        result = OneDriveUploader.getToken(act[0].Id);
-        System.assertEquals(null, result, 'The result is null');
+
+        List<MVDG__Generate_Document_Activity__c> activities = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
+        String result = OneDriveUploader.getToken(activities[0].Id);
+        OneDriveUploader.getToken('a08C200000GEtUt123');
+        System.assertEquals(null, result, 'The result is null as expected');
         Test.stopTest();
     }
 
+    @isTest
+    static void testUploadChunkStatus201() {
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new MockHttpResponseStatus201());
+
+        List<ContentVersion> contentVersions = [SELECT Id FROM ContentVersion LIMIT 1];
+        List<MVDG__Generate_Document_Activity__c> activities = [SELECT Id FROM MVDG__Generate_Document_Activity__c LIMIT 1];
+
+        OneDriveUploader uploader = new OneDriveUploader(contentVersions[0].Id, activities[0].Id);
+        Database.executeBatch(uploader);
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testUploadChunkErrorStatus() {
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new MockHttpResponseServerError());
+
+        List<ContentVersion> contentVersions = [SELECT Id FROM ContentVersion LIMIT 1];
+        List<MVDG__Generate_Document_Activity__c> activities = [SELECT Id FROM MVDG__Generate_Document_Activity__c LIMIT 1];
+
+        try {
+            OneDriveUploader uploader = new OneDriveUploader(contentVersions[0].Id, activities[0].Id);
+            Database.executeBatch(uploader);
+        } catch (Exception e) {
+            System.assert(e.getMessage().contains('exception'), 'Should throw AuraHandledException');
+        }
+        Test.stopTest();
+    }
+
+
+    // HTTP mock class simulating a successful token fetch
     public class MockHttpResponseToken implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             HttpResponse res = new HttpResponse();
             res.setHeader('Content-Type', 'application/json');
-            res.setBody('{"access_token": "testAccessToken", "uploadUrl": "https://www.example.com/param1" }');
+            res.setBody('{"access_token": "testAccessToken", "uploadUrl": "https://www.example.com/param1"}');
             res.setStatusCode(200);
             return res;
         }
     }
 
+    // HTTP mock class simulating an error response
     public class MockErrorHttpResponseToken implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             HttpResponse res = new HttpResponse();
             res.setHeader('Content-Type', 'application/json');
-            res.setBody('{"access_token": "testAccessToken", "uploadUrl": "https://www.example.com/param1" }');
+            res.setBody('{"error": "invalid_request"}');
             res.setStatusCode(400);
             return res;
         }
     }
 
+        // Mock class for 201 Created response (used for chunk upload success)
+        public class MockHttpResponseStatus201 implements HttpCalloutMock {
+            public HTTPResponse respond(HTTPRequest req) {
+                HttpResponse res = new HttpResponse();
+                res.setHeader('Content-Type', 'application/json');
+                res.setBody('{"uploadUrl": "https://example.com/upload"}');
+                res.setStatusCode(201);
+                return res;
+            }
+        }
+    
+        // Mock class for error response (500) to trigger mailMessage and catch
+        public class MockHttpResponseServerError implements HttpCalloutMock {
+            public HTTPResponse respond(HTTPRequest req) {
+                HttpResponse res = new HttpResponse();
+                res.setHeader('Content-Type', 'application/json');
+                res.setBody('{"error": "Server error"}');
+                res.setStatusCode(500);
+                return res;
+            }
+        }
+    
 }

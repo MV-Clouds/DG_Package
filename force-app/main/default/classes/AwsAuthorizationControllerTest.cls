@@ -35,12 +35,10 @@ private class AwsAuthorizationControllerTest {
             settings.MVDG__NickName__c = 'mockNickName';
             insert settings;
         
-        // Test checkawsauth method
         Test.startTest();
         Map<String, Object> result = AwsAuthorizationController.checkawsauth();
         Test.stopTest();
         
-        // Validate results
         System.assertEquals('mockBucketName', result.get('bucket'), 'Result should be same');
         
     }
@@ -57,7 +55,7 @@ private class AwsAuthorizationControllerTest {
         Test.startTest();
         Boolean result = AwsAuthorizationController.verifyAuth();
         Test.stopTest();
-        System.assertEquals(False, result);
+        System.assertEquals(False, result, 'Result should be false');
     }
 
     @IsTest
@@ -72,7 +70,7 @@ private class AwsAuthorizationControllerTest {
         Test.startTest();
         Boolean result = AwsAuthorizationController.verifyAuth();
         Test.stopTest();
-        System.assertEquals(True, result);
+        System.assertEquals(True, result, 'Result should be true');
     }
     
     @IsTest
@@ -82,7 +80,7 @@ private class AwsAuthorizationControllerTest {
         String result = AwsAuthorizationController.authorize('mockClientId', 'mockClientSecret', 'mockBucket', 'mockNickName');
         Test.stopTest();
         MVDG__Aws_Credentials__c settings2 = [SELECT MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__BucketName__c, MVDG__NickName__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c FROM MVDG__Aws_Credentials__c LIMIT 1];
-        System.assertEquals('Success', result);
+        System.assertEquals('Success', result, 'Result should be Success');
         
     }
 
@@ -91,7 +89,7 @@ private class AwsAuthorizationControllerTest {
         MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
         settings.MVDG__NamedCredential__c = 'AWS';
         insert settings;
-        System.assertNotEquals(null, settings);
+        System.assertNotEquals(null, settings, 'Settings should not be null');
         Test.startTest();
         Boolean result = AwsAuthorizationController.unauthorize();
         Test.stopTest();
@@ -106,6 +104,17 @@ private class AwsAuthorizationControllerTest {
         Test.startTest();
         String result = AwsAuthorizationController.authorizeNamed('AWS');
         Test.stopTest();
-        System.assertEquals('Success', result);
+        System.assertEquals('Success', result, 'Result should be Success');
+    }
+
+    @isTest
+    static void testCreateSimpleAuthHeader_NullParams() {
+        Test.startTest();
+        
+        String result = AwsAuthorizationController.createSimpleAuthHeader(null);
+        
+        System.assertEquals(null, result, 'Method should return null when params is null');
+        
+        Test.stopTest();
     }
 }

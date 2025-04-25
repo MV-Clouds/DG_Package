@@ -87,7 +87,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
             
 
         } catch (Exception e) {
-            
+            Log_Handler.store_Exception(e, 'DeleteGoogleDocument', 'deleteDocument');
             
         } finally {
             if(authProvider.SetupOwnerId == UserInfo.getOrganizationId()){
@@ -154,12 +154,11 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
     ***********************************************************************/
     public static MVDG__Google_Credentials__c getAuthProviderSettings() {
         List<MVDG__Google_Credentials__c> aps = new List<MVDG__Google_Credentials__c>();
-        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+        aps = [SELECT Id, SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
         if (aps.size() > 0) {
-            
             return aps[0];
+        }else{
+            return [SELECT Id, SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED];
         }
-        
-        return MVDG__Google_Credentials__c.getOrgDefaults();
     }
 }

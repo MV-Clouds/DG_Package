@@ -43,6 +43,24 @@ public class DeleteGoogleDocumentTest {
     }
 
     @isTest
+    static void testDeleteDocumentOrganization() {
+        String googleDocId = 'mock_google_doc_id';
+        MVDG__Google_Credentials__c authProvider = [SELECT Id, SetupOwnerId FROM MVDG__Google_Credentials__c WHERE MVDG__access_token__c = 'mock_access_token'];
+        authProvider.SetupOwnerId = UserInfo.getOrganizationId();
+        update authProvider;
+        HttpResponse mockResponse = new HttpResponse();
+        mockResponse.setStatusCode(204);
+
+        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(mockResponse));
+
+        Test.startTest();
+        DeleteGoogleDocument.deleteDocument(googleDocId);
+        System.assertEquals(1, Limits.getAsyncCalls());
+        Test.stopTest();
+
+    }
+
+    @isTest
     static void testRefreshAccessToken() {
         HttpResponse mockResponse = new HttpResponse();
         mockResponse.setStatusCode(200);

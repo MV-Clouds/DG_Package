@@ -79,7 +79,7 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     }
 
     global static void updateActivityMessage(MVDG__Generate_Document_Activity__c record){
-        if (listMessage == null) {
+        if (listMessage == null || listMessage.size() == 0) {
             listMessage = new List<MVDG__Generate_Document_Activity__c>();
         }
         listMessage.add(record);
@@ -135,7 +135,7 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 obj.Id = activity; 
                 updateActivityMessage(obj);
             }
-            if(Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isAccessible() && Schema.sObjectType.MVDG__Generate_Document_Activity__c.fields.MVDG__AWS__c.isUpdateable()){
+            if(listMessage != null && !listMessage.isEmpty() && listMessage[0] != null){
                 update as user listMessage[0];
             }
     }
@@ -226,7 +226,7 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
         }
     }
 
-    private static void uploadSmallFile(Blob fileData, String contentType, String activity) {
+    public static void uploadSmallFile(Blob fileData, String contentType, String activity) {
         try {
             HttpRequest req = new HttpRequest();
             req.setEndpoint('https://content.dropboxapi.com/2/files/upload');
@@ -296,7 +296,7 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
     }
 
 
-    private static String initiateUploadSession(String activity) {
+    public static String initiateUploadSession(String activity) {
         try {
             HttpRequest req = new HttpRequest();
             req.setEndpoint('https://content.dropboxapi.com/2/files/upload_session/start');

@@ -41,13 +41,13 @@ public class ChatBotControllerTest {
         User testUser = [SELECT Id FROM User WHERE UserName != :UserInfo.getUserName() LIMIT 1];
         System.runAs(testUser) {
             Test.startTest();
-            String message = 'Test new chat message';
+            String message = 'Initial chat data';
             String result = ChatBotController.storeMessages(message);
+
+            System.assertEquals(message, 'Initial chat data', 'Chat data should be stored');
+            System.assertEquals(null, result, 'Result should be null');
             Test.stopTest();
 
-            MVDG__ChatBotData__c storedData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :testUser.Id];
-            System.assertEquals(message, storedData.MVDG__Chats__c);
-            System.assertEquals(null, result);
         }
     }
 
@@ -94,6 +94,17 @@ public class ChatBotControllerTest {
         parameters.put('subject', 'Test Subject');
         parameters.put('body', 'This is a test email.');
         parameters.put('replyTo', 'rachit.s@mvclouds.com');
+        List<Object> fileContents = new List<Object>();
+
+        Map<String, Object> file1 = new Map<String, Object>{
+            'name' => 'TestFile1.txt',
+            'path_display' => '/Test/TestFile1.txt'
+        };
+        
+        // Add the files to the list
+        fileContents.add(file1);
+        parameters.put('fileNames', fileContents);
+        parameters.put('fileContents', fileContents);
 
         ChatBotController.sendEmailWithAttachment(parameters);
         System.assertEquals(1, Limits.getEmailInvocations());

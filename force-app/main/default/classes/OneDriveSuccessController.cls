@@ -108,7 +108,7 @@ public with sharing class OneDriveSuccessController {
 
                 // Add metadata record to container
                 mdContainer.addMetadata(metadataRec);
-                Metadata.Operations.enqueueDeployment(mdContainer, null);
+                if(!Test.isRunningTest()){Metadata.Operations.enqueueDeployment(mdContainer, null);}
 
                 return 'Success';
            }

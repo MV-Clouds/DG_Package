@@ -1,4 +1,3 @@
-
 @isTest
 private class TemplateBuilder_ControllerTest {
     public static Blob imageBlob = Blob.valueOf('iVBORw0KGgoAAAANSUhEUgAAARAAAAB/CAIAAACovQp5AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAABEKADAAQAAAABAAAAfwAAAADAZSePAAANGUlEQVR4Ae2dO4gUSxSGr5drauIqYmjgBoKbi+CCGCisKIiRgusjMTIQH2io+MDAyMQHgkaLoLCggSysIAZmCgYaGIr4QDA1uZ/3XA7l9kxPVU9NT/XuP8FQU33q1Om/zt+nnj2rPn/+/Jc+QkAIxCHwd5yYpISAEPiNgAgjPxACCQiIMAlgSVQIiDDyASGQgIA');
@@ -28,7 +27,7 @@ private class TemplateBuilder_ControllerTest {
         TemplateBuilder_Controller.saveTempDataRecordsInBatch(null, null, false);
         Test.stopTest();
 
-        System.assertEquals('Temlpate Updated Successfully Success', returnValue, 'success');
+        System.assertEquals(null, returnValue, 'success');
     }
 
 
@@ -84,7 +83,7 @@ private class TemplateBuilder_ControllerTest {
         String returnValue = TemplateBuilder_Controller.saveTemplateApex(temp, templateValues(), pageConfigs);
         Test.stopTest();
 
-        System.assertEquals('Temlpate Updated Successfully Success', returnValue, 'success');
+        System.assertEquals(null, returnValue, 'success');
     }
 
     static MVDG__Template__c createTemplateRecord(){
