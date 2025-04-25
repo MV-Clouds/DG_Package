@@ -109,17 +109,13 @@ public with sharing class DynamicFieldDisplayController {
         return String.join(locationParts, ', ');
     }
     
-    @AuraEnabled(cacheable=true)
     public static List<String> getObjectLayout(String objectId, String recordTypeId) {
         return getLayoutNameForObject(objectId, recordTypeId);
     }
 
-    @AuraEnabled
     public static String generateAccessToken(){
-        if (!Test.isRunningTest()) {
-            return GenerateDocumentController.generateAccessToken(false);
-        }
-        return 'mockSessionId';
+        if (!Test.isRunningTest()) { return GenerateDocumentController.generateAccessToken(false);}
+        return 'mockAccessToken';
     }
     
     public static String toolingAPISOQL(String query) {
@@ -185,7 +181,6 @@ public with sharing class DynamicFieldDisplayController {
     }
 
 
-    @AuraEnabled(cacheable=true)
     public static Map<String, FieldInfo> getRecordFieldValues(String recordId, String objectName, String layout, String nameSpace) {
         Map<String, FieldInfo> fieldDetails = new Map<String, FieldInfo>();
         try {
@@ -274,7 +269,6 @@ public with sharing class DynamicFieldDisplayController {
 
     }
     
-    @AuraEnabled
     public static Map<String, FieldInfo> getFields(String objectName, String layout, String nameSpace) {
         Map<String, FieldInfo> fieldDetails = new Map<String, FieldInfo>();
         try {
