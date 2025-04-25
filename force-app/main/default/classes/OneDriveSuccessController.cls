@@ -21,11 +21,17 @@ public with sharing class OneDriveSuccessController {
             if (authcode == null || authcode == '') {
                 return 'error: invalid auth code';
             }
-            MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            List<MVDG__OneDrive_Credentials__mdt> settings = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
+                                                         FROM MVDG__OneDrive_Credentials__mdt 
+                                                         WITH SECURITY_ENFORCED 
+                                                         LIMIT 1];
           
            if (settings != null) {
-               String clientid = settings.MVDG__ClientId__c;
-               String clientsecret = settings.MVDG__ClientSecret__c;
+            String clientId = settings.isEmpty() ? '' : settings[0].MVDG__ClientId__c;
+            String clientSecret = settings.isEmpty() ? '' : settings[0].MVDG__ClientSecret__c;
+            String developerName = settings.isEmpty() ? 'Default_Credential' : settings[0].DeveloperName;
+            String masterLabel = settings.isEmpty() ? 'Default Credential' : settings[0].MasterLabel;
+
                 if (clientid == null || clientid == '' || clientsecret == null || clientsecret == '') {
                     return 'error: invalid client ID or secret';
                 }
@@ -36,100 +42,75 @@ public with sharing class OneDriveSuccessController {
                 if (tokens == null || tokens.isEmpty()) {
                     return 'error: failed to generate tokens';
                 }
-               String refreshToken;
-               if(tokens?.get('refresh_token') != null){
-                refreshToken = tokens.get('refresh_token');
-               }
-               List<String> parts2 = new List<String>();
-               Integer firstpartlength = 254;
-               if (refreshToken != null) {
-                   parts2.add(refreshToken.substring(0, firstpartlength));
-                   parts2.add(refreshToken.substring(firstpartlength));
-               } else {
-                   parts2.add(refreshToken);
-               }
-               String refreshToken1 = parts2[0];
-               String refreshToken2 = parts2[1];
-               String accessToken;
-               if(tokens?.get('access_token') != null){
-                accessToken = tokens.get('access_token');
-               }
+                String refreshToken;
+                if(tokens?.get('refresh_token') != null){
+                 refreshToken = tokens.get('refresh_token');
+                }
+                String accessToken;
+                if(tokens?.get('access_token') != null){
+                 accessToken = tokens.get('access_token');
+                }
+               
                String userdetails = fetchUserDetails(accessToken);
                Map<String, Object> parsedResponse = (Map<String, Object>) JSON.deserializeUntyped(userdetails);
                String emailAddress = (String) parsedResponse.get('mail');
                String displayName = (String) parsedResponse.get('displayName');
-               settings.MVDG__username__c = displayName;
-               settings.MVDG__email__c = emailAddress;
-               List<String> parts1 = new List<String>();
+               Date todaysDate = Date.today();
+               Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
+               String formattedDate = datetimeToday.format('dd/MM/yyyy');
+   
+               // Create Metadata Container
+                Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+                Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
+                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + developerName;
+                metadataRec.label = masterLabel;
 
-               if (accessToken != null && accessToken.length() > 254) {
-                   parts1.add(accessToken.substring(0, 254));
-                   parts1.add(accessToken.substring(254, 508));
-                   parts1.add(accessToken.substring(508, 762));
-                   parts1.add(accessToken.substring(762, 1016));
-                   parts1.add(accessToken.substring(1016));
-               } else {
-                   parts1.add(accessToken);
-               }
-               String accessToken1 = parts1[0];
-               String accessToken2 = parts1[1];
-               String accessToken3 = parts1[2];
-               String accessToken4 = parts1[3];
-               String accessToken5 = parts1[4];
-               if(refreshToken1 != null){
-                    settings.MVDG__refresh_token__c = refreshToken1;
-                    settings.MVDG__refresh_token1__c = refreshToken2;
-                   if (Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isUpdateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__email__c.isUpdateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token__c.isUpdateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token1__c.isUpdateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isAccessible() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__email__c.isAccessible() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token__c.isAccessible() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token1__c.isAccessible() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isCreateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__email__c.isCreateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token__c.isCreateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token1__c.isCreateable()) {
-                           upsert settings;
-                       }
-                   else{
-                       return 'error';
-                   }
-               }
-               if(accessToken1 != null){
-                   settings.MVDG__access_token__c = accessToken1;
-                   settings.MVDG__access_token1__c = accessToken2;
-                   settings.MVDG__access_token2__c = accessToken3;
-                   settings.MVDG__access_token3__c = accessToken4;
-                   settings.MVDG__access_token4__c = accessToken5;
-                   Date todaysDate = Date.today();
-                   Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
-                   String formattedDate = datetimeToday.format('dd/MM/yyyy');
-                   settings.MVDG__LinkedDate__c = formattedDate;
-                   settings.MVDG__WorkingStatus__c = true;
-                   if (Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isUpdateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isUpdateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isUpdateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isUpdateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isAccessible() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isAccessible() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isAccessible() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isAccessible() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isAccessible() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isCreateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isCreateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isCreateable() &&
-                       Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isCreateable()) {
-                           upsert as user settings;
-                           return 'Success';
-                       }
-               }
-               else{
-                   return 'Maybe';
-               }
+                // Add field values to Custom Metadata
+                Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
+                clientIdField.field = 'MVDG__ClientId__c';
+                clientIdField.value = clientId;
+                metadataRec.values.add(clientIdField);
+
+                Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
+                clientSecretField.field = 'MVDG__ClientSecret__c';
+                clientSecretField.value = clientSecret;
+                metadataRec.values.add(clientSecretField);
+
+                Metadata.CustomMetadataValue refreshTokenField = new Metadata.CustomMetadataValue();
+                refreshTokenField.field = 'MVDG__refresh_token__c';
+                refreshTokenField.value = refreshToken;
+                metadataRec.values.add(refreshTokenField);
+
+                Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
+                accessTokenField.field = 'MVDG__access_token__c';
+                accessTokenField.value = accessToken;
+                metadataRec.values.add(accessTokenField);
+
+                Metadata.CustomMetadataValue usernameField = new Metadata.CustomMetadataValue();
+                usernameField.field = 'MVDG__username__c';
+                usernameField.value = displayName;
+                metadataRec.values.add(usernameField);
+
+                Metadata.CustomMetadataValue emailField = new Metadata.CustomMetadataValue();
+                emailField.field = 'MVDG__email__c';
+                emailField.value = emailAddress;
+                metadataRec.values.add(emailField);
+
+                Metadata.CustomMetadataValue linkedDateField = new Metadata.CustomMetadataValue();
+                linkedDateField.field = 'MVDG__LinkedDate__c';
+                linkedDateField.value = formattedDate;
+                metadataRec.values.add(linkedDateField);
+
+                Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
+                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.value = true;
+                metadataRec.values.add(workingStatusField);
+
+                // Add metadata record to container
+                mdContainer.addMetadata(metadataRec);
+                Metadata.Operations.enqueueDeployment(mdContainer, null);
+
+                return 'Success';
            }
            return 'error';
        } catch (Exception e) {
@@ -180,7 +161,7 @@ public with sharing class OneDriveSuccessController {
        }
        return refrenceUrl;
        } catch (Exception e) {
-           Log_Handler.store_Exception(e, 'DropboxSuccessController', 'referenceUrl');
+           Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'referenceUrl');
            return null;
        }
    }

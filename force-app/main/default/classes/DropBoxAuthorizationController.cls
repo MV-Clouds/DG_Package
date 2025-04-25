@@ -1,82 +1,110 @@
 /*******************************************************
-* Name          : DropboxAuthorizationController
+* Name          : DropBoxAuthorizationController
 * Author        : Tirth
 * Create Date   : 18/04/2024 
 * UsedBy        : integrationDashBoard Component
 * Test Class    : DropboxAuthorizationControllerTest
-* Description   : Apex Class used for managing integration of Dropbox simply by taking client id and secret of user.
+* Description   : Apex Class used for managing integration of Dropbox using Custom Metadata for credentials.
 * Company       : MV Clouds
 *******************************************************/
 
 public with sharing class DropBoxAuthorizationController {
 
     @AuraEnabled
-    public static Map<String, Object> checkdropboxauth(){
-        try{
-            List<MVDG__DropBoxAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+    public static Map<String, Object> checkdropboxauth() {
+        try {
+            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
+                                                         FROM MVDG__Dropbox_Credential__mdt 
+                                                         WITH SECURITY_ENFORCED 
+                                                         LIMIT 1];
             Map<String, Object> result = new Map<String, Object>();
             if (!settingsList.isEmpty() && settingsList[0].MVDG__refresh_token__c != null && settingsList[0].MVDG__access_token__c != null && settingsList[0].MVDG__LinkedDate__c != null) {
+                MVDG__Dropbox_Credential__mdt settings = settingsList[0];
                 Boolean working = verifyAuth();
-                MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
                 result.put('name', settings.MVDG__username__c);
                 result.put('email', settings.MVDG__email__c);
                 result.put('linkdate', settings.MVDG__LinkedDate__c);
-                result.put('active', settings.MVDG__WorkingStatus__c);
+                result.put('active', working);
                 return result;
             }
-            result.put('error', 'Error obtaining details: ');
+            result.put('error', 'No valid Dropbox credentials found.');
             return result;
-        }catch(Exception e){
+        } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'checkdropboxauth');
             return null;
         }
     }
 
     @AuraEnabled
-    public static Boolean verifyAuth(){
+    public static Boolean verifyAuth() {
         try {
-        MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-        String refresh = settings.MVDG__refresh_token__c;
-        String clientid = settings.MVDG__ClientId__c;
-        String clientsecret = settings.MVDG__ClientSecret__c;
-        String body =
-            'grant_type=refresh_token' +
-            '&refresh_token=' +
-            EncodingUtil.urlEncode(refresh, 'UTF-8') +
-            '&client_id=' +
-            EncodingUtil.urlEncode(clientid, 'UTF-8') +
-            '&client_secret=' +
-            EncodingUtil.urlEncode(clientsecret, 'UTF-8');
+            MVDG__Dropbox_Credential__mdt settings = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
+                                               FROM MVDG__Dropbox_Credential__mdt 
+                                               WITH SECURITY_ENFORCED 
+                                               LIMIT 1];
+            if (settings == null) {
+                throw new CustomException('No Dropbox credentials found.');
+            }
+            String refresh = settings.MVDG__refresh_token__c;
+            String clientid = settings.MVDG__ClientId__c;
+            String clientsecret = settings.MVDG__ClientSecret__c;
+            String body = 'grant_type=refresh_token' +
+                          '&refresh_token=' + EncodingUtil.urlEncode(refresh, 'UTF-8') +
+                          '&client_id=' + EncodingUtil.urlEncode(clientid, 'UTF-8') +
+                          '&client_secret=' + EncodingUtil.urlEncode(clientsecret, 'UTF-8');
 
-        Http h = new Http();
-        HttpRequest req = new HttpRequest();
+            Http h = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('https://api.dropbox.com/oauth2/token');
+            req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+            req.setMethod('POST');
+            req.setBody(body);
+            HttpResponse res = h.send(req);
 
-        req.setEndpoint('https://api.dropbox.com/oauth2/token');
+            if (res.getStatusCode() == 200) {
+                Map<String, String> jsonvalues = parseJSONToMap(res.getBody());
+                String newAccessToken = jsonvalues.get('access_token');
+                if (newAccessToken != null) {
+                    // Update Custom Metadata with new access token
+                    Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+                    Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
+                    metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+                    metadataRec.label = settings.MasterLabel;
 
-        req.setHeader('Content-length', String.valueOf(body.length()));
-        req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
+                    accessTokenField.field = 'MVDG__access_token__c';
+                    accessTokenField.value = newAccessToken;
+                    metadataRec.values.add(accessTokenField);
 
-        req.setMethod('POST');
+                    Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
+                    workingStatusField.field = 'MVDG__WorkingStatus__c';
+                    workingStatusField.value = true;
+                    metadataRec.values.add(workingStatusField);
 
-        req.setBody(body);
-        HttpResponse res = h.send(req);
-        if(res.getStatusCode() == 200){
-            Map < String, String > jsonvalues = new Map < String, String > ();
-            jsonvalues = parseJSONToMap(res.getBody());
-            settings.MVDG__access_token__c = jsonvalues.get('access_token');
-            settings.MVDG__WorkingStatus__c = true;
-            Update as user settings;
-            return true;
-        }
-        else{
-            Response_Handler.store_Callout_Response(res, 'DropBoxAuthorizationController', 'verifyAuth');
-            settings.MVDG__WorkingStatus__c = false;
-            Update as user settings;
-            return false;
-        }
-    }
-    catch (Exception e) {
-        Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'verifyAuth');
+                    mdContainer.addMetadata(metadataRec);
+                    Metadata.Operations.enqueueDeployment(mdContainer, null);
+                    return true;
+                }
+                return false;
+            } else {
+                Response_Handler.store_Callout_Response(res, 'DropBoxAuthorizationController', 'verifyAuth');
+                // Update WorkingStatus__c to false
+                Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+                Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
+                metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+                metadataRec.label = settings.MasterLabel;
+
+                Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
+                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.value = false;
+                metadataRec.values.add(workingStatusField);
+
+                mdContainer.addMetadata(metadataRec);
+                Metadata.Operations.enqueueDeployment(mdContainer, null);
+                return false;
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'verifyAuth');
             return false;
         }
     }
@@ -98,19 +126,62 @@ public with sharing class DropBoxAuthorizationController {
     }
 
     @AuraEnabled
-    public static Boolean unauthorize(){
+    public static Boolean unauthorize() {
         try {
-            MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-            if(settings != null){
-                settings.MVDG__ClientId__c = '';
-                settings.MVDG__ClientSecret__c = '';
-                settings.MVDG__username__c = '';
-                settings.MVDG__LinkedDate__c = '';
-                settings.MVDG__email__c = '';
-                settings.MVDG__refresh_token__c = '';
-                settings.MVDG__access_token__c = '';
-                settings.MVDG__WorkingStatus__c = false;
-                upsert as user settings;
+            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
+                                                         FROM MVDG__Dropbox_Credential__mdt 
+                                                         WITH SECURITY_ENFORCED 
+                                                         LIMIT 1];
+            if (!settingsList.isEmpty()) {
+                MVDG__Dropbox_Credential__mdt settings = settingsList[0];
+                // Clear credentials using Metadata API
+                Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+                Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
+                metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+                metadataRec.label = settings.MasterLabel;
+
+                Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
+                clientIdField.field = 'MVDG__ClientId__c';
+                clientIdField.value = '';
+                metadataRec.values.add(clientIdField);
+
+                Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
+                clientSecretField.field = 'MVDG__ClientSecret__c';
+                clientSecretField.value = '';
+                metadataRec.values.add(clientSecretField);
+
+                Metadata.CustomMetadataValue usernameField = new Metadata.CustomMetadataValue();
+                usernameField.field = 'MVDG__username__c';
+                usernameField.value = '';
+                metadataRec.values.add(usernameField);
+
+                Metadata.CustomMetadataValue linkedDateField = new Metadata.CustomMetadataValue();
+                linkedDateField.field = 'MVDG__LinkedDate__c';
+                linkedDateField.value = '';
+                metadataRec.values.add(linkedDateField);
+
+                Metadata.CustomMetadataValue emailField = new Metadata.CustomMetadataValue();
+                emailField.field = 'MVDG__email__c';
+                emailField.value = '';
+                metadataRec.values.add(emailField);
+
+                Metadata.CustomMetadataValue refreshTokenField = new Metadata.CustomMetadataValue();
+                refreshTokenField.field = 'MVDG__refresh_token__c';
+                refreshTokenField.value = '';
+                metadataRec.values.add(refreshTokenField);
+
+                Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
+                accessTokenField.field = 'MVDG__access_token__c';
+                accessTokenField.value = '';
+                metadataRec.values.add(accessTokenField);
+
+                Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
+                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.value = false;
+                metadataRec.values.add(workingStatusField);
+
+                mdContainer.addMetadata(metadataRec);
+                Metadata.Operations.enqueueDeployment(mdContainer, null);
                 return true;
             }
             return false;
@@ -122,23 +193,40 @@ public with sharing class DropBoxAuthorizationController {
 
     @AuraEnabled
     public static String authorize(String clientId, String clientSecret) {
-        try{
+        try {
             if (String.isBlank(clientId) || String.isBlank(clientSecret)) {
                 return 'Both Client ID and Client Secret are required.';
             }
-            List<MVDG__DropBoxAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-            MVDG__DropBoxAuthProviderSettings__c settings;
-            if (!settingsList.isEmpty()) {
-                settings = settingsList[0];
-            }else{
-                settings = new MVDG__DropBoxAuthProviderSettings__c();
+            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
+                                                         FROM MVDG__Dropbox_Credential__mdt 
+                                                         WITH SECURITY_ENFORCED 
+                                                         LIMIT 1];
+            if (settingsList.isEmpty()) {
+                throw new CustomException('No Dropbox credential settings found.');
             }
-            settings.MVDG__ClientId__c = clientId;
-            settings.MVDG__ClientSecret__c = clientSecret;
+            MVDG__Dropbox_Credential__mdt settings = settingsList[0];
+            // Update Custom Metadata with client ID and secret
+            Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+            Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
+            metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+            metadataRec.label = settings.MasterLabel;
+
+            Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
+            clientIdField.field = 'MVDG__ClientId__c';
+            clientIdField.value = clientId;
+            metadataRec.values.add(clientIdField);
+
+            Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
+            clientSecretField.field = 'MVDG__ClientSecret__c';
+            clientSecretField.value = clientSecret;
+            metadataRec.values.add(clientSecretField);
+
+            mdContainer.addMetadata(metadataRec);
+            Metadata.Operations.enqueueDeployment(mdContainer, null);
+
             String durl = authcode(clientId, clientSecret);
-            upsert as user settings;
             return durl;
-        }catch (Exception e) {
+        } catch (Exception e) {
             Log_Handler.store_Exception(e, 'DropBoxAuthorizationController', 'authorize');
             return null;
         }

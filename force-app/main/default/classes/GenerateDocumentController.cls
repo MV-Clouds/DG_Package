@@ -66,11 +66,11 @@ public with sharing class GenerateDocumentController {
     public static IntegrationWrapper getIntegrationStatus(){
         try {
             IntegrationWrapper listOfStatus = new IntegrationWrapper();
-            listOfStatus.isGoogleDriveIntegrated = MVDG__AuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isAWSIntegrated = MVDG__AwsAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isDropBoxIntegrated = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isOneDriveIntegrated = MVDG__OneDriveAuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            List<MVDG__AuthProviderSettings__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+            listOfStatus.isGoogleDriveIntegrated = MVDG__Google_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            listOfStatus.isAWSIntegrated = MVDG__Aws_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            listOfStatus.isDropBoxIntegrated = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__Dropbox_Credential__mdt WITH SECURITY_ENFORCED LIMIT 1].MVDG__WorkingStatus__c;
+            listOfStatus.isOneDriveIntegrated = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__OneDrive_Credentials__mdt WITH SECURITY_ENFORCED LIMIT 1].MVDG__WorkingStatus__c;
+            List<MVDG__Google_Credentials__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
                 listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;
             }
@@ -207,25 +207,114 @@ public with sharing class GenerateDocumentController {
 
 /*
 *********************************************************
-@description      : Method is used to fetch the Query and count of records from the query
-@param {none}
-@return           : {String} - current session Id
+@description      : Method is used to fetch the Client Id & Client Secret from the Custom Settings record.
+@param            : isUpdateSetting {Boolean} - Boolean to check if the settings need to be updated
+@return           : {String} - Access Token
 ********************************************************
 */
-    @AuraEnabled
-    public static String getSessionId(){
-        String sessionId;
-        try{
+@AuraEnabled
+public static String generateAccessToken(Boolean isUpdateSetting) {
+    try {
+        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, IsDeleted, Name, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        if (aps.size() > 0) {
+            String accessToken = getAccessToken(aps[0].MVDG__Client_Id__c, aps[0].MVDG__Client_Secret__c, isUpdateSetting);
             if(Test.isRunningTest()) { 
-                sessionId = 'testSessionId';
-            }else{
-                sessionId = Page.UserSessionIdPage.getContent().toString();
+                return 'testAccessToken';
             }
-        }catch(Exception e){
-            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getSessionId');
+            return accessToken;
         }
-        return sessionId;
+        return '';
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'generateAccessToken');
+        return e.getMessage();
     }
+}
+
+/*
+*********************************************************
+@description      : Method is used to fetch the Client Id & Client Secret from the Custom Settings record.
+@param            : isUpdateSetting {Boolean} - Boolean to check if the settings need to be updated
+@return           : List<MVDG__ConnectedAppIdAndSecret__c> - List of MVDG__ConnectedAppIdAndSecret__c records
+********************************************************
+*/
+@AuraEnabled
+public static List<MVDG__ConnectedAppIdAndSecret__c> getAuthProviderSettings(Boolean isUpdateSetting) {
+    try {
+        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, IsDeleted, Name, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        if (aps.size() > 0) {
+            String accessToken = getAccessToken(aps[0].MVDG__Client_Id__c, aps[0].MVDG__Client_Secret__c, isUpdateSetting);
+            return aps;
+        }
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getAuthProviderSettings');
+    }
+    return null;
+}
+
+
+/*
+*********************************************************
+@description      : Method is used to fetch accessToken from the Client Id and Client Secret.
+@param            : clientId {String} - Client Id of the connected app
+@param            : clientSecret {String} - Client Secret of the connected app
+@param            : isUpdateSetting {Boolean} - Boolean to check if the settings need to be updated
+@return           : {String} - Access Token
+********************************************************
+*/
+@AuraEnabled
+public static String getAccessToken(String clientId, String clientSecret , Boolean isUpdateSetting) {
+    try{
+        String endPointURL = URL.getOrgDomainUrl().toExternalForm() + '/services/oauth2/token';
+        String requestBody = 'grant_type=client_credentials&client_id={0}&client_secret={1}';
+
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint(endPointURL);
+        req.setMethod('POST');
+        req.setBody(String.format(requestBody ,new string[]{clientId,clientSecret}));
+        req.setTimeout(60000);
+        Http http = new Http();
+        HttpResponse res = http.send(req);
+        if(res.getStatusCode() != 200){
+            clientId = null;
+            clientSecret = null;
+            return null;
+        } else {
+            if (isUpdateSetting) {
+                updateSetting(clientId, clientSecret);
+            }
+        }
+        return res.getBody().substringBetween('access_token":"', '"');
+    }catch(Exception e){
+        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getAccessToken');
+        return null;
+    }
+}
+
+/*
+*********************************************************
+@description      : Method is used to update the Client Id & Client Secret in the Custom Settings record.
+@param            : clientId {String} - Client Id of the connected app
+@param            : clientSecret {String} - Client Secret of the connected app
+@return           : Nothing
+********************************************************
+*/
+
+public static void updateSetting(String clientId, String clientSecret) {
+    try {
+        
+        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId,MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        MVDG__ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new MVDG__ConnectedAppIdAndSecret__c();
+        app.SetupOwnerId = UserInfo.getUserId();
+        app.MVDG__Client_Id__c = clientId;
+        app.MVDG__Client_Secret__c = clientSecret;
+        upsert as User app;
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'updateSetting');
+    }
+}
 
 /*
 *********************************************************
@@ -294,7 +383,7 @@ public with sharing class GenerateDocumentController {
 */
     @AuraEnabled
     public static Map<String,String> getTemplateData(String templateId){
-        Map<String,String> mapOfData = new Map<String,String>{'fields' => null, 'query' => null, 'sessionId' => null, 'count' => '1000000', 'error' => null};
+        Map<String,String> mapOfData = new Map<String,String>{'fields' => null, 'query' => null, 'accessToken' => null, 'count' => '1000000', 'error' => null};
         try{
             List<MVDG__Template_Data__c> tfList = new List<MVDG__Template_Data__c>();
             if(templateId != null){
@@ -316,13 +405,13 @@ public with sharing class GenerateDocumentController {
             }
             String fields = tfList[0].MVDG__CSV_Fields__c;
             String query = tfList[0].MVDG__CSV_Query__c.replaceAll('CURRENT_USER', UserInfo.getUserId());
-            String sessionId = '';
+            String accessToken = '';
             String countableQuery = 'SELECT count() FROM' + (query.contains('ORDER BY') ? (query.substringBeforeLast('ORDER BY').substringAfterLast('FROM') + ' LIMIT ' + query.substringAfterLast('LIMIT')) : query.substringAfterLast('FROM'));
             Integer count = database.countQuery(String.valueOf(countableQuery));
-            sessionId = getSessionId();
+            accessToken = generateAccessToken(false);
             mapOfData.put('fields', fields);
             mapOfData.put('query', query);
-            mapOfData.put('sessionId', sessionId);
+            mapOfData.put('accessToken', accessToken);
             mapOfData.put('count', String.valueOf(count)!=null ? String.valueOf(count) : query.substringAfterLast('LIMIT'));
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateData');

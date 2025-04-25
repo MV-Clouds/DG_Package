@@ -36,7 +36,7 @@ global with sharing class DocGenerateController {
     public static Decimal signatureSize {get; set;}
     public static integer imageMaxSize {get; set;}
 
-    public static String sessionId {get; set;}
+    public static String accessToken {get; set;}
     
     public static string apexError {get; set;}
 
@@ -45,7 +45,11 @@ global with sharing class DocGenerateController {
      * @description : run when vf page call, entry point of all the vf page methods...
      */
     public DocGenerateController() {
-        sessionId = GenerateDocumentController.getSessionId();
+        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, IsDeleted, Name, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        if (aps.size() > 0) {
+            accessToken = GenerateDocumentController.getAccessToken(aps[0].MVDG__Client_Id__c, aps[0].MVDG__Client_Secret__c, false);
+        }
         getTemplateDetails();
     }
 

@@ -61,7 +61,7 @@ public class GoogleDriveAuthorizationControllerTest {
             UserName = 'testuser' + DateTime.now().getTime() + '@example.com'
         );
         insert testUser;
-        MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c(
+        MVDG__Google_Credentials__c settings = new MVDG__Google_Credentials__c(
             MVDG__refresh_token__c = 'dummy_refresh_token',
             MVDG__access_token__c = 'dummy_access_token',
             MVDG__email__c = 'test@example.com',
@@ -93,7 +93,7 @@ public class GoogleDriveAuthorizationControllerTest {
             UserName = 'testuser' + DateTime.now().getTime() + '@example.com'
         );
         insert testUser;
-        MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c(
+        MVDG__Google_Credentials__c settings = new MVDG__Google_Credentials__c(
             MVDG__refresh_token__c = 'dummy_refresh_token',
             MVDG__access_token__c = 'dummy_access_token',
             MVDG__email__c = 'test@example.com',
@@ -130,7 +130,7 @@ public class GoogleDriveAuthorizationControllerTest {
         );
         insert testUser;
 
-        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
         settings.MVDG__refresh_token__c = 'test';
         settings.MVDG__access_token__c = 'test';
         settings.MVDG__ClientId__c = 'test';
@@ -150,7 +150,7 @@ public class GoogleDriveAuthorizationControllerTest {
 
     @isTest
     static void testisOrgWide() {
-        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
         settings.MVDG__refresh_token__c = 'test';
         upsert settings;
         Test.startTest();
@@ -177,9 +177,9 @@ public class GoogleDriveAuthorizationControllerTest {
         System.runAs(testUser){
         Test.startTest();
         Boolean result = GoogleDriveAuthorizationController.unauthorize();
-        // MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getInstance();
+        // MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getInstance();
         Test.stopTest();
-        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getInstance();
+        MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getInstance();
         System.assertEquals(null, settings.MVDG__ClientId__c);
         System.assertEquals(null, settings.MVDG__ClientSecret__c);
         System.assertEquals(null, settings.MVDG__username__c);
@@ -217,7 +217,7 @@ public class GoogleDriveAuthorizationControllerTest {
 
     @isTest
     static void testorgunauthorize(){
-        MVDG__AuthProviderSettings__c settings = MVDG__AuthProviderSettings__c.getOrgDefaults();
+        MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
         settings.MVDG__refresh_token__c = 'test';
         upsert settings;
         Test.startTest();

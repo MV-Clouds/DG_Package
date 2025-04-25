@@ -26,7 +26,7 @@ private class AwsAuthorizationControllerTest {
         
         Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());
 
-        MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+        MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
             settings.MVDG__ClientId__c = 'mockClientId';
             settings.MVDG__ClientSecret__c = 'mockClientSecret';
             settings.MVDG__BucketName__c = 'mockBucketName';
@@ -51,7 +51,7 @@ private class AwsAuthorizationControllerTest {
         Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());
 
 
-        MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+        MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
         settings.MVDG__NamedCredential__c = '';
         insert settings;
         Test.startTest();
@@ -65,7 +65,7 @@ private class AwsAuthorizationControllerTest {
 
         Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());
 
-        MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+        MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
         settings.MVDG__NamedCredential__c = 'AWS';
         insert  settings;
         
@@ -81,14 +81,14 @@ private class AwsAuthorizationControllerTest {
         Test.startTest();
         String result = AwsAuthorizationController.authorize('mockClientId', 'mockClientSecret', 'mockBucket', 'mockNickName');
         Test.stopTest();
-        MVDG__AwsAuthProviderSettings__c settings2 = [SELECT MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__BucketName__c, MVDG__NickName__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c FROM MVDG__AwsAuthProviderSettings__c LIMIT 1];
+        MVDG__Aws_Credentials__c settings2 = [SELECT MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__BucketName__c, MVDG__NickName__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c FROM MVDG__Aws_Credentials__c LIMIT 1];
         System.assertEquals('Success', result);
         
     }
 
     @IsTest
     static void testUnauthorize() {
-        MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+        MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
         settings.MVDG__NamedCredential__c = 'AWS';
         insert settings;
         System.assertNotEquals(null, settings);
@@ -99,7 +99,7 @@ private class AwsAuthorizationControllerTest {
 
     @IsTest
     static void testauthorizeNamed(){
-        MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+        MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
         settings.MVDG__NamedCredential__c = 'AWS';
         insert settings;
         Test.setMock(HttpCalloutMock.class, new AwsCalloutMock());

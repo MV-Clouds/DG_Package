@@ -38,9 +38,7 @@ public with sharing class Log_Handler {
             error.MVDG__Class_Name__c = classname;
             error.MVDG__Method_Name__c = methodname;
         
-            if(Schema.sObjectType.MVDG__Exception_Logs__c.isCreateable()){
-                insert error;
-            }
+            insert as user error;
             
         } 
         catch (Exception error) {
@@ -78,9 +76,7 @@ public with sharing class Log_Handler {
             ex.MVDG__Method_Name__c = methodname;
             ex.MVDG__Generate_Document_Activity__c	= activityId;
         
-            if(Schema.sObjectType.MVDG__Exception_Logs__c.isCreateable()){
-                insert ex;
-            }
+            insert as user ex;
             
         } 
         catch (Exception error) {

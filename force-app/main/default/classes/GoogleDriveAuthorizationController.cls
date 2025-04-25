@@ -19,17 +19,17 @@ public with sharing class GoogleDriveAuthorizationController {
   @AuraEnabled
   public static Map<String, Object> checkgoogleauth(){
       try{
-          Integer count = [SELECT COUNT() FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+          Integer count = [SELECT COUNT() FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
           Map<String, Object> result = new Map<String, Object>();
           if(count > 0){
-              List<MVDG__AuthProviderSettings__c> settingsList = [SELECT Id, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__username__c, MVDG__email__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, SetupOwnerId, Name FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
-              MVDG__AuthProviderSettings__c settings;
+              List<MVDG__Google_Credentials__c> settingsList = [SELECT Id, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__username__c, MVDG__email__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, SetupOwnerId, Name FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
+              MVDG__Google_Credentials__c settings;
               if(!settingsList.isEmpty()){
                   settings = settingsList[0];
               }
               if (settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null && settings.MVDG__username__c != null && settings.MVDG__email__c != null && settings.MVDG__LinkedDate__c != null) {
                       Boolean working = getToken(false);
-                      settings = [SELECT Id, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__username__c, MVDG__email__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, SetupOwnerId, Name FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
+                      settings = [SELECT Id, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__username__c, MVDG__email__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, SetupOwnerId, Name FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
                       result.put('name', settings.MVDG__username__c);
                       result.put('email', settings.MVDG__email__c);
                       result.put('linkdate', settings.MVDG__LinkedDate__c);
@@ -55,15 +55,15 @@ public with sharing class GoogleDriveAuthorizationController {
   @AuraEnabled
   public static Map<String, Object> checkorggoogleauth(){
       try{
-          List<MVDG__AuthProviderSettings__c> settingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-          MVDG__AuthProviderSettings__c settings;
+          List<MVDG__Google_Credentials__c> settingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+          MVDG__Google_Credentials__c settings;
           if(!settingsList.isEmpty()){
                 settings = settingsList[0];
             }
           Map<String, Object> result = new Map<String, Object>();
           if (settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null && settings.MVDG__username__c != null && settings.MVDG__email__c != null && settings.MVDG__LinkedDate__c != null) {
                   Boolean working = getToken(true);
-                  settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+                  settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
                   result.put('name', settings.MVDG__username__c);
                   result.put('email', settings.MVDG__email__c);
                   result.put('linkdate', settings.MVDG__LinkedDate__c);
@@ -96,13 +96,13 @@ public with sharing class GoogleDriveAuthorizationController {
     }
     if(access == 1){
       try {
-          List<MVDG__AuthProviderSettings__c> settingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-          MVDG__AuthProviderSettings__c settings;
+          List<MVDG__Google_Credentials__c> settingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+          MVDG__Google_Credentials__c settings;
           if(!settingsList.isEmpty()){
               settings = settingsList[0];
           }
           else{
-              settings = new MVDG__AuthProviderSettings__c();
+              settings = new MVDG__Google_Credentials__c();
           }
           if(settings != null && settings.MVDG__refresh_token__c != null && settings.MVDG__access_token__c != null){
               return true;
@@ -128,12 +128,12 @@ public with sharing class GoogleDriveAuthorizationController {
   public static Boolean getToken(Boolean isOrg){
       try {
           List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-          MVDG__AuthProviderSettings__c settings;
+          MVDG__Google_Credentials__c settings;
           if(isOrg){
-              settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+              settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
           }
           else{
-              settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
+              settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
           }
           String endpoint = 'https://oauth2.googleapis.com/token';
           HttpRequest request = new HttpRequest();
@@ -154,10 +154,7 @@ public with sharing class GoogleDriveAuthorizationController {
               String newToken = (String) jsonResponse.get('access_token');
               settings.MVDG__access_token__c = newToken;
               settings.MVDG__WorkingStatus__c = true;
-              if(!Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() || !Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isUpdateable() || !Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() || !Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__WorkingStatus__c.isCreateable()){
-                  return null;
-              }
-                  upsert settings;
+                  upsert as user settings;
 
 
               return true;
@@ -165,7 +162,7 @@ public with sharing class GoogleDriveAuthorizationController {
           else{
               Response_Handler.store_Callout_Response(response, 'GoogleDriveAuthorizationController', 'getToken');
               settings.MVDG__WorkingStatus__c = false;
-              upsert settings;
+              upsert as user settings;
               return false;
           }
       } catch (Exception e) {
@@ -189,12 +186,12 @@ public with sharing class GoogleDriveAuthorizationController {
           if (String.isBlank(clientId) || String.isBlank(clientSecret)) {
               return 'Both Client ID and Client Secret are required.';
           }
-          List<MVDG__AuthProviderSettings__c> settingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-          MVDG__AuthProviderSettings__c settings;
+          List<MVDG__Google_Credentials__c> settingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+          MVDG__Google_Credentials__c settings;
           if (!settingsList.isEmpty()) {
                 settings = settingsList[0];
           }else{
-              settings = new MVDG__AuthProviderSettings__c();
+              settings = new MVDG__Google_Credentials__c();
           }
           if(Test.isRunningTest()){
             clientId = 'Mock';
@@ -259,15 +256,15 @@ public with sharing class GoogleDriveAuthorizationController {
       try{
           List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
 
-          List<MVDG__AuthProviderSettings__c> defsettingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-          MVDG__AuthProviderSettings__c defsettings;
+          List<MVDG__Google_Credentials__c> defsettingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+          MVDG__Google_Credentials__c defsettings;
           if(!defsettingsList.isEmpty()){
               defsettings = defsettingsList[0];
           }
           else{
-             defsettings = new MVDG__AuthProviderSettings__c();
+             defsettings = new MVDG__Google_Credentials__c();
           }
-          MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
+          MVDG__Google_Credentials__c settings = new MVDG__Google_Credentials__c();
           String clientId;
           String clientSecret;
           String redirectUri = System.Label.MVDG.AuthCode;
@@ -469,12 +466,9 @@ public static Map<String, String> generaterefreshtoken(List<String> credentials,
    @AuraEnabled
   public static Boolean unauthorize(){
       try {
-          MVDG__AuthProviderSettings__c settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
+          MVDG__Google_Credentials__c settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
           if(settings != null){
-                if (!Schema.sObjectType.MVDG__AuthProviderSettings__c.isDeletable()) {
-                    return false;
-                }
-                
+
                 if(settings != null){
                     delete as user settings;
                     return true;
@@ -497,8 +491,8 @@ public static Map<String, String> generaterefreshtoken(List<String> credentials,
   @AuraEnabled
   public static Boolean orgunauthorize(){
       try {
-          List<MVDG__AuthProviderSettings__c> settingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-          MVDG__AuthProviderSettings__c settings;
+          List<MVDG__Google_Credentials__c> settingsList = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+          MVDG__Google_Credentials__c settings;
             if(!settingsList.isEmpty()){
                 settings = settingsList[0];
             }

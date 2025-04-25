@@ -3,8 +3,8 @@ public class AwsUploaderTest {
     @TestSetup
     static void makeData(){
 
-        // MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
-        MVDG__AwsAuthProviderSettings__c settings = new MVDG__AwsAuthProviderSettings__c();
+        // MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
+        MVDG__Aws_Credentials__c settings = new MVDG__Aws_Credentials__c();
         settings.SetupOwnerId = UserInfo.getOrganizationId();
         settings.MVDG__BucketName__c = 'S3';
         settings.MVDG__ClientId__c = 'testClientId';
@@ -12,7 +12,7 @@ public class AwsUploaderTest {
         settings.MVDG__NamedCredential__c = 'namedCredentials';
         upsert settings;
 
-        // MVDG__AwsAuthProviderSettings__c settings2 = new MVDG__AwsAuthProviderSettings__c();
+        // MVDG__Aws_Credentials__c settings2 = new MVDG__Aws_Credentials__c();
         // settings2.MVDG__BucketName__c = 'S3';
         // settings2.MVDG__ClientId__c = 'testClientId';
         // settings2.MVDG__ClientSecret__c = 'testClientSecret';
