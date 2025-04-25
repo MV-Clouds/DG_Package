@@ -40,7 +40,7 @@ public with sharing class TemplateBuilder_Controller {
                         page.MVDG__Footer_margin_bottom__c = 0.10;       // px to inch
                         page.MVDG__Show_Watermark__c = true;       
                         insert as user page;
-                        pageConfigs = [SELECT Id, MVDG__Page_Margin__c, MVDG__Page_Orientation__c, MVDG__Page_Size__c, MVDG__Unit_of_Page_Configs__c, MVDG__Show_Header__c, MVDG__Show_Footer__c, MVDG__Show_Watermark__c, MVDG__Header_margin_top__c, MVDG__Footer_margin_bottom__c 
+                        pageConfigs = [SELECT Id, Name, MVDG__Template__c, MVDG__Page_Margin__c, MVDG__Page_Orientation__c, MVDG__Page_Size__c, MVDG__Unit_of_Page_Configs__c, MVDG__Show_Header__c, MVDG__Show_Footer__c, MVDG__Show_Watermark__c, MVDG__Header_margin_top__c, MVDG__Footer_margin_bottom__c 
                                         FROM MVDG__Template_Page__c WHERE Id =: page.Id WITH SECURITY_ENFORCED ORDER BY MVDG__Page_Number__c ASC LIMIT 1];
                     }
 

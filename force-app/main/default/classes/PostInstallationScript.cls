@@ -14,7 +14,7 @@ global class PostInstallationScript implements InstallHandler, UninstallHandler{
                     permissionSets.add(psa);
                 }
                 if (permissionSets.size() > 0) {
-                    insert permissionSets;
+                    insert as user permissionSets;
                 }
             }
 

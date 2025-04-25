@@ -115,9 +115,9 @@ public with sharing class DynamicFieldDisplayController {
     }
 
     @AuraEnabled
-    public static String getSessionId(){
+    public static String generateAccessToken(){
         if (!Test.isRunningTest()) {
-            return Page.UserSessionIdPage.getContent().toString();
+            return GenerateDocumentController.generateAccessToken(false);
         }
         return 'mockSessionId';
     }
@@ -125,7 +125,7 @@ public with sharing class DynamicFieldDisplayController {
     public static String toolingAPISOQL(String query) {
         String instanceUrl = System.URL.getOrgDomainUrl().toExternalForm();
         String baseURL = instanceUrl+'/services/data/v61.0/tooling/query?';
-        String sid = getSessionId();
+        String sid = generateAccessToken();
         return restGet(baseURL + 'q=' + (query.replace(' ', '+')), 'GET', sid);
     } 
 

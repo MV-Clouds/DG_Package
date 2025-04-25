@@ -79,4 +79,57 @@ private class HomePageControllerTest {
         String templateValue ='<p>{{#Id}}&nbsp;{{#Name}}&nbsp;{{Doc.Date.date}}&nbsp;{{Doc.User.AboutMe}}&nbsp;{{Doc.Org.City}}&nbsp;{{#CreatedBy.Username}}</p><p>{{#Name *L:20*}}&nbsp;{{#CreatedDate *dd/MM/yyyy HH:mm:ss*}}&nbsp;{{#IsDeleted *yes/no*}}&nbsp;{{#NumberOfEmployees *F:yes,*}}</p><table data-name="childRecords"><tbody class="" lwc-1tbjdqlnk30=""><tr><td style="overflow: hidden; text-align: center;">No.</td><td style="overflow: hidden; text-align: center;">Account ID</td><td style="overflow: hidden; text-align: center;">Created Date</td><td style="overflow: hidden; text-align: center;">Last Modified Date</td></tr><tr data-name="keyRow"><td style="overflow: hidden; text-align: center;">{{No.Index}}</td><td style="overflow: hidden; text-align: center;">{{!AccountId}}</td><td style="overflow: hidden; text-align: center;">{{!CreatedDate}}</td><td style="overflow: hidden; text-align: center;">{{!LastModifiedDate}}</td></tr><tr data-name="infoRow"><td colspan="4" style="position: relative; text-align: center; overflow: hidden; border-color: rgb(203, 203, 203) !important; color: rgb(76, 76, 76) !important;">Object: Contact,<br>$objApi:Contact$, $childRelation:Contacts$, $limit:12$, , $filter: IsDeleted = false  ORDER BY AccountId ASC $<br></td></tr></tbody></table>';
         return templateValue;
     }
+
+    @isTest
+    static void testGetAuthProviderSettings_Success() {
+        MVDG__ConnectedAppIdAndSecret__c app = new MVDG__ConnectedAppIdAndSecret__c();
+        app.SetupOwnerId = UserInfo.getUserId();
+        app.MVDG__Client_Id__c = 'testClientId';
+        app.MVDG__Client_Secret__c = 'testClientSecret';
+
+        insert as user app;
+
+        // Mock the HTTP response
+        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200));
+        
+        Test.startTest();
+        // Call the method that makes the HTTP callout
+        Boolean returnValue = HomePageController.getAuthProviderSettings();
+
+        Test.stopTest();
+        
+        // Assert the expected outcome
+        System.assertEquals(true, returnValue, 'The callout should be successfull.');
+    }
+
+    @isTest
+    static void testGetAuthProviderSettings_Fail() {
+        // Mock the HTTP response
+        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(400));
+        
+        Test.startTest();
+        // Call the method that makes the HTTP callout
+        Boolean returnValue = HomePageController.getAuthProviderSettings();
+
+        Test.stopTest();
+        
+        // Assert the expected outcome
+        System.assertEquals(false, returnValue, 'The callout should be Failed.');
+    }
+
+    public class MockHttpResponseGenerator implements HttpCalloutMock {
+        private Integer statusCode;
+        
+        // Constructor to pass custom status code and body
+        public MockHttpResponseGenerator(Integer statusCode) {
+            this.statusCode = statusCode;
+        }
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setHeader('Content-Type', 'application/json');
+            res.setBody('{"access_token":"mockAccessToken123"}');
+            res.setStatusCode(statusCode);
+            return res;
+        }
+    }
 }

@@ -58,7 +58,7 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
 
     global void execute(Database.BatchableContext bC, List<ContentVersion> scope) {
         try {
-            MVDG__AwsAuthProviderSettings__c settings = MVDG__AwsAuthProviderSettings__c.getOrgDefaults();
+            MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
             String bucketName = settings.MVDG__BucketName__c;
             String awsKey = settings.MVDG__ClientId__c;
             String awsSecret = settings.MVDG__ClientSecret__c;

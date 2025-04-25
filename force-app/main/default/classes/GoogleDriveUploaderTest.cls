@@ -2,7 +2,7 @@
 public class GoogleDriveUploaderTest {
     @TestSetup
     static void makeData(){
-        MVDG__AuthProviderSettings__c settings = new MVDG__AuthProviderSettings__c();
+        MVDG__Google_Credentials__c settings = new MVDG__Google_Credentials__c();
         settings.SetupOwnerId = UserInfo.getOrganizationId();
         settings.MVDG__ClientId__c = 'dummyClientId';
         settings.MVDG__ClientSecret__c = 'dummyClientSecret';

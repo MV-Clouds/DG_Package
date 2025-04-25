@@ -323,10 +323,19 @@
                     const docIcon = intialLoading?.querySelector('svg');
                     const useMode = '{!JSENCODE(useMode)}';
 
-                    function sendInfoToLWC(completedChannel, status, error, cvId) {
+                    function sendInfoToLWC(completedChannel, status, error, cvId, errMsg) {
                         if(useMode === 'preview'){
-                            loadingInfo && (loadingInfo.innerText = 'Facing Issue While Generating Preview, Please Try Agian...');
+                            loadingInfo && (loadingInfo.innerText = errMsg ?? 'Facing Issue While Generating Preview, Please Try Agian...');
                             docIcon?.classList.add('error');
+                            // send message to parent LWC component
+                            const message = {
+                                messageFrom : 'docGenerate',
+                                completedChannel:completedChannel,
+                                status: status,
+                                error: error,
+                                cvId : cvId,
+                            };
+                            parent.postMessage(message, parentURL);
                         }
                         else{
                             // send message to parent LWC component if useMode === 'download'
@@ -354,7 +363,7 @@
                     }
                     else{
     
-                        const sessionId = '{!JSENCODE(sessionId)}';
+                        const accessToken = '{!JSENCODE(accessToken)}';
                         const fileName = '{!JSENCODE(fileName)}';
                         const recordId = '{!JSENCODE(recordId)}';
     
@@ -533,7 +542,7 @@
                                 const queryURL = `/services/data/v56.0/sobjects/ContentVersion/${cvId}/VersionData`;
     
                                 const myHeaders = new Headers();
-                                myHeaders.append("Authorization", "Bearer " + sessionId);
+                                myHeaders.append("Authorization", "Bearer " + accessToken);
     
                                 const requestOptions = {
                                     method: "GET",
@@ -1019,13 +1028,13 @@
     
                         function createDocument(fileData) {
                             try {
-                                if (!sessionId || sessionId == '' ) {
+                                if (!accessToken || accessToken == '' ) {
                                     // console.error('Error fetching session ID fro create document');
                                     sendInfoToLWC('Documents', false, {message : 'Error fetching session ID fro create document'});
                                 }
                             
                                 const myHeaders = new Headers();
-                                myHeaders.append("Authorization", "Bearer " + sessionId);
+                                myHeaders.append("Authorization", "Bearer " + accessToken);
                                 myHeaders.append("Content-Type", "application/json");
                             
                                 const raw = JSON.stringify({
@@ -1071,7 +1080,7 @@
                         function createAttachments(fileData) {
                             try {
     
-                                if (!sessionId || sessionId == '' ) {
+                                if (!accessToken || accessToken == '' ) {
                                     // console.error('Error fetching session ID fro create attachment');
                                     sendInfoToLWC('Notes & Attachments', false, {message : 'Error fetching session ID fro create attachment'});
                                 }
@@ -1084,7 +1093,7 @@
                                 }
     
                                 const myHeaders = new Headers();
-                                myHeaders.append("Authorization", "Bearer " + sessionId);
+                                myHeaders.append("Authorization", "Bearer " + accessToken);
                                 myHeaders.append("Content-Type", "application/json");
                             
                                 const raw = JSON.stringify({
@@ -1130,13 +1139,13 @@
                         function createContentVersion(fileData){
                             try {
     
-                                if (!sessionId || sessionId == '' ) {
+                                if (!accessToken || accessToken == '' ) {
                                     // console.error('Error fetching session ID fro create conetentVersion');
                                     sendInfoToLWC('Files', false, {message : 'Error fetching session ID fro create conetentVersion'});
                                 }
     
                                 const myHeaders = new Headers();
-                                myHeaders.append("Authorization", "Bearer " + sessionId);
+                                myHeaders.append("Authorization", "Bearer " + accessToken);
                                 myHeaders.append("Content-Type", "application/json");
                             
                                 const raw = JSON.stringify({
@@ -1338,6 +1347,16 @@
                             function displayPDF(pdfBlob) {
                                 let loadingTask = pdfjsDistBuildPdf?.getDocument({ data: pdfBlob });
                                 loadingTask.promise.then(function (pdf) {
+                                    pdfPages = pdf.pdfInfo.numPages;
+
+                                    if(pdfPages >= 20){
+                                        intialLoading && (intialLoading.style.display = 'flex');
+                                        const errMsg = 'Your Data is to Large to generate file !';
+                                        loadingInfo && (loadingInfo.innerHTML = errMsg);
+                                        docIcon && docIcon.classList.add('error');
+                                        sendInfoToLWC('Generate Preview Error', false, {message : 'Page Size Limit Exceeded!'}, null, errMsg);
+                                        return;
+                                    }
     
                                     const totalPagesInput = document.querySelector('[data-name="totalPages"]');
                                     totalPagesInput && (totalPagesInput.value = pdf.pdfInfo.numPages);
@@ -1345,7 +1364,6 @@
                                     const pageToSetInut = document.querySelector('[data-name="pageToSet"]');
                                     pageToSetInut && (pageToSetInut.value = currentPage);
     
-                                    pdfPages = pdf.pdfInfo.numPages;
     
                                     for (let i = 1; i <= pdf.pdfInfo.numPages; i++) {
                                         let pageNum = i;

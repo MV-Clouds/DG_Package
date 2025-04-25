@@ -1,6 +1,6 @@
 import { LightningElement , api, track, wire} from 'lwc';
 import getCombinedData from '@salesforce/apex/GenerateDocumentController.getCombinedData';
-import getSessionId from '@salesforce/apex/GenerateDocumentController.getSessionId';
+import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
 import storeInFiles from '@salesforce/apex/GenerateDocumentController.storeInFiles';
 import postToChatter from '@salesforce/apex/GenerateDocumentController.postToChatter';
 import sendEmail from '@salesforce/apex/GenerateDocumentController.sendEmail';
@@ -118,7 +118,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     @track fetchedResults = [];
     @track generatedCSVData;
     @track isAdditionalInfo = false;
-    sessionId;
+    accessToken;
 
     @track isCSVOnly = false;
     @track isAllExceptCSV = false;
@@ -1140,7 +1140,11 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }
                     let fieldNames = data?.fields?.split(',');
                     let query = data?.query;
-                    this.sessionId = data?.sessionId;
+                    this.accessToken = data?.accessToken;
+                    if (!this.accessToken) {
+                        this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
+                        return;
+                    }
                     if(!fieldNames || fieldNames?.length < 1){
                         this.showToast('error', 'Something went wrong!', 'No Columns Selected, Please Update the Template...', 5000);
                         return;
@@ -1161,7 +1165,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         const newQuery = '/services/data/v59.0/query/?q=' + query.split('LIMIT')[0];
     
-                        this.fetchRecords(newQuery, this.sessionId, generationCount)
+                        this.fetchRecords(newQuery, this.accessToken, generationCount)
                         .then(isSuccess => {
                             if (isSuccess) {
                                 if (this.fetchedResults.length === 0) {
@@ -1206,7 +1210,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
     
                         const newQuery = '/services/data/v59.0/query/?q=' + query.split('LIMIT')[0];
     
-                        this.fetchRecords(newQuery, this.sessionId, generationCount)
+                        this.fetchRecords(newQuery, this.accessToken, generationCount)
                         .then(isSuccess => {
                             this.labelOfLoader = 'Arranging data...';
                             if (isSuccess) {
@@ -1250,10 +1254,10 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         return key.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
     }
 
-    fetchRecords(queryURL, sessionId, limitOfRecords) {
+    fetchRecords(queryURL, accessToken, limitOfRecords) {
         try{
             const myHeaders = new Headers();
-            let bearerString = "Bearer " + sessionId;
+            let bearerString = "Bearer " + accessToken;
             myHeaders.append("Authorization", bearerString);
             //The batch size of the record fetching can go to max 2000, it will automatically set batch size optimally if not given
             // myHeaders.append("Sforce-Query-Options", "batchSize=2000");
@@ -1294,7 +1298,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 this.labelOfLoader = 'Fetching Records - ' + Math.min(Math.round(this.fetchedResults.length * 100 / limitOfRecords), 100) + '%';
 
                 if (result.nextRecordsUrl && limitOfRecords > this.fetchedResults.length) {
-                    return this.fetchRecords(result.nextRecordsUrl, sessionId, limitOfRecords);
+                    return this.fetchRecords(result.nextRecordsUrl, accessToken, limitOfRecords);
                 } else if (limitOfRecords < this.fetchedResults.length) {
                     this.fetchedResults = this.fetchedResults.slice(0, limitOfRecords);
                 }
@@ -1661,12 +1665,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 return;
             }
 
-            getSessionId()
-                .then(sessionId => {
-                    if (!sessionId) {
-                        errorDebugger('generateDocument', 'createDocument > getSessionId', 'Session ID not obtained', 'error');
+            generateAccessToken({isUpdateSetting : false})
+                .then(accessToken => {
+                    if (!accessToken) {
+                        this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
+                        errorDebugger('generateDocument', 'createDocument > generateAccessToken', 'Session ID not obtained', 'error');
                         this.showSpinner = false;
-                        throw new Error('Session ID not obtained');
+                        return;
+                        // throw new Error('Session ID not obtained');
                     }
 
                     if (typeof window === 'undefined') {
@@ -1674,7 +1680,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }
                     const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                     const myHeaders = new Headers();
-                    myHeaders.append("Authorization", "Bearer " + sessionId);
+                    myHeaders.append("Authorization", "Bearer " + accessToken);
                     myHeaders.append("Content-Type", "application/json");
 
                     const raw = JSON.stringify({
@@ -1722,12 +1728,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
             this.showSpinner = true;
             this.labelOfLoader = 'Saving in Internal Storage...';
     
-            getSessionId()
-                .then(sessionId => {
-                    if (!sessionId) {
-                        errorDebugger('generateDocument', 'createAttachments > getSessionId', 'Session ID not obtained', 'error');
+            generateAccessToken({isUpdateSetting : false})
+                .then(accessToken => {
+                    if (!accessToken) {
+                        this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
+                        errorDebugger('generateDocument', 'createAttachments > generateAccessToken', 'Session ID not obtained', 'error');
                         this.showSpinner = false;
-                        throw new Error('Session ID not obtained'); 
+                        return;
+                        // throw new Error('Session ID not obtained'); 
                     }
     
                     if (typeof window === 'undefined') {
@@ -1735,7 +1743,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                     }
                     const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                     const myHeaders = new Headers();
-                    myHeaders.append("Authorization", "Bearer " + sessionId);
+                    myHeaders.append("Authorization", "Bearer " + accessToken);
                     myHeaders.append("Content-Type", "application/json");
     
                     const raw = JSON.stringify({
@@ -1902,12 +1910,14 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         this.showSpinner = true;
         this.labelOfLoader = 'Generating File...';
     
-        return getSessionId()
-            .then(sessionId => {
-                if (!sessionId) {
-                    errorDebugger('generateDocument', 'createContentVersion > getSessionId', 'Session ID not obtained', 'error');
+        return generateAccessToken({isUpdateSetting : false})
+            .then(accessToken => {
+                if (!accessToken) {
+                    this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
+                    errorDebugger('generateDocument', 'createContentVersion > generateAccessToken', 'Session ID not obtained', 'error');
                     this.showSpinner = false;
-                    throw new Error('Session ID not obtained');
+                    return;
+                    // throw new Error('Session ID not obtained');
                 }
     
                 if (typeof window === 'undefined') {
@@ -1915,7 +1925,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                 }
                 const domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                 const myHeaders = new Headers();
-                myHeaders.append("Authorization", "Bearer " + sessionId);
+                myHeaders.append("Authorization", "Bearer " + accessToken);
                 myHeaders.append("Content-Type", "application/json");
     
                 const raw = JSON.stringify({
@@ -2142,18 +2152,22 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                             errorDebugger('generateDocument', 'handleCreateButton > createListViewButtons', e, 'error');
                         })
                     }else{
-                        getSessionId()
+                        generateAccessToken({isUpdateSetting : false})
                         .then((data) => {
+                            if (!data) {
+                                this.showToast('error', 'Something went wrong!','Please verify connected app from user configuration.', 5000);
+                                return;
+                            }
                             if (typeof window === 'undefined') {
                                 return;
                             }
                             let domainURL = location.origin.replace('lightning.force.com', 'my.salesforce.com');
                             let endpoint = domainURL + '/services/data/v61.0/tooling/sobjects/QuickActionDefinition';
     
-                            let sessionId = data;
+                            let accessToken = data;
                             let myHeaders = new Headers();
                             myHeaders.append("Content-Type", "application/json");
-                            myHeaders.append("Authorization", "Bearer "+sessionId);
+                            myHeaders.append("Authorization", "Bearer "+accessToken);
     
                             let requestBody = {
                                 Metadata: {
@@ -2190,7 +2204,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
                         .catch((e)=>{
                             this.showSpinner = false;
                             this.showToast('error', 'Something went wrong!','Some technical issue occurred, please try again!', 5000);
-                            errorDebugger('generateDocument', 'handleCreateButton > getSessionId', e, 'error');
+                            errorDebugger('generateDocument', 'handleCreateButton > generateAccessToken', e, 'error');
                         })
                     }
                 }else{

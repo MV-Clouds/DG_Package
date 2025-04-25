@@ -16,7 +16,7 @@ public with sharing class Response_Handler{
                 Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Class_Name__c.isAccessible() &&
                 Schema.sObjectType.MVDG__API_Responses__c.fields.MVDG__Method_Name__c.isAccessible()
             ){
-                insert response;
+                insert as user response;
             }
             
         } 

@@ -216,7 +216,7 @@ public with sharing class ChatBotController {
             if(!Schema.sObjectType.MVDG__ChatBotData__c.fields.MVDG__Chats__c.isUpdateable()){
                 return null;
             }
-            update checkData;
+            update as user checkData;
 
         }
         else{
@@ -225,7 +225,7 @@ public with sharing class ChatBotController {
             if(!Schema.sObjectType.MVDG__ChatBotData__c.fields.MVDG__Chats__c.isCreateable()){
                 return null;
             }
-            insert storedData;
+            insert as user storedData;
         }
         return null;
     }

@@ -209,7 +209,7 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
             MetadataService.MetadataPort service = new MetadataService.MetadataPort();
             if (!Test.isRunningTest()) {   
                 service.SessionHeader = new MetadataService.SessionHeader_element();
-                service.SessionHeader.sessionId = Page.UserSessionIdPage.getContent().toString();
+                service.SessionHeader.sessionId = GenerateDocumentController.generateAccessToken(false);
             }
             list<MetadataService.UpsertResult> saveResultList = new list<MetadataService.UpsertResult>();
             saveResultList = service.upsertMetadata(webLinks);

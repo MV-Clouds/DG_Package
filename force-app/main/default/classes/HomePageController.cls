@@ -48,9 +48,9 @@ public with sharing class HomePageController {
                 // Create List of Only Date Field form Templare Object...
                 returnValue.dateFields = createTempFieldInstance('MVDG__Template__c');
 
-                // returnValue.isGoogleDocEnable = MVDG__AuthProviderSettings__c.getOrgDefaults().MVDG__WorkingStatus__c || MVDG__AuthProviderSettings__c.getInstance().MVDG__WorkingStatus__c;
-                // returnValue.isGoogleDocEnable = MVDG__AuthProviderSettings__c.getInstance().MVDG__WorkingStatus__c;
-                returnValue.isGoogleDocEnable = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1]?.MVDG__WorkingStatus__c;
+                // returnValue.isGoogleDocEnable = MVDG__Google_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c || MVDG__Google_Credentials__c.getInstance().MVDG__WorkingStatus__c;
+                // returnValue.isGoogleDocEnable = MVDG__Google_Credentials__c.getInstance().MVDG__WorkingStatus__c;
+                returnValue.isGoogleDocEnable = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1]?.MVDG__WorkingStatus__c;
                 
                 // Assign Values to returnValue Object...
                 returnValue.isSuccess = true;
@@ -92,6 +92,43 @@ public with sharing class HomePageController {
             return false;
         }
     }
+
+    /*
+*********************************************************
+@description      : Method is used to fetch the Client Id & Client Secret from the Custom Settings record.
+@param {none}
+@return           : {Boolean} - flag after verufying the client id and secret.
+********************************************************
+*/
+@AuraEnabled
+public static Boolean getAuthProviderSettings() {
+    List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
+    aps = [SELECT Id, IsDeleted, Name, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+    if (aps.size() > 0) {
+        String endPointURL = URL.getOrgDomainUrl().toExternalForm() + '/services/oauth2/token';
+        String requestBody = 'grant_type=client_credentials&client_id={0}&client_secret={1}';
+    
+        try{
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint(endPointURL);
+            req.setMethod('POST');
+            req.setBody(String.format(requestBody ,new string[]{aps[0].MVDG__Client_Id__c,aps[0].MVDG__Client_Secret__c}));
+            req.setTimeout(60000);
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+            if(res.getStatusCode() != 200){
+                return false;
+            } else {
+                return true;
+            }
+            
+        }catch(Exception e){
+            Log_Handler.store_Exception(e, 'HomePageController', 'getAuthProviderSettings');
+            return false;
+        }        
+    }
+    return false;
+}
 
     /**
      * @preturn List<TemFieldInstance> : List of tempalte type

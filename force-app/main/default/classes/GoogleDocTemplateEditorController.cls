@@ -7,7 +7,7 @@
 */
 public with sharing class GoogleDocTemplateEditorController {
     public static Map<String, HttpResponse> responseList = new Map<String, HttpResponse>();    
-    public static List<MVDG__AuthProviderSettings__c> authProvider = new List<MVDG__AuthProviderSettings__c>();
+    public static List<MVDG__Google_Credentials__c> authProvider = new List<MVDG__Google_Credentials__c>();
 
      /**
     * Method Name : getAllData
@@ -63,8 +63,8 @@ public with sharing class GoogleDocTemplateEditorController {
     public static String getAllDocs() {
         try {
             String endpoint = 'https://www.googleapis.com/drive/v3/files';
-            List<MVDG__AuthProviderSettings__c> authProvider = new List<MVDG__AuthProviderSettings__c>();
-            authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+            List<MVDG__Google_Credentials__c> authProvider = new List<MVDG__Google_Credentials__c>();
+            authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
             if (authProvider == null || authProvider.size() == 0) {
                 return 'error';   
             }
@@ -124,8 +124,8 @@ public with sharing class GoogleDocTemplateEditorController {
     @AuraEnabled
     public static String createNewDocument() {
         try {
-            List<MVDG__AuthProviderSettings__c> authProvider = new List<MVDG__AuthProviderSettings__c>();
-            authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+            List<MVDG__Google_Credentials__c> authProvider = new List<MVDG__Google_Credentials__c>();
+            authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
             if (authProvider.size() == 0) {
                 return 'error';   
             }
@@ -171,7 +171,7 @@ public with sharing class GoogleDocTemplateEditorController {
     * Name of methods changed (Comma separated if more then one) : method1 
     * Change Description : 
     ***********************************************************************/
-    public static HttpResponse refreshAccessToken(MVDG__AuthProviderSettings__c settings, HttpRequest requestPending) {
+    public static HttpResponse refreshAccessToken(MVDG__Google_Credentials__c settings, HttpRequest requestPending) {
         try {
             
             
@@ -191,15 +191,11 @@ public with sharing class GoogleDocTemplateEditorController {
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 String newToken = (String) jsonResponse.get('access_token');
                 if (newToken != null) {
-                    if (Schema.sObjectType.MVDG__AuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable()) {
-                        settings.MVDG__access_token__c = newToken;
-                    }
+                    settings.MVDG__access_token__c = newToken;
                     requestPending.setHeader('Authorization', 'Bearer ' + newToken);
                     Http httpPending = new Http();
                     HttpResponse responsePending = httpPending.send(requestPending);
-                    if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isAccessible() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isCreateable()) {
-                        upsert settings;
-                    }
+                    upsert as user settings;
                     return responsePending;
                 }
             }
@@ -230,7 +226,7 @@ public with sharing class GoogleDocTemplateEditorController {
         try {
             List<MVDG__Template_Data__c> templateData = new List<MVDG__Template_Data__c>();
             templateData = [SELECT MVDG__Google_Doc_WebViewLink__c, MVDG__Google_Doc_Template_Id__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c = :templateId AND MVDG__Order_No_Simple__c = 1 WITH SECURITY_ENFORCED];
-            // templateData.MVDG__Google_Doc_WebViewLink__c += '&access_token='+ MVDG__AuthProviderSettings__c.getInstance().MVDG__access_token__c;
+            // templateData.MVDG__Google_Doc_WebViewLink__c += '&access_token='+ MVDG__Google_Credentials__c.getInstance().MVDG__access_token__c;
             if (templateData.size() > 0) {
                 return JSON.serialize(templateData[0]);
             }
@@ -282,7 +278,7 @@ public with sharing class GoogleDocTemplateEditorController {
     ***********************************************************************/
     public static string getGoogleProfile() {
         try {
-            MVDG__AuthProviderSettings__c authProvider = [SELECT Id, Name, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__username__c FROM MVDG__AuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            MVDG__Google_Credentials__c authProvider = [SELECT Id, Name, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId()];
 
             Map<String, String> profile = new Map<String, String>();
             profile.put('username', authProvider.MVDG__username__c);
@@ -401,9 +397,7 @@ public with sharing class GoogleDocTemplateEditorController {
     ***********************************************************************/
     public static void updateAuthProviderSettings() {
         try {
-            if (Schema.sObjectType.MVDG__AuthProviderSettings__c.isUpdateable() && Schema.sObjectType.MVDG__AuthProviderSettings__c.isCreateable()) {
-                upsert authProvider;
-            }
+            upsert as user authProvider;
         } catch (Exception e) {
             
             Log_Handler.store_exception(e, 'GoogleDocTemplateEditorController', 'updateAuthProviderSettings');
