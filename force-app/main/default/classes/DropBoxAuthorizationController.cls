@@ -43,7 +43,7 @@ public with sharing class DropBoxAuthorizationController {
                                                WITH SECURITY_ENFORCED 
                                                LIMIT 1];
             if (settings == null) {
-                throw new CustomException('No Dropbox credentials found.');
+                return false;
             }
             String refresh = settings.MVDG__refresh_token__c;
             String clientid = settings.MVDG__ClientId__c;
@@ -202,7 +202,7 @@ public with sharing class DropBoxAuthorizationController {
                                                          WITH SECURITY_ENFORCED 
                                                          LIMIT 1];
             if (settingsList.isEmpty()) {
-                throw new CustomException('No Dropbox credential settings found.');
+                return null;
             }
             MVDG__Dropbox_Credential__mdt settings = settingsList[0];
             // Update Custom Metadata with client ID and secret
