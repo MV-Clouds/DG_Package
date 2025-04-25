@@ -155,7 +155,7 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
             List<MetadataService.Metadata> webLinks = new List<MetadataService.Metadata>();
             for (Integer i = 0; i < totalSize; i++) {
                 String obj = objects[i];
-                String buttonURL = '/lightning/cmp/MVDG__generateDocument?c__objectApiName='+ obj +  buttonEndURL;
+                String buttonURL = '/lightning/cmp/MVDG__generateDocumentV2?c__objectApiName='+ obj +  buttonEndURL;
                 String displayType = 'massActionButton';
                 if(buttonName == 'DG_Basic_Print'){
                     buttonURL = '/apex/MVDG__Dynamicpage?id={!'+ obj+'.Id}';

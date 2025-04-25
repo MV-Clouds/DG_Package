@@ -249,7 +249,7 @@ export default class ButtonGeneratorV2 extends LightningElement {
                         label: "DG Generate Document",
                         optionsCreateFeedItem: false,
                         type: "LightningWebComponent",
-                        lightningWebComponent: "MVDG__generateDocument"
+                        lightningWebComponent: "MVDG__generateDocumentV2"
                     },
                     FullName: `${obj}.DG_Generate_Document`
                 }));

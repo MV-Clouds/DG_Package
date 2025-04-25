@@ -2174,7 +2174,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                                     label: this.buttonLabel,
                                     optionsCreateFeedItem: false,
                                     type: "LightningWebComponent",
-                                    lightningWebComponent: "MVDG__generateDocument"
+                                    lightningWebComponent: "MVDG__generateDocumentV2"
                                 },
                                 FullName: this.internalObjectApiName+'.'+defaults.buttonName
                             };
