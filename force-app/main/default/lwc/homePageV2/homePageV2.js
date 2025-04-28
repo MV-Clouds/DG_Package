@@ -144,7 +144,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             this.fetchTemplateRecords();
 
         } catch (error) {
-            errorDebugger('HomePage', 'connectedCallback', error, 'warn');
+            errorDebugger('HomePageV2', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -178,7 +178,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                 }
             }
         } catch (error) {
-            errorDebugger('HomePage', 'renderedCallback', error, 'warn');
+            errorDebugger('HomePageV2', 'renderedCallback', error, 'warn');
         }
     }
 
@@ -229,7 +229,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
     
             return referenceDates;
         } catch (error) {
-            errorDebugger('HomePage', 'setReferenceDate', error, 'warn');
+            errorDebugger('HomePageV2', 'setReferenceDate', error, 'warn');
         }
     }
 
@@ -250,7 +250,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
               })
                 .catch(error => {
                     this.isSpinner = false;
-                    errorDebugger('HomePage', 'checkAccessToken', error, 'warn', 'error in apex method getAuthProviderSettings');
+                    errorDebugger('HomePageV2', 'checkAccessToken', error, 'warn', 'error in apex method getAuthProviderSettings');
                    
             });
             getTemplateList()
@@ -299,10 +299,10 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             })
             .catch(error => {
                 this.isSpinner = false;
-                errorDebugger('HomePage', 'fetchTemplateRecords', error, 'warn', 'error in apex method getTemplateList');
+                errorDebugger('HomePageV2', 'fetchTemplateRecords', error, 'warn', 'error in apex method getTemplateList');
             })
         } catch (error) {
-            errorDebugger('HomePage', 'fetchTemplateRecords', error, 'warn');
+            errorDebugger('HomePageV2', 'fetchTemplateRecords', error, 'warn');
         }
     }
 
@@ -339,7 +339,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             }
 
         } catch (error) {
-            errorDebugger('HomePage', 'toggleFilterOptions', error, 'warn');
+            errorDebugger('HomePageV2', 'toggleFilterOptions', error, 'warn');
         }
     }
 
@@ -384,7 +384,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             this.filterOpts = tempFilterOpts;
             
         } catch (error) {
-            errorDebugger('HomePage', 'onOptionSelect', error, 'warn');
+            errorDebugger('HomePageV2', 'onOptionSelect', error, 'warn');
         }
     }
 
@@ -404,7 +404,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             }
             this.filterOpts = tempFilterOpts;
         } catch (error) {
-            errorDebugger('HomePage', 'onFilterCheckboxChange', error, 'warn');
+            errorDebugger('HomePageV2', 'onFilterCheckboxChange', error, 'warn');
         }
     }
 
@@ -416,7 +416,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             tempFilterOpts[filterOpt] = value;
             this.filterOpts = tempFilterOpts;
         } catch (error) {
-            errorDebugger('HomePage', 'setSortingOrder', error, 'warn');
+            errorDebugger('HomePageV2', 'setSortingOrder', error, 'warn');
         }
     }
 
@@ -448,7 +448,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                 event.target?.classList?.remove('errorBorder');
             }
         } catch (error) {
-            errorDebugger('HomePage', 'ChangeDates', error, 'warn');
+            errorDebugger('HomePageV2', 'ChangeDates', error, 'warn');
         }
     }
 
@@ -461,7 +461,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
 
             this.setFromToDate(selectedReferenceTime);
         } catch (error) {
-            errorDebugger('HomePage', 'referencePillClick', error, 'warn');
+            errorDebugger('HomePageV2', 'referencePillClick', error, 'warn');
         }
     }
 
@@ -489,7 +489,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                 delete this.filterOpts['refrenceTime'];
             }
         } catch (error) {
-            errorDebugger('HomePage', 'setFromToDate', error, 'warn');
+            errorDebugger('HomePageV2', 'setFromToDate', error, 'warn');
         }
     }
 
@@ -514,7 +514,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
 
             this.template.querySelector(`[data-name="objectsToFilter"]`).unselectOption(unselectedValue);
         } catch (error) {
-            errorDebugger('HomePage', 'removeSelectedObj', error, 'warn');
+            errorDebugger('HomePageV2', 'removeSelectedObj', error, 'warn');
         }
     }
 
@@ -528,7 +528,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             this.setFromToDate(null);
 
         } catch (error) {
-            errorDebugger('HomePage', 'clearSelectedDateAndRange', error, 'warn');
+            errorDebugger('HomePageV2', 'clearSelectedDateAndRange', error, 'warn');
         }
     }
 
@@ -568,7 +568,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                 this.isFilterApplied = !isClearFilter;
             }
         } catch (error) {
-            errorDebugger('HomePage', 'applyFilter', error, 'warn');
+            errorDebugger('HomePageV2', 'applyFilter', error, 'warn');
         }
     }
 
@@ -607,7 +607,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                 return 0;
             })
         } catch (error) {
-            errorDebugger('HomePage', 'sortDisplayTemplates', error, 'warn');
+            errorDebugger('HomePageV2', 'sortDisplayTemplates', error, 'warn');
         }
     }
 
@@ -650,7 +650,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             }
             
         } catch (error) {
-            errorDebugger('HomePage', 'setErrorForRangeDate', error, 'warn');
+            errorDebugger('HomePageV2', 'setErrorForRangeDate', error, 'warn');
         }
         
     }
@@ -701,7 +701,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             this.lastScroll = event.target.scrollTop;
 
         }catch(error) {
-            errorDebugger('HomePage', 'loadTemplates', error, 'warn');
+            errorDebugger('HomePageV2', 'loadTemplates', error, 'warn');
         }
     }
 
@@ -749,7 +749,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             
             this.previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts));
         } catch (error) {
-            errorDebugger('HomePage', 'clearFilterOpts', error, 'warn');
+            errorDebugger('HomePageV2', 'clearFilterOpts', error, 'warn');
         }
     }
 
@@ -770,7 +770,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             this.displayedTemplateList = this.setSerialNumber(this.displayedTemplateList);
             
         } catch (error) {
-            errorDebugger('HomePage', 'searchTemplates', error, 'warn');
+            errorDebugger('HomePageV2', 'searchTemplates', error, 'warn');
         }
     }
 
@@ -805,12 +805,12 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                 // Update Template in Backend...
                 updateTemplate({ templateId : this.toggelTemplateId, isActive : true})
                 .catch(error => {
-                    errorDebugger('HomePage', 'handleChangeStatus', error, 'warn', 'error in apex method updateTemplate');
+                    errorDebugger('HomePageV2', 'handleChangeStatus', error, 'warn', 'error in apex method updateTemplate');
                 })
 
             }
         } catch (error) {
-            errorDebugger('HomePage', 'handleChangeStatus', error, 'warn');
+            errorDebugger('HomePageV2', 'handleChangeStatus', error, 'warn');
         }
     }
 
@@ -831,7 +831,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             }
             this.isPreview = true;
         } catch(error) {
-            errorDebugger('HomePage', 'handlePreviewTemplate', error, 'warn');
+            errorDebugger('HomePageV2', 'handlePreviewTemplate', error, 'warn');
         }
     }
 
@@ -846,7 +846,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             this.showMessagePopup('Warning', 'Confirm to Delete ?', 'Do you want to Delete this Template');
             
         } catch (error) {
-            errorDebugger('HomePage', 'handleDeleteTemplate', error, 'warn');
+            errorDebugger('HomePageV2', 'handleDeleteTemplate', error, 'warn');
         }
     }
 
@@ -869,7 +869,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                     // Update Template in Backend...
                     updateTemplate({ templateId : this.toggelTemplateId, isActive : toggelInput.checked})
                     .catch(error => {
-                        errorDebugger('HomePage', 'handleConfirmation', error, 'warn', 'error in apex method updateTemplate');
+                        errorDebugger('HomePageV2', 'handleConfirmation', error, 'warn', 'error in apex method updateTemplate');
                     })
                 }
                 else{
@@ -888,7 +888,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                         this.showMessageToast('Success', 'Template Deleted.', 'Your template deleted successfully.', 5000);
                     })
                     .catch(error => {
-                        errorDebugger('HomePage', 'handleConfirmation', error, 'warn', 'error in apex method deleteTemplate');
+                        errorDebugger('HomePageV2', 'handleConfirmation', error, 'warn', 'error in apex method deleteTemplate');
                     })
                     .finally(() => {
                         this.isSpinner = false;
@@ -920,7 +920,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             }
             this.isSetUpRedirect = false;
         } catch (error) {
-            errorDebugger('HomePage', 'handleConfirmation', error, 'warn');
+            errorDebugger('HomePageV2', 'handleConfirmation', error, 'warn');
         }
     }
 
@@ -955,7 +955,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             }
 
         } catch (error) {
-            errorDebugger('HomePage', 'handleEditClick', error, 'warn');
+            errorDebugger('HomePageV2', 'handleEditClick', error, 'warn');
         }
     }
 
@@ -972,7 +972,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                 this.isCloneTemplate = !this.isCloneTemplate;
             }
         } catch (error) {
-            errorDebugger('HomePage', 'cloneTemp', error, 'warn');
+            errorDebugger('HomePageV2', 'cloneTemp', error, 'warn');
         }
     }
 
@@ -1021,7 +1021,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
                   });
 
             } catch (error) {
-                errorDebugger('HomePage', 'navigateToComp', error, 'warn');
+                errorDebugger('HomePageV2', 'navigateToComp', error, 'warn');
             }
         }
     

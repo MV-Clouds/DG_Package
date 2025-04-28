@@ -651,7 +651,7 @@ export default class ChatBotV2 extends LightningElement {
                 event?.detail?.function();
             }
         } catch (error) {
-            errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+            errorDebugger('DocumentLoaderV2', 'handleTimeout', error, 'warn')
         }
     }
 

@@ -211,7 +211,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 }
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'connectedCallback', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -255,11 +255,11 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                         }
                     })
                     .catch(err => {
-                        errorDebugger('TemplateBuilder', 'renderedCallback', err, 'warn', 'Error To Load summerNote_Editor');
+                        errorDebugger('TemplateBuilderV2', 'renderedCallback', err, 'warn', 'Error To Load summerNote_Editor');
                     })
                 })
                 .catch(error => { 
-                    errorDebugger('TemplateBuilder', 'renderedCallback', error, 'warn', 'Error To Load Jquery');
+                    errorDebugger('TemplateBuilderV2', 'renderedCallback', error, 'warn', 'Error To Load Jquery');
                 })
 
                 this.setActiveTab();
@@ -272,7 +272,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             }
         }
         catch(error){
-            errorDebugger('TemplateBuilder', 'renderedCallback', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'renderedCallback', error, 'warn');
         }
     }
 
@@ -291,7 +291,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 this.resolvedPromise++
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'initialize_Content_Editor', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'initialize_Content_Editor', error, 'warn');
         }
     }
 
@@ -304,7 +304,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 'Reload Page')
             }           
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'initialize_Header_Editor', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'initialize_Header_Editor', error, 'warn');
         }
     }
 
@@ -317,7 +317,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 this.showMessagePopup('Error','Error' ,'There is Some issue to Load Editor Properly, Please reload current page or try after some time.', 'Reload Page')
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'initialize_Footer_Editor', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'initialize_Footer_Editor', error, 'warn');
         }
     }
 
@@ -378,10 +378,10 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             })
             .catch(error => {
                 this.resolvedPromise++
-                errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn', 'Error in getTemplateData APEX Method.');
+                errorDebugger('TemplateBuilderV2', 'getTemplateValues', error, 'warn', 'Error in getTemplateData APEX Method.');
             })
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'getTemplateValues', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'getTemplateValues', error, 'warn');
         }
     }
 
@@ -393,7 +393,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 this.valueInserted = true;
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setDataInMainEditor', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setDataInMainEditor', error, 'warn');
         }
     }
 
@@ -545,11 +545,11 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 else{
                     completedProcess++;
                     this.isSpinner = this.stopSpinner(completedProcess, totalProcesses);
-                    errorDebugger('TemplateBuilder', 'saveTemplateValue', result, 'warn', 'Error in saveTemplateApex APEX Method');
+                    errorDebugger('TemplateBuilderV2', 'saveTemplateValue', result, 'warn', 'Error in saveTemplateApex APEX Method');
                 }
             })
             .catch(error => {
-                errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTemplateApex APEX Method');
+                errorDebugger('TemplateBuilderV2', 'saveTemplateValue', error, 'warn', 'Error in saveTemplateApex APEX Method');
                 completedProcess++;
                 this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
             })
@@ -568,19 +568,19 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                     else{
                         completedProcess++;
                         this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
-                        errorDebugger('TemplateBuilder', 'saveTemplateValue', {'message' : result.returnMessage}, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
+                        errorDebugger('TemplateBuilderV2', 'saveTemplateValue', {'message' : result.returnMessage}, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                     }
                 })
                 .catch((error) => {
                     completedProcess++;
                     this.isSpinner = this.stopSpinner(completedProcess , totalProcesses);
-                    errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
+                    errorDebugger('TemplateBuilderV2', 'saveTemplateValue', error, 'warn', 'Error in saveTempDataRecordsInBatch APEX Method');
                 })
             }
 
         } catch (error) {
             this.isSpinner = false;
-            errorDebugger('TemplateBuilder', 'saveTemplateValue', error, 'warn', `Error during ${actionName}`);
+            errorDebugger('TemplateBuilderV2', 'saveTemplateValue', error, 'warn', `Error during ${actionName}`);
         }
     }
 
@@ -599,7 +599,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 }
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'handleOngoingAction', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'handleOngoingAction', error, 'warn');
         }
     }
 
@@ -613,7 +613,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             this.showMessagePopup('Warning', 'Are you sure, you want to leave?', `Your unsaved changes will be discarded once you leave the this page.`);
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'handleCloseEdit', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'handleCloseEdit', error, 'warn');
         }
     }
     
@@ -623,7 +623,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             this.navigateToComp(navigationComps.home);
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'closeEditTemplate', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'closeEditTemplate', error, 'warn');
         }
     }
 
@@ -657,7 +657,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             // const iframe = this.template.querySelector('iframe');
             // const pdfViewer = iframe.querySelector( 'pdf-viewer' );
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'vfPageLoaded', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'vfPageLoaded', error, 'warn');
         }
     }
 
@@ -665,7 +665,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
         try {
             this.isPreview = false;
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'closeTemplatePreview', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'closeTemplatePreview', error, 'warn');
         }
     }
 
@@ -677,7 +677,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             }
             this.setActiveTab();
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'activeTab', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'activeTab', error, 'warn');
         }
     }
 
@@ -690,7 +690,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
 
             // this.currentTab === 'basicTab' && this.setDummyPageSize();
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setActiveTab', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setActiveTab', error, 'warn');
         }
     }
     // ==== Toggle Tabs Methods - END - ========
@@ -709,7 +709,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                                                 top : 0.1rem;`;
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'toggleMappingContainerHeight', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'toggleMappingContainerHeight', error, 'warn');
         }
     }
 
@@ -723,7 +723,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 this.templateRecord[targetInput] = (event.target.value).trim();
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'handleEditDetail', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'handleEditDetail', error, 'warn');
         }
     }
 
@@ -775,7 +775,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             (pageConfig != 'pageMargins') && this.setPageMarginValue();
             (pageConfig != 'header' && pageConfig != 'footer') && this.setHeaderFooterMargin();
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'managePageConfigs', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'managePageConfigs', error, 'warn');
         }
     }
 
@@ -826,7 +826,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
 
             this.pageConfigRecord.MVDG__Page_Margin__c = pageMarginsTop+';'+pageMarginsBottom+';'+pageMarginsLeft+';'+pageMarginsRight;
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setPageMarginValue', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setPageMarginValue', error, 'warn');
         }
     }
 
@@ -859,7 +859,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             this.setPageHeaderFooterMargin();
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setHeaderFooterMargin', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setHeaderFooterMargin', error, 'warn');
         }
     }
 
@@ -884,7 +884,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             this.pageConfigs.footer.marginBottom = unitConverter(previousUnit, currentUnit, this.pageConfigs.footer.marginBottom);
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'convertConfigValue', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'convertConfigValue', error, 'warn');
         }
     }
 
@@ -923,7 +923,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             this.pageConfigs.watermark.show = this.pageConfigRecord.MVDG__Show_Watermark__c;
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setPageConfigVariable', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setPageConfigVariable', error, 'warn');
         }
     }
 
@@ -958,7 +958,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             // this.setDummyPageSize();
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setEditorPageSize', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setEditorPageSize', error, 'warn');
         }
     }
 
@@ -998,7 +998,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             }
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setEditorArea', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setEditorArea', error, 'warn');
         }
     }
 
@@ -1019,7 +1019,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             dummyPage.style = ` padding : ${pageMarginsTop*m}${unit} ${pageMarginsRight*m}${unit} ${pageMarginsBottom*m}${unit} ${pageMarginsLeft*m}${unit} !important;
                                 aspect-ratio : ${aspectRatio}`;
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setDummyPageSize', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setDummyPageSize', error, 'warn');
         }
     }
     // ==== === === === PAGE Config and PAGE Size Setup Method --- END --- ==== ===== ===== =====
@@ -1069,7 +1069,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
               this.lastRelatedListTableCount = validTableCount;
             }
         } catch (error) {
-          errorDebugger('TemplateBuilder', 'calculateRelatedListTable', error, 'warn');
+          errorDebugger('TemplateBuilderV2', 'calculateRelatedListTable', error, 'warn');
         }
     }
 
@@ -1103,7 +1103,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
 
             }
         } catch (error) {
-          errorDebugger('TemplateBuilder', 'setHeaderFooterMaxHeight', error, 'warn');
+          errorDebugger('TemplateBuilderV2', 'setHeaderFooterMaxHeight', error, 'warn');
         }
     }
 
@@ -1122,7 +1122,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 }
             })
         } catch (error) {
-          errorDebugger('TemplateBuilder', 'restrictLargeImageInsert', error, 'warn');
+          errorDebugger('TemplateBuilderV2', 'restrictLargeImageInsert', error, 'warn');
         }
     }
 
@@ -1145,7 +1145,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             }
             this.popConfigDiscard = JSON.parse(JSON.stringify(this.pageConfigRecord));
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'togglePageConfigPopover', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'togglePageConfigPopover', error, 'warn');
         }
     }
     // === ==== ==== ==== ==== Method called from EditorConfig JS -- END --  === ==== ==== ==== ==== ====
@@ -1186,7 +1186,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 page && (page.scrollTop = 0);
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'scrollToTop', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'scrollToTop', error, 'warn');
         }
     }
 
@@ -1220,7 +1220,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                     }
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'extractMappingKeys', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'extractMappingKeys', error, 'warn');
         }
     }
 
@@ -1269,7 +1269,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             return childRecordTables;
 
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'extractChildRecordTables', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'extractChildRecordTables', error, 'warn');
             return [];
         }
     }
@@ -1295,7 +1295,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
 
             return childTableWrapper;
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'extractChildTableInfo', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'extractChildTableInfo', error, 'warn');
             return {};
         }
     }
@@ -1320,7 +1320,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
 
             return Array.from(extractedSfImages);
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'extractSalesforceImages', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'extractSalesforceImages', error, 'warn');
             return [];
         }
     }
@@ -1341,7 +1341,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 }
             })
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setWatermarkOptsTab', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setWatermarkOptsTab', error, 'warn');
         }
     }
 
@@ -1355,7 +1355,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 this.setWatermarkPreview();
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setWatermarkImageUpload', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setWatermarkImageUpload', error, 'warn');
         }
     }
 
@@ -1364,7 +1364,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             this.watermark.image[event.currentTarget.dataset.name] = event.target.value;
             this.setWatermarkPreview();
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setWatermarkImage', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setWatermarkImage', error, 'warn');
         }
 
     }
@@ -1427,7 +1427,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                                     opacity : ${this.watermark.text.opacity/100};
                                     `);
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'setWatermarkPreview', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'setWatermarkPreview', error, 'warn');
         }
     }
     // ==== ==== ==== Watermark -- END -- ==== ==== ====
@@ -1463,7 +1463,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 this.isCloseConfirmation = false;
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'handleMsgPopConfirmation', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'handleMsgPopConfirmation', error, 'warn');
         }
     }
 
@@ -1474,7 +1474,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 this.spinnerFor = null;
             }
         } catch (error) {
-            errorDebugger('TemplateBuilder', 'handleSpinnerClose', error, 'warn');
+            errorDebugger('TemplateBuilderV2', 'handleSpinnerClose', error, 'warn');
         }
     }
     
@@ -1497,7 +1497,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                 }
             })
             .catch(error => {
-                errorDebugger('TemplateBuilder', 'updateTemplateStatus', error, 'warn', 'error in apex method updateTemplate');
+                errorDebugger('TemplateBuilderV2', 'updateTemplateStatus', error, 'warn', 'error in apex method updateTemplate');
             })
         }
     }
@@ -1552,7 +1552,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
                     }
                   });
             } catch (error) {
-                errorDebugger('TemplateBuilder', 'navigateToComp', error, 'warn');
+                errorDebugger('TemplateBuilderV2', 'navigateToComp', error, 'warn');
             }
         }
 

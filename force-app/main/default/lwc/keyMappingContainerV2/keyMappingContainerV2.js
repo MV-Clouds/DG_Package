@@ -295,7 +295,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.fetchAllActiveTemps()
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'connectedCallback', error, 'warn');
+            errorDebugger('FieldMappingKeyV2', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -346,16 +346,16 @@ export default class KeyMappingContainerV2 extends LightningElement {
                         this.setMappingTab();
                     }
                     else{
-                        errorDebugger('FieldMappingKey', 'fetchFieldMapping', null, 'warn', `error in getFieldMappingKeys apex call : ${result.returnMessage}`);
+                        errorDebugger('FieldMappingKeyV2', 'fetchFieldMapping', null, 'warn', `error in getFieldMappingKeys apex call : ${result.returnMessage}`);
                         this.showMessagePopup('Error', 'Error While Fetching Field Mapping Data', result.returnMessage);
                     }
             })
             .catch(error => {
                 this.isDataRefreshing = false;
-                errorDebugger('FieldMappingKey', 'fetchFieldMapping', error, 'warn', `error in getFieldMappingKeys apex call `);
+                errorDebugger('FieldMappingKeyV2', 'fetchFieldMapping', error, 'warn', `error in getFieldMappingKeys apex call `);
             })
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'fetchFieldMapping', error, 'warn');
+            errorDebugger('FieldMappingKeyV2', 'fetchFieldMapping', error, 'warn');
         }
     }
 
@@ -381,11 +381,11 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     });
                 }
                 else{
-                    errorDebugger('FieldMappingKey', 'fetchChildObjects', null, 'warn', `error in getChildObjects apex call : ${result.returnMessage}`);
+                    errorDebugger('FieldMappingKeyV2', 'fetchChildObjects', null, 'warn', `error in getChildObjects apex call : ${result.returnMessage}`);
                 }
             })
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'fetchChildObjects', error, 'warn');
+            errorDebugger('FieldMappingKeyV2', 'fetchChildObjects', error, 'warn');
         }
     }
 
@@ -407,15 +407,15 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     this.setGeneralFieldsToDisplay();
                 }
                 else{
-                    errorDebugger('FieldMappingKey', 'fetchGeneralFields', null, 'warn', `error in fetchGeneralFields apex : ${result.returnMessage}`);
+                    errorDebugger('FieldMappingKeyV2', 'fetchGeneralFields', null, 'warn', `error in fetchGeneralFields apex : ${result.returnMessage}`);
                 }
             })
             .catch(error => {
                 this.isDataRefreshing = false;
-                errorDebugger('FieldMappingKey', 'fetchGeneralFields', error, 'warn', `error in fetchGeneralFields apex `);
+                errorDebugger('FieldMappingKeyV2', 'fetchGeneralFields', error, 'warn', `error in fetchGeneralFields apex `);
             })
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'fetchGeneralFields', error, 'warn');
+            errorDebugger('FieldMappingKeyV2', 'fetchGeneralFields', error, 'warn');
         }
     }
 
@@ -432,11 +432,11 @@ export default class KeyMappingContainerV2 extends LightningElement {
                         this.setOtherMappingTemplates();
                 }
                 else{
-                    errorDebugger('FieldMappingKey', 'fetchAllActiveTemps', result, 'warn', `error in fetchAllActiveTemps apex  : ${result.returnMessage}`);
+                    errorDebugger('FieldMappingKeyV2', 'fetchAllActiveTemps', result, 'warn', `error in fetchAllActiveTemps apex  : ${result.returnMessage}`);
                 }
             })
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'fetchAllActiveTemps', error, 'warn');
+            errorDebugger('FieldMappingKeyV2', 'fetchAllActiveTemps', error, 'warn');
         }
     }
 
@@ -472,15 +472,15 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     this.setContVerImgToDisplay();
                 }
                 else{
-                    errorDebugger('FieldMappingKey', 'fetchAllContentVersionImages', result, 'warn', `error in getAllContentVersionImgs Apex : ${result.returnMessage}`)
+                    errorDebugger('FieldMappingKeyV2', 'fetchAllContentVersionImages', result, 'warn', `error in getAllContentVersionImgs Apex : ${result.returnMessage}`)
                 }
             })
             .catch(error => {
                 this.isDataRefreshing = false;
-                errorDebugger('FieldMappingKey', 'fetchAllContentVersionImages', error, 'warn')
+                errorDebugger('FieldMappingKeyV2', 'fetchAllContentVersionImages', error, 'warn')
             })
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'fetchAllContentVersionImages', error, 'warn')
+            errorDebugger('FieldMappingKeyV2', 'fetchAllContentVersionImages', error, 'warn')
         }
     }
 
@@ -501,11 +501,11 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     }
                 }
                 else{
-                    errorDebugger('FieldMappingKey', 'fetchFormatMappingKeys', null ,'warn', `Error in ${result.returnMessage}`);
+                    errorDebugger('FieldMappingKeyV2', 'fetchFormatMappingKeys', null ,'warn', `Error in ${result.returnMessage}`);
                 }
             })
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'fetchFormatMappingKeys', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'fetchFormatMappingKeys', error ,'warn');
         }
     }
 
@@ -521,7 +521,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.savedSignatureSize = this.signatureSize;
             })
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'fetchSignatureInfo', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'fetchSignatureInfo', error ,'warn');
         }
     }
 
@@ -555,7 +555,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             
 
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setMappingTab', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'setMappingTab', error ,'warn');
         }
     }
 
@@ -576,7 +576,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.handleGeneralFieldTypeSelection(event);
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'handleOptionSelect', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'handleOptionSelect', error ,'warn');
         }
     }
 
@@ -595,7 +595,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             }
             this.setMappingKeysForObjFields();
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'handleRelatedObjSelect', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'handleRelatedObjSelect', error ,'warn');
         }
     }
 
@@ -615,7 +615,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.selectedChildObjAPI = null;
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'handleChildObjSelection', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'handleChildObjSelection', error ,'warn');
         }
     }
 
@@ -629,7 +629,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             this.selectedGeneralFieldType = event.detail[0];
             this.setGeneralFieldsToDisplay();
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'handleGeneralFieldTypeSelection', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'handleGeneralFieldTypeSelection', error ,'warn');
         }
     }
 
@@ -657,7 +657,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.setContVerImgToDisplay();
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'handleKeySearch', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'handleKeySearch', error ,'warn');
         }
     }
 
@@ -671,7 +671,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.fetchAllContentVersionImages()
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'refreshData', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'refreshData', error ,'warn');
         }
     }
 
@@ -695,7 +695,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             this.field_Vs_KeyList = this.sortFormateKeys(this.field_Vs_KeyList, 'label');
 
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setMappingKeysForObjFields', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'setMappingKeysForObjFields', error ,'warn');
         }
     }
 
@@ -715,7 +715,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
 
             this.generalFieldsToDisplay = this.sortFormateKeys(this.generalFieldsToDisplay, 'label');
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setGeneralFieldsToDisplay', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'setGeneralFieldsToDisplay', error ,'warn');
         }
     }
 
@@ -736,7 +736,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             this.otherActiveTempToDisplay = this.sortFormateKeys(this.otherActiveTempToDisplay, 'label');
 
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setOtherMappingTemplates', error ,'warn');
+            errorDebugger('FieldMappingKeyV2', 'setOtherMappingTemplates', error ,'warn');
         }
     }
 
@@ -756,7 +756,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
 
             this.contentVersionToDisplay = this.sortFormateKeys(this.contentVersionToDisplay, 'Title');
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setContVerImgToDisplay', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'setContVerImgToDisplay', error ,'warn');            
         }
     }
 
@@ -781,7 +781,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 buttonSection.style = `margin : 0px; width : 100%; border-radius : 0px; max-height: 3.25rem;`;
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'toggleMappingTableHeight', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'toggleMappingTableHeight', error ,'warn');            
         }
     }
 
@@ -805,7 +805,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             }
             // this.dispatchEvent(new CustomEvent('togglemapping'));
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'showHideMappingContainer', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'showHideMappingContainer', error ,'warn');            
         }
     }
 
@@ -829,7 +829,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             }
             this.setToggleBtnVisibility();
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'toggleMappingContainer', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'toggleMappingContainer', error ,'warn');            
         }
     }
 
@@ -896,7 +896,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             });
 
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'handleCopyFieldKey', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'handleCopyFieldKey', error ,'warn');            
         }
     }
     
@@ -974,7 +974,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             this.chosenFormat = JSON.parse(JSON.stringify(this.formatDefault));           // for Deep clone...
 
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setFormatKeyList', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'setFormatKeyList', error ,'warn');            
         }
     }
 
@@ -995,7 +995,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.updateChosenFormat();
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'handlePrimeFormat', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'handlePrimeFormat', error ,'warn');            
         }
     }
 
@@ -1013,7 +1013,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             }
             this.updateChosenFormat();
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'handleSubFormat', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'handleSubFormat', error ,'warn');            
         }
     }
 
@@ -1034,7 +1034,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 }
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'updateChosenFormat', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'updateChosenFormat', error ,'warn');            
         }
     }
 
@@ -1065,7 +1065,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 }
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setCheckBoxFormat', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'setCheckBoxFormat', error ,'warn');            
         }
     }
 
@@ -1092,7 +1092,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.chosenFormat.key = this.formatDefault.key;
             }
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setTextFormat', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'setTextFormat', error ,'warn');            
         }
     }
 
@@ -1180,7 +1180,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             }
             
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setNumberFormat', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'setNumberFormat', error ,'warn');            
         }
     }
 
@@ -1198,7 +1198,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             this.chosenFormat = {};
 
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'closeKeyPopover', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'closeKeyPopover', error ,'warn');            
         }
     }
     // ==== ==== ==== Field Formatting Methods -- END -- ==== ==== ====
@@ -1226,7 +1226,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             this.copyImage(ImgUrl, imgId);
 
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'copySFImgAsHTMl', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'copySFImgAsHTMl', error ,'warn');            
         }
     }
 
@@ -1283,7 +1283,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 }
             });
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'copyImage', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'copyImage', error ,'warn');            
         }
     }
 
@@ -1324,7 +1324,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             window.getSelection().removeAllRanges();
             window.getSelection().addRange(range);
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'setHighlightedSelection', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'setHighlightedSelection', error ,'warn');            
         }
     }
 
@@ -1344,7 +1344,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             this.savedSignatureSize = this.signatureSize;
             updateSignatureInfo({templateId : this.templateId, signatureSize : this.signatureSize});
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'updateSignatureSize', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'updateSignatureSize', error ,'warn');            
         }
     }
 
@@ -1391,7 +1391,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
         try {
             this.isExceedRelatedListLimit = isExceed;
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'relatedListTableLimitExceed', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'relatedListTableLimitExceed', error ,'warn');            
         }
     }
 
@@ -1424,7 +1424,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
 
             return objectKeys;
         } catch (error) {
-            errorDebugger('FieldMappingKey', 'getAllMappingFields', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'getAllMappingFields', error ,'warn');            
             return null;
         }
     }
@@ -1435,7 +1435,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
 				event?.detail?.function();
 			}
 		} catch (error) {
-			errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+			errorDebugger('DocumentLoaderV2', 'handleTimeout', error, 'warn')
 		}
 	}
 

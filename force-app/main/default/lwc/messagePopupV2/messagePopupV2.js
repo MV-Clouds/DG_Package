@@ -94,7 +94,7 @@ export default class MessagePopupV2 extends LightningElement {
             this.doneButtonLabel = messageData?.doneButtonLabel ? messageData.doneButtonLabel : 'Okay';
             this.showPopup = true;
         } catch (error) {
-            errorDebugger('MessagePopup', 'showMessagePopup', error, 'warn');
+            errorDebugger('MessagePopupV2', 'showMessagePopup', error, 'warn');
         }
     }
 
@@ -122,7 +122,7 @@ export default class MessagePopupV2 extends LightningElement {
 			}, duration);
             
         } catch (error) {
-            errorDebugger('MessagePopup', 'showMessageToast', error, 'warn');
+            errorDebugger('MessagePopupV2', 'showMessageToast', error, 'warn');
         }
     }
 
@@ -149,7 +149,7 @@ export default class MessagePopupV2 extends LightningElement {
             this.closeModal(conform);
             
         } catch (error) {
-            errorDebugger('MessagePopup', 'handleConfirmation', error, 'warn');
+            errorDebugger('MessagePopupV2', 'handleConfirmation', error, 'warn');
         }
     }
 
@@ -171,7 +171,7 @@ export default class MessagePopupV2 extends LightningElement {
             }));
 
         } catch (error) {
-            errorDebugger('MessagePopup', 'closeModal', error, 'warn');
+            errorDebugger('MessagePopupV2', 'closeModal', error, 'warn');
         }
     }
 
@@ -181,7 +181,7 @@ export default class MessagePopupV2 extends LightningElement {
 				event?.detail?.function();
 			}
 		} catch (error) {
-			errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+			errorDebugger('DocumentLoaderV2', 'handleTimeout', error, 'warn')
 		}
 	}
 

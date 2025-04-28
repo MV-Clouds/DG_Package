@@ -69,7 +69,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
             window?.globalThis?.addEventListener("resize", this.resizeFunction);
             this.getAllRelatedData();
         } catch (error) {
-            errorDebugger("googleDocTemplateEditor", 'connectedCallback', error, 'error', 'Error in connectedCallback. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2', 'connectedCallback', error, 'error', 'Error in connectedCallback. Please try again later');
         }
     }
 
@@ -113,7 +113,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
             }
 
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor', 'renderedCallback', error, 'error', 'Error in renderedCallback. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2', 'renderedCallback', error, 'error', 'Error in renderedCallback. Please try again later');
         }
     }
 
@@ -197,11 +197,11 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
 
                 })
                 .catch((error) => {
-                    errorDebugger('googleDocTemplateEditor', 'getAllRelatedData', error, 'error', 'Error in getAllRelatedData. Please try again later');
+                    errorDebugger('googleDocTemplateEditorV2', 'getAllRelatedData', error, 'error', 'Error in getAllRelatedData. Please try again later');
                     this.isSpinner = false;
                 });
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor', 'getAllRelatedData', error, 'error', 'Error in getAllRelatedData. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2', 'getAllRelatedData', error, 'error', 'Error in getAllRelatedData. Please try again later');
         }
     }
 
@@ -245,7 +245,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 next.removeAttribute("disabled");
             }
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor', 'handleTemplateClick', error, 'error', 'Error in handleTemplateClick. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2', 'handleTemplateClick', error, 'error', 'Error in handleTemplateClick. Please try again later');
         }
     }
 
@@ -255,7 +255,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
             this.isSpinner = true;
             this.getAllRelatedData();
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor','refreshDocs', error, 'error', 'Error in refreshDocs. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2','refreshDocs', error, 'error', 'Error in refreshDocs. Please try again later');
         }
     }
 
@@ -275,11 +275,11 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 })
                 .catch((error) => {
                     this.isSpinner = false;
-                    errorDebugger('googleDocTemplateEditor', 'newDocument', error, 'error', 'Error in newDocument. Please try again later');
+                    errorDebugger('googleDocTemplateEditorV2', 'newDocument', error, 'error', 'Error in newDocument. Please try again later');
                 });
         } catch (error) {
             this.isSpinner = false;
-            errorDebugger('googleDocTemplateEditor', 'newDocument', error, 'error', 'Error in newDocument. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2', 'newDocument', error, 'error', 'Error in newDocument. Please try again later');
         }
     }
 
@@ -294,7 +294,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
             this.closePopup();
             this.save();
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor', 'next', error, 'error', 'Error in next. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2', 'next', error, 'error', 'Error in next. Please try again later');
         }
     }
 
@@ -327,7 +327,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 this.navigateToComp("homePage", {});
             }
         } catch(error) {
-            errorDebugger('googleDocTemplateEditor', 'handleConfirmation', error, 'error', 'Error in handleConfirmation. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2', 'handleConfirmation', error, 'error', 'Error in handleConfirmation. Please try again later');
         }
     }
 
@@ -378,7 +378,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 return template;
             });
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor','setDateAndSize', error, 'error', 'Error in setDatAndSize. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2','setDateAndSize', error, 'error', 'Error in setDatAndSize. Please try again later');
         }
     }
 
@@ -396,7 +396,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 }
             }
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor', 'handleSearch', error, 'error', 'Error in handleSearch. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2', 'handleSearch', error, 'error', 'Error in handleSearch. Please try again later');
         }
     }
 
@@ -414,10 +414,10 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                     }
                 })
                 .catch((error) => {
-                    errorDebugger('googleDocTemplateEditor','save', error, 'error', 'Error in save. Please try again later');
+                    errorDebugger('googleDocTemplateEditorV2','save', error, 'error', 'Error in save. Please try again later');
                 });
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor','save', error, 'error', 'Error in save. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2','save', error, 'error', 'Error in save. Please try again later');
         }
     }
 
@@ -446,7 +446,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 }
             });
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor','navigateToComp', error, 'error', 'Error in navigateToComp. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2','navigateToComp', error, 'error', 'Error in navigateToComp. Please try again later');
         }
     }
 
@@ -502,7 +502,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
             }
             this.setActiveTab();
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor','activeTab', error, 'error', 'Error in activeTab. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2','activeTab', error, 'error', 'Error in activeTab. Please try again later');
         }
     }
 
@@ -532,7 +532,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 }
             });
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor','setActiveTab', error, 'error', 'Error in setActiveTab. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2','setActiveTab', error, 'error', 'Error in setActiveTab. Please try again later');
         }
     }
 
@@ -568,7 +568,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 this.templateRecord[targetInput] = !event.target.checked;
             }
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor','handleEditDetail', error, 'error', 'Error in handleEditDetail. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2','handleEditDetail', error, 'error', 'Error in handleEditDetail. Please try again later');
         }
     }
 
@@ -616,10 +616,10 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                         message: "Error saving template data to backend. Please try again later.",
                         status: "error"
                     });
-                    errorDebugger('googleDocTemplateEditor','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
+                    errorDebugger('googleDocTemplateEditorV2','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
                 });
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
         }
     }
 
@@ -641,7 +641,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 this.handleConfirmation({detail: true});
             }
         } catch (error) {
-            errorDebugger('googleDocTemplateEditor','cancelEditTemplate', error, 'error', 'Error in cancelEditTemplate. Please try again later');
+            errorDebugger('googleDocTemplateEditorV2','cancelEditTemplate', error, 'error', 'Error in cancelEditTemplate. Please try again later');
         }
     }
 }

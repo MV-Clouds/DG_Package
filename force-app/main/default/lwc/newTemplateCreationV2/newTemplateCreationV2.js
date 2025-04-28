@@ -26,7 +26,7 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
             this.isImageLoaded = false;
             this.fetchData();
         } catch (e) {
-            errorDebugger('newTemplateCreation', 'connectedCallback', e, 'warn');
+            errorDebugger('newTemplateCreationV2', 'connectedCallback', e, 'warn');
         }
     }
       
@@ -65,23 +65,23 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
                                 });
                             }
                         }else{
-                            errorDebugger('newTemplateCreation', 'fetchData > getCombinedData', 'Could not fetch template types or integration status', 'warn');
+                            errorDebugger('newTemplateCreationV2', 'fetchData > getCombinedData', 'Could not fetch template types or integration status', 'warn');
                             this.showToast('error', 'Something went wrong!', 'Could not fetch required data, please try again!', 5000);
                         }
                     }).catch(e=> {
                         this.showToast('error', 'Something went wrong!', 'Could not fetch required data, please try again!', 5000);
-                        errorDebugger('newTemplateCreation', 'fetchData > getCombinedData', e, 'warn');
+                        errorDebugger('newTemplateCreationV2', 'fetchData > getCombinedData', e, 'warn');
                     });
                 }else {
                     this.showToast('error', 'Something went wrong!', 'Could not get all the objects, please try again!', 5000);
-                    errorDebugger('newTemplateCreation', 'fetchData > getAllObjects', 'Could not get all the objects', 'warn');
+                    errorDebugger('newTemplateCreationV2', 'fetchData > getAllObjects', 'Could not get all the objects', 'warn');
                 }
             }).catch(e=> {
                 this.showToast('error', 'Something went wrong!', 'Could not fetch required data, please try again!', 5000);
-                errorDebugger('newTemplateCreation', 'fetchData > getAllObjects', e, 'warn');
+                errorDebugger('newTemplateCreationV2', 'fetchData > getAllObjects', e, 'warn');
             });
         } catch (e) {
-            errorDebugger('newTemplateCreation', 'fetchData', e, 'warn');
+            errorDebugger('newTemplateCreationV2', 'fetchData', e, 'warn');
         } finally {
             this.showSpinner = false; // End spinner
         }
@@ -100,7 +100,7 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
                 this.isDataInvalid = true;
             }
         } catch (e) {
-            errorDebugger('newTemplateCreation', 'handleTemplateNameChange', e, 'warn');
+            errorDebugger('newTemplateCreationV2', 'handleTemplateNameChange', e, 'warn');
         }
     }
       
@@ -108,7 +108,7 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
         try {
             this.templateDescription = event.target.value.trim() ? event.target.value.trim() : '';
         } catch (e) {
-            errorDebugger('newTemplateCreation', 'handleTemplateDescriptionChange', e, 'warn');
+            errorDebugger('newTemplateCreationV2', 'handleTemplateDescriptionChange', e, 'warn');
         }
     }
     
@@ -116,14 +116,14 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
         try {
             this.selectedObject = event.detail[0];
         } catch (e) {
-            errorDebugger('newTemplateCreation', 'handleObjectChange', e, 'warn');
+            errorDebugger('newTemplateCreationV2', 'handleObjectChange', e, 'warn');
         }
     }
     handleTypeChange(event) {
         try {
             this.selectedTemplateType = event.detail[0];
         } catch (e) {
-            errorDebugger('newTemplateCreation', 'handleTypeChange', e, 'warn');
+            errorDebugger('newTemplateCreationV2', 'handleTypeChange', e, 'warn');
         }
     }
     
@@ -146,7 +146,7 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
                 this.navigateToComp(navigationComps.googleDocTemplateEditor, paramToPass);
             }
         } catch (e) {
-            errorDebugger('newTemplateCreation', 'handleNavigate', e, 'warn');
+            errorDebugger('newTemplateCreationV2', 'handleNavigate', e, 'warn');
         }
     }
 
@@ -190,7 +190,7 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
                         this.closeModel();
                     }else{
                         this.isShowSpinner = false;
-                        errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate > failure', result, 'warn');
+                        errorDebugger('newTemplateCreationV2', 'saveNewTemplate > saveTemplate > failure', result, 'warn');
                         if( result.includes('STORAGE_LIMIT_EXCEEDED')){
                             this.showToast('error', 'Storage Limit Exceeded!', 'You are running out of your data storage, please clean up data and try again...', 5000);
                         }else{
@@ -200,14 +200,14 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
                 })
                 .catch(e => {
                     this.showToast('error', 'Something went wrong!', 'There was error saving the template...', 5000);
-                    errorDebugger('newTemplateCreation', 'saveNewTemplate > saveTemplate > failure', e, 'warn');
+                    errorDebugger('newTemplateCreationV2', 'saveNewTemplate > saveTemplate > failure', e, 'warn');
                 });
             }else{
                 this.isShowSpinner = false;
             }
         } catch (e) {
             this.isShowSpinner = false;
-            errorDebugger('newTemplateCreation', 'saveNewTemplate', e, 'warn');
+            errorDebugger('newTemplateCreationV2', 'saveNewTemplate', e, 'warn');
         }
     }
 
@@ -247,7 +247,7 @@ export default class NewTemplateCreationV2 extends NavigationMixin(LightningElem
                 }
             });
         } catch (e) {
-            errorDebugger('newTemplateCreation', 'navigateToComp', e, 'warn');
+            errorDebugger('newTemplateCreationV2', 'navigateToComp', e, 'warn');
         }
     }
 }

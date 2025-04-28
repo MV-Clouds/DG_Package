@@ -249,7 +249,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.fetchFields();
             !this.isChild && this.fetchCombinedData();
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'connectedCallback', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'connectedCallback', e, 'warn');
         }
     }
 
@@ -260,7 +260,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.handleInitialFilters();
             this.handleInitialSorts();
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'renderedCallback', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'renderedCallback', e, 'warn');
         }
     }
 
@@ -362,7 +362,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 }
             }
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'handleInitialStyle', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleInitialStyle', e, 'warn');
         }
     }
 
@@ -388,7 +388,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 }
             }
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'handleInitialFilters', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleInitialFilters', e, 'warn');
         }
     }
 
@@ -409,7 +409,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 }
             }
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'handleInitialSorts', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleInitialSorts', e, 'warn');
         }
     }
 
@@ -428,7 +428,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 }
             })
             .catch((e) => {
-                errorDebugger('editCSVTemplate', 'fetchCombinedData > getCombinedData', e, 'warn');
+                errorDebugger('editCSVTemplateV2', 'fetchCombinedData > getCombinedData', e, 'warn');
                 this.showWarningPopup('error','Something went wrong!', 'Couldn\'t fetch the required data for this template, please try again...');
                 this.isClose = true;
             })
@@ -436,7 +436,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 this.resolvedPromise++;
             })
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'fetchCombinedData', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'fetchCombinedData', e, 'warn');
             this.showWarningPopup('error','Something went wrong!', 'Couldn\'t fetch the required data for this template, please try again...');
             this.isClose = true;
         }
@@ -448,7 +448,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
         }catch(e) {
             this.showSpinner = false;
             this.showToast('error', 'Something went wrong!', 'Error fetching details from template.', 5000);
-            errorDebugger('editCSVTemplate', 'setupTemplateDetails', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'setupTemplateDetails', e, 'warn');
         }
     }
 
@@ -459,7 +459,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
         }catch(e) {
             this.showSpinner = false;
             this.showToast('error', 'Something went wrong!', 'Error setting up template field data values.', 5000);
-            errorDebugger('editCSVTemplate', 'setupTemplateDataDetails', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'setupTemplateDataDetails', e, 'warn');
         }
     }
     
@@ -469,7 +469,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
         }catch(e) {
             this.showSpinner = false;
             this.showToast('error', 'Something went wrong!', 'Error setting up list views.', 5000);
-            errorDebugger('editCSVTemplate', 'setUpListViews', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'setUpListViews', e, 'warn');
         }
     }
     
@@ -517,11 +517,11 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             })
             .catch(e => {
                 this.resolvedPromise++;
-                errorDebugger('editCSVTemplate', 'fetchFields > getFieldMappingKeys', e, 'warn');
+                errorDebugger('editCSVTemplateV2', 'fetchFields > getFieldMappingKeys', e, 'warn');
             })
         }catch(e) {
             this.resolvedPromise++;
-            errorDebugger('editCSVTemplate', 'fetchFields', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'fetchFields', e, 'warn');
         }
     }
 
@@ -529,7 +529,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
         try {
             if(this.selectedRelatedObject) this.fieldOptions = this.fieldMappingsWithObj.find(ele =>  ele.name == this.selectedRelatedObject).fieldMappings;
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'setSelectionFields', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'setSelectionFields', e, 'warn');
         }
     }
 
@@ -539,7 +539,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 .filter(option => option.isSearchable)
                 .map(option => ({ label: option.fieldName, value: option.apiName, type: option.fieldType }));
         }catch(e){
-            errorDebugger('editCSVTemplate', 'setFilterFields', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'setFilterFields', e, 'warn');
         }
     }
 
@@ -564,7 +564,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             }
             this.setActiveTab(activeTabName);
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'activeTab', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'activeTab', e, 'warn');
         }
     }
 
@@ -584,7 +584,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 }
             })
         }catch(e){
-            errorDebugger('editCSVTemplate', 'setActiveTab', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'setActiveTab', e, 'warn');
         }
     }
 
@@ -594,7 +594,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.toAddSelected = [];
             this.setSelectionFields();
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleRelatedObjectChange', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleRelatedObjectChange', e, 'warn');
         }
     }
 
@@ -631,7 +631,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 this.toAddSelected.push({ fieldName: currentField, apiName: currentAPI}); // Add to array
             }
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleAvailableClick', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleAvailableClick', e, 'warn');
         }
     }
 
@@ -663,7 +663,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.toRemoveSelected.push({ fieldName: currentField, apiName: currentAPI}); // Add to array
             }
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleSelectedClick', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleSelectedClick', e, 'warn');
         }
     }
 
@@ -681,7 +681,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.template.querySelector('.selected-item')?.scrollIntoView({ behavior: "smooth", block: "end"});
             this.isEditTabChanged = true;
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleUp', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleUp', e, 'warn');
         }
     }
 
@@ -699,7 +699,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.template.querySelector('.selected-item')?.scrollIntoView({ behavior: "smooth"});
             this.isEditTabChanged = true;
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleDown', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleDown', e, 'warn');
         }
     }
 
@@ -708,7 +708,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.template.querySelector('.field-li-to-selected')?.scrollIntoView({ behavior: "smooth", block: "end"});
             this.moveFieldsToPosition('top');
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleTop', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleTop', e, 'warn');
         }
     }
 
@@ -717,7 +717,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.template.querySelectorAll('.field-li-to-selected')[this.selectedFields.length-1]?.scrollIntoView({ behavior: "smooth", block: "start"});
             this.moveFieldsToPosition('bottom');
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleBottom', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleBottom', e, 'warn');
         }
     }
 
@@ -727,7 +727,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             const toRemoveMap = new Map(this.toRemoveSelected.map(el => [el.apiName, el]));
             this.toRemoveSelected = this.selectedFields.map(field => toRemoveMap.get(field.apiName)).filter(el => el);
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'reorderList', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'reorderList', e, 'warn');
         }
     }
 
@@ -740,7 +740,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.selectedFields = position === 'top' ? [...this.toRemoveSelected, ...remainingFields] : [...remainingFields, ...this.toRemoveSelected];
             this.isEditTabChanged = true;
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'moveFieldsToPosition', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'moveFieldsToPosition', e, 'warn');
         }
     }
 
@@ -756,7 +756,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.toRemoveSelected = [];
             this.isEditTabChanged = true;
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleLeft', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleLeft', e, 'warn');
         }
     }
 
@@ -770,7 +770,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.toAddSelected = [];
             this.isEditTabChanged = true;
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleRight', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleRight', e, 'warn');
         }
     }
 
@@ -820,7 +820,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.isUpdateOnlyLastFilter = true;
             this.initialFilters = true;
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'addFilter', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'addFilter', e, 'warn');
         }
     }
 
@@ -845,7 +845,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 order:''
             });
         }catch(e){
-            errorDebugger('editCSVTemplate', 'addSort', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'addSort', e, 'warn');
         }
     }
     
@@ -880,7 +880,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 values[i].classList.toggle('error-in-value-input', filter.fieldName && filter.operator && !filter.value);
             })
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'removeFilter', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'removeFilter', e, 'warn');
         }
     }
 
@@ -904,7 +904,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 this.handleSortFieldChange({detail:[sort.field],target:{dataset:{index:i}}});
             })
         }catch(e){
-            errorDebugger('editCSVTemplate', 'removeSort', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'removeSort', e, 'warn');
         }
     }
 
@@ -948,7 +948,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             }
             this.isEditTabChanged = true;
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleSortFieldChange', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleSortFieldChange', e, 'warn');
         }
     }
 
@@ -965,7 +965,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 this.template.querySelectorAll('.sort-field-select')[index].classList.add('error-in-custom-combobox');
             }
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleAscending', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleAscending', e, 'warn');
         }
 
     }
@@ -983,7 +983,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 this.template.querySelectorAll('.sort-field-select')[index].classList.add('error-in-custom-combobox');
             }
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleDescending', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleDescending', e, 'warn');
         }
     }
 
@@ -1007,7 +1007,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.filtersCount = this.filters.length;
             this.isEditTabChanged = true;
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleFieldNameChange', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleFieldNameChange', e, 'warn');
         }
     }
 
@@ -1024,7 +1024,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 this.showToast('error', 'Oops! It\'s a Wrong move!', 'Please Select "Equal To"/"Not Equal to" operator to check NULL.', 5000);
             }
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'validateCurrentFilter', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'validateCurrentFilter', e, 'warn');
         }
     }
 
@@ -1037,7 +1037,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.template.querySelectorAll('.operator-select')[index].classList.toggle('error-in-custom-combobox', !this.filters[index].operator);;
             this.isEditTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleOperatorChange', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleOperatorChange', e, 'warn');
         }
     }
 
@@ -1050,7 +1050,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.template.querySelectorAll('.value-select-div')[index].classList.toggle('error-in-value-input', !this.filters[index].value);
             this.isEditTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleValueChange', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleValueChange', e, 'warn');
         }
     }
 
@@ -1072,7 +1072,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             const backDrop = this.template.querySelector('.backDropPredefined');
             if(backDrop) backDrop.style.display = 'block';
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleSimpleInputFocus', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleSimpleInputFocus', e, 'warn');
         }
     }
 
@@ -1084,7 +1084,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             const backDrop = this.template.querySelector('.backDropPredefined');
             if(backDrop) backDrop.style.display = 'none';
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleSimpleInputBlur', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleSimpleInputBlur', e, 'warn');
         }
     }
 
@@ -1103,7 +1103,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             }
             this.validateCurrentFilter(index);
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handlePreDefinedClick', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handlePreDefinedClick', e, 'warn');
         }
     }
 
@@ -1121,7 +1121,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.validateCurrentFilter(index);
             this.isEditTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleValueFromComboBox', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleValueFromComboBox', e, 'warn');
         }
     }
 
@@ -1164,7 +1164,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 }
             }
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'updateOperatorOptions', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'updateOperatorOptions', e, 'warn');
         } finally {
             this.showSpinner = false;
         }
@@ -1185,7 +1185,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             }
             this.showSpinner = false;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'updateSelectedSort', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'updateSelectedSort', e, 'warn');
         }
     }
     
@@ -1200,7 +1200,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.template.querySelector('.logic-select').classList.toggle('error-in-custom-combobox', !event.detail[0]);
             this.isEditTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleLogicUpdate', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleLogicUpdate', e, 'warn');
         }
     }
 
@@ -1213,7 +1213,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             }
             this.isEditTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleCustomLogicUpdate', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleCustomLogicUpdate', e, 'warn');
         }
     }
 
@@ -1244,7 +1244,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             if(errorString) errorString.innerText = '';
             return true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'validateOnEachCharacter', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'validateOnEachCharacter', e, 'warn');
         }
         return false;
     }
@@ -1412,7 +1412,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 this.showToast('error', 'Please enter valid Logic!', 'there was an error in the custom logic!', 5000);
             }
         }catch(e){
-            errorDebugger('editCSVTemplate', 'validateCustomLogic', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'validateCustomLogic', e, 'warn');
         }
     }
 
@@ -1426,7 +1426,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             errorString.innerText = msg;
             this.showSpinner = false;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'showErrorMessage', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'showErrorMessage', e, 'warn');
         }
     }
 
@@ -1438,7 +1438,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             limitInput.classList.toggle('error-in-input', this.limit < 1 || this.limit > maxLimit);
             this.isEditTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleLimitUpdate', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleLimitUpdate', e, 'warn');
         }
     }
 
@@ -1450,7 +1450,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             limitInput.classList.remove('slds-has-error');
             limitInput.classList.toggle('error-in-input', this.limit < 1 || this.limit > maxLimit);
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'handleLimitInputBlur', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleLimitInputBlur', e, 'warn');
         }
     }
 
@@ -1462,7 +1462,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.limit = this.showLimitInput ? shownLimit : maxLimit;
             this.isEditTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleLimitToggleChange', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleLimitToggleChange', e, 'warn');
         }
     }
     generateFilterString() {
@@ -1499,7 +1499,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.separatedData.maxLimit = this.limit;
             this.separatedData.listView = this.selectedListView;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'generateFilterString', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'generateFilterString', e, 'warn');
         }
 
     }
@@ -1609,7 +1609,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             }
             this.showSpinner = false;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'parseFilterString', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'parseFilterString', e, 'warn');
         }
     }
 
@@ -1688,7 +1688,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 return false;
             }
         }catch(e){
-            errorDebugger('editCSVTemplate', 'generateQuery', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'generateQuery', e, 'warn');
         }
     }
 
@@ -1829,7 +1829,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
         }catch(e){
             this.showSpinner = false;
             this.showToast('error','Something went wrong!', 'We Couldn\'t save template, please try again.', 5000)
-            errorDebugger('editCSVTemplate', 'validateData', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'validateData', e, 'warn');
         }
     }
 
@@ -1853,18 +1853,18 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                         this.showToast('success', 'Action Performed!', 'The template fields were saved successfully', 5000);
                     }
                 }else{
-                    errorDebugger('editCSVTemplate', 'saveTemplate > saveTemplateFields > failure', result, 'warn');
+                    errorDebugger('editCSVTemplateV2', 'saveTemplate > saveTemplateFields > failure', result, 'warn');
                     const eMessage = this.selectedFields ? 'Something went wrong, Please try again!!' : 'Please Select at least one field!';
                     this.showToast('error', 'Oops! Something went wrong', eMessage, 5000);
                 }
             })
             .catch(e=> {
-                errorDebugger('editCSVTemplate', 'saveTemplate > saveTemplateFields', e, 'warn');
+                errorDebugger('editCSVTemplateV2', 'saveTemplate > saveTemplateFields', e, 'warn');
                 const eMessage = this.selectedFields ? 'Something went wrong, Please try again!!' : 'Please Select at least one field!';
                 this.showToast('error', 'Oops! Something went wrong', eMessage, 5000);
             });
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'saveTemplate', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'saveTemplate', e, 'warn');
         }
     }
 
@@ -1880,7 +1880,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.validateData(isPreview);
         }catch(e){
             this.showSpinner = false;
-            errorDebugger('editCSVTemplate', 'handleSave', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleSave', e, 'warn');
         }
     }
     
@@ -1895,7 +1895,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 this.navigateToComp(navigationComps.home);
             }
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleClose', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleClose', e, 'warn');
         }
     }
 
@@ -1903,7 +1903,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
         try {
             this.activeTab({currentTarget : {dataset: {name : 'editTab'}}});
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'handleGenerateClose', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleGenerateClose', e, 'warn');
         }
     }
 
@@ -1912,7 +1912,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.newTemplateData.MVDG__Template_Status__c = true;
             this.existingTemplateData.MVDG__Template_Status__c = true;
         } catch (e) {
-            errorDebugger('editCSVTemplate', 'handleActivateTemplate', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleActivateTemplate', e, 'warn');
         }
     }
 
@@ -1946,7 +1946,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.isReset = false;
             this.isClear = false;
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleConfirmation', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleConfirmation', e, 'warn');
         }
     }
 
@@ -1956,7 +1956,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.isClear = true;
             this.showWarningPopup('warning', 'Clear '+ this.clearSection + ' Section!', 'Are you sure you want to Clear '+ this.clearSection + '?');
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleClear', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleClear', e, 'warn');
         }
     }
 
@@ -1966,7 +1966,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.isReset = true;
             this.showWarningPopup('warning', 'Reset '+ this.resetSection + ' Section!', 'Are you sure you want to reset '+ this.resetSection + '?');            
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleReset', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleReset', e, 'warn');
         }
 
     }
@@ -2005,7 +2005,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.clearSection = '';
             this.isEditTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleClearSection', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleClearSection', e, 'warn');
         }
     }
 
@@ -2049,7 +2049,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.resetSection = '';
             this.isEditTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleResetSection', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleResetSection', e, 'warn');
         }
     }
 
@@ -2068,7 +2068,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.newTemplateData.MVDG__Template_Name__c = event.target.value.trim();
             this.isBasicTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleTemplateNameChange', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleTemplateNameChange', e, 'warn');
         }
     }
         
@@ -2097,7 +2097,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             }
             this.isBasicTabChanged = true;
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleListViewChange', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleListViewChange', e, 'warn');
         }
     }
 
@@ -2114,7 +2114,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             }
             this.handleCancelChanges();
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleDetailsCancel', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleDetailsCancel', e, 'warn');
         }
     }
 
@@ -2128,7 +2128,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 this.handleUpdateTemplate();
             }
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleDetailsSave', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleDetailsSave', e, 'warn');
         }
     }
 
@@ -2145,7 +2145,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
             this.showBasicDetailTab = false;
             this.activeTab({currentTarget : {dataset: {name : 'editTab'}}});
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleCancelChanges', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleCancelChanges', e, 'warn');
         }
     }
 
@@ -2177,17 +2177,17 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                             this.isBasicTabChanged = false;
                         }
                     }else{
-                        errorDebugger('editCSVTemplate', 'handleUpdateTemplate > updateTemplate > failure', result, 'warn');
+                        errorDebugger('editCSVTemplateV2', 'handleUpdateTemplate > updateTemplate > failure', result, 'warn');
                         this.showToast('error', 'Oops! Couldn\'t save changes!' , 'Please try updating the data again...', 5000);
                     }
                 })
                 .catch((e)=>{
-                    errorDebugger('editCSVTemplate', 'handleUpdateTemplate > updateTemplate', e, 'warn');
+                    errorDebugger('editCSVTemplateV2', 'handleUpdateTemplate > updateTemplate', e, 'warn');
                     this.showToast('error', 'Oops! Couldn\'t save changes!' , 'Please try updating the data again...', 5000);
                 })
             }
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'handleUpdateTemplate', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleUpdateTemplate', e, 'warn');
         }
     }
     
@@ -2230,7 +2230,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 }
             })
         }catch(e){
-            errorDebugger('editCSVTemplate', 'getAllConditions', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'getAllConditions', e, 'warn');
         }
         return allConditions;
     }
@@ -2377,16 +2377,16 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                     })
                     .catch(e => {
                         this.showToast('error', 'Something went wrong!', e.message == "Failed to fetch"? 'We Couldn\'t connect to server, make sure you have a trusted url...': 'We couldn\'t fetch the list view data, please try again..', 5000);
-                        errorDebugger('editCSVTemplate', 'handleListView > fetch', e, 'warn');
+                        errorDebugger('editCSVTemplateV2', 'handleListView > fetch', e, 'warn');
                     })
                 })
                 .catch(e => {
                     this.showToast('error', 'Oops, a technical issue!', 'We couldn\'t fetch the list view data, please try again..');
-                    errorDebugger('editCSVTemplate', 'handleListView > generateAccessToken', e, 'warn');
+                    errorDebugger('editCSVTemplateV2', 'handleListView > generateAccessToken', e, 'warn');
                 })
             }
         }catch(e){
-            errorDebugger('editCSVTemplate', 'handleListView', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'handleListView', e, 'warn');
         }
     }
 
@@ -2435,7 +2435,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 }
             });
         }catch(e) {
-            errorDebugger('editCSVTemplate', 'navigateToComp', e, 'warn');
+            errorDebugger('editCSVTemplateV2', 'navigateToComp', e, 'warn');
         }
     }
 }

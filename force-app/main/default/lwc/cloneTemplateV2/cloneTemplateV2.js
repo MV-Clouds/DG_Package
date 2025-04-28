@@ -166,11 +166,11 @@ export default class CloneTemplateV2 extends NavigationMixin(LightningElement) {
                 }
             }).catch(error=>{
                 this.isShowSpinner = false;
-                errorDebugger('CloneTemplate', 'cloneTemplate > cloneTempData', error, 'warn');
+                errorDebugger('CloneTemplateV2', 'cloneTemplate > cloneTempData', error, 'warn');
             })
         } catch (error) {
             this.isShowSpinner = false;
-            errorDebugger('CloneTemplate', 'cloneTemplate', error, 'warn');
+            errorDebugger('CloneTemplateV2', 'cloneTemplate', error, 'warn');
         }
     }
 
@@ -191,7 +191,7 @@ export default class CloneTemplateV2 extends NavigationMixin(LightningElement) {
                 this.navigateToComp(navigationComps.googleDocTemplateEditor, paramToPass);
             }
         } catch (error) {
-            errorDebugger('CloneTemplate', 'handleNavigate', error, 'warn');
+            errorDebugger('CloneTemplateV2', 'handleNavigate', error, 'warn');
         }
     }
     showToast(status, title, message, duration){
@@ -229,7 +229,7 @@ export default class CloneTemplateV2 extends NavigationMixin(LightningElement) {
                 }
             });
         } catch (error) {
-            errorDebugger('CloneTemplate', 'navigateToComp', error, 'warn');
+            errorDebugger('CloneTemplateV2', 'navigateToComp', error, 'warn');
         }
     }
 }

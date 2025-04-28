@@ -221,7 +221,7 @@ export default class integrationPopupV2 extends NavigationMixin(LightningElement
             }
         }
         catch (error){
-            errorDebugger('IntegrationPopup', 'handleGenAuthCode', error, 'warn');
+            errorDebugger('IntegrationPopupV2', 'handleGenAuthCode', error, 'warn');
         }
     }
 
@@ -299,7 +299,7 @@ export default class integrationPopupV2 extends NavigationMixin(LightningElement
             }
             }
             catch(error){
-                errorDebugger('chatBot', 'submitFeedback', error, 'warn');
+                errorDebugger('chatBotV2', 'submitFeedback', error, 'warn');
             }
             this.bucket = null;
             this.clientId = null;
