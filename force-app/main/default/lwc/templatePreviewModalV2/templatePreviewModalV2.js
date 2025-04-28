@@ -135,7 +135,7 @@ export default class TemplatePreviewModalV2 extends LightningElement {
             // this.vfPageMessageHandler();
 
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'connectedCallback', error, 'warn');
+            errorDebugger('TemplatePreviewModalV2', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -145,7 +145,7 @@ export default class TemplatePreviewModalV2 extends LightningElement {
                 this.vsfError = true;
             }
         }catch(e){
-            errorDebugger('generateDocument', 'simpleTempFileGenResponse', e, 'error');
+            errorDebugger('generateDocumentV2', 'simpleTempFileGenResponse', e, 'error');
         }
     }
 
@@ -157,7 +157,7 @@ export default class TemplatePreviewModalV2 extends LightningElement {
                 this.template.host.style.setProperty("--maxWidth", 'unset');
             }
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'connectedCallback', error, 'warn');
+            errorDebugger('TemplatePreviewModalV2', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -170,12 +170,12 @@ export default class TemplatePreviewModalV2 extends LightningElement {
                 this.selectedRecordId = null;
             }
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'onRecordSelect', error, 'warn');
+            errorDebugger('TemplatePreviewModalV2', 'onRecordSelect', error, 'warn');
         }
     }
 
     handleRecordPickerError(event){
-        errorDebugger('TemplatePreviewModal', 'handleRecordPickerError', {'message' : event.detail}, 'warn');
+        errorDebugger('TemplatePreviewModalV2', 'handleRecordPickerError', {'message' : event.detail}, 'warn');
     }
 
     generatePreview(){
@@ -251,7 +251,7 @@ export default class TemplatePreviewModalV2 extends LightningElement {
 
             }
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'previewData', error, 'warn');
+            errorDebugger('TemplatePreviewModalV2', 'previewData', error, 'warn');
         }
     }
 
@@ -282,7 +282,7 @@ export default class TemplatePreviewModalV2 extends LightningElement {
                 }, 5000);
             }
         } catch (error) {
-            errorDebugger('TemplatePreviewModal', 'updateSpinnerLabel', error, 'warn');
+            errorDebugger('TemplatePreviewModalV2', 'updateSpinnerLabel', error, 'warn');
         }
     }
 

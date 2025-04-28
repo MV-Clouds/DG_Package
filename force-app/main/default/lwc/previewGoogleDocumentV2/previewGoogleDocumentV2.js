@@ -45,7 +45,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
                 }
             }
         } catch (error) {
-            errorDebugger("PreviewGoogleDocument", "renderedCallback", error, 'error', 'Error in rendered Callback. Please try again later');
+            errorDebugger("PreviewGoogleDocumentV2", "renderedCallback", error, 'error', 'Error in rendered Callback. Please try again later');
         }
     }
 
@@ -62,11 +62,11 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
                 generator.generateDocument(this.templateid, this.objectname, this.recordId, ".pdf");
             } else {
                 // console.error("Error in getting files");
-                errorDebugger('CustomRecordPicker', 'setCustomTimeoutMethod', {message : 'Error in getting files'}, 'warn');
+                errorDebugger('CustomRecordPickerV2', 'setCustomTimeoutMethod', {message : 'Error in getting files'}, 'warn');
 
             }
         } catch (error) {
-            errorDebugger("PreviewGoogleDocument", "previewDocument", error, 'error', 'Error in preview Document. Please try again later');
+            errorDebugger("PreviewGoogleDocumentV2", "previewDocument", error, 'error', 'Error in preview Document. Please try again later');
         }
     }
 
@@ -97,7 +97,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
         } catch (error) {
             this.isSpinner = false;
             this.handleError({ detail: { title: "Error", message: error } });
-            errorDebugger("PreviewGoogleDocument", "handleError", error, 'error', 'Error in handleError. Please try again later');
+            errorDebugger("PreviewGoogleDocumentV2", "handleError", error, 'error', 'Error in handleError. Please try again later');
         }
     }
 
@@ -119,7 +119,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
 
             
         } catch (error) {
-            errorDebugger("PreviewGoogleDocument", "handleError", error, 'error', 'Error in handleError. Please try again later');
+            errorDebugger("PreviewGoogleDocumentV2", "handleError", error, 'error', 'Error in handleError. Please try again later');
         }
     }
 
@@ -136,7 +136,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
                 this.isPreview = true;
             }
         } catch (error) {
-            errorDebugger("PreviewGoogleDocument", "handleFileProcess", error, 'error', 'Error in handleFileProcess. Please try again later');
+            errorDebugger("PreviewGoogleDocumentV2", "handleFileProcess", error, 'error', 'Error in handleFileProcess. Please try again later');
         }
     }
 
@@ -190,7 +190,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
                 this.isSpinner = false;
             });
         } catch (error) {
-            errorDebugger("PreviewGoogleDocument", "displayPDF", error, 'error', 'Error in displayPDF. Please try again later');
+            errorDebugger("PreviewGoogleDocumentV2", "displayPDF", error, 'error', 'Error in displayPDF. Please try again later');
         }
     }
 
@@ -225,7 +225,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
             const zoomInfo = this.template.querySelector(".zoomInfo");
             zoomInfo.innerText = this.zoomLevel + "%";
         } catch (error) {
-            errorDebugger("previewGoogleDocument", "setZoomLevel", error, 'error', 'Error in setZoomLevel. Please try again later');
+            errorDebugger("previewGoogleDocumentV2", "setZoomLevel", error, 'error', 'Error in setZoomLevel. Please try again later');
         }
     }
         // ************** Zoom ality Method -- END -- ***************
@@ -254,7 +254,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
                 
                 this.setPageBtnStatus();
             } catch (error) {
-                errorDebugger("previewGoogleDocument", "onscroll", error, 'error', 'Error in onscroll. Please try again later');
+                errorDebugger("previewGoogleDocumentV2", "onscroll", error, 'error', 'Error in onscroll. Please try again later');
             }
     }
 
@@ -285,7 +285,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
             
             this.setPageBtnStatus();
         } catch (error) {
-            errorDebugger("previewGoogleDocument", "onPageChange", error, 'error', 'Error in onPageChange. Please try again later');
+            errorDebugger("previewGoogleDocumentV2", "onPageChange", error, 'error', 'Error in onPageChange. Please try again later');
         }
     }
 
@@ -303,7 +303,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
                 this.pagePlus.removeAttribute("disabled");
             }
         } catch (error) {
-            errorDebugger("previewGoogleDocument", "setPageBtnStatus", error, 'error', 'Error in setPageBtnStatus. Please try again later');
+            errorDebugger("previewGoogleDocumentV2", "setPageBtnStatus", error, 'error', 'Error in setPageBtnStatus. Please try again later');
             
         }
     }

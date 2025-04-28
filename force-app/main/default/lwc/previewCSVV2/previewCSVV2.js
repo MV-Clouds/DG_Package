@@ -108,12 +108,12 @@ export default class previewCSVV2 extends NavigationMixin(LightningElement) {
             })
             .catch(e=>{
                 this.noDataFoundText = 'There was some error fetching preview data, please try again...';
-                errorDebugger('previewCSV', 'fetchPreviewData', e, 'warn');
+                errorDebugger('previewCSVV2', 'fetchPreviewData', e, 'warn');
                 this.showSpinner = false;
             })
         }catch(e){
             this.showSpinner = false;
-            errorDebugger('previewCSV', 'getPreviewData', e, 'warn');
+            errorDebugger('previewCSVV2', 'getPreviewData', e, 'warn');
         }
     }
 
@@ -125,7 +125,7 @@ export default class previewCSVV2 extends NavigationMixin(LightningElement) {
         try {
             this._showAdditionalInfo = !this._showAdditionalInfo;
         } catch (e) {
-            errorDebugger('previewCSV', 'toggleAdditionalInfoDiv', e, 'warn');
+            errorDebugger('previewCSVV2', 'toggleAdditionalInfoDiv', e, 'warn');
         }
     }
 
@@ -136,7 +136,7 @@ export default class previewCSVV2 extends NavigationMixin(LightningElement) {
                 this.dispatchEvent(new CustomEvent("close"));
             }
         }catch(e){
-            errorDebugger('previewCSV', 'handleClose', e, 'warn');
+            errorDebugger('previewCSVV2', 'handleClose', e, 'warn');
         }
     }
 
@@ -150,7 +150,7 @@ export default class previewCSVV2 extends NavigationMixin(LightningElement) {
             }
             this.navigateToComp(navigationComps.csvTemplateBuilder, paramToPass);
         }catch(e){
-            errorDebugger('previewCSV', 'handleEditClick', e, 'warn');
+            errorDebugger('previewCSVV2', 'handleEditClick', e, 'warn');
         }finally{
             this.showSpinner = false;
         }
@@ -161,7 +161,7 @@ export default class previewCSVV2 extends NavigationMixin(LightningElement) {
         try{
             this.isGenerate = true;
         }catch(e){
-            errorDebugger('previewCSV', 'handleGenerateClick', e, 'warn');
+            errorDebugger('previewCSVV2', 'handleGenerateClick', e, 'warn');
         }
     }
 
@@ -193,7 +193,7 @@ export default class previewCSVV2 extends NavigationMixin(LightningElement) {
                 }
             });
         } catch (e) {
-            errorDebugger('previewCSV', 'navigateToComp', e, 'warn');
+            errorDebugger('previewCSVV2', 'navigateToComp', e, 'warn');
         }
     }
 }

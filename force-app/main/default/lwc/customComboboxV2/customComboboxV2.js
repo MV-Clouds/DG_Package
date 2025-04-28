@@ -142,7 +142,7 @@ export default class CustomComboboxV2 extends LightningElement {
             this.optionsToSet = value;
             this.setDisplayOptions();
         } catch (error) {
-            errorDebugger('CustomCombobox', 'get/set options', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'get/set options', error, 'warn');
         }
     }
     /**
@@ -160,7 +160,7 @@ export default class CustomComboboxV2 extends LightningElement {
                 this.clearValue();
             }
         } catch (error) {
-            errorDebugger('CustomCombobox', 'get/set value', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'get/set value', error, 'warn');
         }
     }
 
@@ -225,7 +225,7 @@ export default class CustomComboboxV2 extends LightningElement {
             this.setPlaceHolder();
             // window?.globalThis?.document?.body?.addEventListener('click', this.onBodyClick)
         } catch (error) {
-            errorDebugger('CustomCombobox', 'connectedCallback', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'connectedCallback', error, 'warn');
         }
     }
 
@@ -262,7 +262,7 @@ export default class CustomComboboxV2 extends LightningElement {
             }
 
         } catch (error) {
-            errorDebugger('CustomCombobox', 'setDisplayOptions', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'setDisplayOptions', error, 'warn');
         }
     }
     
@@ -305,7 +305,7 @@ export default class CustomComboboxV2 extends LightningElement {
             this.setSelection();
             
         } catch (error) {
-            errorDebugger('CustomCombobox', 'setDefaultValue', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'setDefaultValue', error, 'warn');
         }
     }
 
@@ -327,7 +327,7 @@ export default class CustomComboboxV2 extends LightningElement {
             this.sortDisplayItems();
 
         } catch (error) {
-            errorDebugger('CustomCombobox', 'handleShowDropDown', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'handleShowDropDown', error, 'warn');
         }
     }
 
@@ -341,7 +341,7 @@ export default class CustomComboboxV2 extends LightningElement {
             var searchValue = (event.target.value).toLowerCase();
             this.setOptionAfterSearch(searchValue);
         } catch (error) {
-            errorDebugger('CustomCombobox', 'handleSearch', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'handleSearch', error, 'warn');
         }
     }
 
@@ -351,7 +351,7 @@ export default class CustomComboboxV2 extends LightningElement {
                 this.closeDropDown();
             }
         } catch (error) {
-            errorDebugger('CustomCombobox', 'handleSpecialKeyPress', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'handleSpecialKeyPress', error, 'warn');
         }
     }
 
@@ -378,7 +378,7 @@ export default class CustomComboboxV2 extends LightningElement {
             // sort After each Search
             this.sortDisplayItems();
         } catch (error) {
-            errorDebugger('CustomCombobox', 'setOptionAfterSearch', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'setOptionAfterSearch', error, 'warn');
         }
     }
 
@@ -440,7 +440,7 @@ export default class CustomComboboxV2 extends LightningElement {
             }
             
         } catch (error) {
-            errorDebugger('CustomCombobox', 'handleOptionClick', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'handleOptionClick', error, 'warn');
         }
     }
 
@@ -472,7 +472,7 @@ export default class CustomComboboxV2 extends LightningElement {
             this.setErrorBorder();
             this.setPlaceHolder();
         } catch (error) {
-            errorDebugger('CustomCombobox', 'clearSelection', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'clearSelection', error, 'warn');
         }
     }
 
@@ -498,7 +498,7 @@ export default class CustomComboboxV2 extends LightningElement {
             // this.clearSearch();
 
         } catch (error) {
-            errorDebugger('CustomCombobox', 'closeDropDown', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'closeDropDown', error, 'warn');
         }
     }
 
@@ -510,7 +510,7 @@ export default class CustomComboboxV2 extends LightningElement {
             this.displayOptions.forEach(options => { options.isSelected = this.selectedItems?.some(ele => ele.originalIndex === options.originalIndex)});
             this.allOptions.forEach(options => { options.isSelected = this.selectedItems?.some(ele => ele.originalIndex === options.originalIndex)});
         } catch (error) {
-            errorDebugger('CustomCombobox', 'setSelection', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'setSelection', error, 'warn');
         }
     }
 
@@ -548,7 +548,7 @@ export default class CustomComboboxV2 extends LightningElement {
                 }
             }
         } catch (error) {
-            errorDebugger('CustomCombobox', 'setErrorBorder', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'setErrorBorder', error, 'warn');
         }
     }
 
@@ -581,7 +581,7 @@ export default class CustomComboboxV2 extends LightningElement {
             this.displayOptions = displayOptions;
             
         } catch (error) {
-            errorDebugger('CustomCombobox', 'sortDisplayItems', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'sortDisplayItems', error, 'warn');
         }
     }
 
@@ -613,7 +613,7 @@ export default class CustomComboboxV2 extends LightningElement {
             this.setErrorBorder();
             this.setPlaceHolder();
         } catch (error) {
-            errorDebugger('CustomCombobox', 'unselectOption', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'unselectOption', error, 'warn');
         }
     }
 
@@ -641,7 +641,7 @@ export default class CustomComboboxV2 extends LightningElement {
                 }
             }
         } catch (error) {
-            errorDebugger('CustomCombobox', 'clearValue', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'clearValue', error, 'warn');
         }
     }
 
@@ -674,7 +674,7 @@ export default class CustomComboboxV2 extends LightningElement {
             }
 
         } catch (error) {
-            errorDebugger('CustomCombobox', 'clearSearch', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'clearSearch', error, 'warn');
         }
     }
 
@@ -695,7 +695,7 @@ export default class CustomComboboxV2 extends LightningElement {
                 this.template.querySelector('.inputAreaCSS_1')?.classList.remove('invalid-input');
             }
         } catch (error) {
-            errorDebugger('CustomCombobox', 'isInvalidInput', error, 'warn');
+            errorDebugger('CustomComboboxV2', 'isInvalidInput', error, 'warn');
         }
     }
 

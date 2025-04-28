@@ -234,7 +234,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                     this.isDataInvalid = true;
                 }
             } catch (e) {
-                errorDebugger('IntegrationDashborad', 'handleConsumerKeyChange', e, 'warn');
+                errorDebugger('IntegrationDashboradV2', 'handleConsumerKeyChange', e, 'warn');
             }
         }
     
@@ -250,7 +250,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                     this.isDataInvalid = true;
                 }
             } catch (e) {
-                errorDebugger('IntegrationDashborad', 'handleConsumerSecretChange', e, 'warn');
+                errorDebugger('IntegrationDashboradV2', 'handleConsumerSecretChange', e, 'warn');
             }
         }
         
@@ -298,7 +298,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                         }
               })
                     .catch(e => {
-                        errorDebugger('IntegrationDashborad', 'verifyAccessToken', e, 'warn');
+                        errorDebugger('IntegrationDashboradV2', 'verifyAccessToken', e, 'warn');
                     });
             }
     }
@@ -317,12 +317,12 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                 }
             })
             .catch((e) => {
-                errorDebugger('IntegrationDashborad', 'getTrustedUrlStatus > checkTrustedUrl > failure', e, 'warn');
+                errorDebugger('IntegrationDashboradV2', 'getTrustedUrlStatus > checkTrustedUrl > failure', e, 'warn');
                 this.isVerifying = false;
                 
             })
         } catch (e) {
-            errorDebugger('IntegrationDashborad', 'getTrustedUrlStatus', e, 'warn');
+            errorDebugger('IntegrationDashboradV2', 'getTrustedUrlStatus', e, 'warn');
             this.isVerifying = false;
         }
     }
@@ -343,7 +343,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
             navigator.clipboard.writeText(this.restApiTrustedUrl);
             this.clipBoardTooltip = 'Copied!';
         } catch (e) {
-            errorDebugger('IntegrationDashborad', 'handleCopyTrustedUrl', e, 'warn');
+            errorDebugger('IntegrationDashboradV2', 'handleCopyTrustedUrl', e, 'warn');
         }
     }
 
@@ -398,7 +398,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
  
         });
     } catch (error) {
-        errorDebugger('IntegrationDashborad', 'checkAccess > checkAccess > failure', error, 'warn');
+        errorDebugger('IntegrationDashboradV2', 'checkAccess > checkAccess > failure', error, 'warn');
     }
    }
 
@@ -775,7 +775,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
            } catch(error){
            this.isSpinner = false;
            this.ispopup = false;
-           errorDebugger('IntegrationDashborad', 'handleGoogleAuthorization', error, 'warn');
+           errorDebugger('IntegrationDashboradV2', 'handleGoogleAuthorization', error, 'warn');
        }
    }
 
@@ -792,7 +792,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                 }
            })
            .catch(error =>{
-                errorDebugger('IntegrationDashborad', 'handleAuthCode > getAuthCode > failure', error, 'warn');
+                errorDebugger('IntegrationDashboradV2', 'handleAuthCode > getAuthCode > failure', error, 'warn');
            })
        }
    }
@@ -1046,7 +1046,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
        })
        .catch(error => {
             this.isSpinner = false;
-            errorDebugger('IntegrationDashborad', 'handleOneDriveAuthorization > oneDriveAuthorization', error, 'warn');
+            errorDebugger('IntegrationDashboradV2', 'handleOneDriveAuthorization > oneDriveAuthorization', error, 'warn');
        });
        this.clientId = '';
        this.clientSecret = '';
@@ -1077,7 +1077,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
        })
        .catch(error => {
             this.isSpinner = false;
-            errorDebugger('IntegrationDashborad', 'handleDropboxAuthorization > dropboxAuthorization > failure', error, 'warn');
+            errorDebugger('IntegrationDashboradV2', 'handleDropboxAuthorization > dropboxAuthorization > failure', error, 'warn');
        });
        this.clientId = '';
        this.clientSecret = '';

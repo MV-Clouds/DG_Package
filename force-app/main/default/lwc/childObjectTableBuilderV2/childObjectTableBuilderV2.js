@@ -149,7 +149,7 @@ export default class ChildObjectTableBuilderV2 extends LightningElement {
                 childTBody.appendChild(infoRow);
             }
         } catch (error) {
-            errorDebugger('HomePage', 'generateTable', error, 'warn');
+            errorDebugger('HomePageV2', 'generateTable', error, 'warn');
 
         }
     }
@@ -191,7 +191,7 @@ export default class ChildObjectTableBuilderV2 extends LightningElement {
             document.body.removeChild(table); 
 
         } catch (error) {
-            errorDebugger('HomePage', 'copyTable', error, 'warn');
+            errorDebugger('HomePageV2', 'copyTable', error, 'warn');
 
         }
     }
@@ -202,7 +202,7 @@ export default class ChildObjectTableBuilderV2 extends LightningElement {
 				event?.detail?.function();
 			}
 		} catch (error) {
-			errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+			errorDebugger('DocumentLoaderV2', 'handleTimeout', error, 'warn')
 		}
 	}
 }

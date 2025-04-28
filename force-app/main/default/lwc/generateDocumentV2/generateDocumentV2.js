@@ -333,11 +333,11 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             })
             .catch(e => {
                 this.showSpinner = false;
-                errorDebugger('generateDocument', 'connectedCallback > promise', e, 'error');
+                errorDebugger('generateDocumentV2', 'connectedCallback > promise', e, 'error');
             });
         }catch(e){
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'connectedCallback', e, 'error');
+            errorDebugger('generateDocumentV2', 'connectedCallback', e, 'error');
         }
     }
 
@@ -470,7 +470,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             }
             this.isInitialStyleLoaded = true;
         }catch (e) {
-            errorDebugger('generateDocument', 'renderedCallback', e, 'error');
+            errorDebugger('generateDocumentV2', 'renderedCallback', e, 'error');
         }
 
     }
@@ -495,11 +495,11 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             })
             .catch(e => {
                 this.showSpinner = false;
-                errorDebugger('generateDocument', 'handleCalledFromDefaults > fetchAllButtonNames', e, 'error');
+                errorDebugger('generateDocumentV2', 'handleCalledFromDefaults > fetchAllButtonNames', e, 'error');
             });
         }catch(e){
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleCalledFromDefaults', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleCalledFromDefaults', e, 'error');
         }
     }
 
@@ -521,7 +521,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 event?.detail?.function();
             }
         } catch (error) {
-            errorDebugger('DocumentLoader', 'handleTimeout', error, 'warn')
+            errorDebugger('DocumentLoaderV2', 'handleTimeout', error, 'warn')
         }
     }
 
@@ -590,7 +590,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 }
             })
             .catch((e) =>{
-                errorDebugger('generateDocument', 'getTemplateDefaultValues', e, 'error');
+                errorDebugger('generateDocumentV2', 'getTemplateDefaultValues', e, 'error');
                 if(e.body.message.includes('Insufficient permissions')){
                     this.showSpinner = false;
                     this.showWarningPopup('error', 'Insufficient permissions', 'Please check the permissions to access the data...');
@@ -601,7 +601,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             })
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleAutoGeneration', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleAutoGeneration', e, 'error');
             this.showToast('error', 'Something went Wrong!', 'Couldn\'t get default values, please try again...', 5000);
         }
     }
@@ -625,12 +625,12 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 })
                 .catch((e) =>{
                     reject(e);
-                    errorDebugger('generateDocument', 'getCombinedData', e, 'error');
+                    errorDebugger('generateDocumentV2', 'getCombinedData', e, 'error');
                     this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch the required data, try again!', 5000);
                 })
             } catch (e) {
                 reject(e);
-                errorDebugger('generateDocument', 'fetchCombinedData', e, 'error');
+                errorDebugger('generateDocumentV2', 'fetchCombinedData', e, 'error');
             }
         })
     }
@@ -662,7 +662,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 }
             });
         } catch (e) {
-            errorDebugger('generateDocument', 'setUpAllTemplates', e, 'error');
+            errorDebugger('generateDocumentV2', 'setUpAllTemplates', e, 'error');
         }
     }
 
@@ -690,7 +690,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 })
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'setUpIntegrationStatus', e, 'error');
+            errorDebugger('generateDocumentV2', 'setUpIntegrationStatus', e, 'error');
         }
     }
 
@@ -699,7 +699,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.allFolders = folders;
             this.selectedFolder = this.allFolders[0].value;
         } catch (e) {
-            errorDebugger('generateDocument', 'setUpAllFolders', e, 'error');
+            errorDebugger('generateDocumentV2', 'setUpAllFolders', e, 'error');
         }
     }
 
@@ -716,7 +716,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 }
             } catch (e) {
                 this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch email templates!', 5000);
-                errorDebugger('generateDocument', 'setUpAllEmailTemplates', e, 'error');
+                errorDebugger('generateDocumentV2', 'setUpAllEmailTemplates', e, 'error');
             }
     }
 
@@ -731,12 +731,12 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 .catch((e) =>{
                     reject();
                     this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch buttons on object!', 5000);
-                    errorDebugger('generateDocument', 'getButtonNames', e, 'error');
+                    errorDebugger('generateDocumentV2', 'getButtonNames', e, 'error');
                 })
             }catch (e) {
                 reject();
                 this.showToast('error', 'Something went wrong!', 'We couldn\'t fetch buttons on object!', 5000);
-                errorDebugger('generateDocument', 'fetchAllButtonNames', e, 'error');
+                errorDebugger('generateDocumentV2', 'fetchAllButtonNames', e, 'error');
             }
         })
     }
@@ -757,7 +757,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = false;
             }
         }catch(e){
-            errorDebugger('generateDocument', 'handleSelectTemplate', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleSelectTemplate', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -768,7 +768,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
 
     handleRecordPickerError(event){
-        errorDebugger('generateDocument', 'handleRecordPickerError', event, 'error');
+        errorDebugger('generateDocumentV2', 'handleRecordPickerError', event, 'error');
     }
 
     handleFileNameChange(event){
@@ -795,7 +795,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.navigateToComp(navigationComps.googleDocTemplateEditor, paramToPass);
             }
         }catch(e){
-            errorDebugger('generateDocument', 'handleEditClick', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleEditClick', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -805,14 +805,14 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         try {
             this.showCC = !this.showCC;
         }catch (e) {
-            errorDebugger('generateDocument', 'toggleCC', e, 'error');
+            errorDebugger('generateDocumentV2', 'toggleCC', e, 'error');
         }
     }
     toggleBCC(){
         try {
             this.showBCC = !this.showBCC;
         }catch (e) {
-            errorDebugger('generateDocument', 'toggleBCC', e, 'error');
+            errorDebugger('generateDocumentV2', 'toggleBCC', e, 'error');
         }
     }
 
@@ -845,7 +845,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 })
             }
         }catch (e) {
-            errorDebugger('generateDocument', 'handleToEmailChange', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleToEmailChange', e, 'error');
         }
     }
 
@@ -857,7 +857,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this[typeOfEmail+'Emails'].splice(index, 1);
             if(typeOfEmail === "to") this.validateToEmails();
         }catch (e) {
-            errorDebugger('generateDocument', 'handleRemoveAddedEmail', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleRemoveAddedEmail', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -870,7 +870,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.template.querySelector(".to-error-div").innerText = hasRecipients ? '' : 'There must be at least one recipient..';
             this.template.querySelector(".to-error-div").classList.toggle("not-display-div", hasRecipients);
         }catch(e){
-            errorDebugger('generateDocument', 'validateToEmails', e, 'error');
+            errorDebugger('generateDocumentV2', 'validateToEmails', e, 'error');
         }
     }
 
@@ -878,7 +878,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         try{
             this.emailSubject = event.target.value;
         }catch (e) {
-            errorDebugger('generateDocument', 'handleSubjectChange', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleSubjectChange', e, 'error');
         }
     }
 
@@ -886,7 +886,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         try{
             this.emailBody = event.target.value;
         }catch (e) {
-            errorDebugger('generateDocument', 'handleBodyChange', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleBodyChange', e, 'error');
         }
     }
 
@@ -894,7 +894,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         try {
             this.emailBody = event.target.value;
         } catch (e) {
-            errorDebugger('generateDocument', 'handlePlainBodyChange', e, 'error');
+            errorDebugger('generateDocumentV2', 'handlePlainBodyChange', e, 'error');
         }
     }
 
@@ -910,7 +910,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.emailSubject = '';
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'handleEmailTemplateSelect', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleEmailTemplateSelect', e, 'error');
         }
     }
 
@@ -922,7 +922,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.template.host.style.setProperty('--display-of-the-rich-text',this.isPlainEmailBody ? "none" : "unset");
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'handleViewAsTypeSelect', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleViewAsTypeSelect', e, 'error');
         }
     }
 
@@ -971,7 +971,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 }
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'handleOptionSelection', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleOptionSelection', e, 'error');
         }finally{
             this.showSpinner = false;
         }
@@ -988,7 +988,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.handleSelectTemplate({detail:[{Id: this.selectedTemplate}]});
             this.backToGenerate();
         }catch(e){
-            errorDebugger('generateDocument', 'handleTemplateSelection', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleTemplateSelection', e, 'error');
         }
     }
 
@@ -997,7 +997,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.selectedTemplate = event.currentTarget.dataset.value;
             this.handleEditClick();
         }catch(e){
-            errorDebugger('generateDocument', 'handleTemplateEditClick', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleTemplateEditClick', e, 'error');
         }
     }
 
@@ -1040,11 +1040,11 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     }
                 })
                 .catch((e) => {
-                    errorDebugger('generateDocument', 'generateActivity > upsertActivity', e, 'error');
+                    errorDebugger('generateDocumentV2', 'generateActivity > upsertActivity', e, 'error');
                     reject(e);
                 });
             } catch (e) {
-                errorDebugger('generateDocument', 'generateActivity', e, 'error');
+                errorDebugger('generateDocumentV2', 'generateActivity', e, 'error');
                 reject(e);
             }
         });
@@ -1186,7 +1186,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         })
                         .catch(e => {
                             reject(e);
-                            errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords > csv', e, 'error');
+                            errorDebugger('generateDocumentV2', 'handleGenerateCSVData > fetchRecords > csv', e, 'error');
                             this.showToast('error', 'Oops! Something went wrong', 'Please make sure you have trusted url from user guide in effect...', 5000);
                         });
                     } else if (this.selectedExtension === '.xls') {
@@ -1233,18 +1233,18 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         })
                         .catch(e => {
                             reject(e);
-                            errorDebugger('generateDocument', 'handleGenerateCSVData > fetchRecords  > xls', e, 'error');
+                            errorDebugger('generateDocumentV2', 'handleGenerateCSVData > fetchRecords  > xls', e, 'error');
                             });
                     }
                 })
                 .catch(e => {
                     reject(e);
-                    errorDebugger('generateDocument', 'getTemplateData', e, 'error');
+                    errorDebugger('generateDocumentV2', 'getTemplateData', e, 'error');
                     this.showSpinner = false;
                 });
             } catch (e) {
                 reject(e);
-                errorDebugger('generateDocument', 'handleGenerateCSVData', e, 'error');
+                errorDebugger('generateDocumentV2', 'handleGenerateCSVData', e, 'error');
                 this.showSpinner = false;
                 this.handleGenerationResult();
             }
@@ -1305,12 +1305,12 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 return true;
             })
             .catch(e => {
-                errorDebugger('generateDocument', 'fetchRecords > fetch', e, 'error');
+                errorDebugger('generateDocumentV2', 'fetchRecords > fetch', e, 'error');
                 this.showToast('error', 'Sorry, The records could not be fetched!', 'We couldn\'t fetch the records, please try again..', 5000);
                 return false;
             });
         } catch(e){
-            errorDebugger('generateDocument', 'fetchRecords', e, 'error');
+            errorDebugger('generateDocumentV2', 'fetchRecords', e, 'error');
             this.showToast('error', 'Oops!, Something went wrong!', 'We couldn\'t fetch the records, please try again..');
             return false;
         }
@@ -1364,7 +1364,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'generateCSVDocument > generation', e, 'error');
+                    errorDebugger('generateDocumentV2', 'generateCSVDocument > generation', e, 'error');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
@@ -1381,7 +1381,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'generateCSVDocument > this.resultPromises-Promises', e, 'error');
+                    errorDebugger('generateDocumentV2', 'generateCSVDocument > this.resultPromises-Promises', e, 'error');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
@@ -1390,7 +1390,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             }
         }catch(e){
             this.showSpinner =false;
-            errorDebugger('generateDocument', 'generateCSVDocument', e, 'error');
+            errorDebugger('generateDocumentV2', 'generateCSVDocument', e, 'error');
         }
     }
 // -=-=- Used to download the Generated CSV in the local system -=-=-
@@ -1422,7 +1422,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }catch(e){
             this.failed['Download'] = e?.message;
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'downloadCSV', e, 'error');
+            errorDebugger('generateDocumentV2', 'downloadCSV', e, 'error');
         }finally{
             this.labelOfLoader = 'Loading...';
         }
@@ -1438,7 +1438,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.template.querySelector('c-generate-google-doc-file')?.generateDocument(this.selectedTemplate, this.internalObjectApiName, this.recordId, this.selectedExtension);
 
         }catch(e){
-            errorDebugger('generateDocument', 'generateGoogleDoc', e, 'error');
+            errorDebugger('generateDocumentV2', 'generateGoogleDoc', e, 'error');
         }
     }
     downloadGDocTemplate(){
@@ -1458,7 +1458,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }catch(e){
             this.failed['Download'] = e?.message;
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'downloadGDocTemplate', e, 'error');
+            errorDebugger('generateDocumentV2', 'downloadGDocTemplate', e, 'error');
         }
     }
 
@@ -1508,7 +1508,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     })
                     .catch(e => {
                         this.showSpinner = false;
-                        errorDebugger('generateDocument', 'handleGoogleDocFile > createContentVersion', e, 'error');
+                        errorDebugger('generateDocumentV2', 'handleGoogleDocFile > createContentVersion', e, 'error');
                     })
                     .finally(() => {
                         this.labelOfLoader = 'Loading...';
@@ -1524,7 +1524,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     })
                     .catch(e => {
                         this.showSpinner = false;
-                        errorDebugger('generateDocument', 'handleGoogleDocFile > this.resultPromises - Promises', e, 'error');
+                        errorDebugger('generateDocumentV2', 'handleGoogleDocFile > this.resultPromises - Promises', e, 'error');
                     })
                     .finally(() => {
                         this.labelOfLoader = 'Loading...';
@@ -1539,7 +1539,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             }
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleGoogleDocFile', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleGoogleDocFile', e, 'error');
         }
     }
     
@@ -1551,7 +1551,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     handleGDocError(event){
         this.showSpinner = false;
-        errorDebugger('generateDocument', 'handleGDocError', event.detail, 'error');
+        errorDebugger('generateDocumentV2', 'handleGDocError', event.detail, 'error');
         ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error Creating File => '+event?.detail?.message);
         this.showWarningPopup('error', 'Something went wrong!', event.detail.message ||'The Document could not be generated, please try again...' );
         this.isClosableError = true;
@@ -1596,7 +1596,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }
         catch(e){
             this.labelOfLoader = 'loading...';
-            errorDebugger('generateDocument', 'generateSimpleTemplateFile', e, 'error');
+            errorDebugger('generateDocumentV2', 'generateSimpleTemplateFile', e, 'error');
         }
     }
 
@@ -1634,7 +1634,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 }
             }
         }catch(e){
-            errorDebugger('generateDocument', 'simpleTempFileGenResponse', e, 'error');
+            errorDebugger('generateDocumentV2', 'simpleTempFileGenResponse', e, 'error');
         }
     }
 
@@ -1669,7 +1669,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 .then(accessToken => {
                     if (!accessToken) {
                         this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
-                        errorDebugger('generateDocument', 'createDocument > generateAccessToken', 'Session ID not obtained', 'error');
+                        errorDebugger('generateDocumentV2', 'createDocument > generateAccessToken', 'Session ID not obtained', 'error');
                         this.showSpinner = false;
                         return;
                         // throw new Error('Session ID not obtained');
@@ -1712,14 +1712,14 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'createDocument > fetch', e, 'error');
+                    errorDebugger('generateDocumentV2', 'createDocument > fetch', e, 'error');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
                 });
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'createDocument', e, 'error');
+            errorDebugger('generateDocumentV2', 'createDocument', e, 'error');
         }
     }
 
@@ -1732,7 +1732,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 .then(accessToken => {
                     if (!accessToken) {
                         this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
-                        errorDebugger('generateDocument', 'createAttachments > generateAccessToken', 'Session ID not obtained', 'error');
+                        errorDebugger('generateDocumentV2', 'createAttachments > generateAccessToken', 'Session ID not obtained', 'error');
                         this.showSpinner = false;
                         return;
                         // throw new Error('Session ID not obtained'); 
@@ -1774,14 +1774,14 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'createAttachments > fetch', e, 'error');
+                    errorDebugger('generateDocumentV2', 'createAttachments > fetch', e, 'error');
                 })
                 .finally(() => {
                     this.labelOfLoader = 'Loading...';
                 });
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'createAttachments', e, 'error');
+            errorDebugger('generateDocumentV2', 'createAttachments', e, 'error');
         }
     }
 
@@ -1799,20 +1799,20 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                             resolve();
                         }else{
                             this.failed['Files'] = result;
-                            errorDebugger('generateDocument', 'addToFiles > storeInFiles > failure', result, 'error');
+                            errorDebugger('generateDocumentV2', 'addToFiles > storeInFiles > failure', result, 'error');
                             this.showSpinner = false;
                             resolve();
                         }
                     })
                     .catch(e => {
-                        errorDebugger('generateDocument', 'addToFiles > storeInFiles > failure', e, 'error');
+                        errorDebugger('generateDocumentV2', 'addToFiles > storeInFiles > failure', e, 'error');
                     });
                 }else{
                     this.succeeded.push('Files');
                     resolve();
                 }
             } catch (e) {
-                errorDebugger('generateDocument', 'addToFiles', e, 'error');
+                errorDebugger('generateDocumentV2', 'addToFiles', e, 'error');
                 this.showSpinner = false;
                 resolve();
             }
@@ -1835,7 +1835,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         resolve();
                     }else{
                         this.failed['Chatter'] = result;
-                        errorDebugger('generateDocument', 'addToChatter > postToChatter > failure', result, 'error');
+                        errorDebugger('generateDocumentV2', 'addToChatter > postToChatter > failure', result, 'error');
                         if (this.selectedChannels.includes('Files')) {
                             this.resultPromises.push(
                                 this.addToFiles(cvId)
@@ -1854,10 +1854,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 .catch((e)=>{
                     this.failed['Chatter'] = e;
                     this.failed['Files'] = e;
-                    errorDebugger('generateDocument', 'addToChatter > postToChatter', e, 'error');
+                    errorDebugger('generateDocumentV2', 'addToChatter > postToChatter', e, 'error');
                 })
             } catch (e) {
-                errorDebugger('generateDocument', 'addToChatter', e, 'error');
+                errorDebugger('generateDocumentV2', 'addToChatter', e, 'error');
                 this.showSpinner = false;
                 resolve();
             }
@@ -1887,19 +1887,19 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         resolve();
                     }else{
                         this.failed['Email'] = result;
-                        errorDebugger('generateDocument', 'sendWithEmail > sendEmail > failure', result, 'error');
+                        errorDebugger('generateDocumentV2', 'sendWithEmail > sendEmail > failure', result, 'error');
                         this.showSpinner = false;
                         resolve();
                     }
                 })
                 .catch(e => {
                     this.failed['Email'] = e?.body?.message;
-                    errorDebugger('generateDocument', 'sendWithEmail > sendEmail', e, 'error');
+                    errorDebugger('generateDocumentV2', 'sendWithEmail > sendEmail', e, 'error');
                     this.showSpinner = false;
                     resolve();
                 });
             } catch (e) {
-                errorDebugger('generateDocument', 'sendWithEmail', e, 'error');
+                errorDebugger('generateDocumentV2', 'sendWithEmail', e, 'error');
                 this.showSpinner = false;
                 resolve();
             }
@@ -1914,7 +1914,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             .then(accessToken => {
                 if (!accessToken) {
                     this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
-                    errorDebugger('generateDocument', 'createContentVersion > generateAccessToken', 'Session ID not obtained', 'error');
+                    errorDebugger('generateDocumentV2', 'createContentVersion > generateAccessToken', 'Session ID not obtained', 'error');
                     this.showSpinner = false;
                     return;
                     // throw new Error('Session ID not obtained');
@@ -1953,7 +1953,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 return result.id;
             })
             .catch(e => {
-                errorDebugger('generateDocument', 'createContentVersion > fetch', e, 'error');
+                errorDebugger('generateDocumentV2', 'createContentVersion > fetch', e, 'error');
                 this.showSpinner = false;
             })
             .finally(() => {
@@ -1975,7 +1975,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.resultPromises.push(this.sendWithEmail(contentVersionId));
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'createFilesChatterEmail', e, 'error');
+            errorDebugger('generateDocumentV2', 'createFilesChatterEmail', e, 'error');
             this.showSpinner = false;
         }
     }
@@ -2002,7 +2002,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 deleteContentVersion({cvId: contentVersionId});
             }
         } catch (e) {
-            errorDebugger('generateDocument', 'uploadToExternalStorage', e, 'error');
+            errorDebugger('generateDocumentV2', 'uploadToExternalStorage', e, 'error');
         }
     }
 
@@ -2050,11 +2050,11 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 })
                 .catch(e => {
                     this.showSpinner = false;
-                    errorDebugger('generateDocument', 'handleGenerationResult > this.resultPromises - Promises', e, 'error');
+                    errorDebugger('generateDocumentV2', 'handleGenerationResult > this.resultPromises - Promises', e, 'error');
                 });
         } catch (e) {
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleGenerationResult', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleGenerationResult', e, 'error');
         }
     }
     
@@ -2099,7 +2099,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             }
         }catch(e){
             this.showSpinner = false;
-            errorDebugger('generateDocument', 'handleSetDefaults', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleSetDefaults', e, 'error');
         }
     }
 
@@ -2149,7 +2149,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         })
                         .catch((e) => {
                             this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
-                            errorDebugger('generateDocument', 'handleCreateButton > createListViewButtons', e, 'error');
+                            errorDebugger('generateDocumentV2', 'handleCreateButton > createListViewButtons', e, 'error');
                         })
                     }else{
                         generateAccessToken({isUpdateSetting : false})
@@ -2192,19 +2192,19 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                                         this.bottomBtnLabel = 'Update Defaults'
                                         this.showToast('success', 'Action Performed!','The button is created with defaults!', 5000);
                                     }else{
-                                        errorDebugger('generateDocument', 'handleCreateButton > fetch (create quick action button) > failure', result, 'error');
+                                        errorDebugger('generateDocumentV2', 'handleCreateButton > fetch (create quick action button) > failure', result, 'error');
                                         this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000); 
                                     }
                                 })
                                 .catch(e => {
                                     this.showToast('error', 'Something went wrong!','The button couldn\'t be created with defaults!', 5000);
-                                    errorDebugger('generateDocument', 'handleCreateButton > fetch (create quick action button)', e, 'error');
+                                    errorDebugger('generateDocumentV2', 'handleCreateButton > fetch (create quick action button)', e, 'error');
                                 });
                             })
                         .catch((e)=>{
                             this.showSpinner = false;
                             this.showToast('error', 'Something went wrong!','Some technical issue occurred, please try again!', 5000);
-                            errorDebugger('generateDocument', 'handleCreateButton > generateAccessToken', e, 'error');
+                            errorDebugger('generateDocumentV2', 'handleCreateButton > generateAccessToken', e, 'error');
                         })
                     }
                 }else{
@@ -2221,10 +2221,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             })
             .catch(e => {
                 this.showSpinner = false;
-                errorDebugger('generateDocument', 'handleCreateButton > setDefaultOptions', e, 'error');
+                errorDebugger('generateDocumentV2', 'handleCreateButton > setDefaultOptions', e, 'error');
             })
         } catch (e) {
-            errorDebugger('generateDocument', 'handleCreateButton', e, 'error');
+            errorDebugger('generateDocumentV2', 'handleCreateButton', e, 'error');
         }
     }
 
@@ -2285,7 +2285,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 }
             });
         } catch (e) {
-            errorDebugger('generateDocument', 'navigateToComp', e, 'error');
+            errorDebugger('generateDocumentV2', 'navigateToComp', e, 'error');
         }
     }
 }
