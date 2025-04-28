@@ -1074,25 +1074,25 @@ c-custom-combobox.folder-select {
 } */
 
 /* Style for CSV preview component */
-c-preview-c-s-v {
+c-preview-c-s-v-v2 {
     height: calc(100% - 10rem);
     display: flex;
 }
 /* Style for google doc preview component */
-c-preview-google-document {
+c-preview-google-document-v2 {
     overflow: auto;
     margin: 1rem;
     border-radius: 0.5rem;
     height: calc( 100% - 10rem );
 }
 
-c-template-preview-modal {
+c-template-preview-modal-v2 {
     height: calc(100% - 10rem);
     margin: 0.5rem 1rem;
     overflow: auto;
 }
 
-c-document-loader{
+c-document-loader-v2{
     --docTop:0;
 }
 

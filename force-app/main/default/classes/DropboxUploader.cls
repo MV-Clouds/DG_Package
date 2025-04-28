@@ -135,7 +135,7 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
                 obj.Id = activity; 
                 updateActivityMessage(obj);
             }
-            if(listMessage != null && !listMessage.isEmpty() && listMessage[0] != null){
+            if(!listMessage.isEmpty()){
                 update as user listMessage[0];
             }
     }
