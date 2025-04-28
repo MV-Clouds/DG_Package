@@ -13,7 +13,7 @@ public class DynamicFieldDisplayControllerTest {
         
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
 
-        Test.setCurrentPage(Page.UserSessionIdPage);
+        Test.setCurrentPage(Page.Dynamicpage);
         ApexPages.currentPage().getParameters().put('id', testAccount.Id);
         
         Test.startTest();

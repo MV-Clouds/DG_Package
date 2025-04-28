@@ -996,7 +996,7 @@ button:hover{
     border: 1px red solid;
 }
 
-.picklist-input-div.error-in-value-input c-custom-combobox{
+.picklist-input-div.error-in-value-input c-custom-combobox-v2{
     --inputAreaBorderWidth: 1px;
     --inputAreaBorderColor: red;
 }
@@ -1018,7 +1018,7 @@ button:hover{
     box-shadow: 0 0 6px 0px lightgray;
 }
 
-c-generate-document{
+c-generate-document-v2{
     --height-of-main-generate-document-div : 100%;
     --width-of-main-generate-document-div : 100%;
     --background-of-main-generate-document-div : transparent;
@@ -1028,7 +1028,7 @@ c-generate-document{
     height: 100%;
 }
 
-c-document-loader{
+c-document-loader-v2{
     --docTop:0;
 }
 

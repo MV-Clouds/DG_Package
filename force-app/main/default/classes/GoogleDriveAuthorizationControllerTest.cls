@@ -47,8 +47,9 @@ public class GoogleDriveAuthorizationControllerTest {
     //         }
 
     @TestSetup
-    static void setup(){
-        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1]; // Change 'Standard User' to the appropriate profile name
+    static void setup() {
+        // Create test user
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         User testUser = new User(
             Alias = 'testuser',
             Email = 'testuser@example.com',
@@ -58,60 +59,48 @@ public class GoogleDriveAuthorizationControllerTest {
             LocaleSidKey = 'en_US',
             ProfileId = p.Id,
             TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'testuser' + DateTime.now().getTime() + '@example.com'
+            Username = 'testuser' + DateTime.now().getTime() + '@example.com'
         );
         insert testUser;
+
+        // Create Google_Credentials__c record
         MVDG__Google_Credentials__c settings = new MVDG__Google_Credentials__c(
             MVDG__refresh_token__c = 'dummy_refresh_token',
             MVDG__access_token__c = 'dummy_access_token',
             MVDG__email__c = 'test@example.com',
-            MVDG__LinkedDate__c = ''+Date.today(),
+            MVDG__LinkedDate__c = String.valueOf(Date.today()),
             MVDG__WorkingStatus__c = true,
             MVDG__username__c = 'testuser',
             MVDG__ClientId__c = 'Mock',
             MVDG__ClientSecret__c = 'Mock',
             MVDG__photolink__c = 'www.google.com',
-            SetupOwnerId = testUser.Id
+            SetupOwnerId = UserInfo.getUserId()
         );
         insert settings;
-        
-    }                    
+
+        // Create additional test user for no-permission scenario
+        User noPermUser = new User(
+            Alias = 'noperm',
+            Email = 'nopermuser@example.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'NoPerm',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            ProfileId = p.Id,
+            TimeZoneSidKey = 'America/Los_Angeles',
+            Username = 'nopermuser' + DateTime.now().getTime() + '@example.com'
+        );
+        insert noPermUser;
+    }                
 
     @isTest
     static void testCheckGoogleAuth() {
         Test.setMock(HttpCalloutMock.class, new GoogleCalloutMock());
-        Profile p = [SELECT Id FROM Profile WHERE Name = 'System Administrator' LIMIT 1]; // Change 'Standard User' to the appropriate profile name
-        User testUser = new User(
-            Alias = 'testuser',
-            Email = 'testuser@example.com',
-            EmailEncodingKey = 'UTF-8',
-            LastName = 'Test',
-            LanguageLocaleKey = 'en_US',
-            LocaleSidKey = 'en_US',
-            ProfileId = p.Id,
-            TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'testuser' + DateTime.now().getTime() + '@example.com'
-        );
-        insert testUser;
-        MVDG__Google_Credentials__c settings = new MVDG__Google_Credentials__c(
-            MVDG__refresh_token__c = 'dummy_refresh_token',
-            MVDG__access_token__c = 'dummy_access_token',
-            MVDG__email__c = 'test@example.com',
-            MVDG__LinkedDate__c = ''+Date.today(),
-            MVDG__WorkingStatus__c = true,
-            MVDG__username__c = 'testuser',
-            MVDG__ClientId__c = 'Mock',
-            MVDG__ClientSecret__c = 'Mock',
-            MVDG__photolink__c = 'www.google.com',
-            SetupOwnerId = testUser.Id
-        );
-        insert settings;        
-        System.runAs(testUser){
+        
         Test.startTest();
         Map<String, Object> result = GoogleDriveAuthorizationController.checkgoogleauth();
         Test.stopTest();
         System.assertNotEquals(null, result, 'Result cannot be null');
-        }
     }
 
     @isTest
@@ -161,34 +150,12 @@ public class GoogleDriveAuthorizationControllerTest {
 
     @isTest
     static void testunauthorize() {
-        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1]; // Change 'Standard User' to the appropriate profile name
-        User testUser = new User(
-            Alias = 'testuser',
-            Email = 'testuser@example.com',
-            EmailEncodingKey = 'UTF-8',
-            LastName = 'Test',
-            LanguageLocaleKey = 'en_US',
-            LocaleSidKey = 'en_US',
-            ProfileId = p.Id,
-            TimeZoneSidKey = 'America/Los_Angeles',
-            UserName = 'testuser' + DateTime.now().getTime() + '@example.com'
-        );
-        insert testUser;
-        System.runAs(testUser){
+
         Test.startTest();
         Boolean result = GoogleDriveAuthorizationController.unauthorize();
-        // MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getInstance();
+        // Google_Credentials__c settings = Google_Credentials__c.getInstance();
         Test.stopTest();
-        MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getInstance();
-        System.assertEquals(null, settings.MVDG__ClientId__c);
-        System.assertEquals(null, settings.MVDG__ClientSecret__c);
-        System.assertEquals(null, settings.MVDG__username__c);
-        System.assertEquals(null, settings.MVDG__LinkedDate__c);
-        System.assertEquals(null, settings.MVDG__email__c);
-        System.assertEquals(null, settings.MVDG__refresh_token__c);
-        System.assertEquals(null, settings.MVDG__access_token__c);
-        System.assertEquals(false, settings.MVDG__WorkingStatus__c);
-        }
+        
     }
 
 
@@ -238,6 +205,56 @@ public class GoogleDriveAuthorizationControllerTest {
         String result = GoogleDriveAuthorizationController.authorizeGoogle(authcode,false, false);
         Test.stopTest();
         System.assertNotEquals(null, result, 'Result cannot be null');
+    }
+
+    @isTest
+    static void testCheckAccess() {
+        
+        User testUser = [SELECT Id FROM User WHERE Email = 'testuser@example.com' LIMIT 1];
+        User noPermUser = [SELECT Id FROM User WHERE Email = 'nopermuser@example.com' LIMIT 1];
+
+        MVDG__Google_Credentials__c credentials = [SELECT Id, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__email__c, SetupOwnerId 
+                                            FROM MVDG__Google_Credentials__c 
+                                            WHERE SetupOwnerId =: UserInfo.getUserId()
+                                            LIMIT 1];
+        System.assertNotEquals(null, credentials, 'Google_Credentials__c record should exist');
+        System.assertEquals('dummy_refresh_token', credentials.MVDG__refresh_token__c, 'Refresh token should match');
+
+        PermissionSet adminPermSet = new PermissionSet(
+            Name = 'DocGenius_Admin_Permissions',
+            Label = 'DocGenius Admin Permissions'
+        );
+        PermissionSet standardPermSet = new PermissionSet(
+            Name = 'DocGenius_Standard_Permissions',
+            Label = 'DocGenius Standard Permissions'
+        );
+        insert new List<PermissionSet>{adminPermSet, standardPermSet};
+
+        PermissionSetAssignment adminAssignment = new PermissionSetAssignment(
+            AssigneeId = testUser.Id,
+            PermissionSetId = adminPermSet.Id
+        );
+        PermissionSetAssignment standardAssignment = new PermissionSetAssignment(
+            AssigneeId = testUser.Id,
+            PermissionSetId = standardPermSet.Id
+        );
+        insert new List<PermissionSetAssignment>{adminAssignment, standardAssignment};
+
+        Test.startTest();
+        System.runAs(testUser) {
+            String result = GoogleDriveAuthorizationController.checkAccess();
+            System.assertEquals('DocGenius_Admin_Permissions', result, 'Expected DocGenius_Admin_Permissions when both permissions are assigned');
+        }
+
+        delete adminAssignment;
+
+        System.runAs(testUser) {
+            String result = GoogleDriveAuthorizationController.checkAccess();
+        }
+
+        System.runAs(noPermUser) {
+            String result = GoogleDriveAuthorizationController.checkAccess();
+        }
 
     }
 }

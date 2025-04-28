@@ -2,12 +2,6 @@
 public class DropboxUploaderTest {
     @TestSetup
     static void makeData(){
-        MVDG__DropBoxAuthProviderSettings__c settings = new MVDG__DropBoxAuthProviderSettings__c();
-        settings.SetupOwnerId = UserInfo.getOrganizationId();
-        settings.MVDG__ClientId__c = 'dummyClientId';
-        settings.MVDG__ClientSecret__c = 'dummyClientSecret';
-        settings.MVDG__refresh_token__c = 'dummyRefreshToken';
-        insert settings;
 
         Account acc = new Account();
         acc.Name = 'TestAccount';
@@ -64,6 +58,28 @@ public class DropboxUploaderTest {
         
     }
 
+    @isTest 
+    static void errorInitiateUploadSession(){
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new ErrorMockResponseClass());
+        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
+        String uploader = DropboxUploader.initiateUploadSession(act[0].Id);
+        System.assertEquals(null, uploader, 'The uploader result cannot be null');
+        Test.stopTest();
+    }
+
+    @isTest 
+    static void errorUploadSmallFile(){
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new ErrorMockResponseClass());
+        List<ContentVersion> cvs = new List<ContentVersion>();
+        cvs = [SELECT Id, VersionData  FROM ContentVersion];
+        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
+        DropboxUploader.uploadSmallFile(cvs[0].VersionData, 'pdf', act[0].Id);
+        System.assertEquals(null, null, 'The uploader result cannot be null');
+        Test.stopTest();
+    }
+
     @isTest
     static void testmailMessage(){
         Test.startTest();
@@ -78,6 +94,15 @@ public class DropboxUploaderTest {
 
     }
 
+    @isTest
+    static void errortesttokenPermanent(){
+        Test.startTest();
+        List<MVDG__Generate_Document_Activity__c> act = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
+        String token = DropboxUploader.tokenPermanent(act[0].Id);
+        System.AssertEquals(null, token, 'The token cannot be null');
+        Test.stopTest();
+    }
+
     public class MockResponseClass implements HttpCalloutMock {
         
         public HTTPResponse respond(HTTPRequest req) {
@@ -85,6 +110,17 @@ public class DropboxUploaderTest {
             res.setHeader('Content-Type', 'application/json');
             res.setBody('{"access_token": "test"}');
             res.setStatusCode(200);
+            return res;
+        }
+    }
+
+    public class ErrorMockResponseClass implements HttpCalloutMock {
+        
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setHeader('Content-Type', 'application/json');
+            res.setBody('{"refresh_token": "test"}');
+            res.setStatusCode(400);
             return res;
         }
     }

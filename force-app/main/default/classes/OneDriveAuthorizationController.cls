@@ -73,7 +73,7 @@ public with sharing class OneDriveAuthorizationController {
                 metadataRec.values.add(workingStatusField);
 
                 mdContainer.addMetadata(metadataRec);
-                Metadata.Operations.enqueueDeployment(mdContainer, null);
+                if(!Test.isRunningTest()){Metadata.Operations.enqueueDeployment(mdContainer, null);}
                 return true;
             }
             return false;
@@ -91,7 +91,7 @@ public with sharing class OneDriveAuthorizationController {
                 metadataRec.values.add(workingStatusField);
 
                 mdContainer.addMetadata(metadataRec);
-                Metadata.Operations.enqueueDeployment(mdContainer, null);
+                if(!Test.isRunningTest()){Metadata.Operations.enqueueDeployment(mdContainer, null);}
             return false;
         }
     }
@@ -153,7 +153,7 @@ public with sharing class OneDriveAuthorizationController {
                 metadataRec.values.add(workingStatusField);
 
                 mdContainer.addMetadata(metadataRec);
-                Metadata.Operations.enqueueDeployment(mdContainer, null);
+                if(!Test.isRunningTest()){Metadata.Operations.enqueueDeployment(mdContainer, null);}
                 return true;
             }
             return false;
@@ -233,7 +233,7 @@ public with sharing class OneDriveAuthorizationController {
             metadataRec.values.add(clientSecretField);
 
             mdContainer.addMetadata(metadataRec);
-            Metadata.Operations.enqueueDeployment(mdContainer, null);
+            if(!Test.isRunningTest()){Metadata.Operations.enqueueDeployment(mdContainer, null);}
             settings.MVDG__ClientId__c = clientId;
             settings.MVDG__ClientSecret__c = clientSecret;
 
