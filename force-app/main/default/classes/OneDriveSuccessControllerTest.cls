@@ -31,7 +31,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('https://test.develop.my.salesforce.com');
         Test.stopTest();
-        System.assertEquals('https://test--c.develop.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
     }
 
     // Test method for redirect handling for 'scratch' environment
@@ -40,7 +40,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('https://test.scratch.my.salesforce.com');
         Test.stopTest();
-        System.assertEquals('https://test--c.scratch.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
     }
 
     // Test method for redirect handling for 'sandbox' environment
@@ -49,7 +49,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('https://test.sandbox.my.salesforce.com');
         Test.stopTest();
-        System.assertEquals('https://test--c.sandbox.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
     }
 
     // Test method for redirect handling for 'production' environment
@@ -58,7 +58,7 @@ private class OneDriveSuccessControllerTest {
         Test.startTest();
         String result = OneDriveSuccessController.redirect('https://test.my.salesforce.com');
         Test.stopTest();
-        System.assertEquals('https://test--c.vf.force.com/apex/oneDriveSuccessPage', result);
+        System.assertEquals('https://test--c.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
     }
     
     // Test method for token generation and storage validation
