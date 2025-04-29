@@ -220,16 +220,8 @@ public class GoogleDriveAuthorizationControllerTest {
         System.assertNotEquals(null, credentials, 'Google_Credentials__c record should exist');
         System.assertEquals('dummy_refresh_token', credentials.MVDG__refresh_token__c, 'Refresh token should match');
 
-        PermissionSet adminPermSet = new PermissionSet(
-            Name = 'DocGenius_Admin_Permissions',
-            Label = 'DocGenius AdminPermissions'
-        );
-        PermissionSet standardPermSet = new PermissionSet(
-            Name = 'DocGenius_Standard_Permissions',
-            Label = 'DocGenius StandardPermissions'
-        );
-        insert new List<PermissionSet>{adminPermSet, standardPermSet};
-
+        PermissionSet adminPermSet = [SELECT Id FROM PermissionSet WHERE Name = 'DocGenius_Admin_Permissions' LIMIT 1];
+        PermissionSet standardPermSet = [SELECT Id FROM PermissionSet WHERE Name = 'DocGenius_Standard_Permissions' LIMIT 1];
         PermissionSetAssignment adminAssignment = new PermissionSetAssignment(
             AssigneeId = testUser.Id,
             PermissionSetId = adminPermSet.Id
@@ -245,8 +237,6 @@ public class GoogleDriveAuthorizationControllerTest {
             String result = GoogleDriveAuthorizationController.checkAccess();
             System.assertEquals('DocGenius_Admin_Permissions', result, 'Expected DocGenius_Admin_Permissions when both permissions are assigned');
         }
-
-        delete adminAssignment;
 
         System.runAs(testUser) {
             String result = GoogleDriveAuthorizationController.checkAccess();
