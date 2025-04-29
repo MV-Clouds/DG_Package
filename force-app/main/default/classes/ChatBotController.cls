@@ -210,13 +210,13 @@ public with sharing class ChatBotController {
     @AuraEnabled
     public static String storeMessages(String msg){
         
-        List<MVDG__ChatBotData__c> checkData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
+        List<MVDG__ChatBotData__c> checkData = [SELECT Id FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
         if(!checkData.isEmpty()){
-            checkData[0].MVDG__Chats__c = msg;
-            if(!Schema.sObjectType.MVDG__ChatBotData__c.fields.MVDG__Chats__c.isUpdateable()){
-                return null;
-            }
-            update as user checkData;
+            MVDG__ChatBotData__c cbd = new MVDG__ChatBotData__c(
+                Id = checkData[0].Id,
+                MVDG__Chats__c = msg
+            );
+            update as user cbd;
 
         }
         else{

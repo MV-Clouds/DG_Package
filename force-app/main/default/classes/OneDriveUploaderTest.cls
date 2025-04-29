@@ -116,8 +116,16 @@ public class OneDriveUploaderTest {
 
         List<MVDG__Generate_Document_Activity__c> activities = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
         String result = OneDriveUploader.getToken(activities[0].Id);
-        OneDriveUploader.getToken('a08C200000GEtUt123');
-        System.assertEquals(null, result, 'The result is null as expected');
+        System.assertEquals(null, result, 'The result should be null');
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void errortestGetToken() {
+        Test.startTest();
+        List<MVDG__Generate_Document_Activity__c> activities = [SELECT Id FROM MVDG__Generate_Document_Activity__c];
+        String result = OneDriveUploader.getToken(activities[0].Id);
+        System.assertEquals(null, result, 'The result should be null');
         Test.stopTest();
     }
 
