@@ -108,19 +108,18 @@ global with sharing class GoogleDriveUploader implements Database.Batchable < SO
 ********************************************************
 */
 
-@deprecated
 global static String getToken(){
     // try {
-    //     List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-    //     MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
+    //     List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+    //     Google_Credentials__c settings = Google_Credentials__c.getOrgDefaults();
     //     String endpoint = 'https://oauth2.googleapis.com/token';
     //     HttpRequest request = new HttpRequest();
     //     request.setEndpoint(endpoint);
     //     request.setMethod('POST');
     //     request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-    //     request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-    //                     '&client_id=' + mdata[0].MVDG__CID__c +
-    //                     '&client_secret=' + mdata[0].MVDG__CSEC__c +
+    //     request.setBody('refresh_token=' + settings.refresh_token__c +
+    //                     '&client_id=' + mdata[0].CID__c +
+    //                     '&client_secret=' + mdata[0].CSEC__c +
     //                     '&grant_type=refresh_token');
 
     //     Http http = new Http();
@@ -143,16 +142,16 @@ global static String getToken(){
 
     global static String getToken(String activity){
         try {
-            List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-            MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
+            List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+            Google_Credentials__c settings = Google_Credentials__c.getOrgDefaults();
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-                            '&client_id=' + mdata[0].MVDG__CID__c +
-                            '&client_secret=' + mdata[0].MVDG__CSEC__c +
+            request.setBody('refresh_token=' + settings.refresh_token__c +
+                            '&client_id=' + mdata[0].CID__c +
+                            '&client_secret=' + mdata[0].CSEC__c +
                             '&grant_type=refresh_token');
     
             Http http = new Http();
@@ -196,7 +195,7 @@ global static String getToken(){
     public static Boolean uploadToGoogleDrive(ContentVersion content, String fileName, List<String> fileDetails) {
         try {
             if (content != null) {
-                MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
+                Google_Credentials__c settings = Google_Credentials__c.getOrgDefaults();
                 HttpRequest req = createGoogleDriveRequest(content, settings);
     
                 HttpResponse resp = sendHttpRequest(req);
@@ -234,11 +233,11 @@ global static String getToken(){
 *********************************************************
 @description     : Method is used to create httpRequest for google drive upload
 @param           : Content{Contentversion} - File contentversion which needs to be upload
-@param           : settings{MVDG__Google_Credentials__c} - Custom setting containing accesstoken
+@param           : settings{Google_Credentials__c} - Custom setting containing accesstoken
 @return          : HttpRequest - create httpRequest for google drive upload
 ********************************************************
 */
-    private static HttpRequest createGoogleDriveRequest(ContentVersion content, MVDG__Google_Credentials__c settings) {
+    private static HttpRequest createGoogleDriveRequest(ContentVersion content, Google_Credentials__c settings) {
         HttpRequest req = new HttpRequest();
         String fileN = content.Title;
         String fileExtension = content.FileExtension;
@@ -444,7 +443,7 @@ global static String getToken(){
 */
     public static string initiateUploadSession(String contentType, ContentVersion cv, String activity) {
         try {
-            MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
+            Google_Credentials__c settings = Google_Credentials__c.getOrgDefaults();
             HttpRequest req = new HttpRequest();
             req.setEndpoint('https://www.googleapis.com/upload/drive/v2/files?uploadType=resumable');
             req.setMethod('POST');
@@ -493,7 +492,7 @@ global static String getToken(){
                 
             String contentRange = 'bytes ' + parameters.start + '-' + parameters.ending + '/' + parameters.fileSize;
 
-            MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
+            Google_Credentials__c settings = Google_Credentials__c.getOrgDefaults();
             HttpRequest req2 = new HttpRequest();
             req2.setEndpoint(parameters.result);
             req2.setMethod('PUT');

@@ -17,13 +17,13 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     */
     public static String getToken(String activity){
         try {
-            MVDG__OneDrive_Credentials__mdt settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__refresh_token__c 
-                                                         FROM MVDG__OneDrive_Credentials__mdt 
+            OneDrive_Credentials__mdt settings = [SELECT Id, ClientId__c, ClientSecret__c, refresh_token__c 
+                                                         FROM OneDrive_Credentials__mdt 
                                                          WITH SECURITY_ENFORCED 
                                                          LIMIT 1];
-            String refresh = settings.MVDG__refresh_token__c;
-            String clientid = settings.MVDG__ClientId__c;
-            String clientsecret = settings.MVDG__ClientSecret__c;
+            String refresh = settings.refresh_token__c;
+            String clientid = settings.ClientId__c;
+            String clientsecret = settings.ClientSecret__c;
             HttpRequest request = new HttpRequest();
             request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
             request.setMethod('POST');
@@ -164,11 +164,11 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     @AuraEnabled
     public static Boolean uploadToOneDrive(ContentVersion content, List<String> fileDetails) {
         try {
-            MVDG__OneDrive_Credentials__mdt settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__email__c
-                                                         FROM MVDG__OneDrive_Credentials__mdt 
+            OneDrive_Credentials__mdt settings = [SELECT Id, ClientId__c, ClientSecret__c, email__c
+                                                         FROM OneDrive_Credentials__mdt 
                                                          WITH SECURITY_ENFORCED 
                                                          LIMIT 1];
-            String emailid = settings.MVDG__email__c;
+            String emailid = settings.email__c;
             string endpointUrl = 'https://graph.microsoft.com/v1.0/users/me/drive/items/root:/{file}:/content';
             string file = EncodingUtil.URLENCODE(fileDetails[0], 'UTF-8').replace('+', '%20');
             endpointUrl = endpointUrl.replace('{file}', file + '.' + content.FileExtension);

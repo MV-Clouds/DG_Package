@@ -102,10 +102,10 @@ public with sharing class GenerateDocumentControllerTest {
     @isTest
     static void testGetAccessToken(){
         Test.startTest();
-        MVDG__ConnectedAppIdAndSecret__c app = new MVDG__ConnectedAppIdAndSecret__c();
+        ConnectedAppIdAndSecret__c app = new ConnectedAppIdAndSecret__c();
         app.SetupOwnerId = UserInfo.getUserId();
-        app.MVDG__Client_Id__c = 'testClientId';
-        app.MVDG__Client_Secret__c = 'testClientSecret';
+        app.Client_Id__c = 'testClientId';
+        app.Client_Secret__c = 'testClientSecret';
 
         insert as user app;
 
@@ -115,11 +115,11 @@ public with sharing class GenerateDocumentControllerTest {
 
         GenerateDocumentController.updateSetting('testClientId2', 'testClientSecret2');
 
-        MVDG__ConnectedAppIdAndSecret__c appUpdated = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE Id = :app.Id];
+        ConnectedAppIdAndSecret__c appUpdated = [SELECT Id, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WHERE Id = :app.Id];
         Test.stopTest();
 
         System.assertEquals(generateAccessToken, 'testAccessToken', 'The Access Token should be returned!');
-        System.assertEquals(appUpdated.MVDG__Client_Id__c, 'testClientId2', 'The Client Id Should be Updated!');
+        System.assertEquals(appUpdated.Client_Id__c, 'testClientId2', 'The Client Id Should be Updated!');
     }
 
     @isTest

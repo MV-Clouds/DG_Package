@@ -82,10 +82,10 @@ private class HomePageControllerTest {
 
     @isTest
     static void testGetAuthProviderSettings_Success() {
-        MVDG__ConnectedAppIdAndSecret__c app = new MVDG__ConnectedAppIdAndSecret__c();
+        ConnectedAppIdAndSecret__c app = new ConnectedAppIdAndSecret__c();
         app.SetupOwnerId = UserInfo.getUserId();
-        app.MVDG__Client_Id__c = 'testClientId';
-        app.MVDG__Client_Secret__c = 'testClientSecret';
+        app.Client_Id__c = 'testClientId';
+        app.Client_Secret__c = 'testClientSecret';
 
         insert as user app;
 

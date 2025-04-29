@@ -3,13 +3,13 @@ public class AwsUploaderTest {
     @TestSetup
     static void makeData(){
 
-        // MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
-        MVDG__Aws_Credentials__c settings = new MVDG__Aws_Credentials__c();
+        // Aws_Credentials__c settings = Aws_Credentials__c.getOrgDefaults();
+        Aws_Credentials__c settings = new Aws_Credentials__c();
         settings.SetupOwnerId = UserInfo.getOrganizationId();
-        settings.MVDG__BucketName__c = 'S3';
-        settings.MVDG__ClientId__c = 'testClientId';
-        settings.MVDG__ClientSecret__c = 'testClientSecret';
-        settings.MVDG__NamedCredential__c = 'namedCredentials';
+        settings.BucketName__c = 'S3';
+        settings.ClientId__c = 'testClientId';
+        settings.ClientSecret__c = 'testClientSecret';
+        settings.NamedCredential__c = 'namedCredentials';
         upsert settings;
         
         Account acc = new Account();
@@ -122,16 +122,16 @@ public class AwsUploaderTest {
     @isTest
     static void testCreateAuthHeader() {
         Test.startTest();
-        MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
+        Aws_Credentials__c settings = Aws_Credentials__c.getOrgDefaults();
         System.assertNotEquals(null, settings, 'AWS Credentials should be set up');
         AwsUploader.SignatureDetails params = new AwsUploader.SignatureDetails();
         params.methodName = 'PUT';
         params.fileExtension = 'png';
         params.formatedDateString = 'Wed, 25 Apr 2025 12:00:00 GMT';
-        params.bucketName = settings.MVDG__BucketName__c;
+        params.bucketName = settings.BucketName__c;
         params.filename = 'TestImage';
-        params.awsKey = settings.MVDG__ClientId__c;
-        params.awsSecret = settings.MVDG__ClientSecret__c;
+        params.awsKey = settings.ClientId__c;
+        params.awsSecret = settings.ClientSecret__c;
         String authHeader = AwsUploader.createAuthHeader(params);
         System.assertNotEquals(null, authHeader, 'Auth header should not be null');
         System.assert(authHeader.startsWith('AWS ' + params.awsKey + ':'), 'Auth header should start with AWS key');
@@ -149,7 +149,7 @@ public class AwsUploaderTest {
     static void testUploadObjectWithEmptyNamedCredential() {
         Test.startTest();
         AwsUploader.namedCredential = '';
-        MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
+        Aws_Credentials__c settings = Aws_Credentials__c.getOrgDefaults();
         System.assertNotEquals(null, settings, 'AWS Credentials should be set up');
         MVDG__Generate_Document_Activity__c activity = [SELECT Id FROM MVDG__Generate_Document_Activity__c LIMIT 1];
         ContentVersion cv = [SELECT Title, FileExtension, VersionData FROM ContentVersion WHERE Title = 'TestImage' LIMIT 1];

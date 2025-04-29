@@ -78,7 +78,6 @@ private class KeyMappingControllerTest {
         DocGenerateController.signatureKey = '';
         DocGenerateController.signatureSize = 50;
         DocGenerateController.imageMaxSize = 20*1000*1000;
-        DocGenerateController.sessionId = '';
         DocGenerateController.isBatchRequired = false;
         DocGenerateController.fetchTemplateData(0, temp.Id, '{{Temp.'+temp.Id+' *Demo temp*}}');
 

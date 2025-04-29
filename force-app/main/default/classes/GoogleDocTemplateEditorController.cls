@@ -7,7 +7,7 @@
 */
 public with sharing class GoogleDocTemplateEditorController {
     public static Map<String, HttpResponse> responseList = new Map<String, HttpResponse>();    
-    public static List<MVDG__Google_Credentials__c> authProvider = new List<MVDG__Google_Credentials__c>();
+    public static List<Google_Credentials__c> authProvider = new List<Google_Credentials__c>();
 
      /**
     * Method Name : getAllData
@@ -63,8 +63,8 @@ public with sharing class GoogleDocTemplateEditorController {
     public static String getAllDocs() {
         try {
             String endpoint = 'https://www.googleapis.com/drive/v3/files';
-            List<MVDG__Google_Credentials__c> authProvider = new List<MVDG__Google_Credentials__c>();
-            authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+            List<Google_Credentials__c> authProvider = new List<Google_Credentials__c>();
+            authProvider = [SELECT Id, SetupOwnerId, access_token__c, refresh_token__c, ClientId__c, ClientSecret__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() AND WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
             if (authProvider == null || authProvider.size() == 0) {
                 return 'error';   
             }
@@ -85,7 +85,7 @@ public with sharing class GoogleDocTemplateEditorController {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint + '?' + paramString);
             request.setMethod('GET');
-            request.setHeader('Authorization', 'Bearer ' + authProvider[0].MVDG__access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider[0].access_token__c);
 
             Http http = new Http();
             HttpResponse response = http.send(request);
@@ -124,8 +124,8 @@ public with sharing class GoogleDocTemplateEditorController {
     @AuraEnabled
     public static String createNewDocument() {
         try {
-            List<MVDG__Google_Credentials__c> authProvider = new List<MVDG__Google_Credentials__c>();
-            authProvider = [SELECT Id, SetupOwnerId, MVDG__access_token__c, MVDG__refresh_token__c, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+            List<Google_Credentials__c> authProvider = new List<Google_Credentials__c>();
+            authProvider = [SELECT Id, SetupOwnerId, access_token__c, refresh_token__c, ClientId__c, ClientSecret__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() AND WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
             if (authProvider.size() == 0) {
                 return 'error';   
             }
@@ -135,7 +135,7 @@ public with sharing class GoogleDocTemplateEditorController {
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/json');
-            request.setHeader('Authorization', 'Bearer ' + authProvider[0].MVDG__access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider[0].access_token__c);
             request.setBody('{"title": "New Untitled Document"}');
 
             Http http = new Http();
@@ -171,19 +171,19 @@ public with sharing class GoogleDocTemplateEditorController {
     * Name of methods changed (Comma separated if more then one) : method1 
     * Change Description : 
     ***********************************************************************/
-    public static HttpResponse refreshAccessToken(MVDG__Google_Credentials__c settings, HttpRequest requestPending) {
+    public static HttpResponse refreshAccessToken(Google_Credentials__c settings, HttpRequest requestPending) {
         try {
             
             
-            List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
-            // List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
+            // List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
-            // request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
+            request.setBody('refresh_token=' + settings.refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
+            // request.setBody('refresh_token=' + settings.refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             
@@ -191,7 +191,7 @@ public with sharing class GoogleDocTemplateEditorController {
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 String newToken = (String) jsonResponse.get('access_token');
                 if (newToken != null) {
-                    settings.MVDG__access_token__c = newToken;
+                    settings.access_token__c = newToken;
                     requestPending.setHeader('Authorization', 'Bearer ' + newToken);
                     Http httpPending = new Http();
                     HttpResponse responsePending = httpPending.send(requestPending);
@@ -226,7 +226,7 @@ public with sharing class GoogleDocTemplateEditorController {
         try {
             List<MVDG__Template_Data__c> templateData = new List<MVDG__Template_Data__c>();
             templateData = [SELECT MVDG__Google_Doc_WebViewLink__c, MVDG__Google_Doc_Template_Id__c FROM MVDG__Template_Data__c WHERE MVDG__Template__c = :templateId AND MVDG__Order_No_Simple__c = 1 WITH SECURITY_ENFORCED];
-            // templateData.MVDG__Google_Doc_WebViewLink__c += '&access_token='+ MVDG__Google_Credentials__c.getInstance().MVDG__access_token__c;
+            // templateData.MVDG__Google_Doc_WebViewLink__c += '&access_token='+ Google_Credentials__c.getInstance().access_token__c;
             if (templateData.size() > 0) {
                 return JSON.serialize(templateData[0]);
             }
@@ -278,12 +278,12 @@ public with sharing class GoogleDocTemplateEditorController {
     ***********************************************************************/
     public static string getGoogleProfile() {
         try {
-            MVDG__Google_Credentials__c authProvider = [SELECT Id, Name, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            Google_Credentials__c authProvider = [SELECT Id, Name, access_token__c, email__c, photolink__c, username__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId()];
 
             Map<String, String> profile = new Map<String, String>();
-            profile.put('username', authProvider.MVDG__username__c);
-            profile.put('email', authProvider.MVDG__email__c);
-            profile.put('photolink', authProvider.MVDG__photolink__c);
+            profile.put('username', authProvider.username__c);
+            profile.put('email', authProvider.email__c);
+            profile.put('photolink', authProvider.photolink__c);
 
             return JSON.serialize(profile);
         } catch (Exception e) {

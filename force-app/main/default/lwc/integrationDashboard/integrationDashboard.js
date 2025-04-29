@@ -196,9 +196,9 @@ export default class IntegrationDashborad extends NavigationMixin(LightningEleme
     checkAuthProviderSettings() {
     getAuthProviderSettings({isUpdateSetting : true})
         .then(result => {
-            if (result && result.length > 0 && result[0].MVDG__Client_Id__c && result[0].MVDG__Client_Secret__c) {
-                this.keyValue = result[0].MVDG__Client_Id__c;
-                this.secretValue = result[0].MVDG__Client_Secret__c;
+            if (result && result.length > 0 && result[0].Client_Id__c && result[0].Client_Secret__c) {
+                this.keyValue = result[0].Client_Id__c;
+                this.secretValue = result[0].Client_Secret__c;
                 if (this.keyValue && this.secretValue) {
                     this.consumerKey = this.keyValue;
                     this.consumerSecret = this.secretValue;

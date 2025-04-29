@@ -8,7 +8,7 @@
 public with sharing class DeleteGoogleDocument implements Schedulable{
     public String templateId;
     public String documentId;
-    public static MVDG__Google_Credentials__c authProvider;
+    public static Google_Credentials__c authProvider;
 
      /**
     * Method Name : DeleteGoogleDocument
@@ -74,7 +74,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('DELETE');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
             Http http = new Http();
             HttpResponse response = http.send(request);
             if (response.getStatusCode() == 204) {
@@ -113,15 +113,15 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
     ***********************************************************************/
     public static String refreshAccessToken() {
         try {
-            List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             
             String endpoint = 'https://oauth2.googleapis.com/token';
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + authProvider.MVDG__ClientId__c + '&client_secret=' + authProvider.MVDG__ClientSecret__c + '&grant_type=refresh_token');
-            request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
+            // request.setBody('refresh_token=' + authProvider.refresh_token__c + '&client_id=' + authProvider.ClientId__c + '&client_secret=' + authProvider.ClientSecret__c + '&grant_type=refresh_token');
+            request.setBody('refresh_token=' + authProvider.refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             
@@ -129,7 +129,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 String newToken = (String) jsonResponse.get('access_token');
                 if (newToken != null) {
-                    authProvider.MVDG__access_token__c = newToken;
+                    authProvider.access_token__c = newToken;
                 }
                 return newToken;
             }
@@ -143,7 +143,7 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
      /**
     * Method Name : getAuthProviderSettings
     * @description : Gets the authProviderSettings Custom Settings record
-    * @return the custom setting record - MVDG__Google_Credentials__c.
+    * @return the custom setting record - Google_Credentials__c.
     */ 
     /***********************************************************************
     MODIFICATION LOG* 
@@ -152,13 +152,13 @@ public with sharing class DeleteGoogleDocument implements Schedulable{
     * Name of methods changed (Comma separated if more then one) : method1 
     * Change Description : 
     ***********************************************************************/
-    public static MVDG__Google_Credentials__c getAuthProviderSettings() {
-        List<MVDG__Google_Credentials__c> aps = new List<MVDG__Google_Credentials__c>();
-        aps = [SELECT Id, SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+    public static Google_Credentials__c getAuthProviderSettings() {
+        List<Google_Credentials__c> aps = new List<Google_Credentials__c>();
+        aps = [SELECT Id, SetupOwnerId, ClientId__c, ClientSecret__c, LinkedDate__c, WorkingStatus__c, access_token__c, email__c, photolink__c, refresh_token__c, username__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
         if (aps.size() > 0) {
             return aps[0];
         }else{
-            return [SELECT Id, SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__refresh_token__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED];
+            return [SELECT Id, SetupOwnerId, ClientId__c, ClientSecret__c, LinkedDate__c, WorkingStatus__c, access_token__c, email__c, photolink__c, refresh_token__c, username__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED];
         }
     }
 }

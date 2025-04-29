@@ -21,14 +21,14 @@ public with sharing class OneDriveSuccessController {
             if (authcode == null || authcode == '') {
                 return 'error: invalid auth code';
             }
-            List<MVDG__OneDrive_Credentials__mdt> settings = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
-                                                         FROM MVDG__OneDrive_Credentials__mdt 
+            List<OneDrive_Credentials__mdt> settings = [SELECT Id, DeveloperName, MasterLabel, ClientId__c, ClientSecret__c 
+                                                         FROM OneDrive_Credentials__mdt 
                                                          WITH SECURITY_ENFORCED 
                                                          LIMIT 1];
           
            if (settings != null) {
-            String clientId = settings.isEmpty() ? '' : settings[0].MVDG__ClientId__c;
-            String clientSecret = settings.isEmpty() ? '' : settings[0].MVDG__ClientSecret__c;
+            String clientId = settings.isEmpty() ? '' : settings[0].ClientId__c;
+            String clientSecret = settings.isEmpty() ? '' : settings[0].ClientSecret__c;
             String developerName = settings.isEmpty() ? 'Default_Credential' : settings[0].DeveloperName;
             String masterLabel = settings.isEmpty() ? 'Default Credential' : settings[0].MasterLabel;
 
@@ -62,47 +62,47 @@ public with sharing class OneDriveSuccessController {
                // Create Metadata Container
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + developerName;
+                metadataRec.fullName = 'OneDrive_Credentials__mdt.' + developerName;
                 metadataRec.label = masterLabel;
 
                 // Add field values to Custom Metadata
                 Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
-                clientIdField.field = 'MVDG__ClientId__c';
+                clientIdField.field = 'ClientId__c';
                 clientIdField.value = clientId;
                 metadataRec.values.add(clientIdField);
 
                 Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
-                clientSecretField.field = 'MVDG__ClientSecret__c';
+                clientSecretField.field = 'ClientSecret__c';
                 clientSecretField.value = clientSecret;
                 metadataRec.values.add(clientSecretField);
 
                 Metadata.CustomMetadataValue refreshTokenField = new Metadata.CustomMetadataValue();
-                refreshTokenField.field = 'MVDG__refresh_token__c';
+                refreshTokenField.field = 'refresh_token__c';
                 refreshTokenField.value = refreshToken;
                 metadataRec.values.add(refreshTokenField);
 
                 Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
-                accessTokenField.field = 'MVDG__access_token__c';
+                accessTokenField.field = 'access_token__c';
                 accessTokenField.value = accessToken;
                 metadataRec.values.add(accessTokenField);
 
                 Metadata.CustomMetadataValue usernameField = new Metadata.CustomMetadataValue();
-                usernameField.field = 'MVDG__username__c';
+                usernameField.field = 'username__c';
                 usernameField.value = displayName;
                 metadataRec.values.add(usernameField);
 
                 Metadata.CustomMetadataValue emailField = new Metadata.CustomMetadataValue();
-                emailField.field = 'MVDG__email__c';
+                emailField.field = 'email__c';
                 emailField.value = emailAddress;
                 metadataRec.values.add(emailField);
 
                 Metadata.CustomMetadataValue linkedDateField = new Metadata.CustomMetadataValue();
-                linkedDateField.field = 'MVDG__LinkedDate__c';
+                linkedDateField.field = 'LinkedDate__c';
                 linkedDateField.value = formattedDate;
                 metadataRec.values.add(linkedDateField);
 
                 Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
-                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.field = 'WorkingStatus__c';
                 workingStatusField.value = true;
                 metadataRec.values.add(workingStatusField);
 

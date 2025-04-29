@@ -13,17 +13,17 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkdropboxauth() {
         try {
-            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                                         FROM MVDG__Dropbox_Credential__mdt 
+            List<Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, ClientId__c, ClientSecret__c, username__c, LinkedDate__c, email__c, refresh_token__c, access_token__c, WorkingStatus__c 
+                                                         FROM Dropbox_Credential__mdt 
                                                          WITH SECURITY_ENFORCED 
                                                          LIMIT 1];
             Map<String, Object> result = new Map<String, Object>();
-            if (!settingsList.isEmpty() && settingsList[0].MVDG__refresh_token__c != null && settingsList[0].MVDG__access_token__c != null && settingsList[0].MVDG__LinkedDate__c != null) {
-                MVDG__Dropbox_Credential__mdt settings = settingsList[0];
+            if (!settingsList.isEmpty() && settingsList[0].refresh_token__c != null && settingsList[0].access_token__c != null && settingsList[0].LinkedDate__c != null) {
+                Dropbox_Credential__mdt settings = settingsList[0];
                 Boolean working = verifyAuth();
-                result.put('name', settings.MVDG__username__c);
-                result.put('email', settings.MVDG__email__c);
-                result.put('linkdate', settings.MVDG__LinkedDate__c);
+                result.put('name', settings.username__c);
+                result.put('email', settings.email__c);
+                result.put('linkdate', settings.LinkedDate__c);
                 result.put('active', working);
                 return result;
             }
@@ -38,16 +38,16 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean verifyAuth() {
         try {
-            MVDG__Dropbox_Credential__mdt settings = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                               FROM MVDG__Dropbox_Credential__mdt 
+            Dropbox_Credential__mdt settings = [SELECT Id, DeveloperName, MasterLabel, ClientId__c, ClientSecret__c, username__c, LinkedDate__c, email__c, refresh_token__c, access_token__c, WorkingStatus__c 
+                                               FROM Dropbox_Credential__mdt 
                                                WITH SECURITY_ENFORCED 
                                                LIMIT 1];
             if (settings == null) {
                 return false;
             }
-            String refresh = settings.MVDG__refresh_token__c;
-            String clientid = settings.MVDG__ClientId__c;
-            String clientsecret = settings.MVDG__ClientSecret__c;
+            String refresh = settings.refresh_token__c;
+            String clientid = settings.ClientId__c;
+            String clientsecret = settings.ClientSecret__c;
             String body = 'grant_type=refresh_token' +
                           '&refresh_token=' + EncodingUtil.urlEncode(refresh, 'UTF-8') +
                           '&client_id=' + EncodingUtil.urlEncode(clientid, 'UTF-8') +
@@ -68,16 +68,16 @@ public with sharing class DropBoxAuthorizationController {
                     // Update Custom Metadata with new access token
                     Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                     Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                    metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+                    metadataRec.fullName = 'Dropbox_Credential__mdt.' + settings.DeveloperName;
                     metadataRec.label = settings.MasterLabel;
 
                     Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
-                    accessTokenField.field = 'MVDG__access_token__c';
+                    accessTokenField.field = 'access_token__c';
                     accessTokenField.value = newAccessToken;
                     metadataRec.values.add(accessTokenField);
 
                     Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
-                    workingStatusField.field = 'MVDG__WorkingStatus__c';
+                    workingStatusField.field = 'WorkingStatus__c';
                     workingStatusField.value = true;
                     metadataRec.values.add(workingStatusField);
 
@@ -91,11 +91,11 @@ public with sharing class DropBoxAuthorizationController {
                 // Update WorkingStatus__c to false
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'Dropbox_Credential__mdt.' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
-                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.field = 'WorkingStatus__c';
                 workingStatusField.value = false;
                 metadataRec.values.add(workingStatusField);
 
@@ -128,55 +128,55 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize() {
         try {
-            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                                         FROM MVDG__Dropbox_Credential__mdt 
+            List<Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, ClientId__c, ClientSecret__c, username__c, LinkedDate__c, email__c, refresh_token__c, access_token__c, WorkingStatus__c 
+                                                         FROM Dropbox_Credential__mdt 
                                                          WITH SECURITY_ENFORCED 
                                                          LIMIT 1];
             if (!settingsList.isEmpty()) {
-                MVDG__Dropbox_Credential__mdt settings = settingsList[0];
+                Dropbox_Credential__mdt settings = settingsList[0];
                 // Clear credentials using Metadata API
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'Dropbox_Credential__mdt.' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
-                clientIdField.field = 'MVDG__ClientId__c';
+                clientIdField.field = 'ClientId__c';
                 clientIdField.value = '';
                 metadataRec.values.add(clientIdField);
 
                 Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
-                clientSecretField.field = 'MVDG__ClientSecret__c';
+                clientSecretField.field = 'ClientSecret__c';
                 clientSecretField.value = '';
                 metadataRec.values.add(clientSecretField);
 
                 Metadata.CustomMetadataValue usernameField = new Metadata.CustomMetadataValue();
-                usernameField.field = 'MVDG__username__c';
+                usernameField.field = 'username__c';
                 usernameField.value = '';
                 metadataRec.values.add(usernameField);
 
                 Metadata.CustomMetadataValue linkedDateField = new Metadata.CustomMetadataValue();
-                linkedDateField.field = 'MVDG__LinkedDate__c';
+                linkedDateField.field = 'LinkedDate__c';
                 linkedDateField.value = '';
                 metadataRec.values.add(linkedDateField);
 
                 Metadata.CustomMetadataValue emailField = new Metadata.CustomMetadataValue();
-                emailField.field = 'MVDG__email__c';
+                emailField.field = 'email__c';
                 emailField.value = '';
                 metadataRec.values.add(emailField);
 
                 Metadata.CustomMetadataValue refreshTokenField = new Metadata.CustomMetadataValue();
-                refreshTokenField.field = 'MVDG__refresh_token__c';
+                refreshTokenField.field = 'refresh_token__c';
                 refreshTokenField.value = '';
                 metadataRec.values.add(refreshTokenField);
 
                 Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
-                accessTokenField.field = 'MVDG__access_token__c';
+                accessTokenField.field = 'access_token__c';
                 accessTokenField.value = '';
                 metadataRec.values.add(accessTokenField);
 
                 Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
-                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.field = 'WorkingStatus__c';
                 workingStatusField.value = false;
                 metadataRec.values.add(workingStatusField);
 
@@ -197,27 +197,27 @@ public with sharing class DropBoxAuthorizationController {
             if (String.isBlank(clientId) || String.isBlank(clientSecret)) {
                 return 'Both Client ID and Client Secret are required.';
             }
-            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
-                                                         FROM MVDG__Dropbox_Credential__mdt 
+            List<Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, ClientId__c, ClientSecret__c 
+                                                         FROM Dropbox_Credential__mdt 
                                                          WITH SECURITY_ENFORCED 
                                                          LIMIT 1];
             if (settingsList.isEmpty()) {
                 return null;
             }
-            MVDG__Dropbox_Credential__mdt settings = settingsList[0];
+            Dropbox_Credential__mdt settings = settingsList[0];
             // Update Custom Metadata with client ID and secret
             Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
             Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-            metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+            metadataRec.fullName = 'Dropbox_Credential__mdt.' + settings.DeveloperName;
             metadataRec.label = settings.MasterLabel;
 
             Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
-            clientIdField.field = 'MVDG__ClientId__c';
+            clientIdField.field = 'ClientId__c';
             clientIdField.value = clientId;
             metadataRec.values.add(clientIdField);
 
             Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
-            clientSecretField.field = 'MVDG__ClientSecret__c';
+            clientSecretField.field = 'ClientSecret__c';
             clientSecretField.value = clientSecret;
             metadataRec.values.add(clientSecretField);
 

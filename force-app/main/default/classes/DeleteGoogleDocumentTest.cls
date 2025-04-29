@@ -2,11 +2,11 @@
 public class DeleteGoogleDocumentTest {
     @testSetup
     static void setup() {
-        MVDG__Google_Credentials__c authProvider = new MVDG__Google_Credentials__c();
-        authProvider.MVDG__access_token__c = 'mock_access_token';
-        authProvider.MVDG__refresh_token__c = 'mock_refresh_token';
-        authProvider.MVDG__ClientId__c = 'mock_client_id';
-        authProvider.MVDG__ClientSecret__c = 'mock_client_secret';
+        Google_Credentials__c authProvider = new Google_Credentials__c();
+        authProvider.access_token__c = 'mock_access_token';
+        authProvider.refresh_token__c = 'mock_refresh_token';
+        authProvider.ClientId__c = 'mock_client_id';
+        authProvider.ClientSecret__c = 'mock_client_secret';
         insert authProvider;
     }
 
@@ -45,7 +45,7 @@ public class DeleteGoogleDocumentTest {
     @isTest
     static void testDeleteDocumentOrganization() {
         String googleDocId = 'mock_google_doc_id';
-        MVDG__Google_Credentials__c authProvider = [SELECT Id, SetupOwnerId FROM MVDG__Google_Credentials__c WHERE MVDG__access_token__c = 'mock_access_token'];
+        Google_Credentials__c authProvider = [SELECT Id, SetupOwnerId FROM Google_Credentials__c WHERE access_token__c = 'mock_access_token'];
         authProvider.SetupOwnerId = UserInfo.getOrganizationId();
         update authProvider;
         HttpResponse mockResponse = new HttpResponse();
@@ -69,14 +69,14 @@ public class DeleteGoogleDocumentTest {
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(mockResponse));
 
         Test.startTest();
-        DeleteGoogleDocument.authProvider = MVDG__Google_Credentials__c.getOrgDefaults();
+        DeleteGoogleDocument.authProvider = Google_Credentials__c.getOrgDefaults();
         String newToken = DeleteGoogleDocument.refreshAccessToken();
         Test.stopTest();
 
         System.assertEquals('new_mock_access_token', newToken, 'Access token is invalid');
 
-        // MVDG__Google_Credentials__c authProvider = MVDG__Google_Credentials__c.getInstaxnce();
-        // System.assertEquals('new_mock_access_token', authProvider.MVDG__access_token__c);
+        // Google_Credentials__c authProvider = Google_Credentials__c.getInstaxnce();
+        // System.assertEquals('new_mock_access_token', authProvider.access_token__c);
     }
 
     private class MockHttpResponseGenerator implements HttpCalloutMock {

@@ -66,13 +66,13 @@ public with sharing class GenerateDocumentController {
     public static IntegrationWrapper getIntegrationStatus(){
         try {
             IntegrationWrapper listOfStatus = new IntegrationWrapper();
-            listOfStatus.isGoogleDriveIntegrated = MVDG__Google_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isAWSIntegrated = MVDG__Aws_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isDropBoxIntegrated = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__Dropbox_Credential__mdt WITH SECURITY_ENFORCED LIMIT 1].MVDG__WorkingStatus__c;
-            listOfStatus.isOneDriveIntegrated = [SELECT Id, MVDG__WorkingStatus__c FROM MVDG__OneDrive_Credentials__mdt WITH SECURITY_ENFORCED LIMIT 1].MVDG__WorkingStatus__c;
-            List<MVDG__Google_Credentials__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+            listOfStatus.isGoogleDriveIntegrated = Google_Credentials__c.getOrgDefaults().WorkingStatus__c;
+            listOfStatus.isAWSIntegrated = Aws_Credentials__c.getOrgDefaults().WorkingStatus__c;
+            listOfStatus.isDropBoxIntegrated = [SELECT Id, WorkingStatus__c FROM Dropbox_Credential__mdt WITH SECURITY_ENFORCED LIMIT 1].WorkingStatus__c;
+            listOfStatus.isOneDriveIntegrated = [SELECT Id, WorkingStatus__c FROM OneDrive_Credentials__mdt WITH SECURITY_ENFORCED LIMIT 1].WorkingStatus__c;
+            List<Google_Credentials__c> googleDriveSetting = [SELECT WorkingStatus__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
-                listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;
+                listOfStatus.isUserWideAccessible = googleDriveSetting[0].WorkingStatus__c;
             }
             return listOfStatus;
         } catch (Exception e) {
@@ -215,10 +215,10 @@ public with sharing class GenerateDocumentController {
 @AuraEnabled
 public static String generateAccessToken(Boolean isUpdateSetting) {
     try {
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, IsDeleted, Name, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, IsDeleted, Name, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
         if (aps.size() > 0) {
-            String accessToken = getAccessToken(aps[0].MVDG__Client_Id__c, aps[0].MVDG__Client_Secret__c, isUpdateSetting);
+            String accessToken = getAccessToken(aps[0].Client_Id__c, aps[0].Client_Secret__c, isUpdateSetting);
             if(Test.isRunningTest()) { 
                 return 'testAccessToken';
             }
@@ -235,16 +235,16 @@ public static String generateAccessToken(Boolean isUpdateSetting) {
 *********************************************************
 @description      : Method is used to fetch the Client Id & Client Secret from the Custom Settings record.
 @param            : isUpdateSetting {Boolean} - Boolean to check if the settings need to be updated
-@return           : List<MVDG__ConnectedAppIdAndSecret__c> - List of MVDG__ConnectedAppIdAndSecret__c records
+@return           : List<ConnectedAppIdAndSecret__c> - List of ConnectedAppIdAndSecret__c records
 ********************************************************
 */
 @AuraEnabled
-public static List<MVDG__ConnectedAppIdAndSecret__c> getAuthProviderSettings(Boolean isUpdateSetting) {
+public static List<ConnectedAppIdAndSecret__c> getAuthProviderSettings(Boolean isUpdateSetting) {
     try {
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, IsDeleted, Name, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, IsDeleted, Name, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
         if (aps.size() > 0) {
-            String accessToken = getAccessToken(aps[0].MVDG__Client_Id__c, aps[0].MVDG__Client_Secret__c, isUpdateSetting);
+            String accessToken = getAccessToken(aps[0].Client_Id__c, aps[0].Client_Secret__c, isUpdateSetting);
             return aps;
         }
     } catch (Exception e) {
@@ -304,12 +304,12 @@ public static String getAccessToken(String clientId, String clientSecret , Boole
 public static void updateSetting(String clientId, String clientSecret) {
     try {
         
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId,MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
-        MVDG__ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new MVDG__ConnectedAppIdAndSecret__c();
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId,Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new ConnectedAppIdAndSecret__c();
         app.SetupOwnerId = UserInfo.getUserId();
-        app.MVDG__Client_Id__c = clientId;
-        app.MVDG__Client_Secret__c = clientSecret;
+        app.Client_Id__c = clientId;
+        app.Client_Secret__c = clientSecret;
         upsert as User app;
     } catch (Exception e) {
         Log_Handler.store_Exception(e, 'GenerateDocumentController', 'updateSetting');

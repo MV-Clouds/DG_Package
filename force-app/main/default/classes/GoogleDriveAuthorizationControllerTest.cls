@@ -64,16 +64,16 @@ public class GoogleDriveAuthorizationControllerTest {
         insert testUser;
 
         // Create Google_Credentials__c record
-        MVDG__Google_Credentials__c settings = new MVDG__Google_Credentials__c(
-            MVDG__refresh_token__c = 'dummy_refresh_token',
-            MVDG__access_token__c = 'dummy_access_token',
-            MVDG__email__c = 'test@example.com',
-            MVDG__LinkedDate__c = String.valueOf(Date.today()),
-            MVDG__WorkingStatus__c = true,
-            MVDG__username__c = 'testuser',
-            MVDG__ClientId__c = 'Mock',
-            MVDG__ClientSecret__c = 'Mock',
-            MVDG__photolink__c = 'www.google.com',
+        Google_Credentials__c settings = new Google_Credentials__c(
+            refresh_token__c = 'dummy_refresh_token',
+            access_token__c = 'dummy_access_token',
+            email__c = 'test@example.com',
+            LinkedDate__c = String.valueOf(Date.today()),
+            WorkingStatus__c = true,
+            username__c = 'testuser',
+            ClientId__c = 'Mock',
+            ClientSecret__c = 'Mock',
+            photolink__c = 'www.google.com',
             SetupOwnerId = UserInfo.getUserId()
         );
         insert settings;
@@ -119,14 +119,14 @@ public class GoogleDriveAuthorizationControllerTest {
         );
         insert testUser;
 
-        MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
-        settings.MVDG__refresh_token__c = 'test';
-        settings.MVDG__access_token__c = 'test';
-        settings.MVDG__ClientId__c = 'test';
-        settings.MVDG__ClientSecret__c = 'test';
-        settings.MVDG__LinkedDate__c = '04/05/2004';
-        settings.MVDG__username__c = 'test';
-        settings.MVDG__email__c = 'test@gmail.com';
+        Google_Credentials__c settings = Google_Credentials__c.getOrgDefaults();
+        settings.refresh_token__c = 'test';
+        settings.access_token__c = 'test';
+        settings.ClientId__c = 'test';
+        settings.ClientSecret__c = 'test';
+        settings.LinkedDate__c = '04/05/2004';
+        settings.username__c = 'test';
+        settings.email__c = 'test@gmail.com';
         insert settings;
         Test.startTest();
         System.runAs(testUser){
@@ -139,8 +139,8 @@ public class GoogleDriveAuthorizationControllerTest {
 
     @isTest
     static void testisOrgWide() {
-        MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
-        settings.MVDG__refresh_token__c = 'test';
+        Google_Credentials__c settings = Google_Credentials__c.getOrgDefaults();
+        settings.refresh_token__c = 'test';
         upsert settings;
         Test.startTest();
         Boolean result = GoogleDriveAuthorizationController.isOrgWide();
@@ -184,8 +184,8 @@ public class GoogleDriveAuthorizationControllerTest {
 
     @isTest
     static void testorgunauthorize(){
-        MVDG__Google_Credentials__c settings = MVDG__Google_Credentials__c.getOrgDefaults();
-        settings.MVDG__refresh_token__c = 'test';
+        Google_Credentials__c settings = Google_Credentials__c.getOrgDefaults();
+        settings.refresh_token__c = 'test';
         upsert settings;
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new GoogleCalloutMock());
@@ -213,12 +213,12 @@ public class GoogleDriveAuthorizationControllerTest {
         User testUser = [SELECT Id FROM User WHERE Email = 'testuser@example.com' LIMIT 1];
         User noPermUser = [SELECT Id FROM User WHERE Email = 'nopermuser@example.com' LIMIT 1];
 
-        MVDG__Google_Credentials__c credentials = [SELECT Id, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__email__c, SetupOwnerId 
-                                            FROM MVDG__Google_Credentials__c 
+        Google_Credentials__c credentials = [SELECT Id, refresh_token__c, access_token__c, email__c, SetupOwnerId 
+                                            FROM Google_Credentials__c 
                                             WHERE SetupOwnerId =: UserInfo.getUserId()
                                             LIMIT 1];
         System.assertNotEquals(null, credentials, 'Google_Credentials__c record should exist');
-        System.assertEquals('dummy_refresh_token', credentials.MVDG__refresh_token__c, 'Refresh token should match');
+        System.assertEquals('dummy_refresh_token', credentials.refresh_token__c, 'Refresh token should match');
 
         PermissionSet adminPermSet = [SELECT Id FROM PermissionSet WHERE Name = 'DocGenius_Admin_Permissions' LIMIT 1];
         PermissionSet standardPermSet = [SELECT Id FROM PermissionSet WHERE Name = 'DocGenius_Standard_Permissions' LIMIT 1];

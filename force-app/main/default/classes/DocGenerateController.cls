@@ -45,10 +45,10 @@ global with sharing class DocGenerateController {
      * @description : run when vf page call, entry point of all the vf page methods...
      */
     public DocGenerateController() {
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, IsDeleted, Name, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, IsDeleted, Name, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
         if (aps.size() > 0) {
-            accessToken = GenerateDocumentController.getAccessToken(aps[0].MVDG__Client_Id__c, aps[0].MVDG__Client_Secret__c, false);
+            accessToken = GenerateDocumentController.getAccessToken(aps[0].Client_Id__c, aps[0].Client_Secret__c, false);
         }
         getTemplateDetails();
     }

@@ -58,12 +58,12 @@ global with sharing class AwsUploader implements Database.Batchable<SObject>, Da
 
     global void execute(Database.BatchableContext bC, List<ContentVersion> scope) {
         try {
-            MVDG__Aws_Credentials__c settings = MVDG__Aws_Credentials__c.getOrgDefaults();
-            String bucketName = settings.MVDG__BucketName__c;
-            String awsKey = settings.MVDG__ClientId__c;
-            String awsSecret = settings.MVDG__ClientSecret__c;
+            Aws_Credentials__c settings = Aws_Credentials__c.getOrgDefaults();
+            String bucketName = settings.BucketName__c;
+            String awsKey = settings.ClientId__c;
+            String awsSecret = settings.ClientSecret__c;
             String methodName = 'PUT';
-            String namedCredentialApiName = settings.MVDG__NamedCredential__c;
+            String namedCredentialApiName = settings.NamedCredential__c;
             if(namedCredentialApiName != null){
                 namedCredential = namedCredentialApiName;
             }

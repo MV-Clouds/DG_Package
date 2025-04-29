@@ -39,17 +39,17 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkawsauth(){
         try{
-            MVDG__Aws_Credentials__c settings = [SELECT Id,MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED];
+            Aws_Credentials__c settings = [SELECT Id,BucketName__c,ClientId__c,ClientSecret__c,LinkedDate__c,WorkingStatus__c,NickName__c,NamedCredential__c FROM Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED];
 
             Map<String, Object> result = new Map<String, Object>();
-            if (settings != null  && (settings.MVDG__BucketName__c != '' && settings.MVDG__LinkedDate__c != '' && settings.MVDG__NickName__c != '') || (settings.MVDG__NamedCredential__c != '' || settings.MVDG__NamedCredential__c != null)) {
+            if (settings != null  && (settings.BucketName__c != '' && settings.LinkedDate__c != '' && settings.NickName__c != '') || (settings.NamedCredential__c != '' || settings.NamedCredential__c != null)) {
                 Boolean working = verifyAuth();
-                settings = [SELECT MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+                settings = [SELECT BucketName__c,ClientId__c,ClientSecret__c,LinkedDate__c,WorkingStatus__c,NickName__c,NamedCredential__c FROM Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
                 if(working){
-                    result.put('bucket', settings.MVDG__BucketName__c);
-                    result.put('linkdate', settings.MVDG__LinkedDate__c);
-                    result.put('active', settings.MVDG__WorkingStatus__c);
-                    result.put('name', settings.MVDG__NickName__c);
+                    result.put('bucket', settings.BucketName__c);
+                    result.put('linkdate', settings.LinkedDate__c);
+                    result.put('active', settings.WorkingStatus__c);
+                    result.put('name', settings.NickName__c);
                     return result;
                 }
             }
@@ -71,18 +71,18 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            List<MVDG__Aws_Credentials__c> settingsList = [SELECT Id,MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-            MVDG__Aws_Credentials__c settings;
+            List<Aws_Credentials__c> settingsList = [SELECT Id,BucketName__c,ClientId__c,ClientSecret__c,LinkedDate__c,WorkingStatus__c,NickName__c,NamedCredential__c FROM Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            Aws_Credentials__c settings;
             if(!settingsList.isEmpty()){
                 settings = settingsList[0];
                 if(settings != null){
-                    settings.MVDG__BucketName__c = '';
-                    settings.MVDG__ClientId__c = '';
-                    settings.MVDG__ClientSecret__c = '';
-                    settings.MVDG__LinkedDate__c = '';
-                    settings.MVDG__WorkingStatus__c = false;
-                    settings.MVDG__NickName__c = '';
-                    settings.MVDG__NamedCredential__c = '';
+                    settings.BucketName__c = '';
+                    settings.ClientId__c = '';
+                    settings.ClientSecret__c = '';
+                    settings.LinkedDate__c = '';
+                    settings.WorkingStatus__c = false;
+                    settings.NickName__c = '';
+                    settings.NamedCredential__c = '';
                     upsert as user settings;
                     return true;
                 }
@@ -106,36 +106,36 @@ public with sharing class AwsAuthorizationController {
     @AuraEnabled
     public static Boolean verifyAuth(){
         try {
-            List<MVDG__Aws_Credentials__c> settingsList = [SELECT MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-            MVDG__Aws_Credentials__c settings;
+            List<Aws_Credentials__c> settingsList = [SELECT BucketName__c,ClientId__c,ClientSecret__c,LinkedDate__c,WorkingStatus__c,NickName__c,NamedCredential__c FROM Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            Aws_Credentials__c settings;
             if(!settingsList.isEmpty()){
                 settings = settingsList[0];
             }
             else{
-                settings = new MVDG__Aws_Credentials__c();
+                settings = new Aws_Credentials__c();
             }
-            if(String.isBlank(settings.MVDG__NamedCredential__c) && String.isNotBlank(settings.MVDG__BucketName__c) && String.isNotBlank(settings.MVDG__ClientId__c) && String.isNotBlank(settings.MVDG__ClientSecret__c)){
-                if(testCallout(settings.MVDG__BucketName__c, settings.MVDG__ClientId__c, settings.MVDG__ClientSecret__c)){
-                    settings.MVDG__WorkingStatus__c = true;
+            if(String.isBlank(settings.NamedCredential__c) && String.isNotBlank(settings.BucketName__c) && String.isNotBlank(settings.ClientId__c) && String.isNotBlank(settings.ClientSecret__c)){
+                if(testCallout(settings.BucketName__c, settings.ClientId__c, settings.ClientSecret__c)){
+                    settings.WorkingStatus__c = true;
                     update as user settings;
                     return true;
                 }      
-                settings.MVDG__WorkingStatus__c = false;
+                settings.WorkingStatus__c = false;
                 update as user settings;
                 return false;
-            }else if(string.isNotBlank(settings.MVDG__NamedCredential__c)){
+            }else if(string.isNotBlank(settings.NamedCredential__c)){
                 HttpRequest req = new HttpRequest();
-                req.setEndpoint('callout:'+settings.MVDG__NamedCredential__c);
+                req.setEndpoint('callout:'+settings.NamedCredential__c);
                 req.setMethod('GET');
                 Http http = new http();
                 HttpResponse res = http.send(req);
                 if(res.getStatusCode() == 200){
-                    settings.MVDG__WorkingStatus__c = true;
+                    settings.WorkingStatus__c = true;
                     update as user settings;
                     return true;
                 }
                 else{
-                    settings.MVDG__WorkingStatus__c = false;
+                    settings.WorkingStatus__c = false;
                     update as user settings;
                     Response_Handler.store_Callout_Response(res, 'AwsAuthorizationController', 'verifyAuth');
                     return false;
@@ -163,9 +163,9 @@ public with sharing class AwsAuthorizationController {
                     checkNamed = 1;
                 }
                 if(checkNamed == 1){
-                    MVDG__Aws_Credentials__c settings = [SELECT MVDG__WorkingStatus__c,MVDG__NamedCredential__c,MVDG__NickName__c,MVDG__BucketName__c,MVDG__LinkedDate__c FROM MVDG__Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+                    Aws_Credentials__c settings = [SELECT WorkingStatus__c,NamedCredential__c,NickName__c,BucketName__c,LinkedDate__c FROM Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
                     if (settings == null) {
-                        settings = new MVDG__Aws_Credentials__c();
+                        settings = new Aws_Credentials__c();
                     }
                     HttpRequest req = new HttpRequest();
                     req.setEndpoint('callout:'+named);
@@ -173,20 +173,20 @@ public with sharing class AwsAuthorizationController {
                     Http http = new http();
                     HttpResponse res = http.send(req);
                     if(res.getStatusCode() == 200){
-                        settings.MVDG__WorkingStatus__c = true;
+                        settings.WorkingStatus__c = true;
                     }
                     else {
                         return 'Failure';
                     }
                     
-                    settings.MVDG__NamedCredential__c = named;
-                    settings.MVDG__NickName__c = named;
-                    settings.MVDG__BucketName__c = 'Unknown';
+                    settings.NamedCredential__c = named;
+                    settings.NickName__c = named;
+                    settings.BucketName__c = 'Unknown';
                     Date todaysDate = Date.today();
                     Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
                     String formattedDate = datetimeToday.format('dd/MM/yyyy');
-                    settings.MVDG__LinkedDate__c = formattedDate;
-                    settings.MVDG__WorkingStatus__c = true;
+                    settings.LinkedDate__c = formattedDate;
+                    settings.WorkingStatus__c = true;
                     upsert as user settings;
                     return 'Success';
                 }
@@ -211,24 +211,24 @@ public with sharing class AwsAuthorizationController {
             if (String.isBlank(clientId) || String.isBlank(clientSecret) || String.isBlank(bucket) || String.isBlank(awsNickname)) {
                 return 'All Details are compulsory';
             }
-            List<MVDG__Aws_Credentials__c> settingsList = [SELECT Id,MVDG__BucketName__c,MVDG__ClientId__c,MVDG__ClientSecret__c,MVDG__LinkedDate__c,MVDG__WorkingStatus__c,MVDG__NickName__c,MVDG__NamedCredential__c FROM MVDG__Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            List<Aws_Credentials__c> settingsList = [SELECT Id,BucketName__c,ClientId__c,ClientSecret__c,LinkedDate__c,WorkingStatus__c,NickName__c,NamedCredential__c FROM Aws_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
 
-            MVDG__Aws_Credentials__c settings;
+            Aws_Credentials__c settings;
             if (!settingsList.isEmpty()) {
                 settings = settingsList[0];
             }
             else{
-                settings = new MVDG__Aws_Credentials__c();
+                settings = new Aws_Credentials__c();
             }
-            settings.MVDG__ClientId__c = clientId;
-            settings.MVDG__ClientSecret__c = clientSecret;
-            settings.MVDG__BucketName__c = bucket;
-            settings.MVDG__NickName__c = awsNickname;
+            settings.ClientId__c = clientId;
+            settings.ClientSecret__c = clientSecret;
+            settings.BucketName__c = bucket;
+            settings.NickName__c = awsNickname;
             Date todaysDate = Date.today();
             Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
             String formattedDate = datetimeToday.format('dd/MM/yyyy');
-            settings.MVDG__LinkedDate__c = formattedDate;
-            settings.MVDG__WorkingStatus__c = true;
+            settings.LinkedDate__c = formattedDate;
+            settings.WorkingStatus__c = true;
             Boolean status = testCallout(bucket, clientId, clientSecret);
             if(status)
             {

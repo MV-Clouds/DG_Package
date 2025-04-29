@@ -56,13 +56,13 @@ public class GoogleDocPreviewTest {
     
     @TestSetup
     static void createTemplate(){
-        MVDG__Google_Credentials__c authProvider = new MVDG__Google_Credentials__c();
+        Google_Credentials__c authProvider = new Google_Credentials__c();
         authProvider.SetupOwnerId = UserInfo.getOrganizationId();
-        authProvider.MVDG__ClientId__c = 'dummyClientId';
-        authProvider.MVDG__ClientSecret__c = 'dummyClientSecret';
-        authProvider.MVDG__access_token__c = 'dummyAccessToken';
-        authProvider.MVDG__refresh_token__c = 'dummyRefreshToken';
-        authProvider.MVDG__WorkingStatus__c = true;
+        authProvider.ClientId__c = 'dummyClientId';
+        authProvider.ClientSecret__c = 'dummyClientSecret';
+        authProvider.access_token__c = 'dummyAccessToken';
+        authProvider.refresh_token__c = 'dummyRefreshToken';
+        authProvider.WorkingStatus__c = true;
         insert authProvider;
 
         MVDG__Template__c template = new MVDG__Template__c();
@@ -104,7 +104,7 @@ public class GoogleDocPreviewTest {
         
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new getDocumentMock());
-        GoogleDocPreview.authProvider = MVDG__Google_Credentials__c.getOrgDefaults();
+        GoogleDocPreview.authProvider = Google_Credentials__c.getOrgDefaults();
         String res = GoogleDocPreview.doPreview('dummyDocumentId', '.pdf', new List<String>{'String'});
         System.assertEquals(EncodingUtil.base64Encode(Blob.valueOf('PDF blob')), res);
 
@@ -120,7 +120,7 @@ public class GoogleDocPreviewTest {
 
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new getDocumentMock());
-        GoogleDocPreview.authProvider = MVDG__Google_Credentials__c.getOrgDefaults();
+        GoogleDocPreview.authProvider = Google_Credentials__c.getOrgDefaults();
         String res = GoogleDocPreview.refreshAccessToken();
         System.assertEquals('dummyNewAccessToken', res);
 
@@ -149,7 +149,7 @@ public class GoogleDocPreviewTest {
         
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new NotFoundResponseClass());
-        GoogleDocPreview.authProvider = MVDG__Google_Credentials__c.getOrgDefaults();
+        GoogleDocPreview.authProvider = Google_Credentials__c.getOrgDefaults();
         String res = GoogleDocPreview.refreshAccessToken();
         System.assertEquals(null, res);
 
@@ -181,7 +181,7 @@ public class GoogleDocPreviewTest {
         
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new NoResponseClass());
-        GoogleDocPreview.authProvider = MVDG__Google_Credentials__c.getOrgDefaults();
+        GoogleDocPreview.authProvider = Google_Credentials__c.getOrgDefaults();
         String res = GoogleDocPreview.refreshAccessToken();
         System.assertEquals(null, res);
 
@@ -211,7 +211,7 @@ public class GoogleDocPreviewTest {
         
         Test.startTest();
         test.setMock(HttpCalloutMock.class, new getDocumentMock());
-        GoogleDocPreview.authProvider = MVDG__Google_Credentials__c.getOrgDefaults();
+        GoogleDocPreview.authProvider = Google_Credentials__c.getOrgDefaults();
         GoogleDocPreview.updateAuthProvider();
 
         GoogleDocPreview.getDocument('dummyDocumentId', 'dummyTemplateId');

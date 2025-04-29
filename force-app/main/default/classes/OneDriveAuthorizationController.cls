@@ -13,17 +13,17 @@ public with sharing class OneDriveAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkonedriveauth(){
         try {
-            List<MVDG__OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-            FROM MVDG__OneDrive_Credentials__mdt 
+            List<OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, ClientId__c, ClientSecret__c, username__c, LinkedDate__c, email__c, refresh_token__c, access_token__c, WorkingStatus__c 
+            FROM OneDrive_Credentials__mdt 
             WITH SECURITY_ENFORCED 
             LIMIT 1];
             Map<String, Object> result = new Map<String, Object>();
-            if (!settingsList.isEmpty() && settingsList[0].MVDG__refresh_token__c != null && settingsList[0].MVDG__access_token__c != null && settingsList[0].MVDG__LinkedDate__c != null) {
-                MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
+            if (!settingsList.isEmpty() && settingsList[0].refresh_token__c != null && settingsList[0].access_token__c != null && settingsList[0].LinkedDate__c != null) {
+                OneDrive_Credentials__mdt settings = settingsList[0];
                 Boolean working = getToken();
-                result.put('name', settings.MVDG__username__c);
-                result.put('email', settings.MVDG__email__c);
-                result.put('linkdate', settings.MVDG__LinkedDate__c);
+                result.put('name', settings.username__c);
+                result.put('email', settings.email__c);
+                result.put('linkdate', settings.LinkedDate__c);
                 result.put('active', working);
                 return result;
             }
@@ -36,8 +36,8 @@ public with sharing class OneDriveAuthorizationController {
     }
 
     public static Boolean getToken(){
-        MVDG__OneDrive_Credentials__mdt settings = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                               FROM MVDG__OneDrive_Credentials__mdt 
+        OneDrive_Credentials__mdt settings = [SELECT Id, DeveloperName, MasterLabel, ClientId__c, ClientSecret__c, username__c, LinkedDate__c, email__c, refresh_token__c, access_token__c, WorkingStatus__c 
+                                               FROM OneDrive_Credentials__mdt 
                                                WITH SECURITY_ENFORCED 
                                                LIMIT 1];
                                                
@@ -45,9 +45,9 @@ public with sharing class OneDriveAuthorizationController {
         request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setBody('refresh_token=' + settings.MVDG__refresh_token__c +
-            '&client_id=' + settings.MVDG__ClientId__c +
-            '&client_secret=' + settings.MVDG__ClientSecret__c +
+        request.setBody('refresh_token=' + settings.refresh_token__c +
+            '&client_id=' + settings.ClientId__c +
+            '&client_secret=' + settings.ClientSecret__c +
             '&grant_type=refresh_token');
         Http http1 = new Http();
         HttpResponse response1 = http1.send(request);
@@ -59,16 +59,16 @@ public with sharing class OneDriveAuthorizationController {
                 // Update Custom Metadata with new access token
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'OneDrive_Credentials__mdt.' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
-                accessTokenField.field = 'MVDG__access_token__c';
+                accessTokenField.field = 'access_token__c';
                 accessTokenField.value = newAccessToken;
                 metadataRec.values.add(accessTokenField);
 
                 Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
-                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.field = 'WorkingStatus__c';
                 workingStatusField.value = true;
                 metadataRec.values.add(workingStatusField);
 
@@ -82,11 +82,11 @@ public with sharing class OneDriveAuthorizationController {
             Response_Handler.store_Callout_Response(response1, 'OneDriveAuthorizationController', 'getToken');
             Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'OneDrive_Credentials__mdt.' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
-                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.field = 'WorkingStatus__c';
                 workingStatusField.value = false;
                 metadataRec.values.add(workingStatusField);
 
@@ -100,55 +100,55 @@ public with sharing class OneDriveAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            List<MVDG__OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                                         FROM MVDG__OneDrive_Credentials__mdt 
+            List<OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, ClientId__c, ClientSecret__c, username__c, LinkedDate__c, email__c, refresh_token__c, access_token__c, WorkingStatus__c 
+                                                         FROM OneDrive_Credentials__mdt 
                                                          WITH SECURITY_ENFORCED 
                                                          LIMIT 1];
             if (!settingsList.isEmpty()) {
-                MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
+                OneDrive_Credentials__mdt settings = settingsList[0];
                 // Clear credentials using Metadata API
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'OneDrive_Credentials__mdt.' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
-                clientIdField.field = 'MVDG__ClientId__c';
+                clientIdField.field = 'ClientId__c';
                 clientIdField.value = '';
                 metadataRec.values.add(clientIdField);
 
                 Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
-                clientSecretField.field = 'MVDG__ClientSecret__c';
+                clientSecretField.field = 'ClientSecret__c';
                 clientSecretField.value = '';
                 metadataRec.values.add(clientSecretField);
 
                 Metadata.CustomMetadataValue usernameField = new Metadata.CustomMetadataValue();
-                usernameField.field = 'MVDG__username__c';
+                usernameField.field = 'username__c';
                 usernameField.value = '';
                 metadataRec.values.add(usernameField);
 
                 Metadata.CustomMetadataValue linkedDateField = new Metadata.CustomMetadataValue();
-                linkedDateField.field = 'MVDG__LinkedDate__c';
+                linkedDateField.field = 'LinkedDate__c';
                 linkedDateField.value = '';
                 metadataRec.values.add(linkedDateField);
 
                 Metadata.CustomMetadataValue emailField = new Metadata.CustomMetadataValue();
-                emailField.field = 'MVDG__email__c';
+                emailField.field = 'email__c';
                 emailField.value = '';
                 metadataRec.values.add(emailField);
 
                 Metadata.CustomMetadataValue refreshTokenField = new Metadata.CustomMetadataValue();
-                refreshTokenField.field = 'MVDG__refresh_token__c';
+                refreshTokenField.field = 'refresh_token__c';
                 refreshTokenField.value = '';
                 metadataRec.values.add(refreshTokenField);
 
                 Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
-                accessTokenField.field = 'MVDG__access_token__c';
+                accessTokenField.field = 'access_token__c';
                 accessTokenField.value = '';
                 metadataRec.values.add(accessTokenField);
 
                 Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
-                workingStatusField.field = 'MVDG__WorkingStatus__c';
+                workingStatusField.field = 'WorkingStatus__c';
                 workingStatusField.value = false;
                 metadataRec.values.add(workingStatusField);
 
@@ -207,35 +207,35 @@ public with sharing class OneDriveAuthorizationController {
             if (String.isBlank(clientId) || String.isBlank(clientSecret) ) {
                 return 'Both Client ID and Client Secret are required.';
             }
-            List<MVDG__OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
-            FROM MVDG__OneDrive_Credentials__mdt 
+            List<OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, ClientId__c, ClientSecret__c 
+            FROM OneDrive_Credentials__mdt 
             WITH SECURITY_ENFORCED 
             LIMIT 1];
 
             if (settingsList.isEmpty()) {
                 throw new HandledException('No Dropbox credential settings found.');
             }
-            MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
+            OneDrive_Credentials__mdt settings = settingsList[0];
             // Update Custom Metadata with client ID and secret
             Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
             Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-            metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+            metadataRec.fullName = 'OneDrive_Credentials__mdt.' + settings.DeveloperName;
             metadataRec.label = settings.MasterLabel;
 
             Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
-            clientIdField.field = 'MVDG__ClientId__c';
+            clientIdField.field = 'ClientId__c';
             clientIdField.value = clientId;
             metadataRec.values.add(clientIdField);
 
             Metadata.CustomMetadataValue clientSecretField = new Metadata.CustomMetadataValue();
-            clientSecretField.field = 'MVDG__ClientSecret__c';
+            clientSecretField.field = 'ClientSecret__c';
             clientSecretField.value = clientSecret;
             metadataRec.values.add(clientSecretField);
 
             mdContainer.addMetadata(metadataRec);
             if(!Test.isRunningTest()){Metadata.Operations.enqueueDeployment(mdContainer, null);}
-            settings.MVDG__ClientId__c = clientId;
-            settings.MVDG__ClientSecret__c = clientSecret;
+            settings.ClientId__c = clientId;
+            settings.ClientSecret__c = clientSecret;
 
             String durl = authcode(clientId, clientSecret);
             return durl;

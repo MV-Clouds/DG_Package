@@ -161,7 +161,7 @@ export default class GenerateDocument extends NavigationMixin(LightningElement) 
         MVDG__Selected_Channels__c : null,
         MVDG__File_Name__c : null,
         MVDG__Download__c : null,
-        MVDG__Email__c : null,
+        email__c : null,
         MVDG__Google_Drive__c : null,
         MVDG__AWS__c : null,
         MVDG__One_Drive__c : null,

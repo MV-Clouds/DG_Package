@@ -31,9 +31,9 @@ public with sharing class NewTemplateCreationController {
             }
             combinedData.templateTypes = picklistValues;
             Boolean isIntegrated = false;
-            List<MVDG__Google_Credentials__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+            List<Google_Credentials__c> googleDriveSetting = [SELECT WorkingStatus__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
-                isIntegrated = googleDriveSetting[0].MVDG__WorkingStatus__c;
+                isIntegrated = googleDriveSetting[0].WorkingStatus__c;
             }
             combinedData.isGoogleIntegrated = isIntegrated;
         }catch (Exception e) {

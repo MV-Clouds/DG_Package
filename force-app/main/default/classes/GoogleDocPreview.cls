@@ -6,7 +6,7 @@
 * Created By: Dhairya Koshti
 */
 public with sharing class GoogleDocPreview {
-    public static MVDG__Google_Credentials__c authProvider;
+    public static Google_Credentials__c authProvider;
     public static List<MVDG__Template_Data__c> templateData = new List<MVDG__Template_Data__c>();
     public static Map<String, HttpResponse> responseList = new Map<String, HttpResponse>();
     public static String refreshToken;
@@ -69,15 +69,15 @@ public with sharing class GoogleDocPreview {
     public static String refreshAccessToken() {
         try {
             String endpoint = 'https://oauth2.googleapis.com/token';
-            List<MVDG__AuthProviderSetup__mdt> mdata = MVDG__AuthProviderSetup__mdt.getAll().values();
+            List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             // List<AuthProviderSetup__mdt> mdata = AuthProviderSetup__mdt.getAll().values();
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             request.setTimeout(120000);
-            request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].MVDG__CID__c + '&client_secret=' + mdata[0].MVDG__CSEC__c + '&grant_type=refresh_token');
-            // request.setBody('refresh_token=' + authProvider.MVDG__refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
+            request.setBody('refresh_token=' + authProvider.refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
+            // request.setBody('refresh_token=' + authProvider.refresh_token__c + '&client_id=' + mdata[0].CID__c + '&client_secret=' + mdata[0].CSEC__c + '&grant_type=refresh_token');
             Http http = new Http();
             HttpResponse response = http.send(request);
             
@@ -85,7 +85,7 @@ public with sharing class GoogleDocPreview {
                 Map<String, Object> jsonResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 String newToken = (String) jsonResponse.get('access_token');
                 if (newToken != null) {
-                    authProvider.MVDG__access_token__c = newToken;
+                    authProvider.access_token__c = newToken;
                 }
                 return newToken;
             }
@@ -120,7 +120,7 @@ public with sharing class GoogleDocPreview {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('GET');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
             request.setTimeout(120000);
             Http http = new Http();
             HttpResponse response = http.send(request);
@@ -179,7 +179,7 @@ public with sharing class GoogleDocPreview {
             if (refreshToken == null) {
                 authProvider = getAuthProviderSettings();
             }
-            if (String.isBlank(authProvider.MVDG__access_token__c)) {
+            if (String.isBlank(authProvider.access_token__c)) {
                 responseWrapper.error = 'error:CopyGoogleDoc:No Google Integration Found.:No Google Integration Found.';
                 return responseWrapper;
             }
@@ -201,7 +201,7 @@ public with sharing class GoogleDocPreview {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
             request.setHeader('Content-Type', 'application/json');
             request.setBody(jsonBody);
             request.setTimeout(120000);
@@ -224,7 +224,7 @@ public with sharing class GoogleDocPreview {
                     return responseWrapper;
                 }
             } else if (response.getStatusCode() == 404 && authProvider.SetupOwnerId != null && authProvider.SetupOwnerId != UserInfo.getOrganizationId()) {
-                authProvider = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+                authProvider = [SELECT SetupOwnerId, ClientId__c, ClientSecret__c, access_token__c, refresh_token__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
                 refreshToken = authProvider.SetupOwnerId;
                 responseWrapper = copyGoogleDoc(templateId);
                 return responseWrapper;
@@ -263,7 +263,7 @@ public with sharing class GoogleDocPreview {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('POST');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
             request.setHeader('Content-Type', 'application/json');
             request.setTimeout(120000);
             request.setBody(jsonBody);
@@ -278,7 +278,7 @@ public with sharing class GoogleDocPreview {
                     updateGoogleDoc(googleDocId, requests);
                 }
             } else if (response.getStatusCode() == 403 && authProvider.SetupOwnerId != null && authProvider.SetupOwnerId != UserInfo.getOrganizationId()) {
-                authProvider = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+                authProvider = [SELECT SetupOwnerId, ClientId__c, ClientSecret__c, access_token__c, refresh_token__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
                 refreshToken = authProvider.SetupOwnerId;
                 updateGoogleDoc(googleDocId, requests);
             }
@@ -324,7 +324,7 @@ public with sharing class GoogleDocPreview {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint + '?' + paramString);
             request.setMethod('GET');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
             request.setTimeout(120000);
             Http http = new Http();
             HttpResponse response = http.send(request);
@@ -368,7 +368,7 @@ public with sharing class GoogleDocPreview {
             HttpRequest request = new HttpRequest();
             request.setEndpoint(endpoint);
             request.setMethod('DELETE');
-            request.setHeader('Authorization', 'Bearer ' + authProvider.MVDG__access_token__c);
+            request.setHeader('Authorization', 'Bearer ' + authProvider.access_token__c);
             request.setTimeout(120000);
             Http http = new Http();
             HttpResponse response = http.send(request);
@@ -578,7 +578,7 @@ public with sharing class GoogleDocPreview {
     /**
     * Method Name : getAuthProviderSettings
     * @description : Gets the authProviderSettings Custom Settings record
-    * @return the custom setting record - MVDG__Google_Credentials__c.
+    * @return the custom setting record - Google_Credentials__c.
     */ 
     /***********************************************************************
     MODIFICATION LOG* 
@@ -587,15 +587,15 @@ public with sharing class GoogleDocPreview {
     * Name of methods changed (Comma separated if more then one) : method1 
     * Change Description : 
     ***********************************************************************/
-    public static MVDG__Google_Credentials__c getAuthProviderSettings() {
+    public static Google_Credentials__c getAuthProviderSettings() {
         try {
-            List<MVDG__Google_Credentials__c> aps = new List<MVDG__Google_Credentials__c>();
+            List<Google_Credentials__c> aps = new List<Google_Credentials__c>();
             // User
-            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+            aps = [SELECT SetupOwnerId, ClientId__c, ClientSecret__c, access_token__c, refresh_token__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() AND WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
             if (aps.size() > 0) {
                 return aps[0];
             }
-            aps = [SELECT SetupOwnerId, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__access_token__c, MVDG__refresh_token__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND MVDG__WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
+            aps = [SELECT SetupOwnerId, ClientId__c, ClientSecret__c, access_token__c, refresh_token__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() AND WorkingStatus__c = TRUE WITH SECURITY_ENFORCED];
             if (aps.size() > 0) {
                 return aps[0];
             }

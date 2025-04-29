@@ -2,13 +2,13 @@
 public class GoogleDocTemplateEditorControllerTest {
     @TestSetup
     static void makeData(){
-        MVDG__Google_Credentials__c authProvider = new MVDG__Google_Credentials__c();
+        Google_Credentials__c authProvider = new Google_Credentials__c();
         authProvider.SetupOwnerId = UserInfo.getUserId();
-        authProvider.MVDG__ClientId__c = 'dummyClientId';
-        authProvider.MVDG__ClientSecret__c = 'dummyClientSecret';
-        authProvider.MVDG__access_token__c = 'dummyAccessToken';
-        authProvider.MVDG__refresh_token__c = 'dummyRefreshToken';
-        authProvider.MVDG__WorkingStatus__c = true;
+        authProvider.ClientId__c = 'dummyClientId';
+        authProvider.ClientSecret__c = 'dummyClientSecret';
+        authProvider.access_token__c = 'dummyAccessToken';
+        authProvider.refresh_token__c = 'dummyRefreshToken';
+        authProvider.WorkingStatus__c = true;
         insert authProvider;
 
         MVDG__Template__c template = new MVDG__Template__c();
@@ -46,7 +46,7 @@ public class GoogleDocTemplateEditorControllerTest {
         request.setEndpoint(endpoint);
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/json');
-        GoogleDocTemplateEditorController.refreshAccessToken(MVDG__Google_Credentials__c.getInstance(), request);
+        GoogleDocTemplateEditorController.refreshAccessToken(Google_Credentials__c.getInstance(), request);
 
         GoogleDocTemplateEditorController.ResponseWrapper response = new GoogleDocTemplateEditorController.ResponseWrapper();
         response = GoogleDocTemplateEditorController.getAllData(temp.Id, 'Account');
@@ -90,8 +90,8 @@ public class GoogleDocTemplateEditorControllerTest {
     public static void testCatchBlocks() {
 
         Test.startTest();
-        List<MVDG__Google_Credentials__c> authprovider = new List<MVDG__Google_Credentials__c>();
-        authprovider.add(MVDG__Google_Credentials__c.getInstance());
+        List<Google_Credentials__c> authprovider = new List<Google_Credentials__c>();
+        authprovider.add(Google_Credentials__c.getInstance());
         GoogleDocTemplateEditorController.authProvider = authprovider;
         GoogleDocTemplateEditorController.updateAuthProviderSettings();
         String endpoint = 'https://docs.googleapis.com/v1/documents';
@@ -99,7 +99,7 @@ public class GoogleDocTemplateEditorControllerTest {
         request.setEndpoint(endpoint);
         request.setMethod('POST');
         request.setHeader('Content-Type', 'application/json');
-        GoogleDocTemplateEditorController.refreshAccessToken(MVDG__Google_Credentials__c.getInstance(), request);
+        GoogleDocTemplateEditorController.refreshAccessToken(Google_Credentials__c.getInstance(), request);
         String res = GoogleDocTemplateEditorController.createNewDocument();
         System.assertEquals(null, res);
         GoogleDocTemplateEditorController.getAllDocs();
