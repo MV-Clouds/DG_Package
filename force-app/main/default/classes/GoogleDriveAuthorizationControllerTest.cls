@@ -222,11 +222,11 @@ public class GoogleDriveAuthorizationControllerTest {
 
         PermissionSet adminPermSet = new PermissionSet(
             Name = 'DocGenius_Admin_Permissions',
-            Label = 'DocGenius Admin Permissions'
+            Label = 'DocGenius AdminPermissions'
         );
         PermissionSet standardPermSet = new PermissionSet(
             Name = 'DocGenius_Standard_Permissions',
-            Label = 'DocGenius Standard Permissions'
+            Label = 'DocGenius StandardPermissions'
         );
         insert new List<PermissionSet>{adminPermSet, standardPermSet};
 

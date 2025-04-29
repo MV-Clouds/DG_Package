@@ -436,7 +436,7 @@ export default class ChatBotV2 extends LightningElement {
                             this.isIssue = false;
                             this.isSol = true;
                             this.hideChatBar = true;
-                            this.currentTime = ChatBot
+                            this.currentTime = ChatBotV2
                         .captureCurrentTime();
                             this.messages.push({text: this.solution, isSolution: true, time: this.currentTime});
                             this.updateScroll();
@@ -581,7 +581,7 @@ export default class ChatBotV2 extends LightningElement {
         this.isTimer = false;
         this.checkSpinnerDuration(() => {
         });
-        this.currentTime = ChatBot
+        this.currentTime = ChatBotV2
     .captureCurrentTime();
         this.issues = null;
         this.messages.push({text: this.question, isQuestion: true, time: this.currentTime});
@@ -696,7 +696,7 @@ export default class ChatBotV2 extends LightningElement {
             this.checkSpinnerDuration((result) => {
                 this.isTimer = true;
                 if(result === 'success' && this.query ==='NORESULT' ){
-                    this.currentTime = ChatBot
+                    this.currentTime = ChatBotV2
                 .captureCurrentTime();
                     this.messages.push({text: 'Oops, I couldn\'t understand that.', isQuestion: true, time: this.currentTime});
                     this.isSpinner = false;
@@ -731,7 +731,7 @@ export default class ChatBotV2 extends LightningElement {
                             this.isIssue = false;
                             this.hideChatBar = true;
                             this.isSol = true;
-                            this.currentTime = ChatBot
+                            this.currentTime = ChatBotV2
                         .captureCurrentTime();
                             this.messages.push({text: this.solution, isSolution: true, time: this.currentTime});
                             storeMessages({msg: JSON.stringify(this.messages)})
@@ -742,7 +742,7 @@ export default class ChatBotV2 extends LightningElement {
                 }
             });
             this.issues = null;
-            this.currentTime = ChatBot
+            this.currentTime = ChatBotV2
         .captureCurrentTime();
             this.messages.push({text: this.textValue, isAnswer: true, time: this.currentTime});
             storeMessages({msg: JSON.stringify(this.messages)})
@@ -750,7 +750,7 @@ export default class ChatBotV2 extends LightningElement {
             });
             this.query = this.checkWord();
             if(this.query === 'NORESULT' && this.isTimer == true){
-                this.currentTime = ChatBot
+                this.currentTime = ChatBotV2
             .captureCurrentTime();
                 this.messages.push({text: 'Sorry, I couldn\'t understand that.', isQuestion: true, time: this.currentTime});
                 this.isSpinner = false;
@@ -780,7 +780,7 @@ export default class ChatBotV2 extends LightningElement {
                                 this.isIssue = false;
                                 this.isSol = true;
                                 this.hideChatBar = true;
-                                this.currentTime = ChatBot
+                                this.currentTime = ChatBotV2
                             .captureCurrentTime();
                                 this.messages.push({text: this.solution, isSolution: true, time: this.currentTime});
                                 storeMessages({msg: JSON.stringify(this.messages)})
