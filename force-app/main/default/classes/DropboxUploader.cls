@@ -9,10 +9,8 @@ global with sharing class DropboxUploader implements Database.Batchable < SObjec
 
     public static String tokenPermanent(String activity) {
         try {
-            MVDG__Dropbox_Credential__mdt settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__refresh_token__c 
-                                                         FROM MVDG__Dropbox_Credential__mdt 
-                                                         WITH SECURITY_ENFORCED 
-                                                         LIMIT 1];
+            List<Dropbox_Credential__mdt> settingsList = Dropbox_Credential__mdt.getAll().values();
+            Dropbox_Credential__mdt settings = settingsList[0];
             String refresh = settings.MVDG__refresh_token__c;
             String clientid = settings.MVDG__ClientId__c;
             String clientsecret = settings.MVDG__ClientSecret__c;

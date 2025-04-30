@@ -21,10 +21,8 @@ public with sharing class OneDriveSuccessController {
             if (authcode == null || authcode == '') {
                 return 'error: invalid auth code';
             }
-            List<MVDG__OneDrive_Credentials__mdt> settings = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
-                                                         FROM MVDG__OneDrive_Credentials__mdt 
-                                                         WITH SECURITY_ENFORCED 
-                                                         LIMIT 1];
+            List<MVDG__OneDrive_Credentials__mdt> settings = MVDG__OneDrive_Credentials__mdt.getAll().values();
+
           
            if (settings != null) {
             String clientId = settings.isEmpty() ? '' : settings[0].MVDG__ClientId__c;

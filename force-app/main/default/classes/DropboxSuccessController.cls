@@ -16,10 +16,8 @@ public with sharing class DropboxSuccessController {
             String initialurl = currentUrl;
             String authcode = extractCodeParameter(initialurl);
             // Query Custom Metadata for existing settings
-            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
-                                                         FROM MVDG__Dropbox_Credential__mdt 
-                                                         WITH SECURITY_ENFORCED 
-                                                         LIMIT 1];
+            List<MVDG__Dropbox_Credential__mdt> settingsList = MVDG__Dropbox_Credential__mdt.getAll().values();
+
             String clientId = settingsList.isEmpty() ? '' : settingsList[0].MVDG__ClientId__c;
             String clientSecret = settingsList.isEmpty() ? '' : settingsList[0].MVDG__ClientSecret__c;
             String developerName = settingsList.isEmpty() ? 'Default_Credential' : settingsList[0].DeveloperName;
