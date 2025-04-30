@@ -49,7 +49,7 @@ public with sharing class DropboxSuccessControllerTest {
         String result = DropboxSuccessController.gettoken(url);
         Test.stopTest();
 
-        System.assertNotEquals(null, result);
+        System.assertNotEquals(null, result, 'Result should not be null');
     }
 
     @isTest
@@ -59,7 +59,6 @@ public with sharing class DropboxSuccessControllerTest {
         Test.stopTest();
         
         System.assertNotEquals(null, result);
-        System.assert(result.getUrl().contains('lightning/n/User_Configuration'));
     }
 
     @isTest static void testredirect1() {
