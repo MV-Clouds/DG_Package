@@ -226,8 +226,6 @@ public with sharing class OneDriveAuthorizationController {
 
             mdContainer.addMetadata(metadataRec);
             if(!Test.isRunningTest()){Metadata.Operations.enqueueDeployment(mdContainer, null);}
-            settings.MVDG__ClientId__c = clientId;
-            settings.MVDG__ClientSecret__c = clientSecret;
 
             String durl = authcode(clientId, clientSecret);
             return durl;

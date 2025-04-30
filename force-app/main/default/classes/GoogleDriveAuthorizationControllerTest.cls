@@ -220,6 +220,9 @@ public class GoogleDriveAuthorizationControllerTest {
         System.assertNotEquals(null, credentials, 'Google_Credentials__c record should exist');
         System.assertEquals('dummy_refresh_token', credentials.MVDG__refresh_token__c, 'Refresh token should match');
 
+        PermissionSet adminPermSet = [SELECT Id FROM PermissionSet WHERE Name = 'DocGenius_Admin_Permissions' LIMIT 1];
+        PermissionSet standardPermSet = [SELECT Id FROM PermissionSet WHERE Name = 'DocGenius_Standard_Permissions' LIMIT 1];
+
         PermissionSetAssignment adminAssignment = new PermissionSetAssignment(
             AssigneeId = testUser.Id,
             PermissionSetId = adminPermSet.Id
