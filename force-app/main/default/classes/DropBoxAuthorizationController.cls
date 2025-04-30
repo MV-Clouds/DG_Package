@@ -13,10 +13,8 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkdropboxauth() {
         try {
-            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                                         FROM MVDG__Dropbox_Credential__mdt 
-                                                         WITH SECURITY_ENFORCED 
-                                                         LIMIT 1];
+            List<MVDG__Dropbox_Credential__mdt> settingsList = MVDG__Dropbox_Credential__mdt.getAll().values();
+
             Map<String, Object> result = new Map<String, Object>();
             if (!settingsList.isEmpty() && settingsList[0].MVDG__refresh_token__c != null && settingsList[0].MVDG__access_token__c != null && settingsList[0].MVDG__LinkedDate__c != null) {
                 MVDG__Dropbox_Credential__mdt settings = settingsList[0];
@@ -38,10 +36,8 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean verifyAuth() {
         try {
-            MVDG__Dropbox_Credential__mdt settings = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                               FROM MVDG__Dropbox_Credential__mdt 
-                                               WITH SECURITY_ENFORCED 
-                                               LIMIT 1];
+            List<MVDG__Dropbox_Credential__mdt> settingsList = MVDG__Dropbox_Credential__mdt.getAll().values();
+            MVDG__Dropbox_Credential__mdt settings = settingsList[0];
             if (settings == null) {
                 return false;
             }
@@ -128,10 +124,8 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize() {
         try {
-            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                                         FROM MVDG__Dropbox_Credential__mdt 
-                                                         WITH SECURITY_ENFORCED 
-                                                         LIMIT 1];
+            List<MVDG__Dropbox_Credential__mdt> settingsList = MVDG__Dropbox_Credential__mdt.getAll().values();
+
             if (!settingsList.isEmpty()) {
                 MVDG__Dropbox_Credential__mdt settings = settingsList[0];
                 // Clear credentials using Metadata API
@@ -197,10 +191,8 @@ public with sharing class DropBoxAuthorizationController {
             if (String.isBlank(clientId) || String.isBlank(clientSecret)) {
                 return 'Both Client ID and Client Secret are required.';
             }
-            List<MVDG__Dropbox_Credential__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
-                                                         FROM MVDG__Dropbox_Credential__mdt 
-                                                         WITH SECURITY_ENFORCED 
-                                                         LIMIT 1];
+            List<MVDG__Dropbox_Credential__mdt> settingsList = MVDG__Dropbox_Credential__mdt.getAll().values();
+
             if (settingsList.isEmpty()) {
                 return null;
             }

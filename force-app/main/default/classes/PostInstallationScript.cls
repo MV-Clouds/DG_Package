@@ -1,39 +1,65 @@
-global class PostInstallationScript implements InstallHandler, UninstallHandler{
+global class PostInstallationScript implements InstallHandler, Schedulable {
+
     global void onInstall(InstallContext context) {
-        List<PermissionSetAssignment> permissionSets = new List<PermissionSetAssignment>();
         try {
-            List<PermissionSet> ps = new List<PermissionSet>();
-            ps = [SELECT Id, Name FROM PermissionSet WHERE Name = 'DocGenius_Admin_Permissions' LIMIT 1];
-
-            List<User> admins = new List<User>();
-            admins = [SELECT Id, ProfileId FROM User WHERE Profile.Name = 'System Administrator'];
-
-            if (admins.size() > 0 && ps.size() > 0) {
-                for (User user : admins) {
-                    PermissionSetAssignment psa = new PermissionSetAssignment(PermissionSetId = ps[0].Id, AssigneeId = user.Id);
-                    permissionSets.add(psa);
-                }
-                if (permissionSets.size() > 0) {
-                    insert as user permissionSets;
-                }
-            }
-
+            // Schedule this class to run 5 minutes from now
+            String cronExp = getCronExpressionAfterMinutes(1);
+            System.schedule('PostInstall_Permission_Assignment', cronExp, new PostInstallationScript());
         } catch (Exception e) {
-            System.debug('Exception in onInstall==>' + e.getMessage() + e.getLineNumber());
+            System.debug('⚠️ Scheduling failed: ' + e.getMessage());
         }
     }
 
-    global void onUninstall(UnInstallContext ctx) {
-        System.debug('As Global Method can\'t be removed, commenting this process as no longer in use.');
-        /*try {
-            List<PermissionSetAssignment> psassignment = new List<PermissionSetAssignment>();
-            psassignment = [SELECT Id FROM PermissionSetAssignment WHERE PermissionSet.Name IN ('DocGenius_Standard_Permissions', 'DocGenius_Admin_Permissions', 'DocGenius_Basic_Permissions')];
+    global void execute(SchedulableContext sc) {
+        List<PermissionSetAssignment> psaList = new List<PermissionSetAssignment>();
 
-            if (!psassignment.isEmpty()) {
-                delete psassignment;
+        try {
+            // Get the permission set
+            PermissionSet ps = [
+                SELECT Id FROM PermissionSet 
+                WHERE Name = 'DocGenius_Admin_Permissions' 
+                LIMIT 1
+            ];
+
+            // Get all System Administrators
+            List<User> admins = [
+                SELECT Id FROM User 
+                WHERE Profile.Name = 'System Administrator'
+            ];
+
+            // Create permission assignments only if not already assigned
+            for (User admin : admins) {
+                Boolean alreadyAssigned = [
+                    SELECT COUNT() FROM PermissionSetAssignment 
+                    WHERE AssigneeId = :admin.Id AND PermissionSetId = :ps.Id
+                ] > 0;
+
+                if (!alreadyAssigned) {
+                    psaList.add(new PermissionSetAssignment(
+                        AssigneeId = admin.Id,
+                        PermissionSetId = ps.Id
+                    ));
+                }
             }
+
+            if (!psaList.isEmpty()) {
+                insert psaList;
+            }
+
         } catch (Exception e) {
-            
-        }*/
+            System.debug('⚠️ Error in Scheduled Job: ' + e.getMessage());
+        }
+    }
+
+    // Helper method to get a CRON string for N minutes from now
+    private String getCronExpressionAfterMinutes(Integer minutesAhead) {
+        Datetime dt = Datetime.now().addMinutes(minutesAhead);
+        return String.format('0 {0} {1} {2} {3} ? {4}', new String[] {
+            String.valueOf(dt.minute()),
+            String.valueOf(dt.hour()),
+            String.valueOf(dt.day()),
+            String.valueOf(dt.month()),
+            String.valueOf(dt.year())
+        });
     }
 }

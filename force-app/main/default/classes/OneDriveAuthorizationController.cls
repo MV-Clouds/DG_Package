@@ -13,10 +13,8 @@ public with sharing class OneDriveAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkonedriveauth(){
         try {
-            List<MVDG__OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-            FROM MVDG__OneDrive_Credentials__mdt 
-            WITH SECURITY_ENFORCED 
-            LIMIT 1];
+            List<MVDG__OneDrive_Credentials__mdt> settingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
+
             Map<String, Object> result = new Map<String, Object>();
             if (!settingsList.isEmpty() && settingsList[0].MVDG__refresh_token__c != null && settingsList[0].MVDG__access_token__c != null && settingsList[0].MVDG__LinkedDate__c != null) {
                 MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
@@ -36,10 +34,8 @@ public with sharing class OneDriveAuthorizationController {
     }
 
     public static Boolean getToken(){
-        MVDG__OneDrive_Credentials__mdt settings = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                               FROM MVDG__OneDrive_Credentials__mdt 
-                                               WITH SECURITY_ENFORCED 
-                                               LIMIT 1];
+        List<MVDG__OneDrive_Credentials__mdt> settingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
+        MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
                                                
         HttpRequest request = new HttpRequest();
         request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
@@ -100,10 +96,8 @@ public with sharing class OneDriveAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            List<MVDG__OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__username__c, MVDG__LinkedDate__c, MVDG__email__c, MVDG__refresh_token__c, MVDG__access_token__c, MVDG__WorkingStatus__c 
-                                                         FROM MVDG__OneDrive_Credentials__mdt 
-                                                         WITH SECURITY_ENFORCED 
-                                                         LIMIT 1];
+            List<MVDG__OneDrive_Credentials__mdt> settingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
+
             if (!settingsList.isEmpty()) {
                 MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
                 // Clear credentials using Metadata API
@@ -207,13 +201,11 @@ public with sharing class OneDriveAuthorizationController {
             if (String.isBlank(clientId) || String.isBlank(clientSecret) ) {
                 return 'Both Client ID and Client Secret are required.';
             }
-            List<MVDG__OneDrive_Credentials__mdt> settingsList = [SELECT Id, DeveloperName, MasterLabel, MVDG__ClientId__c, MVDG__ClientSecret__c 
-            FROM MVDG__OneDrive_Credentials__mdt 
-            WITH SECURITY_ENFORCED 
-            LIMIT 1];
+            List<MVDG__OneDrive_Credentials__mdt> settingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
+
 
             if (settingsList.isEmpty()) {
-                throw new HandledException('No Dropbox credential settings found.');
+                throw new HandledException('No Onedrive credential settings found.');
             }
             MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
             // Update Custom Metadata with client ID and secret

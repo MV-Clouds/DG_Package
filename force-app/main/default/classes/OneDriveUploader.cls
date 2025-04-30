@@ -17,10 +17,8 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     */
     public static String getToken(String activity){
         try {
-            MVDG__OneDrive_Credentials__mdt settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__refresh_token__c 
-                                                         FROM MVDG__OneDrive_Credentials__mdt 
-                                                         WITH SECURITY_ENFORCED 
-                                                         LIMIT 1];
+            List<MVDG__OneDrive_Credentials__mdt> settingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
+            MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
             String refresh = settings.MVDG__refresh_token__c;
             String clientid = settings.MVDG__ClientId__c;
             String clientsecret = settings.MVDG__ClientSecret__c;
@@ -164,10 +162,8 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     @AuraEnabled
     public static Boolean uploadToOneDrive(ContentVersion content, List<String> fileDetails) {
         try {
-            MVDG__OneDrive_Credentials__mdt settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__email__c
-                                                         FROM MVDG__OneDrive_Credentials__mdt 
-                                                         WITH SECURITY_ENFORCED 
-                                                         LIMIT 1];
+            List<MVDG__OneDrive_Credentials__mdt> settingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
+            MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
             String emailid = settings.MVDG__email__c;
             string endpointUrl = 'https://graph.microsoft.com/v1.0/users/me/drive/items/root:/{file}:/content';
             string file = EncodingUtil.URLENCODE(fileDetails[0], 'UTF-8').replace('+', '%20');
