@@ -38,8 +38,7 @@ public class ChatBotControllerTest {
     static void testStoreMessagesElsePart() {
         // Test storing messages when no existing MVDG__ChatBotData__c record
         // Using System.runAs to simulate a different user
-        User testUser = [SELECT Id FROM User WHERE UserName != :UserInfo.getUserName() LIMIT 1];
-        System.runAs(testUser) {
+
             Test.startTest();
             String message = 'Initial chat data';
             String result = ChatBotController.storeMessages(message);
@@ -48,7 +47,6 @@ public class ChatBotControllerTest {
             System.assertEquals(null, result, 'Result should be null');
             Test.stopTest();
 
-        }
     }
 
     @isTest

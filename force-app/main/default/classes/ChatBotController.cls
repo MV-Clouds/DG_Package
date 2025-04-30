@@ -222,9 +222,6 @@ public with sharing class ChatBotController {
         else{
             MVDG__ChatBotData__c storedData = new MVDG__ChatBotData__c();
             storedData.MVDG__Chats__c = msg;
-            if(!Schema.sObjectType.MVDG__ChatBotData__c.fields.MVDG__Chats__c.isCreateable()){
-                return null;
-            }
             insert as user storedData;
         }
         return null;
