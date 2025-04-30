@@ -2247,7 +2247,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                 //method calls 
                 this.showSpinner = true;
                 this.showListViewPopup=false;
-                generateAccessToken({isUpdateSetting : false})
+                generateAccessToken()
                 .then((accessToken) => {
                     if(!accessToken){
                         this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);

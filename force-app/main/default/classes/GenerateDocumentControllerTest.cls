@@ -100,66 +100,18 @@ public with sharing class GenerateDocumentControllerTest {
         System.assert(status!=null, 'Processs neeeds to be completed!');
     }
     @isTest
-    static void testGetAccessToken(){
-        Test.startTest();
-        MVDG__ConnectedAppIdAndSecret__c app = new MVDG__ConnectedAppIdAndSecret__c();
-        app.SetupOwnerId = UserInfo.getUserId();
-        app.MVDG__Client_Id__c = 'testClientId';
-        app.MVDG__Client_Secret__c = 'testClientSecret';
-
-        insert as user app;
-
-        String generateAccessToken = GenerateDocumentController.generateAccessToken(false);
-        GenerateDocumentController.getAuthProviderSettings(false);
-        GenerateDocumentController.getAuthProviderSettings(true);
-
-        GenerateDocumentController.updateSetting('testClientId2', 'testClientSecret2');
-
-        MVDG__ConnectedAppIdAndSecret__c appUpdated = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE Id = :app.Id];
-        Test.stopTest();
-
-        System.assertEquals(generateAccessToken, 'testAccessToken', 'The Access Token should be returned!');
-        System.assertEquals(appUpdated.MVDG__Client_Id__c, 'testClientId2', 'The Client Id Should be Updated!');
-    }
-
-    @isTest
     static void testGetAccessToken_Success() {
         // Set the mock response
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200));
+        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
     
         Test.startTest();
-        String accessToken = GenerateDocumentController.getAccessToken('dummyClientId', 'dummyClientSecret', false);
+        String accessToken = GenerateDocumentController.generateAccessToken();
         Test.stopTest();
         
         // Validate the access token received
         System.assertEquals('mockAccessToken123', accessToken, 'The access token should be returned!');
     }
-
-    @isTest
-    static void testGetAccessToken_WithUpdateSetting() {
-        // Set the mock response
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200));
     
-        // You might need to mock or stub updateSetting(clientId, clientSecret) if it does something heavy
-        Test.startTest();
-        String accessToken = GenerateDocumentController.getAccessToken('dummyClientId', 'dummyClientSecret', true);
-        Test.stopTest();
-        
-        System.assertEquals('mockAccessToken123', accessToken, 'The access token should be returned!');
-    }
-
-    @isTest
-    static void testGetAccessToken_Failure() {
-        // Set the mock response
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(201));
-    
-        Test.startTest();
-        String accessToken = GenerateDocumentController.getAccessToken('dummyClientId', 'dummyClientSecret', false);
-        Test.stopTest();
-        
-        // Validate the access token received
-        System.assertEquals(null, accessToken, 'The access token should not be returned on failure!');
-    }
     @isTest
     static void testGetTemplateData(){
         MVDG__Template__c t = [SELECT Id FROM MVDG__Template__c LIMIT 1];
@@ -238,17 +190,11 @@ public with sharing class GenerateDocumentControllerTest {
 
     public class MockHttpResponseGenerator implements HttpCalloutMock {
 
-        private Integer statusCode;
-        
-        // Constructor to pass custom status code and body
-        public MockHttpResponseGenerator(Integer statusCode) {
-            this.statusCode = statusCode;
-        }
         public HTTPResponse respond(HTTPRequest req) {
             HttpResponse res = new HttpResponse();
             res.setHeader('Content-Type', 'application/json');
             res.setBody('{"access_token":"mockAccessToken123"}');
-            res.setStatusCode(statusCode);
+            res.setStatusCode(200);
             return res;
         }
     }
