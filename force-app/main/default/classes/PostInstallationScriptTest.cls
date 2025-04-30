@@ -7,6 +7,8 @@ public class PostInstallationScriptTest {
         PostInstallationScript pis = new PostInstallationScript();
         Test.testInstall(pis, new Version(1,0));
         // Test.testUninstall(pis);
+
+        System.schedule('Schedule to update Account Name', '0 48 * * * ?', pis);
         
         List<WebLink> listViewButtons = new List<WebLink>();
         listViewButtons = [SELECT Name FROM WebLink WHERE PageOrSobjectType= 'Account' AND Name = 'DG_Basic_Print' WITH SECURITY_ENFORCED];
@@ -15,4 +17,5 @@ public class PostInstallationScriptTest {
         System.assertNotEquals(null, listViewButtons); //
         Test.stopTest();   
     }
+
 }
