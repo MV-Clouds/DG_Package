@@ -55,7 +55,7 @@ public with sharing class OneDriveAuthorizationController {
                 // Update Custom Metadata with new access token
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.MVDG__' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
@@ -78,7 +78,7 @@ public with sharing class OneDriveAuthorizationController {
             Response_Handler.store_Callout_Response(response1, 'OneDriveAuthorizationController', 'getToken');
             Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.MVDG__' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
@@ -103,7 +103,7 @@ public with sharing class OneDriveAuthorizationController {
                 // Clear credentials using Metadata API
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.MVDG__' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
@@ -211,7 +211,7 @@ public with sharing class OneDriveAuthorizationController {
             // Update Custom Metadata with client ID and secret
             Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
             Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-            metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + settings.DeveloperName;
+            metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.MVDG__' + settings.DeveloperName;
             metadataRec.label = settings.MasterLabel;
 
             Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
