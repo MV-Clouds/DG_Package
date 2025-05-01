@@ -473,7 +473,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
 
     openGenChildTablePopup(event) {
 
-        const childObjectTableBuilder = this.template.querySelector("c-child-object-table-builder");
+        const childObjectTableBuilder = this.template.querySelector("c-child-object-table-builder-v2");
         
         if (childObjectTableBuilder) {
             childObjectTableBuilder.openPopup(event);
@@ -481,7 +481,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
     }
 
     closeGenChildTable() {
-        const childObjectTableBuilder = this.template.querySelector("c-child-object-table-builder");
+        const childObjectTableBuilder = this.template.querySelector("c-child-object-table-builder-v2");
         if (childObjectTableBuilder) {
             childObjectTableBuilder.closePopup();
         }
