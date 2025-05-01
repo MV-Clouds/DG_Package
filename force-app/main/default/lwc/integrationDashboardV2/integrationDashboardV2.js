@@ -25,8 +25,7 @@ import oneDriveAuthorization from "@salesforce/apex/OneDriveAuthorizationControl
 import authorizeNamed from "@salesforce/apex/AwsAuthorizationController.authorizeNamed";
 import dropboxAuthorization from "@salesforce/apex/DropBoxAuthorizationController.authorize";
 import checkAccess from '@salesforce/apex/GoogleDriveAuthorizationController.checkAccess';
-import getAccessToken from '@salesforce/apex/GenerateDocumentController.getAccessToken';
-import getAuthProviderSettings from '@salesforce/apex/GenerateDocumentController.getAuthProviderSettings';
+import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 // for trusted Url Verification
 import checkTrustedUrl from '@salesforce/apex/HomePageController.checkTrustedUrl';
@@ -40,20 +39,12 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
    dropable;
    popupimg;
    nointegration = noconnection;
-   consumerKey = '';
-    consumerSecret = '';
-    isDataInvalid = false;
-    secretValue;
-    keyValue;
-    inputDisable;
-    changeType = 'text';
-    showNotes = false;
    @track restApiTrustedUrl;
    @track isTrustedUrlVerified = false;
-   @track isAccessTokenVerified = false;
    @track onInit = true;
-   @track isVerifying = false;
-   @track isVerifyAccessToken = false;
+   @track isVerifying = false; 
+   isATVerifying = true;
+   isATVerified = false;
    @track clipBoardTooltip = 'Copy to Clipboard';
 
    @track loadedResources = 0;
@@ -94,7 +85,6 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
    @track isWorkingDropboxAuth = false;
    @track isWorkingOnedriveAuth = false;
     @track isWorkingAwsAuth = false;
-    @track checkAccessToken = false;
     
    //usedfordisplayinggoogledata
    @track googlename;
@@ -162,6 +152,9 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
     return this.isAccess && !this.isActiveAwsAuth;
    }
 
+   get displayButtonGenerator(){
+         return this.isAccess && this.isTrustedUrlVerified && this.isATVerified;
+   }
 
    @wire(CurrentPageReference)
    currentPageReference;
@@ -185,7 +178,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
        this.getTrustedUrlStatus();
        this.checkauth();
        this.checkAccess();
-       this.checkAuthProviderSettings();
+       this.getConnectedAppStatus();
        if(typeof window !== 'undefined'){
             this.restApiTrustedUrl = location?.origin?.replace('lightning.force.com', 'my.salesforce.com');
        }else{
@@ -193,114 +186,22 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
        }
    }
 
-    checkAuthProviderSettings() {
-    getAuthProviderSettings({isUpdateSetting : true})
+    getConnectedAppStatus(event) {
+        this.isATVerifying = true;
+        generateAccessToken()
         .then(result => {
-            if (result && result.length > 0 && result[0].MVDG__Client_Id__c && result[0].MVDG__Client_Secret__c) {
-                this.keyValue = result[0].MVDG__Client_Id__c;
-                this.secretValue = result[0].MVDG__Client_Secret__c;
-                if (this.keyValue && this.secretValue) {
-                    this.consumerKey = this.keyValue;
-                    this.consumerSecret = this.secretValue;
-                    this.inputDisable = true;
-                    this.showNotes = false;
-                    this.verifyAccessToken(true,false);
-                }
-            } else {
-                this.consumerKey = '';
-                this.consumerSecret = '';
-                this.keyValue = '';
-                this.secretValue = '';   
+            this.isATVerifying = false;
+            this.isATVerified = false;
+            if (result) {
+                this.isATVerifying = false;
+                this.isATVerified = true;
+            } else if(event){
+                this.showToast('error', 'Missed a step?', 'Please follow steps correctly and try again...');  
             }
         })
         .catch(error => {
-            this.showNotes = true;
-            this.consumerKey = '';
-            this.consumerSecret = '';
-            this.keyValue = '';
-            this.secretValue = ''; 
+            errorDebugger('IntegrationDashboradV2', 'getConnectedAppStatus > generateAccessToken > failure', error, 'warn');
         });
-    }
-    
-     handleConsumerKeyChange(event) {
-            try {
-                this.isDataInvalid = false;
-                this.template.querySelector('.t-key').classList.remove('error-border');
-                this.template.querySelectorAll('label')[0].classList.remove('error-label');
-                this.consumerKey = event.target.value.trim();
-                if (!this.consumerKey) {
-                    this.template.querySelector('.t-key').classList.add('error-border');
-                    this.template.querySelectorAll('label')[0].classList.add('error-label');
-                    this.isDataInvalid = true;
-                }
-            } catch (e) {
-                errorDebugger('IntegrationDashboradV2', 'handleConsumerKeyChange', e, 'warn');
-            }
-        }
-    
-        handleConsumerSecretChange(event) {
-            try {
-                this.isDataInvalid = false;
-                this.template.querySelector('.t-secret').classList.remove('error-border');
-                this.template.querySelectorAll('label')[1].classList.remove('error-label');  
-                this.consumerSecret = event.target.value.trim();
-                if (!this.consumerSecret) {
-                    this.template.querySelector('.t-secret').classList.add('error-border');
-                    this.template.querySelectorAll('label')[1].classList.add('error-label'); 
-                    this.isDataInvalid = true;
-                }
-            } catch (e) {
-                errorDebugger('IntegrationDashboradV2', 'handleConsumerSecretChange', e, 'warn');
-            }
-        }
-        
-        onVerifyClickButton(){
-            this.verifyAccessToken(false,true);
-        }
-
-    verifyAccessToken(initialLoad,isShowToast) {
-            if (this.consumerKey === '' || this.consumerSecret === '') {
-                this.isDataInvalid = true;
-                this.template.querySelector('.t-key').classList.add('error-border');
-                this.template.querySelectorAll('label')[0].classList.add('error-label');
-                this.template.querySelector('.t-secret').classList.add('error-border');
-                this.template.querySelectorAll('label')[1].classList.add('error-label');  
-                this.showToast('error', 'Required field are missing!','Consumer key and secret are required!');
-            } else {
-                this.isVerifyAccessToken = true;
-                getAccessToken({ clientId: this.consumerKey, clientSecret: this.consumerSecret, isUpdateSetting: true })
-                    .then(result => {
-                        if (result != null) {
-                            this.changeType = 'password';
-                            this.keyValue = this.consumerKey;
-                            this.secretValue = this.consumerSecret;
-                            this.inputDisable = true;
-                            this.showNotes = false;
-                            this.isVerifyAccessToken = false;
-                            this.isAccessTokenVerified = true;
-                        } else {
-                            this.isVerifyAccessToken = false;
-                            this.isAccessTokenVerified = false;
-                            this.consumerKey = '';
-                            this.consumerSecret = '';
-                            this.keyValue = '';
-                            this.secretValue = ''; 
-                            this.inputDisable = false;
-                            this.isDataInvalid = true;
-                            if (isShowToast) {
-                                if (initialLoad) {
-                                    this.showNotes = true;
-                                }
-                                this.showToast('error', 'Missed a Step?','Failed to Configure Connected App, Check your credentials.');
-                            } else {
-                                this.showNotes = true;
-                            }
-                        }
-              })
-                    .catch(e => {
-                        errorDebugger('IntegrationDashboradV2', 'verifyAccessToken', e, 'warn');
-                    });
-            }
     }
     
     getTrustedUrlStatus(event){
@@ -349,10 +250,6 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
 
     updateCopyTooltip(){
         this.clipBoardTooltip = 'Copy to Clipboard';
-    }
-
-    closeAccessTokenScreen() {
-        this.checkAccessToken = !this.checkAccessToken;
     }
 
    checkAccess(){
@@ -692,7 +589,10 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
 
    handleSetActive(event){
        const tabName = event.currentTarget.dataset.name;
-       if(this.activeTab == 'isSetup' && this.isAccess) this.getTrustedUrlStatus();
+       if(this.activeTab == 'isSetup' && this.isAccess){
+        this.getTrustedUrlStatus();
+        this.getConnectedAppStatus();
+       }
        if(this.activeTab != tabName){
            this.isSpinner = true;
            this.loadedResources = 0;

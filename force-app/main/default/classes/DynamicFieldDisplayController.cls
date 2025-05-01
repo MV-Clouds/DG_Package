@@ -114,7 +114,7 @@ public with sharing class DynamicFieldDisplayController {
     }
 
     public static String generateAccessToken(){
-        if (!Test.isRunningTest()) { return GenerateDocumentController.generateAccessToken(false);}
+        if (!Test.isRunningTest()) { return GenerateDocumentController.generateAccessToken();}
         return 'mockAccessToken';
     }
     

@@ -230,7 +230,7 @@ export default class ButtonGeneratorV2 extends LightningElement {
 
     handleCreateQuickAction(){
         try {
-            generateAccessToken({isUpdateSetting : false})
+            generateAccessToken()
             .then((data) => {
                 if (!data) {
                     this.showToast('error', 'Something went wrong!','Please verify connected app from user configuration.', 5000);

@@ -215,107 +215,29 @@ public with sharing class GenerateDocumentController {
 ********************************************************
 */
 @AuraEnabled
-public static String generateAccessToken(Boolean isUpdateSetting) {
+public static String generateAccessToken() {
+    String accessToken = null;
     try {
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, IsDeleted, Name, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        List<MVDG__AuthProviderSetup__mdt> aps = MVDG__AuthProviderSetup__mdt.getAll().values();
         if (aps.size() > 0) {
-            String accessToken = getAccessToken(aps[0].MVDG__Client_Id__c, aps[0].MVDG__Client_Secret__c, isUpdateSetting);
-            if(Test.isRunningTest()) { 
-                return 'testAccessToken';
+            String endPointURL = URL.getOrgDomainUrl().toExternalForm() + '/services/oauth2/token';
+            String requestBody = 'grant_type=client_credentials&client_id={0}&client_secret={1}';
+    
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint(endPointURL);
+            req.setMethod('POST');
+            req.setBody(String.format(requestBody ,new string[]{aps[0].MVDG__ConnectedAppKey__c,aps[0].MVDG__ConnectedAppSecret__c}));
+            req.setTimeout(60000);
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+            if(res.getStatusCode() == 200){
+                accessToken = res.getBody().substringBetween('access_token":"', '"');
             }
-            return accessToken;
         }
-        return '';
     } catch (Exception e) {
         Log_Handler.store_Exception(e, 'GenerateDocumentController', 'generateAccessToken');
-        return e.getMessage();
     }
-}
-
-/*
-*********************************************************
-@description      : Method is used to fetch the Client Id & Client Secret from the Custom Settings record.
-@param            : isUpdateSetting {Boolean} - Boolean to check if the settings need to be updated
-@return           : List<MVDG__ConnectedAppIdAndSecret__c> - List of MVDG__ConnectedAppIdAndSecret__c records
-********************************************************
-*/
-@AuraEnabled
-public static List<MVDG__ConnectedAppIdAndSecret__c> getAuthProviderSettings(Boolean isUpdateSetting) {
-    try {
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, IsDeleted, Name, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
-        if (aps.size() > 0) {
-            String accessToken = getAccessToken(aps[0].MVDG__Client_Id__c, aps[0].MVDG__Client_Secret__c, isUpdateSetting);
-            return aps;
-        }
-    } catch (Exception e) {
-        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getAuthProviderSettings');
-    }
-    return null;
-}
-
-
-/*
-*********************************************************
-@description      : Method is used to fetch accessToken from the Client Id and Client Secret.
-@param            : clientId {String} - Client Id of the connected app
-@param            : clientSecret {String} - Client Secret of the connected app
-@param            : isUpdateSetting {Boolean} - Boolean to check if the settings need to be updated
-@return           : {String} - Access Token
-********************************************************
-*/
-@AuraEnabled
-public static String getAccessToken(String clientId, String clientSecret , Boolean isUpdateSetting) {
-    try{
-        String endPointURL = URL.getOrgDomainUrl().toExternalForm() + '/services/oauth2/token';
-        String requestBody = 'grant_type=client_credentials&client_id={0}&client_secret={1}';
-
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint(endPointURL);
-        req.setMethod('POST');
-        req.setBody(String.format(requestBody ,new string[]{clientId,clientSecret}));
-        req.setTimeout(60000);
-        Http http = new Http();
-        HttpResponse res = http.send(req);
-        if(res.getStatusCode() != 200){
-            clientId = null;
-            clientSecret = null;
-            return null;
-        } else {
-            if (isUpdateSetting) {
-                updateSetting(clientId, clientSecret);
-            }
-        }
-        return res.getBody().substringBetween('access_token":"', '"');
-    }catch(Exception e){
-        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getAccessToken');
-        return null;
-    }
-}
-
-/*
-*********************************************************
-@description      : Method is used to update the Client Id & Client Secret in the Custom Settings record.
-@param            : clientId {String} - Client Id of the connected app
-@param            : clientSecret {String} - Client Secret of the connected app
-@return           : Nothing
-********************************************************
-*/
-
-public static void updateSetting(String clientId, String clientSecret) {
-    try {
-        
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId,MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
-        MVDG__ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new MVDG__ConnectedAppIdAndSecret__c();
-        app.SetupOwnerId = UserInfo.getUserId();
-        app.MVDG__Client_Id__c = clientId;
-        app.MVDG__Client_Secret__c = clientSecret;
-        upsert as User app;
-    } catch (Exception e) {
-        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'updateSetting');
-    }
+    return accessToken;
 }
 
 /*
@@ -410,7 +332,7 @@ public static void updateSetting(String clientId, String clientSecret) {
             String accessToken = '';
             String countableQuery = 'SELECT count() FROM' + (query.contains('ORDER BY') ? (query.substringBeforeLast('ORDER BY').substringAfterLast('FROM') + ' LIMIT ' + query.substringAfterLast('LIMIT')) : query.substringAfterLast('FROM'));
             Integer count = database.countQuery(String.valueOf(countableQuery));
-            accessToken = generateAccessToken(false);
+            accessToken = generateAccessToken();
             mapOfData.put('fields', fields);
             mapOfData.put('query', query);
             mapOfData.put('accessToken', accessToken);

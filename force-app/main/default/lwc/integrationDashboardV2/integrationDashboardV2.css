@@ -125,29 +125,6 @@
     align-items: center;
 }
 
-.edit-btn{
-    width: max-content;
-    margin: 11px;
-    min-width: 0rem;
-    height: 32px;
-    border: none;
-    outline: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    background: #00aeff;
-    border-radius: 6px;
-    padding-inline: 1rem;
-    transition: all linear 0.1s;
-    gap: 0.5rem;
-    font-size: 1rem;
-}
-
-.edit-btn:hover{
-    background: #0084c1;
-}
-
 .verify-btn{
     width: max-content;
     min-width: 6rem;
@@ -202,21 +179,21 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    
+
     & .path {
       stroke: #00aeff;
       stroke-linecap: round;
       animation: dash 1.5s ease-in-out infinite;
     }
-    
+
   }
-  
+
   @keyframes rotate {
     100% {
       transform: rotate(360deg);
     }
   }
-  
+
   @keyframes dash {
     0% {
       stroke-dasharray: 1, 150;
@@ -358,24 +335,24 @@
     align-items: center;
     justify-content: center;
   }
-  
+
   .card-container h3 {
     font-size: 24px;
     line-height: 24px;
     font-weight: 700;
     margin-bottom: 4px;
   }
-  
+
   .card-container p {
     font-size: 17px;
     font-weight: 400;
     line-height: 20px;
-  
+
     &.small {
       font-size: 14px;
     }
   }
-  
+
   .go-corner {
     display: flex;
     align-items: center;
@@ -389,21 +366,21 @@
     background-color: #00838d;
     border-radius: 0 4px 0 32px;
   }
-  
+
   .go-arrow {
     margin-top: -9px;
     margin-right: -9px;
     rotate: -45deg;
-    
+
   }
-  
+
   .card-redirect {
     display: block;
     position: relative;
     text-decoration: none;
     z-index: 0;
     overflow: hidden;
-  
+
     &:before {
       content: "";
       position: absolute;
@@ -422,12 +399,12 @@
         rotate: -40deg;
       }
     }
-  
+
     &:hover:before {
       transform: scale(60);
     }
   }
-  
+
   .card-redirect:hover {
     p {
       transition: all 0.3s ease-out;
@@ -438,7 +415,7 @@
       color: #ffffff;
     }
   }
-  
+
 
 /* ------------------------------------------------------------ For the Userguide Tab (END) ------------------------------------------------------------ */
 
@@ -521,7 +498,7 @@
     width: 100%;
     box-sizing: border-box;
     padding: 30px;
-    
+
 }
 
 .left-child-container {
@@ -914,23 +891,6 @@ h2{
 .redirect .text_field input {
     width: 100%;
 }
-.label-float label {
-    pointer-events: none;
-    position: absolute;
-    z-index: 100;
-    left: 0.9375rem;
-    transition: all 0.1s linear;
-    -webkit-transition: all 0.1s linear;
-    -moz-transition: all 0.1s linear;
-    background-color: white;
-    padding: 0 0.5rem;
-    box-sizing: border-box;
-    border-radius: 50%;
-    font-size: 0.8125rem;
-    top: 0.2rem;
-    color: #00AEFF;
-    user-select: none;
-}
 
 .redirect .icon-copy {
     position: absolute;
@@ -1140,28 +1100,26 @@ h2{
 .label-float{
     position: relative;
     padding-top: 13px;
-    flex-grow: 1;
   }
-  
+
   .label-float input{
     border: 1px solid lightgrey;
     border-radius: 5px;
     outline: none;
     min-width: 250px;
-    width: 100%;
-    padding: 12px 22px;
+    padding: 15px 20px;
     font-size: 16px;
     transition: all .1s linear;
     -webkit-transition: all .1s linear;
     -moz-transition: all .1s linear;
     -webkit-appearance:none;
   }
-  
+
   .label-float input:focus{
     border: 1px solid rgb(0, 174, 255);
 
   }
-  
+
   .label-float input::placeholder{
   }
 
@@ -1169,6 +1127,19 @@ h2{
     color:grey;
   }
 
+  .label-float label{
+    pointer-events: none;
+    position: absolute;
+    top: calc(50% - 8px);
+    left: 15px;
+    transition: all .1s linear;
+    -webkit-transition: all .1s linear;
+    -moz-transition: all .1s linear;
+    background-color: white;
+    padding: 5px;
+    box-sizing: border-box;
+    width: 60%;
+  }
 
   .label-float input:required:invalid + label{
     color: red;
@@ -1182,54 +1153,15 @@ h2{
     content: '*';
   }
 
-  .required-input-label:before{
-    content: "*";
-    color: red;
-    padding-right: 1px;
-}
-  .row-layout {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
+  .label-float input:focus + label,
+  .label-float input:not(:placeholder-shown) + label{
+    font-size: 13px;
+    top: 0;
+    box-sizing: border-box;
+    color: rgb(0, 174, 255);
+    width: auto;
 
-.input-container {
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
-    flex-grow: 1;
-}
-
-.checklist-header {
-    margin-right: 16px;
-    margin-bottom: 0;
-}
-
-.save-div {
-    margin-left: auto;
-    margin-top: 10px;
-}
-
-/* For mobile responsiveness */
-@media (max-width: 768px) {
-    .row-layout {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .input-container {
-        width: 100%;
-        flex-direction: column;
-    }
-    
-    .save-div {
-        margin-left: 0;
-        margin-top: 16px;
-        width: 100%;
-    }
-}
+  }
 
   .right-popup p {
     color: #00AEFF;
@@ -1237,7 +1169,7 @@ h2{
   @keyframes pulse-animation{
         0% {
             box-shadow: 0 0 0 0px rgba(20, 173, 0, 1);
-            
+
         }
         100% {
             box-shadow: 0 0 0 5px rgb(147,231,174);
@@ -1270,7 +1202,7 @@ h2{
         height: 56px;
         width: 80px;
     }
-    
+
     .activeandunauthorize{
         min-width: 160px;
         margin-right: 10px;
@@ -1479,5 +1411,5 @@ h2{
         width: 65px;
     }
 
-    
+
 }

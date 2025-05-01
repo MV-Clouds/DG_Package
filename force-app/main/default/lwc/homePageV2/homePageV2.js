@@ -5,7 +5,7 @@ import docGeniusImgs from "@salesforce/resourceUrl/homePageImgs";
 import docGeniusLogoSvg from "@salesforce/resourceUrl/docGeniusLogoSvg";
 import getTemplateList from '@salesforce/apex/HomePageController.getTemplateList';
 import updateTemplate from '@salesforce/apex/HomePageController.updateTemplate';
-import checkAccessToken from '@salesforce/apex/HomePageController.getAuthProviderSettings';
+import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
 import {nameSpace,navigationComps, errorDebugger} from 'c/globalPropertiesV2';
 
 export default class HomePageV2 extends NavigationMixin(LightningElement) {
@@ -237,21 +237,22 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
     fetchTemplateRecords(){
         try {
             this.isSpinner = true;
-            checkAccessToken()
-                .then(result => {
-                  if (result == false) {
-                    this.showMessagePopup('info', 'Complete Prerequisites', 'Please complete the prerequisites to have a great experience with DocGenius!', 'DG Setup');
-                    this.isSetUpRedirect = true;
-                  } else {
+            generateAccessToken()
+            .then(result => {
+                if(result){
                     this.dataLoaded = true;
                     // check empty state image loaded or not?
                     this.displayEmptyState();
-                  }
-              })
-                .catch(error => {
+                } else {
+                    this.showMessagePopup('info', 'Complete Prerequisites', 'Please complete the prerequisites to have a great experience with DocGenius!', 'DG Setup');
+                    this.isSetUpRedirect = true;
                     this.isSpinner = false;
-                    errorDebugger('HomePageV2', 'checkAccessToken', error, 'warn', 'error in apex method getAuthProviderSettings');
-                   
+                    return;
+                }
+            })
+            .catch(error => {
+                this.isSpinner = false;
+                errorDebugger('HomePageV2', 'checkAccessToken', error, 'warn', 'error in apex method getAuthProviderSettings');
             });
             getTemplateList()
             .then(result => {

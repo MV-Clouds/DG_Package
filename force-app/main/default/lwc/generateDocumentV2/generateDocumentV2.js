@@ -1665,7 +1665,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 return;
             }
 
-            generateAccessToken({isUpdateSetting : false})
+            generateAccessToken()
                 .then(accessToken => {
                     if (!accessToken) {
                         this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
@@ -1728,7 +1728,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.showSpinner = true;
             this.labelOfLoader = 'Saving in Internal Storage...';
     
-            generateAccessToken({isUpdateSetting : false})
+            generateAccessToken()
                 .then(accessToken => {
                     if (!accessToken) {
                         this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
@@ -1910,7 +1910,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         this.showSpinner = true;
         this.labelOfLoader = 'Generating File...';
     
-        return generateAccessToken({isUpdateSetting : false})
+        return generateAccessToken()
             .then(accessToken => {
                 if (!accessToken) {
                     this.showToast('error', 'Something went wrong!', "Please verify connected app from user configuration.", 5000);
@@ -2152,7 +2152,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                             errorDebugger('generateDocumentV2', 'handleCreateButton > createListViewButtons', e, 'error');
                         })
                     }else{
-                        generateAccessToken({isUpdateSetting : false})
+                        generateAccessToken()
                         .then((data) => {
                             if (!data) {
                                 this.showToast('error', 'Something went wrong!','Please verify connected app from user configuration.', 5000);
