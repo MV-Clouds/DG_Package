@@ -66,12 +66,12 @@ public with sharing class GenerateDocumentController {
     public static IntegrationWrapper getIntegrationStatus(){
         try {
             IntegrationWrapper listOfStatus = new IntegrationWrapper();
-            listOfStatus.isGoogleDriveIntegrated = MVDG__Google_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isAWSIntegrated = MVDG__Aws_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            List<MVDG__Dropbox_Credential__mdt> dropsettingsList = MVDG__Dropbox_Credential__mdt.getAll().values();
-            List<MVDG__OneDrive_Credentials__mdt> onesettingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
-            listOfStatus.isDropBoxIntegrated = dropsettingsList[0].WorkingStatus__c;
-            listOfStatus.isOneDriveIntegrated = onesettingsList[0].WorkingStatus__c;
+            listOfStatus.isGoogleDriveIntegrated = MVDG__Google_Credentials__c.getOrgDefaults()?.MVDG__WorkingStatus__c;
+            listOfStatus.isAWSIntegrated = MVDG__Aws_Credentials__c.getOrgDefaults()?.MVDG__WorkingStatus__c;
+            List<MVDG__Dropbox_Credential__mdt> dropsettingsList = MVDG__Dropbox_Credential__mdt.getAll()?.values();
+            List<MVDG__OneDrive_Credentials__mdt> onesettingsList = MVDG__OneDrive_Credentials__mdt.getAll()?.values();
+            listOfStatus.isDropBoxIntegrated = (!dropsettingsList.isEmpty()) ? dropsettingsList[0]?.MVDG__WorkingStatus__c : null;
+            listOfStatus.isOneDriveIntegrated = (!onesettingsList.isEmpty()) ? onesettingsList[0]?.MVDG__WorkingStatus__c : null;
             List<MVDG__Google_Credentials__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
                 listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;

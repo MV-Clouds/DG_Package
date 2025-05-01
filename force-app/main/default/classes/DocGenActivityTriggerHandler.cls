@@ -58,7 +58,7 @@ public with sharing class DocGenActivityTriggerHandler {
             String recordId = infoData.get('recordId');
             String resultStatus = failed.size() > 0 ? 'Failed' : 'Success';
             String domainURL = URL.getOrgDomainUrl().toExternalForm().replace('my.salesforce.com', 'lightning.force.com');
-            String logoUrl = 'https://mvclouds.com/wp-content/uploads/2024/08/Docgenius-Logo-Horizontal-1.png';
+            String logoUrl = 'https://mvclouds28-dev-ed.develop.my.site.com/webruntime/org-asset/30a68561b5/resource/081IU000001cj3J';
 
             List<MVDG__Template__c> templates= new List<MVDG__Template__c>();
             templates = [SELECT MVDG__Template_Name__c, MVDG__Description__c, MVDG__Object_API_Name__c, MVDG__Template_Type__c FROM MVDG__Template__c WHERE Id =:templateId WITH USER_MODE LIMIT 1];
