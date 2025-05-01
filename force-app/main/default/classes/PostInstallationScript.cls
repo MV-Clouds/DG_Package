@@ -18,7 +18,9 @@ global class PostInstallationScript implements InstallHandler, UninstallHandler,
         try {
             // Schedule this class to run 5 minutes from now
             String cronExp = getCronExpressionAfterMinutes(1);
-            System.schedule('PostInstall_Permission_Assignment', cronExp, new PostInstallationScript());
+            String timestamp = Datetime.now().format('yyyyMMdd_HHmmss');
+
+            System.schedule('PostInstall_Permission_Assignment_'+timestamp, cronExp, new PostInstallationScript());
         } catch (Exception e) {
             System.debug('⚠️ Scheduling failed: ' + e.getMessage());
         }
