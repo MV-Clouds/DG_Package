@@ -731,7 +731,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             });
             
             // Reset all custom combobox value to default...
-            var customCombos = this.template.querySelectorAll('c-custom-combobox');
+            var customCombos = this.template.querySelectorAll('c-custom-combobox-v2');
             if(customCombos.length > 0){
                 customCombos.forEach(ele => {
                     ele.resetValue();

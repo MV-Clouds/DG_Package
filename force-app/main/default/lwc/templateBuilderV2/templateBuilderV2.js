@@ -1031,12 +1031,12 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
 
     // === ==== ==== Child Record table Generation Method -- START --- === === === ====
     openGenChildTablePopup(event){
-        const childObjectTableBuilder = this.template.querySelector('c-child-object-table-builder');
+        const childObjectTableBuilder = this.template.querySelector('c-child-object-table-builder-v2');
         childObjectTableBuilder && childObjectTableBuilder.openPopup(event);
     }
 
     closeGenChildTable(){
-        const childObjectTableBuilder = this.template.querySelector('c-child-object-table-builder');
+        const childObjectTableBuilder = this.template.querySelector('c-child-object-table-builder-v2');
         childObjectTableBuilder && childObjectTableBuilder.closePopup();
     }
     // === ==== ==== Child Record table Generation Method -- END --- === === === ====
