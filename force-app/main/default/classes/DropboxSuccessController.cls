@@ -50,7 +50,7 @@ public with sharing class DropboxSuccessController {
             // Create Metadata Container
             Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
             Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-            metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + developerName;
+            metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.MVDG__' + developerName;
             metadataRec.label = masterLabel;
 
             // Add field values to Custom Metadata

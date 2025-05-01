@@ -60,7 +60,7 @@ public with sharing class OneDriveSuccessController {
                // Create Metadata Container
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.' + developerName;
+                metadataRec.fullName = 'MVDG__OneDrive_Credentials__mdt.MVDG__' + developerName;
                 metadataRec.label = masterLabel;
 
                 // Add field values to Custom Metadata

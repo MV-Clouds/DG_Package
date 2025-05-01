@@ -64,7 +64,7 @@ public with sharing class DropBoxAuthorizationController {
                     // Update Custom Metadata with new access token
                     Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                     Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                    metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+                    metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.MVDG__' + settings.DeveloperName;
                     metadataRec.label = settings.MasterLabel;
 
                     Metadata.CustomMetadataValue accessTokenField = new Metadata.CustomMetadataValue();
@@ -87,7 +87,7 @@ public with sharing class DropBoxAuthorizationController {
                 // Update WorkingStatus__c to false
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.MVDG__' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue workingStatusField = new Metadata.CustomMetadataValue();
@@ -131,7 +131,7 @@ public with sharing class DropBoxAuthorizationController {
                 // Clear credentials using Metadata API
                 Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
                 Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-                metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+                metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.MVDG__' + settings.DeveloperName;
                 metadataRec.label = settings.MasterLabel;
 
                 Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
@@ -200,7 +200,7 @@ public with sharing class DropBoxAuthorizationController {
             // Update Custom Metadata with client ID and secret
             Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
             Metadata.CustomMetadata metadataRec = new Metadata.CustomMetadata();
-            metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.' + settings.DeveloperName;
+            metadataRec.fullName = 'MVDG__Dropbox_Credential__mdt.MVDG__' + settings.DeveloperName;
             metadataRec.label = settings.MasterLabel;
 
             Metadata.CustomMetadataValue clientIdField = new Metadata.CustomMetadataValue();
