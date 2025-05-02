@@ -17,18 +17,14 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     */
     public static String getToken(String activity){
         try {
-            List<MVDG__OneDrive_Credentials__mdt> settingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
-            MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
-            String refresh = settings.MVDG__refresh_token__c;
-            String clientid = settings.MVDG__ClientId__c;
-            String clientsecret = settings.MVDG__ClientSecret__c;
+            MVDG__OneDrive_Credentials__c settings = MVDG__OneDrive_Credentials__c.getOrgDefaults();
             HttpRequest request = new HttpRequest();
             request.setEndpoint('https://login.microsoftonline.com/common/oauth2/v2.0/token');
             request.setMethod('POST');
             request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            request.setBody('refresh_token=' + refresh +
-                '&client_id=' + clientid +
-                '&client_secret=' + clientsecret +
+            request.setBody('refresh_token=' + settings.MVDG__refresh_token__c + settings.MVDG__refresh_token1__c +
+                '&client_id=' + settings.MVDG__ClientId__c +
+                '&client_secret=' + settings.MVDG__ClientSecret__c +
                 '&grant_type=refresh_token');
             Http http1 = new Http();
             HttpResponse response1 = http1.send(request);
@@ -162,8 +158,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     @AuraEnabled
     public static Boolean uploadToOneDrive(ContentVersion content, List<String> fileDetails) {
         try {
-            List<MVDG__OneDrive_Credentials__mdt> settingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
-            MVDG__OneDrive_Credentials__mdt settings = settingsList[0];
+            MVDG__OneDrive_Credentials__c settings = MVDG__OneDrive_Credentials__c.getOrgDefaults();
             String emailid = settings.MVDG__email__c;
             string endpointUrl = 'https://graph.microsoft.com/v1.0/users/me/drive/items/root:/{file}:/content';
             string file = EncodingUtil.URLENCODE(fileDetails[0], 'UTF-8').replace('+', '%20');
@@ -377,6 +372,7 @@ global with sharing class OneDriveUploader implements Database.Batchable < SObje
     */
     public static string initiateUploadSession(String contentType, ContentVersion cv, String activity) {
         try {       
+            MVDG__OneDrive_Credentials__c settings = MVDG__OneDrive_Credentials__c.getOrgDefaults();
             HttpRequest req = new HttpRequest();
             req.setEndpoint('https://graph.microsoft.com/v1.0/me/drive/root:/' + EncodingUtil.URLENCODE(fullFileName, 'UTF-8').replace('+', '%20') + ':/createUploadSession');
             req.setMethod('POST');

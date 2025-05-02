@@ -933,7 +933,7 @@ svg:not(.bottom-btn svg){
     align-items: center;
 }
 
-c-custom-combobox.folder-select {
+c-custom-combobox-v2.folder-select {
     width: unset;
     flex-grow: 1;
 }

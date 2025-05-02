@@ -274,14 +274,14 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                     styleEle = document.createElement('style');
                 }
                 if(styleEle) styleEle.innerText = `
-                    .override-css-from-js .slds-input:not(c-custom-combobox .slds-input){
+                    .override-css-from-js .slds-input:not(c-custom-combobox-v2 .slds-input){
                         height: calc( 2.5rem - 2px );
                         border-radius: 0.43rem;
                         border: 1px solid var(--slds-c-input-color-border);
                         box-shadow: none;
                     }
 
-                    .basic-detail-div .slds-input:not(c-custom-combobox .slds-input):focus, .limit-div .slds-input:not(c-custom-combobox .slds-input):focus{
+                    .basic-detail-div .slds-input:not(c-custom-combobox-v2 .slds-input):focus, .limit-div .slds-input:not(c-custom-combobox-v2 .slds-input):focus{
                         border: 1px solid #00aeff;
                     }
 
