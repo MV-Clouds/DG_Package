@@ -63,7 +63,7 @@ private class OneDriveSuccessControllerTest {
     @isTest
     static void testGetToken() {
         // Insert mock settings
-        MVDG__OneDrive_Credentials__c settings = new MVDG__OneDrive_Credentials__c(
+        MVDG__OneDrive_Credential__c settings = new MVDG__OneDrive_Credential__c(
             MVDG__ClientId__c = 'mockClientId',
             MVDG__ClientSecret__c = 'mockClientSecret'
         );
@@ -80,7 +80,7 @@ private class OneDriveSuccessControllerTest {
         settings = [SELECT MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__refresh_token__c, MVDG__refresh_token1__c, 
                     MVDG__access_token__c, MVDG__access_token1__c, MVDG__access_token2__c, MVDG__access_token3__c, 
                     MVDG__access_token4__c,MVDG__access_token5__c, MVDG__username__c, MVDG__email__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c 
-                    FROM MVDG__OneDrive_Credentials__c LIMIT 1];
+                    FROM MVDG__OneDrive_Credential__c LIMIT 1];
 
         // Validate results
         System.assertEquals('Success', result);
