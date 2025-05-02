@@ -1647,7 +1647,7 @@ export default class EditCSVTemplateV2 extends NavigationMixin(LightningElement)
                     }else if (filter.operator == 'notLIKE') {
                         condition =  '( NOT ' + filter.fieldName + ' LIKE \'%' + filter.value + '%\' )';
                     }else if(filter.type.toUpperCase() == 'DOUBLE' || filter.type.toUpperCase() == 'INTEGER' || filter.type.toUpperCase() == 'NUMBER' || filter.type.toUpperCase() == 'PERCENT' || filter.type.toUpperCase() == 'CURRENCY' || filter.type.toUpperCase() == 'DATE' || filter.type.toUpperCase() == 'BOOLEAN' || filter.type.toUpperCase() == 'DATETIME' || filter.type.toUpperCase() == 'TIME' || this.allPreDefinedValues.includes(filter.value.toUpperCase())){
-                        condition = filter.fieldName + ' ' + filter.operator + ' ' + filter.value + ' ';
+                        condition = filter.fieldName + ' ' + filter.operator + ' ' + (this.allPreDefinedValues.includes(filter.value.toUpperCase()) ? filter.value.replaceAll(' ','_') : filter.value) + ' ';
                     }else if(filter.value.toUpperCase() === 'CURRENT_USER'){
                         condition = filter.fieldName + ' ' + filter.operator + ' \'' + filter.value.toUpperCase() + '\'  ';
                     }else if(filter.operator == 'IN'){
