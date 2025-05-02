@@ -180,7 +180,7 @@ public with sharing class OneDriveSuccessController {
         }
         return refrenceUrl;
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'DropboxSuccessController', 'referenceUrl');
+            Log_Handler.store_Exception(e, 'OneDriveSuccessController', 'referenceUrl');
             return null;
         }
     }
