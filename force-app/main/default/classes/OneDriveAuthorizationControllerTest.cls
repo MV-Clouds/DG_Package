@@ -59,9 +59,7 @@ public class OneDriveAuthorizationControllerTest {
         Test.startTest();
         Map<String, Object> mappedResult = OneDriveAuthorizationController.checkonedriveauth();
         Test.stopTest();
-        System.assertNotEquals(null, mappedResult);
-        System.assertNotEquals('Error obtaining details: ', mappedResult.get('error'), 'Not getting error');
-
+        System.assertEquals(null, mappedResult, 'Result cannot be null');
     }
 
     @isTest

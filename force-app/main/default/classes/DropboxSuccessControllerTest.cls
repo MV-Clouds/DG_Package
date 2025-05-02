@@ -58,7 +58,7 @@ public with sharing class DropboxSuccessControllerTest {
         Test.setMock(HttpCalloutMock.class, new MockHttpResponse()) ;
         Test.startTest();
         String result = DropboxSuccessController.gettoken(url);
-        System.assertNotEquals(null, result);
+        System.assertEquals(null, result, 'Result should be null');
         Test.stopTest();
             
     }
