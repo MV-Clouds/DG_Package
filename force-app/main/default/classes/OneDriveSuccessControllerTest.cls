@@ -1,6 +1,6 @@
 @isTest
 private class OneDriveSuccessControllerTest {
-
+    
     // Mock HTTP callout class for successful token generation and user detail fetching
     private class MockHttpResponse implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
@@ -25,45 +25,49 @@ private class OneDriveSuccessControllerTest {
         }
     }
 
-    // Test method for redirect handling for 'develop' environment
     @isTest
-    static void testRedirectDevelop() {
+    static void testredirect1(){
         Test.startTest();
-        String result = OneDriveSuccessController.redirect('https://test.develop.my.salesforce.com');
+        String result = OneDriveSuccessController.redirect('https://test.develop.my.salesforce.com]');
         Test.stopTest();
         System.assertEquals('https://test--c.develop.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
+
     }
 
-    // Test method for redirect handling for 'scratch' environment
     @isTest
-    static void testRedirectScratch() {
+    static void testredirect2(){
         Test.startTest();
-        String result = OneDriveSuccessController.redirect('https://test.scratch.my.salesforce.com');
+        String result = OneDriveSuccessController.redirect('https://test.scratch.my.salesforce.com]');
         Test.stopTest();
         System.assertEquals('https://test--c.scratch.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
+
     }
 
-    // Test method for redirect handling for 'sandbox' environment
     @isTest
-    static void testRedirectSandbox() {
+    static void testredirect3(){
         Test.startTest();
-        String result = OneDriveSuccessController.redirect('https://test.sandbox.my.salesforce.com');
+        String result = OneDriveSuccessController.redirect('https://test.sandbox.my.salesforce.com]');
         Test.stopTest();
         System.assertEquals('https://test--c.sandbox.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
+
     }
 
-    // Test method for redirect handling for 'production' environment
     @isTest
-    static void testRedirectProduction() {
+    static void testredirect4(){
         Test.startTest();
-        String result = OneDriveSuccessController.redirect('https://test.my.salesforce.com');
+        String result = OneDriveSuccessController.redirect('https://test.my.salesforce.com]');
         Test.stopTest();
         System.assertEquals('https://test--c.vf.force.com/apex/MVDG__oneDriveSuccessPage', result);
     }
     
-    // Test method for token generation and storage validation
     @isTest
     static void testGetToken() {
+        // Insert mock settings
+        MVDG__OneDriveAuthProviderSettings__c settings = new MVDG__OneDriveAuthProviderSettings__c(
+            MVDG__ClientId__c = 'mockClientId',
+            MVDG__ClientSecret__c = 'mockClientSecret'
+        );
+        insert settings;
 
         // Set up mock callout
         Test.setMock(HttpCalloutMock.class, new MockHttpResponse());
@@ -72,11 +76,18 @@ private class OneDriveSuccessControllerTest {
         String result = OneDriveSuccessController.gettoken('https://login.microsoftonline.com/common/oauth2/v2.0/token?code=mock_auth_code');
         Test.stopTest();
 
+        // Retrieve updated settings
+        settings = [SELECT MVDG__ClientId__c, MVDG__ClientSecret__c, MVDG__refresh_token__c, MVDG__refresh_token1__c, 
+                    MVDG__access_token__c, MVDG__access_token1__c, MVDG__access_token2__c, MVDG__access_token3__c, 
+                    MVDG__access_token4__c, MVDG__username__c, MVDG__email__c, MVDG__LinkedDate__c, MVDG__WorkingStatus__c 
+                    FROM MVDG__OneDriveAuthProviderSettings__c LIMIT 1];
+
         // Validate results
         System.assertEquals('Success', result);
+        System.assertEquals('Mock User', settings.MVDG__username__c);
+        System.assertEquals(true, settings.MVDG__WorkingStatus__c);
     }
 
-    // Test method for Salesforce page redirection
     @isTest
     static void testRedirectToSalesforcePage() {
         Test.startTest();
@@ -87,7 +98,6 @@ private class OneDriveSuccessControllerTest {
         System.assert(result.getUrl().contains('lightning/n/MVDG__User_Configuration'), 'URL should contain the User_Configuration page');
     }
 
-    // Test method for extracting the 'code' parameter from a URL
     @isTest
     static void testExtractCodeParameter() {
         String url = 'https://example.com?code=mock_auth_code';
@@ -95,7 +105,6 @@ private class OneDriveSuccessControllerTest {
         System.assertEquals('mock_auth_code', code, 'The extracted code should be "mock_auth_code"');
     }
 
-    // Test method for fetching user details from OneDrive
     @isTest
     static void testFetchUserDetails() {
         Test.setMock(HttpCalloutMock.class, new MockHttpResponse());
