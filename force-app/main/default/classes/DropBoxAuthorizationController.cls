@@ -13,11 +13,11 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Map<String, Object> checkdropboxauth(){
         try{
-            List<MVDG__DropBoxAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            List<MVDG__Dropbox_Credentials__c> settingsList = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__access_token1__c,MVDG__access_token2__c,MVDG__access_token3__c,MVDG__access_token4__c,MVDG__access_token5__c,MVDG__WorkingStatus__c FROM MVDG__Dropbox_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
             Map<String, Object> result = new Map<String, Object>();
             if (!settingsList.isEmpty() && settingsList[0].MVDG__refresh_token__c != null && settingsList[0].MVDG__access_token__c != null && settingsList[0].MVDG__LinkedDate__c != null) {
                 Boolean working = verifyAuth();
-                MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+                MVDG__Dropbox_Credentials__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__access_token1__c,MVDG__access_token2__c,MVDG__access_token3__c,MVDG__access_token4__c,MVDG__access_token5__c,MVDG__WorkingStatus__c FROM MVDG__Dropbox_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
                 result.put('name', settings.MVDG__username__c);
                 result.put('email', settings.MVDG__email__c);
                 result.put('linkdate', settings.MVDG__LinkedDate__c);
@@ -35,7 +35,7 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean verifyAuth(){
         try {
-        MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+        MVDG__Dropbox_Credentials__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__access_token1__c,MVDG__access_token2__c,MVDG__access_token3__c,MVDG__access_token4__c,MVDG__access_token5__c,MVDG__WorkingStatus__c FROM MVDG__Dropbox_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
         String refresh = settings.MVDG__refresh_token__c;
         String clientid = settings.MVDG__ClientId__c;
         String clientsecret = settings.MVDG__ClientSecret__c;
@@ -63,7 +63,33 @@ public with sharing class DropBoxAuthorizationController {
         if(res.getStatusCode() == 200){
             Map < String, String > jsonvalues = new Map < String, String > ();
             jsonvalues = parseJSONToMap(res.getBody());
-            settings.MVDG__access_token__c = jsonvalues.get('access_token');
+            String accessToken = jsonvalues.get('access_token');
+            List<String> parts1 = new List<String>();
+                    if (accessToken != null && accessToken.length() > 254) {
+                        parts1.add(accessToken.substring(0, 254));
+                        parts1.add(accessToken.substring(254, 508));
+                        parts1.add(accessToken.substring(508, 762));
+                        parts1.add(accessToken.substring(762, 1016));
+                        parts1.add(accessToken.substring(1016, 1270));
+                        parts1.add(accessToken.substring(1270));
+                    } else {
+                        parts1.add(accessToken);
+                    }
+                    String newtoken1 = parts1[0];
+                    String newtoken2 = parts1[1];
+                    String newtoken3 = parts1[2];
+                    String newtoken4 = parts1[3];
+                    String newtoken5 = parts1[4];
+                    String newtoken6 = parts1[5];
+
+                    if(newtoken1 != null){
+                        settings.MVDG__access_token__c = newtoken1;
+                        settings.MVDG__access_token1__c = newtoken2;
+                        settings.MVDG__access_token2__c = newtoken3;
+                        settings.MVDG__access_token3__c = newtoken4;
+                        settings.MVDG__access_token4__c = newtoken5;
+                        settings.MVDG__access_token5__c = newtoken6;
+                    }
             settings.MVDG__WorkingStatus__c = true;
             Update as user settings;
             return true;
@@ -100,7 +126,7 @@ public with sharing class DropBoxAuthorizationController {
     @AuraEnabled
     public static Boolean unauthorize(){
         try {
-            MVDG__DropBoxAuthProviderSettings__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__WorkingStatus__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            MVDG__Dropbox_Credentials__c settings = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c,MVDG__username__c, MVDG__LinkedDate__c,MVDG__email__c,MVDG__refresh_token__c,MVDG__access_token__c,MVDG__access_token1__c,MVDG__access_token2__c,MVDG__access_token3__c,MVDG__access_token4__c,MVDG__access_token5__c,MVDG__WorkingStatus__c FROM MVDG__Dropbox_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
             if(settings != null){
                 settings.MVDG__ClientId__c = '';
                 settings.MVDG__ClientSecret__c = '';
@@ -109,6 +135,11 @@ public with sharing class DropBoxAuthorizationController {
                 settings.MVDG__email__c = '';
                 settings.MVDG__refresh_token__c = '';
                 settings.MVDG__access_token__c = '';
+                settings.MVDG__access_token1__c = '';
+                settings.MVDG__access_token2__c = '';
+                settings.MVDG__access_token3__c = '';
+                settings.MVDG__access_token4__c = '';
+                settings.MVDG__access_token5__c = '';
                 settings.MVDG__WorkingStatus__c = false;
                 upsert as user settings;
                 return true;
@@ -126,12 +157,12 @@ public with sharing class DropBoxAuthorizationController {
             if (String.isBlank(clientId) || String.isBlank(clientSecret)) {
                 return 'Both Client ID and Client Secret are required.';
             }
-            List<MVDG__DropBoxAuthProviderSettings__c> settingsList = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__DropBoxAuthProviderSettings__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
-            MVDG__DropBoxAuthProviderSettings__c settings;
+            List<MVDG__Dropbox_Credentials__c> settingsList = [SELECT Id,MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__Dropbox_Credentials__c WHERE SetupOwnerId =: UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+            MVDG__Dropbox_Credentials__c settings;
             if (!settingsList.isEmpty()) {
                 settings = settingsList[0];
             }else{
-                settings = new MVDG__DropBoxAuthProviderSettings__c();
+                settings = new MVDG__Dropbox_Credentials__c();
             }
             settings.MVDG__ClientId__c = clientId;
             settings.MVDG__ClientSecret__c = clientSecret;

@@ -11,7 +11,7 @@ public class OneDriveAuthorizationControllerTest {
 
     @TestSetup
     static void setup(){
-        MVDG__OneDriveAuthProviderSettings__c settings = new MVDG__OneDriveAuthProviderSettings__c(
+        MVDG__OneDrive_Credentials__c settings = new MVDG__OneDrive_Credentials__c(
             MVDG__refresh_token__c = 'dummy_refresh_token',
             MVDG__access_token__c = 'dummy_access_token',
             MVDG__email__c = 'test@example.com',
@@ -48,7 +48,7 @@ public class OneDriveAuthorizationControllerTest {
         Test.startTest();
         String result = OneDriveAuthorizationController.authorize(client_id, client_secret);
         Test.stopTest();
-        MVDG__OneDriveAuthProviderSettings__c settings = MVDG__OneDriveAuthProviderSettings__c.getInstance();
+        MVDG__OneDrive_Credentials__c settings = MVDG__OneDrive_Credentials__c.getInstance();
         System.assertEquals(client_id, settings.MVDG__ClientId__c);
         System.assertEquals(client_secret, settings.MVDG__ClientSecret__c);
     }

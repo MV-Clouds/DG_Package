@@ -2,7 +2,7 @@
 public class DropboxUploaderTest {
     @TestSetup
     static void makeData(){
-        MVDG__DropBoxAuthProviderSettings__c settings = new MVDG__DropBoxAuthProviderSettings__c();
+        MVDG__Dropbox_Credentials__c settings = new MVDG__Dropbox_Credentials__c();
         settings.SetupOwnerId = UserInfo.getOrganizationId();
         settings.MVDG__ClientId__c = 'dummyClientId';
         settings.MVDG__ClientSecret__c = 'dummyClientSecret';

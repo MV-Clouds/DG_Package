@@ -49,7 +49,7 @@ public with sharing class DropboxSuccessControllerTest {
 
     @isTest
     static void testgetToken(){
-        MVDG__DropBoxAuthProviderSettings__c settings = new MVDG__DropBoxAuthProviderSettings__c(
+        MVDG__Dropbox_Credentials__c settings = new MVDG__Dropbox_Credentials__c(
             MVDG__ClientId__c = 'Mock',
             MVDG__ClientSecret__c = 'Mock'
         );

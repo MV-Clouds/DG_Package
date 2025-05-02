@@ -11,9 +11,14 @@
 public with sharing class DropboxAuthorizationControllerTest {
     @TestSetup
     static void setup(){
-        MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getOrgDefaults();
+        MVDG__Dropbox_Credentials__c settings = MVDG__Dropbox_Credentials__c.getOrgDefaults();
             settings.MVDG__refresh_token__c = 'dummy_refresh_token';
             settings.MVDG__access_token__c = 'dummy_access_token';
+            settings.MVDG__access_token1__c = 'dummy_access_token';
+            settings.MVDG__access_token2__c = 'dummy_access_token';
+            settings.MVDG__access_token3__c = 'dummy_access_token';
+            settings.MVDG__access_token4__c = 'dummy_access_token';
+            settings.MVDG__access_token5__c = 'dummy_access_token';
             settings.MVDG__email__c = 'test@example.com';
             settings.MVDG__LinkedDate__c = ''+Date.today();
             settings.MVDG__WorkingStatus__c = true;
@@ -45,7 +50,7 @@ public with sharing class DropboxAuthorizationControllerTest {
         String client_secret = 'Mock';
         Test.startTest();
         String result = DropBoxAuthorizationController.authorize(client_id, client_secret);
-        MVDG__DropBoxAuthProviderSettings__c settings = MVDG__DropBoxAuthProviderSettings__c.getInstance();
+        MVDG__Dropbox_Credentials__c settings = MVDG__Dropbox_Credentials__c.getInstance();
         Test.stopTest();
         System.assertEquals(client_id, settings.MVDG__ClientId__c);
     }

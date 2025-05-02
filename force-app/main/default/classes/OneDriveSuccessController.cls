@@ -21,7 +21,7 @@ public with sharing class OneDriveSuccessController {
              if (authcode == null || authcode == '') {
                  return 'error: invalid auth code';
              }
-             MVDG__OneDriveAuthProviderSettings__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__OneDriveAuthProviderSettings__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
+             MVDG__OneDrive_Credentials__c settings = [SELECT Id, MVDG__ClientId__c, MVDG__ClientSecret__c FROM MVDG__OneDrive_Credentials__c WHERE SetupOwnerId = :UserInfo.getOrganizationId() WITH SECURITY_ENFORCED LIMIT 1];
            
             if (settings != null) {
                 String clientid = settings.MVDG__ClientId__c;
@@ -67,7 +67,8 @@ public with sharing class OneDriveSuccessController {
                     parts1.add(accessToken.substring(254, 508));
                     parts1.add(accessToken.substring(508, 762));
                     parts1.add(accessToken.substring(762, 1016));
-                    parts1.add(accessToken.substring(1016));
+                    parts1.add(accessToken.substring(1016, 1270));
+                    parts1.add(accessToken.substring(1270));
                 } else {
                     parts1.add(accessToken);
                 }
@@ -76,21 +77,22 @@ public with sharing class OneDriveSuccessController {
                 String accessToken3 = parts1[2];
                 String accessToken4 = parts1[3];
                 String accessToken5 = parts1[4];
+                String accessToken6 = parts1[5];
                 if(refreshToken1 != null){
                      settings.MVDG__refresh_token__c = refreshToken1;
                      settings.MVDG__refresh_token1__c = refreshToken2;
-                    if (Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isUpdateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__email__c.isUpdateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token__c.isUpdateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token1__c.isUpdateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isAccessible() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__email__c.isAccessible() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token__c.isAccessible() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token1__c.isAccessible() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__username__c.isCreateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__email__c.isCreateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token__c.isCreateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__refresh_token1__c.isCreateable()) {
+                    if (Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__username__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__email__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__refresh_token__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__refresh_token1__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__username__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__email__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__refresh_token__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__refresh_token1__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__username__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__email__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__refresh_token__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__refresh_token1__c.isCreateable()) {
                             upsert settings;
                         }
                     else{
@@ -103,26 +105,27 @@ public with sharing class OneDriveSuccessController {
                     settings.MVDG__access_token2__c = accessToken3;
                     settings.MVDG__access_token3__c = accessToken4;
                     settings.MVDG__access_token4__c = accessToken5;
+                    settings.MVDG__access_token5__c = accessToken6;
                     Date todaysDate = Date.today();
                     Datetime datetimeToday = Datetime.newInstance(todaysDate.year(), todaysDate.month(), todaysDate.day(), 0, 0, 0);
                     String formattedDate = datetimeToday.format('dd/MM/yyyy');
                     settings.MVDG__LinkedDate__c = formattedDate;
                     settings.MVDG__WorkingStatus__c = true;
-                    if (Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isUpdateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isUpdateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isUpdateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isUpdateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isUpdateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isAccessible() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isAccessible() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isAccessible() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isAccessible() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isAccessible() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token__c.isCreateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token1__c.isCreateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token2__c.isCreateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token3__c.isCreateable() &&
-                        Schema.sObjectType.MVDG__OneDriveAuthProviderSettings__c.fields.MVDG__access_token4__c.isCreateable()) {
+                    if (Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token1__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token2__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token3__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token4__c.isUpdateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token1__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token2__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token3__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token4__c.isAccessible() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token1__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token2__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token3__c.isCreateable() &&
+                        Schema.sObjectType.MVDG__OneDrive_Credentials__c.fields.MVDG__access_token4__c.isCreateable()) {
                             upsert as user settings;
                             return 'Success';
                         }
