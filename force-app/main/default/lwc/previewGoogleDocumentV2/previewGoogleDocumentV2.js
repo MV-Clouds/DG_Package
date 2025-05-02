@@ -54,7 +54,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
             this.isPreview = true;
             this.pdf_content.replaceChildren();
 
-            let generator = this.template.querySelector("c-generate-google-doc-file");
+            let generator = this.template.querySelector("c-generate-google-doc-file-v2");
             
             if (generator) {
                 this.spinnerLabel = "Fetching records... Please wait";
@@ -90,7 +90,7 @@ export default class PreviewGoogleDocumentV2 extends LightningElement {
                 this.isSpinner = false;
             } else {
                 this.isPreview = false;
-                let generator = this.template.querySelector("c-generate-google-doc-file");
+                let generator = this.template.querySelector("c-generate-google-doc-file-v2");
                 generator.generateDocument(this.templateid, this.objectname, this.recordId, ".pdf");
                 // this.handleError({ detail: { title: 'Error', message: 'Unable to load the document.' } })
             }
