@@ -68,10 +68,8 @@ public with sharing class GenerateDocumentController {
             IntegrationWrapper listOfStatus = new IntegrationWrapper();
             listOfStatus.isGoogleDriveIntegrated = MVDG__Google_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
             listOfStatus.isAWSIntegrated = MVDG__Aws_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            List<MVDG__Dropbox_Credential__mdt> dropsettingsList = MVDG__Dropbox_Credential__mdt.getAll().values();
-            List<MVDG__OneDrive_Credentials__mdt> onesettingsList = MVDG__OneDrive_Credentials__mdt.getAll().values();
-            listOfStatus.isDropBoxIntegrated = dropsettingsList[0].WorkingStatus__c;
-            listOfStatus.isOneDriveIntegrated = onesettingsList[0].WorkingStatus__c;
+            listOfStatus.isDropBoxIntegrated = MVDG__Dropbox_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            listOfStatus.isOneDriveIntegrated = MVDG__OneDrive_Credentialss__c.getOrgDefaults().MVDG__WorkingStatus__c;
             List<MVDG__Google_Credentials__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
                 listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;
@@ -210,7 +208,7 @@ public with sharing class GenerateDocumentController {
 /*
 *********************************************************
 @description      : Method is used to fetch the Client Id & Client Secret from the Custom Settings record.
-@param            : isUpdateSetting {Boolean} - Boolean to check if the settings need to be updated
+@param            : None
 @return           : {String} - Access Token
 ********************************************************
 */
@@ -218,7 +216,8 @@ public with sharing class GenerateDocumentController {
 public static String generateAccessToken() {
     String accessToken = null;
     try {
-        List<MVDG__AuthProviderSetup__mdt> aps = MVDG__AuthProviderSetup__mdt.getAll().values();
+        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
         if (aps.size() > 0) {
             String endPointURL = URL.getOrgDomainUrl().toExternalForm() + '/services/oauth2/token';
             String requestBody = 'grant_type=client_credentials&client_id={0}&client_secret={1}';
@@ -226,7 +225,7 @@ public static String generateAccessToken() {
             HttpRequest req = new HttpRequest();
             req.setEndpoint(endPointURL);
             req.setMethod('POST');
-            req.setBody(String.format(requestBody ,new string[]{aps[0].MVDG__ConnectedAppKey__c,aps[0].MVDG__ConnectedAppSecret__c}));
+            req.setBody(String.format(requestBody ,new string[]{aps[0].MVDG__Client_Id__c,aps[0].MVDG__Client_Secret__c}));
             req.setTimeout(60000);
             Http http = new Http();
             HttpResponse res = http.send(req);
@@ -238,6 +237,58 @@ public static String generateAccessToken() {
         Log_Handler.store_Exception(e, 'GenerateDocumentController', 'generateAccessToken');
     }
     return accessToken;
+}
+
+/*
+*********************************************************
+@description      : Method is used to fetch the Client Id & Client Secret from the Custom Settings record.
+@param            : none
+@return           : Map<String, String> - Map of consumer details
+********************************************************
+*/
+@AuraEnabled
+public static Map<String, String> getConnectedAppConfigs() {
+    Map<String, String> mapOfData = new Map<String, String>{
+        'clientId' => null,
+        'clientSecret' => null,
+        'accessToken' => null
+    };
+    try {
+        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        if (aps.size() > 0) {
+            mapOfData.put('clientId', aps[0].MVDG__Client_Id__c);
+            mapOfData.put('clientSecret', aps[0].MVDG__Client_Secret__c);
+            mapOfData.put('accessToken', generateAccessToken());
+        }
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getConnectedAppConfigs');
+    }
+    return mapOfData;
+}
+
+/*
+*********************************************************
+@description      : Method is used to update the Client Id & Client Secret in the Custom Settings record.
+@param            : clientId {String} - Client Id of the connected app
+@param            : clientSecret {String} - Client Secret of the connected app
+@return           : none
+********************************************************
+*/
+@AuraEnabled
+public static void updateSetting(String clientId, String clientSecret) {
+    try {
+        
+        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId,MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        MVDG__ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new MVDG__ConnectedAppIdAndSecret__c();
+        app.SetupOwnerId = UserInfo.getUserId();
+        app.MVDG__Client_Id__c = clientId;
+        app.MVDG__Client_Secret__c = clientSecret;
+        upsert as User app;
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'updateSetting');
+    }
 }
 
 /*

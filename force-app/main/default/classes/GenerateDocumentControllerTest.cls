@@ -101,11 +101,21 @@ public with sharing class GenerateDocumentControllerTest {
     }
     @isTest
     static void testGetAccessToken_Success() {
+
+        MVDG__ConnectedAppIdAndSecret__c app = new MVDG__ConnectedAppIdAndSecret__c();
+        app.SetupOwnerId = UserInfo.getUserId();
+        app.MVDG__Client_Id__c = 'testClientId';
+        app.MVDG__Client_Secret__c = 'testClientSecret';
+
+        insert as user app;
         // Set the mock response
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator());
     
         Test.startTest();
         String accessToken = GenerateDocumentController.generateAccessToken();
+        GenerateDocumentController.getConnectedAppConfigs();
+        GenerateDocumentController.updateSetting('testClientId2', 'testClientSecret2');
+
         Test.stopTest();
         
         // Validate the access token received

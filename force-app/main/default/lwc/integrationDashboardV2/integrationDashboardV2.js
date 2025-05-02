@@ -25,7 +25,8 @@ import oneDriveAuthorization from "@salesforce/apex/OneDriveAuthorizationControl
 import authorizeNamed from "@salesforce/apex/AwsAuthorizationController.authorizeNamed";
 import dropboxAuthorization from "@salesforce/apex/DropBoxAuthorizationController.authorize";
 import checkAccess from '@salesforce/apex/GoogleDriveAuthorizationController.checkAccess';
-import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
+import updateSetting from '@salesforce/apex/GenerateDocumentController.updateSetting';
+import getConnectedAppConfigs from '@salesforce/apex/GenerateDocumentController.getConnectedAppConfigs';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 // for trusted Url Verification
 import checkTrustedUrl from '@salesforce/apex/HomePageController.checkTrustedUrl';
@@ -39,12 +40,18 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
    dropable;
    popupimg;
    nointegration = noconnection;
+   consumerKey = '';
+    consumerSecret = '';
+    isDataInvalid = false;
+    secretValue;
+    keyValue;
+    inputDisable;
    @track restApiTrustedUrl;
    @track isTrustedUrlVerified = false;
+   @track isATVerified = false;
    @track onInit = true;
-   @track isVerifying = false; 
-   isATVerifying = true;
-   isATVerified = false;
+   @track isVerifying = false;
+   @track isATVerifying = false;
    @track clipBoardTooltip = 'Copy to Clipboard';
 
    @track loadedResources = 0;
@@ -85,6 +92,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
    @track isWorkingDropboxAuth = false;
    @track isWorkingOnedriveAuth = false;
     @track isWorkingAwsAuth = false;
+    @track checkAccessToken = false;
     
    //usedfordisplayinggoogledata
    @track googlename;
@@ -186,22 +194,105 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
        }
    }
 
-    getConnectedAppStatus(event) {
-        this.isATVerifying = true;
-        generateAccessToken()
+    getConnectedAppStatus(showToast) {
+        getConnectedAppConfigs()
         .then(result => {
-            this.isATVerifying = false;
-            this.isATVerified = false;
-            if (result) {
+            if (result.clientId && result.clientSecret) {
+                if (this.keyValue && this.secretValue) {
+                    this.consumerKey = this.keyValue;
+                    this.consumerSecret = this.secretValue;
+                    this.inputDisable = true;
+                }
+                if(result.accessToken){
+                    this.isATVerifying = false;
+                    this.isATVerified = true;
+                    this.keyValue = result.clientId;
+                    this.secretValue = result.clientSecret;
+                }else{
+                    this.isATVerifying = false;
+                    this.isATVerified = false;
+                    this.consumerKey = '';
+                    this.consumerSecret = '';
+                    this.keyValue = '';
+                    this.secretValue = ''; 
+                    this.inputDisable = false;
+                    this.isDataInvalid = true;
+                    if(showToast){
+                        this.showToast('error', 'Missed a Step?','Failed to Configure Connected App, Check your credentials.');
+                    }
+                }
+            } else {
+                this.consumerKey = '';
+                this.consumerSecret = '';
+                this.keyValue = '';
+                this.secretValue = '';  
                 this.isATVerifying = false;
-                this.isATVerified = true;
-            } else if(event){
-                this.showToast('error', 'Missed a step?', 'Please follow steps correctly and try again...');  
+                this.isATVerified = false; 
+                this.inputDisable = false;
             }
         })
         .catch(error => {
-            errorDebugger('IntegrationDashboradV2', 'getConnectedAppStatus > generateAccessToken > failure', error, 'warn');
+            this.consumerKey = '';
+            this.consumerSecret = '';
+            this.keyValue = '';
+            this.secretValue = ''; 
         });
+    }
+    
+     handleConsumerKeyChange(event) {
+        try {
+            this.isDataInvalid = false;
+            this.template.querySelector('.t-key').classList.remove('error-border');
+            this.template.querySelectorAll('label')[0].classList.remove('error-label');
+            this.consumerKey = event.target.value.trim();
+            if (!this.consumerKey) {
+                this.template.querySelector('.t-key').classList.add('error-border');
+                this.template.querySelectorAll('label')[0].classList.add('error-label');
+                this.isDataInvalid = true;
+            }
+        } catch (e) {
+            errorDebugger('IntegrationDashboradV2', 'handleConsumerKeyChange', e, 'warn');
+        }
+    }
+    
+    handleConsumerSecretChange(event) {
+        try {
+            this.isDataInvalid = false;
+            this.template.querySelector('.t-secret').classList.remove('error-border');
+            this.template.querySelectorAll('label')[1].classList.remove('error-label');  
+            this.consumerSecret = event.target.value.trim();
+            if (!this.consumerSecret) {
+                this.template.querySelector('.t-secret').classList.add('error-border');
+                this.template.querySelectorAll('label')[1].classList.add('error-label'); 
+                this.isDataInvalid = true;
+            }
+        } catch (e) {
+            errorDebugger('IntegrationDashboradV2', 'handleConsumerSecretChange', e, 'warn');
+        }
+    }
+    
+    onVerifyClickButton(){
+        this.handleVerifyButtonClick(false,true);
+    }
+
+    handleVerifyButtonClick() {
+        if (this.consumerKey === '' || this.consumerSecret === '') {
+            this.isDataInvalid = true;
+            this.template.querySelector('.t-key').classList.add('error-border');
+            this.template.querySelectorAll('label')[0].classList.add('error-label');
+            this.template.querySelector('.t-secret').classList.add('error-border');
+            this.template.querySelectorAll('label')[1].classList.add('error-label');  
+            this.showToast('error', 'Required field are missing!','Consumer key and secret are required!');
+        } else {
+            this.isATVerifying = true;
+            updateSetting({ clientId: this.consumerKey, clientSecret: this.consumerSecret })
+            .then(result => {
+                this.getConnectedAppStatus(true);
+            })
+            .catch(e => {
+                errorDebugger('IntegrationDashboradV2', 'handleVerifyButtonClick', e, 'warn');
+            });
+        }
     }
     
     getTrustedUrlStatus(event){
