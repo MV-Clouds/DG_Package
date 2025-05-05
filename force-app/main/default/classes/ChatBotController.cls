@@ -257,10 +257,10 @@ public with sharing class ChatBotController {
 
 
     @AuraEnabled
-    public static String getProfileUrl(String cid) {
-        if(cid != null){
-        User cuser = [SELECT Id, FullPhotoUrl FROM User WHERE Id=:cid WITH SECURITY_ENFORCED];
-        return cuser.FullPhotoUrl;
+    public static String getProfileUrl() {
+        List<User> currentUser = [SELECT Id, FullPhotoUrl FROM User WHERE Id=:UserInfo.getUserId() WITH SECURITY_ENFORCED];
+        if(!currentUser.isEmpty()){
+            return currentUser[0].FullPhotoUrl;
         }
         return 'null';
     }

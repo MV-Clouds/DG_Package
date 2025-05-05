@@ -1,6 +1,5 @@
 import { LightningElement, track } from 'lwc';
 import Feedback from "@salesforce/resourceUrl/Feedback";
-import Id from "@salesforce/user/Id";
 import fetchImageUrl from "@salesforce/apex/ChatBotController.getProfileUrl";
 import chatBot from "@salesforce/resourceUrl/chatBot";
 import chatUser from "@salesforce/resourceUrl/chatUser";
@@ -45,7 +44,6 @@ export default class ChatBotV2 extends LightningElement {
     selectedFileSize = 0;
     currentTime = '09:48';
     acceptedFormats = ['.pdf', '.png', '.jpg', '.doc', '.docx'];
-    userId = Id;
     isIssue = false; //used to track if any active issue is there
     @track isSol = false;  //used to track if any active solution is there
     isTimer = false; //used to track time
@@ -518,7 +516,7 @@ export default class ChatBotV2 extends LightningElement {
     }
 
     fetchingImageUrl(){
-        fetchImageUrl({cid: this.userId})
+        fetchImageUrl()
         .then(result =>{
             if(!result.endsWith('/profilephoto/005/F')){
             this.chatUser = result;

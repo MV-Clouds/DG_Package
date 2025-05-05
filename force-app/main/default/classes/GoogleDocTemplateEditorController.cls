@@ -278,7 +278,7 @@ public with sharing class GoogleDocTemplateEditorController {
     ***********************************************************************/
     public static string getGoogleProfile() {
         try {
-            MVDG__Google_Credentials__c authProvider = [SELECT Id, Name, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId()];
+            MVDG__Google_Credentials__c authProvider = [SELECT Id, Name, MVDG__access_token__c, MVDG__email__c, MVDG__photolink__c, MVDG__username__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
 
             Map<String, String> profile = new Map<String, String>();
             profile.put('username', authProvider.MVDG__username__c);

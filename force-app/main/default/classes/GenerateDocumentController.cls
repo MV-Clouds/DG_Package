@@ -126,7 +126,6 @@ public with sharing class GenerateDocumentController {
         try {
             String contentVersionId = combinedData.get('contentVersionId');
             String recordId = combinedData.get('recordId');
-            String activityId = combinedData.get('activityId');
 
             ContentDocumentLink cdl = new ContentDocumentLink();
             if(contentVersionId != null){
@@ -155,7 +154,6 @@ public with sharing class GenerateDocumentController {
             String contentVersionId = combinedData.get('contentVersionId');
             String recordId = combinedData.get('recordId');
             String body = combinedData.get('body');
-            String activityId = combinedData.get('activityId');
             FeedItem feed = new FeedItem();
             if(recordId == null || recordId == ''){
                 feed.ParentId = UserInfo.getUserId();
@@ -218,7 +216,7 @@ public static String generateAccessToken() {
     String accessToken = null;
     try {
         List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE Client_Id__c != null AND Client_Secret__c != null WITH SECURITY_ENFORCED ];
         if (aps.size() > 0) {
             String endPointURL = URL.getOrgDomainUrl().toExternalForm() + '/services/oauth2/token';
             String requestBody = 'grant_type=client_credentials&client_id={0}&client_secret={1}';
@@ -256,7 +254,7 @@ public static Map<String, String> getConnectedAppConfigs() {
     };
     try {
         List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE Client_Id__c != null AND Client_Secret__c != null WITH SECURITY_ENFORCED ];
         if (aps.size() > 0) {
             mapOfData.put('clientId', aps[0].MVDG__Client_Id__c);
             mapOfData.put('clientSecret', aps[0].MVDG__Client_Secret__c);
@@ -281,7 +279,7 @@ public static void updateSetting(String clientId, String clientSecret) {
     try {
         
         List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, IsDeleted, Name, SetupOwnerId,MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WITH SECURITY_ENFORCED];
+        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE Client_Id__c != null AND Client_Secret__c != null WITH SECURITY_ENFORCED ];
         MVDG__ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new MVDG__ConnectedAppIdAndSecret__c();
         app.SetupOwnerId = UserInfo.getUserId();
         app.MVDG__Client_Id__c = clientId;

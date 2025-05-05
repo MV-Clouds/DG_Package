@@ -166,7 +166,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             if(this.isInitialRender){
 
                 const mainDiv_Home = this.template.querySelector('.mainDiv_Home');
-                if(mainDiv_Home){
+                if(mainDiv_Home && (typeof window !== 'undefined')){
                     const style = document.createElement('style');
                     style.innerText = `
                         .fromTo .slds-form-element__help{
