@@ -1,7 +1,7 @@
 global class PostInstallationScript implements InstallHandler, UninstallHandler, Schedulable {
 
     global void onUninstall(UnInstallContext ctx) {
-        System.debug('As Global Method can\'t be removed, commenting this process as no longer in use.');
+        System.debug(LoggingLevel.INTERNAL, 'As Global Method can\'t be removed, commenting this process as no longer in use.');
         /*try {
             List<PermissionSetAssignment> psassignment = new List<PermissionSetAssignment>();
             psassignment = [SELECT Id FROM PermissionSetAssignment WHERE PermissionSet.Name IN ('DocGenius_Standard_Permissions', 'DocGenius_Admin_Permissions', 'DocGenius_Basic_Permissions')];
@@ -22,7 +22,7 @@ global class PostInstallationScript implements InstallHandler, UninstallHandler,
 
             System.schedule('PostInstall_Permission_Assignment_'+timestamp, cronExp, new PostInstallationScript());
         } catch (Exception e) {
-            System.debug('⚠️ Scheduling failed: ' + e.getMessage());
+            System.debug(LoggingLevel.ERROR, '⚠️ Scheduling failed: ' + e.getMessage());
         }
     }
 
@@ -63,7 +63,7 @@ global class PostInstallationScript implements InstallHandler, UninstallHandler,
             }
 
         } catch (Exception e) {
-            System.debug('⚠️ Error in Scheduled Job: ' + e.getMessage());
+            System.debug( LoggingLevel.ERROR,'⚠️ Error in Scheduled Job: ' + e.getMessage());
         }
     }
 

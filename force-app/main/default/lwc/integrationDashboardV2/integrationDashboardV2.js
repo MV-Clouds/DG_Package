@@ -231,11 +231,12 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
                 this.inputDisable = false;
             }
         })
-        .catch(error => {
+        .catch(e => {
             this.consumerKey = '';
             this.consumerSecret = '';
             this.keyValue = '';
             this.secretValue = ''; 
+            errorDebugger('IntegrationDashboradV2', 'getConnectedAppStatus > getConnectedAppConfigs > failure', e, 'warn');
         });
     }
     
@@ -286,7 +287,7 @@ export default class IntegrationDashboradV2 extends NavigationMixin(LightningEle
         } else {
             this.isATVerifying = true;
             updateSetting({ clientId: this.consumerKey, clientSecret: this.consumerSecret })
-            .then(result => {
+            .then(() => {
                 this.getConnectedAppStatus(true);
             })
             .catch(e => {

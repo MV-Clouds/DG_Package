@@ -93,8 +93,6 @@ public with sharing class GenerateDocumentControllerTest {
             GenerateDocumentController.deleteContentVersion(cv.Id);
             GenerateDocumentController.deleteContentVersion('0123456789');
 
-            Map<String, List<String>> dataList = new Map<String, List<String>>{'succeeded' => new List<String>{'Download'} , 'inProgress' => new List<String>{'AWS'}};
-            Map<String, Map<String, String>> dataMap = new Map<String, Map<String, String>>{'failed' => new Map<String, String>{'Documents' => 'Internal Error'}, 'templateData' => new Map<String, String>{'name' => 'test template', 'type' => 'CSV Template', 'fileName' => 'test.csv', 'object' => 'Account'}};
         Test.stopTest(); 
 
         System.assert(status!=null, 'Processs neeeds to be completed!');
