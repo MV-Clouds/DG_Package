@@ -66,6 +66,9 @@ public with sharing class CloneTemplateDataController {
                 if(footer == 'true'){
                     valueTypes.add('Footer Value');
                 }
+                if(valueTypes?.size() > 1 ){
+                    valueTypes.add('Extracted Mapping Keys');
+                } 
                 MVDG__Template_Page__c cloneTemplatePageData = new MVDG__Template_Page__c();
                 if(pageConfiguration == 'true'){
                     List<MVDG__Template_Page__c> cloneTemplatePage = new List<MVDG__Template_Page__c>();
