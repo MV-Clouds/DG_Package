@@ -59,7 +59,7 @@ global class PostInstallationScript implements InstallHandler, UninstallHandler,
             }
 
             if (!psaList.isEmpty()) {
-                insert as user psaList;
+                insert psaList;
             }
 
         } catch (Exception e) {
