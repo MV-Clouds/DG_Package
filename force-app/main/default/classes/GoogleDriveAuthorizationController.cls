@@ -468,11 +468,8 @@ public static Map<String, String> generaterefreshtoken(List<String> credentials,
       try {
           MVDG__Google_Credentials__c settings = [SELECT Id,MVDG__access_token__c,MVDG__LinkedDate__c,MVDG__refresh_token__c,MVDG__photolink__c,MVDG__username__c,MVDG__email__c,MVDG__WorkingStatus__c  FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED LIMIT 1];
           if(settings != null){
-
-                if(settings != null){
-                    delete as user settings;
-                    return true;
-                }
+                delete as user settings;
+                return true;
           }
           return false;
       } catch (Exception e) {

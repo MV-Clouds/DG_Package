@@ -150,10 +150,9 @@ public class GoogleDriveAuthorizationControllerTest {
 
     @isTest
     static void testunauthorize() {
-
         Test.startTest();
         Boolean result = GoogleDriveAuthorizationController.unauthorize();
-        // Google_Credentials__c settings = Google_Credentials__c.getInstance();
+        System.assertEquals(true, result, 'Result should be true');
         Test.stopTest();
         
     }
