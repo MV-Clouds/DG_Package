@@ -327,7 +327,7 @@
                         </div>
                         <div class="editDescription editField">
                           <div class="floatingLabel">Description</div>
-                          <lightning-textarea class="descriptionInput" value={templateRecord.MVDG__Description__c} variant="label-hidden" data-name="MVDG__Description__c" onkeyup={handleEditDetail}></lightning-textarea>
+                          <lightning-textarea class="descriptionInput" value={templateRecord.MVDG__Description__c} variant="label-hidden" data-name="MVDG__Description__c" onkeyup={handleEditDetail} max-length="131072" ></lightning-textarea>
                         </div>
                         <div class="editStatus">
                           <span class="statusLabel">Status: </span>

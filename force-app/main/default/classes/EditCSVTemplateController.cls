@@ -141,8 +141,9 @@ public with sharing class EditCSVTemplateController {
             td.MVDG__CSV_Orders__c = configData.get('orders');
             td.MVDG__CSV_Query__c = configData.get('query');
             td.MVDG__CSV_Logic__c = configData.get('logic');
-            // td.MVDG__CSV_List_View__c = configData.get('listView');
-            td.MVDG__CSV_Limit__c = Integer.valueOf(configData.get('maxLimit'));
+            if(configData.get('maxLimit') != null){
+                td.MVDG__CSV_Limit__c = Integer.valueOf(configData.get('maxLimit'));
+            }
 
             if(existingData.size() > 0){
                 td.Id = existingData[0].Id;
