@@ -9,7 +9,7 @@ import new_template_bg from "@salesforce/resourceUrl/new_template_bg";
 
 import homePageImgs from "@salesforce/resourceUrl/homePageImgs";
 import { NavigationMixin } from "lightning/navigation";
-import { errorDebugger, nameSpace } from 'c/globalPropertiesV2';
+import { errorDebugger, nameSpace, navigationComps } from 'c/globalPropertiesV2';
 
 export default class GoogleDocTemplateEditorV2 extends NavigationMixin(LightningElement) {
     @api templateId;
@@ -315,7 +315,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 this.warning = '';
                 if (event && event.detail) {
                     this.closePopup();
-                    this.navigateToComp("homePage", {});
+                    this.navigateToComp(navigationComps.home, {});
                 } else if (event && event.detail === false) {
                     this.activeTabName = "basicTab";
                     this.setActiveTab();
@@ -324,7 +324,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 // 
             } else {
                 this.closePopup();
-                this.navigateToComp("homePage", {});
+                this.navigateToComp(navigationComps.home, {});
             }
         } catch(error) {
             errorDebugger('googleDocTemplateEditorV2', 'handleConfirmation', error, 'error', 'Error in handleConfirmation. Please try again later');
@@ -355,7 +355,7 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                 this.warning = 'home';
         } else {
             this.closePopup();
-            this.navigateToComp("homePage", {});
+            this.navigateToComp(navigationComps.home, {});
         }
     }
 
