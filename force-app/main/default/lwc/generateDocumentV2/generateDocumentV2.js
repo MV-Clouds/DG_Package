@@ -1073,6 +1073,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }
         this.activity.MVDG__DocGenius_Template__c = this.selectedTemplate;
         this.activity.MVDG__Selected_Channels__c = this.selectedChannels.join(',');
+        if(!this.fileName){
+            let thisTemplate = this.allTemplates?.find(opt => opt.Id === this.selectedTemplate);
+            this.fileName = thisTemplate?.MVDG__Template_Name__c?.slice(0,240) || "DG_Document";  
+        }
         this.activity.MVDG__File_Name__c = this.fileName + this.selectedExtension;
         this.activity.MVDG__Related_Record_Id__c = this.isCSVTemplate ? null : this.recordId;
         this.generateActivity()
