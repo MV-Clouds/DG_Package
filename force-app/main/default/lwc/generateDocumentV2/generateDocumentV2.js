@@ -1041,11 +1041,11 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 })
                 .catch((e) => {
                     errorDebugger('generateDocumentV2', 'generateActivity > upsertActivity', e, 'error');
-                    reject(e);
+                    reject('Could not start document generation, please check your org storage limits and try again!');
                 });
             } catch (e) {
                 errorDebugger('generateDocumentV2', 'generateActivity', e, 'error');
-                reject(e);
+                reject('Could not start document generation, please try again!');
             }
         });
     }
