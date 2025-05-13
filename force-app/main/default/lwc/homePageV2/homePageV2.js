@@ -59,7 +59,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
         {label : 'Template Name', value : 'MVDG__Template_Name__c'},
         {label : 'Created Date', value : 'CreatedDate'},
         {label : 'Last Modified Date', value : 'LastModifiedDate'},
-        {label : 'Object Name', value : 'MVDG__Object_API_Name__c'},
+        {label : 'Object Name', value : 'Object_Name__c'},
     ];
     @track refrenceTimeList = [
         {label : 'THIS WEEK', value : 'THIS_WEEK'},
@@ -166,7 +166,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             if(this.isInitialRender){
 
                 const mainDiv_Home = this.template.querySelector('.mainDiv_Home');
-                if(mainDiv_Home && (typeof window !== 'undefined')){
+                if(mainDiv_Home){
                     const style = document.createElement('style');
                     style.innerText = `
                         .fromTo .slds-form-element__help{
@@ -543,7 +543,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             else{
     
                 this.filteredTemplateList = this.templateList.filter(ele => {
-                    var inObject = this.filterOpts['objectsToFilter'] ? this.filterOpts['objectsToFilter'].includes(ele.MVDG__Object_API_Name__c) : true;
+                    var inObject = this.filterOpts['objectsToFilter'] ? this.filterOpts['objectsToFilter'].includes(ele.Object_Name__c) : true;
                     var inType = this.filterOpts['TempTypeToFilter'] ? this.filterOpts['TempTypeToFilter'].includes(ele.MVDG__Template_Type__c) : true;
                     var inStatus = this.filterOpts['TempStatusToFilter'] ? this.filterOpts['TempStatusToFilter'].includes(ele.MVDG__Template_Status__c.toString()) : true;
                     var inDate = true;
@@ -561,6 +561,9 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
 
                 // Load only first 50 template in HTML on after apply filters...
                 this.maxTempToDisplay = this.filteredTemplateList.length;
+                console.log('this.filteredTemplateList after Filter ::', this.filteredTemplateList.length , '::::',this.filteredTemplateList);
+                
+                
                 this.displayedTemplateList = this.filteredTemplateList;
 
                 this.previousFilterOpts = JSON.parse(JSON.stringify(this.filterOpts));
@@ -769,6 +772,7 @@ export default class HomePageV2 extends NavigationMixin(LightningElement) {
             this.displayedTemplateList = filteredTemplateList;
 
             this.displayedTemplateList = this.setSerialNumber(this.displayedTemplateList);
+            console.log('this.displayedTemplateList after Search ::', this.displayedTemplateList.length , '::::',this.displayedTemplateList);
             
         } catch (error) {
             errorDebugger('HomePageV2', 'searchTemplates', error, 'warn');

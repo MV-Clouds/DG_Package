@@ -688,7 +688,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             // If Search value is not null, filter Field_Vs_KeysList based on search value...
             if(this.searchFieldValue !== undefined && this.searchFieldValue !== null && this.searchFieldValue != ''){
                 this.field_Vs_KeyList = this.field_Vs_KeyList.filter((ele) => {
-                    return ele.label.toLowerCase().includes(this.searchFieldValue.toLowerCase()) || ele.key.toLowerCase().includes(this.searchFieldValue.toLowerCase());
+                    return ele.label.toLowerCase().includes(this.searchFieldValue.toLowerCase()) || ele.key?.split('.')[1].toLowerCase().includes(this.searchFieldValue.toLowerCase());
                 })
             }
 

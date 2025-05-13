@@ -458,6 +458,7 @@ public with sharing class DataMappingControllerV2 {
                             fieldValue = getFieldValue(ext, orgObject);
                         }
                         when else{
+                            
                             fieldValue = getFieldValue(ext, sourceObject);
                         }
                     }
@@ -602,11 +603,26 @@ public with sharing class DataMappingControllerV2 {
                         fieldValue = (String) String.valueOf(valueData?.get(fieldName));
                     }
                     when else{
-                        // field comes in this block must me sorce object's parent object's field...
-                        Map<String, Object> parentObj = (Map<String, Object>) valueData?.get(relationShipName);
-                        fieldValue = (String) String.valueOf(parentObj?.get(fieldName));
+                        if(fieldName.contains('.')){
+                            
+                            Map<String, Object> parentObj = (Map<String, Object>) valueData?.get(relationShipName);
+                            System.debug(' - parentObj - '+ parentObj);
+                            String pName = fieldName.substringBefore('.');
+                            fieldName = fieldName.substringAfter('.');
+                            Map<String, Object> p_parentObj = (Map<String, Object>) parentObj?.get(pName);
+                            System.debug(' - p_parentObj - '+ p_parentObj);
+                            fieldValue = (String) String.valueOf(p_parentObj?.get(fieldName));
+                            System.debug(' - fieldValue - '+ fieldValue);
+
+                        }
+                        else{
+                            // field comes in this block must me sorce object's parent object's field...
+                            Map<String, Object> parentObj = (Map<String, Object>) valueData?.get(relationShipName);
+                            fieldValue = (String) String.valueOf(parentObj?.get(fieldName));
+                        }
                     }
                 }
+
             }
             else{
                 // field comes in this block must me sorce object field...
@@ -683,14 +699,14 @@ public with sharing class DataMappingControllerV2 {
                         }
 
                         // System.debug('fieldAPI : ' + fieldAPI);
-                        if(validFields.keySet().contains(fieldAPI)){
+                        // if(validFields.keySet().contains(fieldAPI)){
                             ExtractedKeys ext = new ExtractedKeys();
                             ext.fieldAPI = fieldAPI;
                             ext.formatType = formateType;
                             ext.fieldType = validFields.get(fieldAPI);
                             ext.mappingKey = key;
                             extractedKeys.add(ext);
-                        }
+                        // }
                     }
                 }
             }

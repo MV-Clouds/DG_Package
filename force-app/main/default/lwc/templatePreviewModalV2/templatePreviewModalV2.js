@@ -200,8 +200,8 @@ export default class TemplatePreviewModalV2 extends LightningElement {
                 }
                 var paraDataStringify = JSON.stringify(paraData);
 
-                // var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
-                var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify;
+                var newSRC = '/apex/DocGeneratePage?paraData=' + paraDataStringify;
+                // var newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + paraDataStringify;
     
                 if(newSRC !== previousSRC){
                     this.vfPageSRC = newSRC;
