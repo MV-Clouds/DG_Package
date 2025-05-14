@@ -327,6 +327,8 @@
                         if(useMode === 'preview'){
                             loadingInfo && (loadingInfo.innerText = errMsg ?? 'Facing Issue While Generating Preview, Please Try Agian...');
                             docIcon?.classList.add('error');
+                            console.log('The Error is :: ' , error);
+                            
                             // send message to parent LWC component
                             const message = {
                                 messageFrom : 'docGenerate',
@@ -649,6 +651,12 @@
                                 footerElement.innerHTML = footerElement.innerHTML.replaceAll(key, mappingKeyVsMappingValues[key])
                             }
 
+                            // Then process conditional logic
+                            bodyElement.innerHTML = processIfElseBlocks(bodyElement.innerHTML);
+                            headerElement.innerHTML = processIfElseBlocks(headerElement.innerHTML);
+                            footerElement.innerHTML = processIfElseBlocks(footerElement.innerHTML);
+
+
                             // ...replace salesforce image url with base64...
                             let bodyImages = bodyElement.querySelectorAll('img');
                             let headerImages = headerElement.querySelectorAll('img');
@@ -693,6 +701,61 @@
                                 generateFile(bodyElement, headerElement, footerElement);
                             })
                         }
+
+function processIfElseBlocks(content) {
+    // Match both raw and HTML-escaped operators directly
+    const ifElseRegex = /\{\{@IF-ELSE\s*(.*?)\s*(=|!=|>=|<=|>|<|&gt;|&lt;|&ge;|&le;)\s*(.*?)\s*\?(.*?):(.*?)\}\}/g;
+
+    let matchCount = 0;
+
+    const updatedContent = content.replace(ifElseRegex, (match, left, operator, right, truePart, falsePart) => {
+        matchCount++;
+        console.log(`🔍 Match #${matchCount}`);
+        console.log(`  Full Match: ${match}`);
+        console.log(`  Left: "${left}"`);
+        console.log(`  Operator: "${operator}"`);
+        console.log(`  Right: "${right}"`);
+        console.log(`  TruePart: "${truePart}"`);
+        console.log(`  FalsePart: "${falsePart}"`);
+
+        // Normalize HTML entity operators
+        switch (operator) {
+            case '&gt;': operator = '>'; break;
+            case '&lt;': operator = '<'; break;
+            case '&ge;': operator = '>='; break;
+            case '&le;': operator = '<='; break;
+        }
+
+        // Parse as numbers if possible
+        const leftVal = isNaN(left) ? left : parseFloat(left);
+        const rightVal = isNaN(right) ? right : parseFloat(right);
+
+        const result = (() => {
+            switch (operator) {
+                case '=': return leftVal === rightVal;
+                case '!=': return leftVal !== rightVal;
+                case '>': return leftVal > rightVal;
+                case '>=': return leftVal >= rightVal;
+                case '<': return leftVal < rightVal;
+                case '<=': return leftVal <= rightVal;
+                default: return false;
+            }
+        })();
+
+        console.log(`  Evaluated: ${leftVal} ${operator} ${rightVal} => ${result}`);
+
+        return result ? truePart.trim() : falsePart.trim();
+    });
+
+    if (matchCount === 0) {
+        console.warn("⚠️ No IF-ELSE matches found in original content!");
+    }
+
+    return updatedContent;
+}
+
+
+
     
     
                         // ========= ========= File Generation Methods -- START --- ============== =============
