@@ -1201,7 +1201,7 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
             // const signatureKeys = this.extractedKeys(innerHTML, /{{Sign.(.*?)}}/g)
             
             const objectFields = this.extractedKeys(innerHTML, /\{\{#([^{}]+)\}\}/g);
-            const customKeys = this.extractedKeys(innerHTML, /\{\{@CK:([^{}]+)\}\}/g);
+            const customKeys = this.extractedKeys(innerHTML, /\{\{(@CKLIST:([a-zA-Z0-9_.]+):([^{}]+)|@CK:([a-zA-Z0-9_.]+)|@CKTABLE:([a-zA-Z0-9_.]+))\}\}/g);
             const generalFields = this.extractedKeys(innerHTML, /\{\{Doc.([^{}]+)\}\}/g);
             const mergeTempKeys = this.extractedKeys(innerHTML, /\{\{Temp.([^{}]+)\}\}/g);
             const signatureKeys = this.extractedKeys(innerHTML, /\{\{Sign.([^{}]+)\}\}/g)

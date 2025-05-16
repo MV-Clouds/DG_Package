@@ -225,14 +225,75 @@ public with sharing class DataMappingControllerV2 {
                                 String fieldName = rawKey.substringBetween(keyName + '.', '}}');
 
                                 if (fieldName != null) {
-                                    Object fieldValue = record.get(fieldName);
+                                    Object fieldValue = queryResult[0].get(fieldName);
                                     resolvedCustomKeyValues.put(rawKey, String.valueOf(fieldValue));
                                     System.debug('Resolved ' + rawKey + ' => ' + fieldValue);
                                 }
+                            }else if (rawKey.startsWith('{{@CKLIST:' + keyName + '.')) {
+                                String fieldName = rawKey.substringBetween(keyName + '.', ':');
+                                String separator = rawKey.subStringAfter('{{@CKLIST:').substringBetween(':', '}}');
+
+                                if (fieldName != null) {
+                                    List<String> collectedValues = new List<String>();
+
+                                    for (SObject record : queryResult) {
+                                        Object fieldValue = record.get(fieldName);
+                                        if (fieldValue != null) {
+                                            collectedValues.add(String.valueOf(fieldValue));
+                                        }
+                                    }
+
+                                    String finalValue = String.join(collectedValues, separator);
+                                    resolvedCustomKeyValues.put(rawKey, finalValue);
+                                    System.debug('Resolved ' + rawKey + ' => ' + finalValue);
+                                }
+                            }else if (rawKey.startsWith('{{@CKTABLE:' + keyName + '}}')) {
+                                // Extract the fields dynamically from the first record (if any)
+                                if (!queryResult.isEmpty()) {
+                                    List<String> fieldNames = new List<String>();
+                                    SObject firstRecord = queryResult[0];
+                                    
+                                    // Collect all fields present in the first record
+                                    for (String fieldToken : firstRecord.getPopulatedFieldsAsMap().keySet()) {
+                                        fieldNames.add(fieldToken);
+                                    }
+
+                                    // Build the table
+                                    String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;">';
+
+                                    // Table header
+                                    tableHtml += '<thead><tr>';
+                                    for (String col : fieldNames) {
+                                        tableHtml += '<th>' + col + '</th>';
+                                    }
+                                    tableHtml += '</tr></thead>';
+
+                                    // Table body
+                                    tableHtml += '<tbody>';
+                                    for (SObject record : queryResult) {
+                                        tableHtml += '<tr>';
+                                        for (String col : fieldNames) {
+                                            Object val = record.get(col);
+                                            tableHtml += '<td>' + (val != null ? String.valueOf(val) : '') + '</td>';
+                                        }
+                                        tableHtml += '</tr>';
+                                    }
+                                    tableHtml += '</tbody></table>';
+
+                                    // Store resolved HTML table
+                                    resolvedCustomKeyValues.put(rawKey, tableHtml);
+                                    System.debug('Resolved table for ' + rawKey + ' => ' + tableHtml);
+                                } else {
+                                    resolvedCustomKeyValues.put(rawKey, '<p>No data found.</p>');
+                                    System.debug('No data found for CKTable: ' + rawKey);
+                                }
                             }
+
                         }
                     } else {
-                        System.debug('No result for query: ' + finalQuery);
+                        for (String rawKey : customKeys) {
+                            resolvedCustomKeyValues.put(rawKey, '');
+                        }
                     }
 
                 } catch (Exception ex) {
