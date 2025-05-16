@@ -12,7 +12,7 @@ public with sharing class DataMappingControllerV2 {
      */
 
     public static Set<String> fieldsInCustomKey = new Set<String>();
-    public static List<Custom_Key__c> queriedCustomKeys = new List<Custom_Key__c>();
+    public static List<MVDG__Custom_Key__c> queriedCustomKeys = new List<MVDG__Custom_Key__c>();
     public static Set<String> customKeys = new Set<String>();
 
     public static map<String, Map<String, String>> getMappingsKeyValues(List<String> templateIDs, String recordId, Boolean includeMergTemKeys){
@@ -135,20 +135,30 @@ public with sharing class DataMappingControllerV2 {
                 String keyStr = String.valueOf(key);
                 customKeys.add(keyStr);
 
-                String keyName = keyStr?.substringAfter('{{@CK:')?.substringBefore('.');
+                String keyName;
+
+                if (keyStr.startsWith('{{@CK:')) {
+                    keyName = keyStr.substringAfter('{{@CK:').substringBefore('.');
+                } else if (keyStr.startsWith('{{@CKLIST:')) {
+                    keyName = keyStr.substringAfter('{{@CKLIST:').substringBefore('.');
+                } else if (keyStr.startsWith('{{@CKTABLE:')) {
+                    String temp = keyStr.substringAfter('{{@CKTABLE:').substringBefore('}}').subStringBefore(';').subStringBefore(':');
+                    keyName = temp.contains(':') ? temp.substringBefore(':') : temp;
+                }
+
                 if (keyName != null) {
-                    customKeyNames.add(keyName);
+                    customKeyNames.add(keyName.trim());
                 }
             }
             queriedCustomKeys = [
-                SELECT Id, Name, Query__c 
-                FROM Custom_Key__c 
-                WHERE Name IN :customKeyNames
+                SELECT Id, MVDG__Custom_Key_Name__c, MVDG__Query__c 
+                FROM MVDG__Custom_Key__c 
+                WHERE MVDG__Custom_Key_Name__c IN :customKeyNames
             ];
             Pattern pattern = Pattern.compile('\\{\\{#(.*?)\\}\\}');
 
-            for (Custom_Key__c key : queriedCustomKeys) {
-                String queryTemplate = key.Query__c;
+            for (MVDG__Custom_Key__c key : queriedCustomKeys) {
+                String queryTemplate = key.MVDG__Query__c;
                 Matcher matcher = pattern.matcher(queryTemplate);
 
                 while (matcher.find()) {
@@ -189,13 +199,13 @@ public with sharing class DataMappingControllerV2 {
      * @param extractedKeyMap, Map of keyType vs list of keys in object form,
      * @description : extract and collect Custom Keys.
      */
-    public static Map<String, String> collectCustomKeys(Map<String, Object> extractedKeyMap, Map<String, Object> objectFieldValues) {
+    public static Map<String, String> collectCustomKeys(Map<String, Object> extractedKeyMap,Map<String, Object> objectFieldValues) {
         Map<String, String> resolvedCustomKeyValues = new Map<String, String>();
 
         try {
             List<String> finalQueries = new List<String>();
-            for (Custom_Key__c key : queriedCustomKeys) {
-                String queryTemplate = key.Query__c;
+            for (MVDG__Custom_Key__c key : queriedCustomKeys) {
+                String queryTemplate = key.MVDG__Query__c;
                 for (String placeholder : fieldsInCustomKey) {
                     Object value = objectFieldValues.get(placeholder);
                     String replacement = (value instanceof String) ? '\'' + String.valueOf(value) + '\'': String.valueOf(value);
@@ -211,8 +221,8 @@ public with sharing class DataMappingControllerV2 {
 
             for (Integer i = 0; i < finalQueries.size(); i++) {
                 String finalQuery = finalQueries[i];
-                Custom_Key__c currentKey = queriedCustomKeys[i];
-                String keyName = currentKey.Name;
+                MVDG__Custom_Key__c currentKey = queriedCustomKeys[i];
+                String keyName = currentKey.MVDG__Custom_Key_Name__c;
 
                 try {
                     List<SObject> queryResult = Database.query(finalQuery);
@@ -227,7 +237,6 @@ public with sharing class DataMappingControllerV2 {
                                 if (fieldName != null) {
                                     Object fieldValue = queryResult[0].get(fieldName);
                                     resolvedCustomKeyValues.put(rawKey, String.valueOf(fieldValue));
-                                    System.debug('Resolved ' + rawKey + ' => ' + fieldValue);
                                 }
                             }else if (rawKey.startsWith('{{@CKLIST:' + keyName + '.')) {
                                 String fieldName = rawKey.substringBetween(keyName + '.', ':');
@@ -245,54 +254,85 @@ public with sharing class DataMappingControllerV2 {
 
                                     String finalValue = String.join(collectedValues, separator);
                                     resolvedCustomKeyValues.put(rawKey, finalValue);
-                                    System.debug('Resolved ' + rawKey + ' => ' + finalValue);
                                 }
-                            }else if (rawKey.startsWith('{{@CKTABLE:' + keyName + '}}')) {
-                                // Extract the fields dynamically from the first record (if any)
+                            } else if (rawKey.startsWith('{{@CKTABLE:' + keyName)) {
+                                String fieldSection = rawKey.substringAfter('{{@CKTABLE:' + keyName);
+                                Set<String> fieldNames = new Set<String>();
+                                Boolean includeIndex = false;
+                                Set<String> availableFields = new Set<String>();
+                                String fontSize = '12'; // default font size
+
                                 if (!queryResult.isEmpty()) {
-                                    List<String> fieldNames = new List<String>();
-                                    SObject firstRecord = queryResult[0];
-                                    
-                                    // Collect all fields present in the first record
-                                    for (String fieldToken : firstRecord.getPopulatedFieldsAsMap().keySet()) {
-                                        fieldNames.add(fieldToken);
-                                    }
-
-                                    // Build the table
-                                    String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;">';
-
-                                    // Table header
-                                    tableHtml += '<thead><tr>';
-                                    for (String col : fieldNames) {
-                                        tableHtml += '<th>' + col + '</th>';
-                                    }
-                                    tableHtml += '</tr></thead>';
-
-                                    // Table body
-                                    tableHtml += '<tbody>';
-                                    for (SObject record : queryResult) {
-                                        tableHtml += '<tr>';
-                                        for (String col : fieldNames) {
-                                            Object val = record.get(col);
-                                            tableHtml += '<td>' + (val != null ? String.valueOf(val) : '') + '</td>';
-                                        }
-                                        tableHtml += '</tr>';
-                                    }
-                                    tableHtml += '</tbody></table>';
-
-                                    // Store resolved HTML table
-                                    resolvedCustomKeyValues.put(rawKey, tableHtml);
-                                    System.debug('Resolved table for ' + rawKey + ' => ' + tableHtml);
-                                } else {
-                                    resolvedCustomKeyValues.put(rawKey, '<p>No data found.</p>');
-                                    System.debug('No data found for CKTable: ' + rawKey);
+                                    availableFields = queryResult[0].getPopulatedFieldsAsMap().keySet();
                                 }
+
+                                if (fieldSection.startsWith(':')) {
+                                    String fieldAndFontSection = fieldSection.substringAfter(':').replace('}}', '');
+
+                                    // Split fields and font size by semicolon
+                                    List<String> parts = fieldAndFontSection.split(';');
+
+                                    if (!parts.isEmpty()) {
+                                        // First part = field list (may be empty)
+                                        if (!String.isBlank(parts[0])) {
+                                            for (String field : parts[0].split(',')) {
+                                                field = field.trim();
+                                                if (field.equalsIgnoreCase('INDEX')) {
+                                                    includeIndex = true;
+                                                } else if (availableFields.contains(field)) {
+                                                    fieldNames.add(field);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // Second part = optional font size
+                                    if (parts.size() > 1 && Pattern.matches('^[0-9]+$', parts[1].trim())) {
+                                        fontSize = parts[1].trim();
+                                    }
+                                }else if (fieldSection.startsWith(';')){
+                                    fontSize = fieldSection.subStringBetween(';','}}').trim();
+                                }
+
+                                if (fieldNames.isEmpty()) {
+                                    fieldNames.addAll(availableFields);
+                                }
+
+                                // Build HTML table
+                                String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:' + fontSize + 'px;">';
+
+                                tableHtml += '<thead><tr>';
+                                if (includeIndex) {
+                                    tableHtml += '<th style="background-color:#efefef;">Index</th>';
+                                }
+                                for (String col : fieldNames) {
+                                    tableHtml += '<th style="background-color:#efefef;">' + col + '</th>';
+                                }
+                                tableHtml += '</tr></thead><tbody>';
+
+                                for (Integer idx = 0; idx < queryResult.size(); idx++) {
+                                    SObject record = queryResult[idx];
+                                    tableHtml += '<tr>';
+                                    if (includeIndex) {
+                                        tableHtml += '<td>' + String.valueOf(idx + 1) + '</td>';
+                                    }
+                                    for (String col : fieldNames) {
+                                        Object val = record.get(col);
+                                        tableHtml += '<td>' + (val != null ? String.valueOf(val) : '') + '</td>';
+                                    }
+                                    tableHtml += '</tr>';
+                                }
+
+                                tableHtml += '</tbody></table>';
+                                resolvedCustomKeyValues.put(rawKey, tableHtml);
                             }
 
                         }
                     } else {
                         for (String rawKey : customKeys) {
-                            resolvedCustomKeyValues.put(rawKey, '');
+                            if (!resolvedCustomKeyValues.containsKey(rawKey)) {
+                                resolvedCustomKeyValues.put(rawKey, '');
+                            }
                         }
                     }
 
