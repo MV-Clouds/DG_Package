@@ -142,7 +142,7 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
             });
 
             let matcher, pattern;
-            let stringBody = JSON.stringify(content);
+            let stringBody = JSON.stringify(body);
 
             // Get object fields
             let objectFieldSet = new Set();
@@ -332,10 +332,10 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                     let generalFieldvalues = this.resultSet.find((el) => el["General Fields"] != null);
                     // Replace all the object and general fields
                     if (parentFieldvalues) {
-                        this.createReplaceRequest(actualStringBody, /{{#(.*?)}}/g, parentFieldvalues[this.objectname]);
+                        this.createReplaceRequest(parentFieldvalues[this.objectname]);
                     }
                     if (generalFieldvalues) {
-                        this.createReplaceRequest(actualStringBody, /{{Doc.(.*?)}}/g, generalFieldvalues["General Fields"]);
+                        this.createReplaceRequest(generalFieldvalues["General Fields"]);
                     }
                     this.SignatureKeyReplaceRequest();
 
@@ -373,25 +373,23 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
         }
     }
     // Creates find and replace requests
-    createReplaceRequest(stringBody, regex, fieldMap) {
+    createReplaceRequest(fieldMap) {
         try {
-            let matcher;
-            while ((matcher = regex.exec(stringBody)) != null) {
-                let replaceText = fieldMap[matcher[0]] ? fieldMap[matcher[0]] : " ";
-                if (!this.allFields.includes(matcher[0])) {
-                    let tabrequest = {
-                        replaceAllText: {
-                            containsText: {
-                                text: matcher[0],
-                                matchCase: true
-                            },
-                            replaceText: replaceText
-                        }
-                    };
-                    this.allFields.push(matcher[0]);
+            Object.keys(fieldMap).forEach((key) => {
+                let tabrequest = {
+                    replaceAllText: {
+                        containsText: {
+                            text: key,
+                            matchCase: true
+                        },
+                        replaceText: fieldMap[key] ? fieldMap[key] : " "
+                    }
+                };
+                if (!this.allFields.includes(key)) {
+                    this.allFields.push(key);
                     this.changeRequests.push(tabrequest);
                 }
-            }
+            });
         } catch (error) {
             errorDebugger("generateGoogleDocFileV2", "createReplaceRequest", error, 'Error', "Error in createReplaceRequest. Please try again.");
         }
