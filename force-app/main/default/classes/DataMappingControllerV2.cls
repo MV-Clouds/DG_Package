@@ -838,7 +838,7 @@ public with sharing class DataMappingControllerV2 {
         Datetime dt;
         if(fieldType == 'DATETIME'){
             // If DateTime field value consist of timezone offset then convert to GMT. field required formatting...
-            Datetime dt1 = (Datetime) JSON.deserialize('"' + fieldValue + '"', Datetime.class);
+            Datetime dt1 = (Datetime) JSON.deserialize('"' + fieldValue.replace(' ', 'T') + '"', Datetime.class);
             dt = Datetime.valueOf(dt1.format('yyyy-MM-dd HH:mm:ss'));
             // Now Format GMT time as per user timezone... with format type
             fieldValue = dt.format(formatType, userTimeZone);
