@@ -103,6 +103,10 @@ export default class CloneTemplateV2 extends NavigationMixin(LightningElement) {
     cloneTemplate(){
         try {
             this.isShowSpinner = true;
+            if(this.isDataInvalid){
+                this.isShowSpinner = false;
+                return;
+            }
             this.templateName = this.template.querySelector(`[data-name="temp-name"]`).value;
             if(!this.templateName){
                 this.isShowSpinner = false;

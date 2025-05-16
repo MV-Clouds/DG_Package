@@ -242,11 +242,13 @@ public with sharing class DynamicFieldDisplayController {
                         formattedFieldValue = formatLocation(fieldValue);
                     }
                     else if(fieldDetail.fieldType == 'URL'){
-                        fieldDetail.refrenceURL = String.valueOf(fieldValue);
-                        if(!fieldDetail?.refrenceURL?.contains('http')){
-                            fieldDetail.refrenceURL = 'https://' + fieldDetail.refrenceURL;
+                        if (fieldValue != null) {
+                            fieldDetail.refrenceURL = String.valueOf(fieldValue);
+                            if(!fieldDetail?.refrenceURL?.contains('http')){
+                                fieldDetail.refrenceURL = 'https://' + fieldDetail.refrenceURL;
+                            }
+                            formattedFieldValue = String.valueOf(fieldValue);
                         }
-                        formattedFieldValue = String.valueOf(fieldValue);
                     }
                     else{
                         formattedFieldValue = String.valueOf(fieldValue);
@@ -301,6 +303,9 @@ public with sharing class DynamicFieldDisplayController {
                                 Boolean isRefrenceField = objectFields.get(field)?.isRefrenceField;
                                 if(isRefrenceField){
                                     refrenceField = objectFields.get(field)?.referenceObjNameField;
+                                }
+                                else{
+                                    refrenceField = objectFields.get(field)?.refrenceFieldValue;
                                 }
                                 FieldInfo fieldDetail = new FieldInfo();
                                 fieldDetail.fieldName = field;
