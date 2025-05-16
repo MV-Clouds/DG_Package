@@ -228,7 +228,6 @@ public with sharing class DataMappingControllerV2 {
                     List<SObject> queryResult = Database.query(finalQuery);
 
                     if (!queryResult.isEmpty()) {
-                        SObject record = queryResult[0];
 
                         for (String rawKey : customKeys) {
                             if (rawKey.startsWith('{{@CK:' + keyName + '.')) {
