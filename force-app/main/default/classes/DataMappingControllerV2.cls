@@ -10,6 +10,11 @@ public with sharing class DataMappingControllerV2 {
      * this method run two time, first when we call it from docGenerateController with template on which document going to creare &
      * second when template have merge templates with list of template as parameter...
      */
+
+    public static Set<String> fieldsInCustomKey = new Set<String>();
+    public static List<Custom_Key__c> queriedCustomKeys = new List<Custom_Key__c>();
+    public static Set<String> customKeys = new Set<String>();
+
     public static map<String, Map<String, String>> getMappingsKeyValues(List<String> templateIDs, String recordId, Boolean includeMergTemKeys){
         Map<String, Map<String, String>> mapingKeyVsValuesGroup = new Map<String, Map<String, String>>{
             'objectNGeneral' => new map<string, string>(),
@@ -67,6 +72,10 @@ public with sharing class DataMappingControllerV2 {
                 mapingKeyVsValuesGroup?.get('signatureImage')?.putAll(signatureImageCvId);
 
                 
+                Map<String,String> customKeys = collectCustomKeys(extractedKeyMap, mapingKeyVsValuesGroup?.get('objectNGeneral'));
+                mapingKeyVsValuesGroup?.get('objectNGeneral')?.putAll(customKeys);
+                
+
                 // this varibale will be FALSE when it call from "getKeyNValueFromMergeTemps" Method...
                 if(includeMergTemKeys == true){
                     // System.debug(' ---- ---- ---- Merge Template keys Starts ---- ---- '+ temp.Id);
@@ -110,13 +119,44 @@ public with sharing class DataMappingControllerV2 {
             String generalFieldString = JSON.serialize(generalFields);
             List<Object> generalFieldKeys = (List<Object>) JSON.deserializeUntyped(generalFieldString);
 
+            Object extractedCustomKeys = extractedKeyMap?.get('customKeys') != null ? extractedKeyMap.get('customKeys') : (Object) JSON.deserializeUntyped('[]');
+            String customKeyString = JSON.serialize(extractedCustomKeys);
+            List<Object> customKeysList = (List<Object>) JSON.deserializeUntyped(customKeyString);
+            Set<String> customKeyNames = new Set<String>();
+
+
             for(Object key : objectFieldKeys){
                 extractedKeys.add((String) key);
             }
             for(Object key : generalFieldKeys){
                 extractedKeys.add((String) key);
             }
+            for (Object key : customKeysList) {
+                String keyStr = String.valueOf(key);
+                customKeys.add(keyStr);
 
+                String keyName = keyStr?.substringAfter('{{@CK:')?.substringBefore('.');
+                if (keyName != null) {
+                    customKeyNames.add(keyName);
+                }
+            }
+            queriedCustomKeys = [
+                SELECT Id, Name, Query__c 
+                FROM Custom_Key__c 
+                WHERE Name IN :customKeyNames
+            ];
+            Pattern pattern = Pattern.compile('\\{\\{#(.*?)\\}\\}');
+
+            for (Custom_Key__c key : queriedCustomKeys) {
+                String queryTemplate = key.Query__c;
+                Matcher matcher = pattern.matcher(queryTemplate);
+
+                while (matcher.find()) {
+                    fieldsInCustomKey.add('{{#' + matcher.group(1) + '}}');
+                }
+            }
+
+            extractedKeys.addAll(fieldsInCustomKey);
             return extractedKeys;
         } catch (Exception e) {
             // System.debug('exception in collectMappingKeys : ' +  e.getStackTraceString() +'\n'+ 'Line Number : ' + e.getLineNumber() +'message : '+ e.getMessage());
@@ -145,6 +185,130 @@ public with sharing class DataMappingControllerV2 {
             return mergTemplateKeys;
         }
     }
+    /**
+     * @param extractedKeyMap, Map of keyType vs list of keys in object form,
+     * @description : extract and collect Custom Keys.
+     */
+    public static Map<String, String> collectCustomKeys(Map<String, Object> extractedKeyMap, Map<String, Object> objectFieldValues) {
+        Map<String, String> resolvedCustomKeyValues = new Map<String, String>();
+
+        try {
+            List<String> finalQueries = new List<String>();
+            for (Custom_Key__c key : queriedCustomKeys) {
+                String queryTemplate = key.Query__c;
+                for (String placeholder : fieldsInCustomKey) {
+                    Object value = objectFieldValues.get(placeholder);
+                    String replacement = (value instanceof String) ? '\'' + String.valueOf(value) + '\'': String.valueOf(value);
+
+                    if (queryTemplate.contains(placeholder)) {
+                        queryTemplate = queryTemplate.replace(placeholder, replacement);
+                    }
+                }
+
+                System.debug('Resolved Query: ' + queryTemplate);
+                finalQueries.add(queryTemplate);
+            }
+
+            for (Integer i = 0; i < finalQueries.size(); i++) {
+                String finalQuery = finalQueries[i];
+                Custom_Key__c currentKey = queriedCustomKeys[i];
+                String keyName = currentKey.Name;
+
+                try {
+                    List<SObject> queryResult = Database.query(finalQuery);
+
+                    if (!queryResult.isEmpty()) {
+                        SObject record = queryResult[0];
+
+                        for (String rawKey : customKeys) {
+                            if (rawKey.startsWith('{{@CK:' + keyName + '.')) {
+                                String fieldName = rawKey.substringBetween(keyName + '.', '}}');
+
+                                if (fieldName != null) {
+                                    Object fieldValue = queryResult[0].get(fieldName);
+                                    resolvedCustomKeyValues.put(rawKey, String.valueOf(fieldValue));
+                                    System.debug('Resolved ' + rawKey + ' => ' + fieldValue);
+                                }
+                            }else if (rawKey.startsWith('{{@CKLIST:' + keyName + '.')) {
+                                String fieldName = rawKey.substringBetween(keyName + '.', ':');
+                                String separator = rawKey.subStringAfter('{{@CKLIST:').substringBetween(':', '}}');
+
+                                if (fieldName != null) {
+                                    List<String> collectedValues = new List<String>();
+
+                                    for (SObject record : queryResult) {
+                                        Object fieldValue = record.get(fieldName);
+                                        if (fieldValue != null) {
+                                            collectedValues.add(String.valueOf(fieldValue));
+                                        }
+                                    }
+
+                                    String finalValue = String.join(collectedValues, separator);
+                                    resolvedCustomKeyValues.put(rawKey, finalValue);
+                                    System.debug('Resolved ' + rawKey + ' => ' + finalValue);
+                                }
+                            }else if (rawKey.startsWith('{{@CKTABLE:' + keyName + '}}')) {
+                                // Extract the fields dynamically from the first record (if any)
+                                if (!queryResult.isEmpty()) {
+                                    List<String> fieldNames = new List<String>();
+                                    SObject firstRecord = queryResult[0];
+                                    
+                                    // Collect all fields present in the first record
+                                    for (String fieldToken : firstRecord.getPopulatedFieldsAsMap().keySet()) {
+                                        fieldNames.add(fieldToken);
+                                    }
+
+                                    // Build the table
+                                    String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;">';
+
+                                    // Table header
+                                    tableHtml += '<thead><tr>';
+                                    for (String col : fieldNames) {
+                                        tableHtml += '<th>' + col + '</th>';
+                                    }
+                                    tableHtml += '</tr></thead>';
+
+                                    // Table body
+                                    tableHtml += '<tbody>';
+                                    for (SObject record : queryResult) {
+                                        tableHtml += '<tr>';
+                                        for (String col : fieldNames) {
+                                            Object val = record.get(col);
+                                            tableHtml += '<td>' + (val != null ? String.valueOf(val) : '') + '</td>';
+                                        }
+                                        tableHtml += '</tr>';
+                                    }
+                                    tableHtml += '</tbody></table>';
+
+                                    // Store resolved HTML table
+                                    resolvedCustomKeyValues.put(rawKey, tableHtml);
+                                    System.debug('Resolved table for ' + rawKey + ' => ' + tableHtml);
+                                } else {
+                                    resolvedCustomKeyValues.put(rawKey, '<p>No data found.</p>');
+                                    System.debug('No data found for CKTable: ' + rawKey);
+                                }
+                            }
+
+                        }
+                    } else {
+                        for (String rawKey : customKeys) {
+                            resolvedCustomKeyValues.put(rawKey, '');
+                        }
+                    }
+
+                } catch (Exception ex) {
+                    System.debug('Error executing query: ' + finalQuery + ' - ' + ex.getMessage());
+                }
+            }
+
+            return resolvedCustomKeyValues;
+
+        } catch (Exception e) {
+            System.debug('Exception in collectCustomKeys: ' + e.getStackTraceString());
+            return resolvedCustomKeyValues;
+        }
+    }
+
 
     // === === Methods to Create and Add child object's record's row in table ==== ==== ====
 
