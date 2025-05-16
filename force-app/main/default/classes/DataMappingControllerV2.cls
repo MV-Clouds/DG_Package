@@ -214,8 +214,6 @@ public with sharing class DataMappingControllerV2 {
                         queryTemplate = queryTemplate.replace(placeholder, replacement);
                     }
                 }
-
-                System.debug('Resolved Query: ' + queryTemplate);
                 finalQueries.add(queryTemplate);
             }
 
@@ -335,15 +333,16 @@ public with sharing class DataMappingControllerV2 {
                         }
                     }
 
-                } catch (Exception ex) {
-                    System.debug('Error executing query: ' + finalQuery + ' - ' + ex.getMessage());
+                } catch (Exception e) {
+                    Log_Handler.store_Exception(e, 'DataMappingControllerV2', 'collectCustomKeys');
+                    // System.debug('Error executing query: ' + finalQuery + ' - ' + ex.getMessage());
                 }
             }
 
             return resolvedCustomKeyValues;
 
         } catch (Exception e) {
-            System.debug('Exception in collectCustomKeys: ' + e.getStackTraceString());
+            Log_Handler.store_Exception(e, 'DataMappingControllerV2', 'collectCustomKeys');
             return resolvedCustomKeyValues;
         }
     }
