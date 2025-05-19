@@ -355,6 +355,20 @@
                     <div class="inputContainerText">Text Length</div>
                     <input type="number" placeholder="Set text length by character..." onkeyup={setTextFormat}/>
                   </div>
+                  <div class="inputContainer">
+                    <div class="inputContainerText">Text Case</div>
+                    <c-custom-combobox-v2
+                      class="primeFilterKeys"
+                      options={primeFormatKeys}
+                      placeholder="Select Text Case"
+                      onselect={handleTextCase}
+                      multiselect="false"
+                      searchable="false"
+                      dropdown-position="center"
+                      dropdown-top="false"
+                      data-combox="primeFormatKeys"
+                      ></c-custom-combobox-v2>
+                  </div>
                 </div>
               </template>
               <template lwc:if={formateOptions.isNumberFormat}>

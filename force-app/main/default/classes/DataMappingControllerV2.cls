@@ -1076,15 +1076,48 @@ public with sharing class DataMappingControllerV2 {
         return fieldValue;
     }
     /**
-     * @description : formate String (text) fields.
+     * @description : Format String (text) fields with length and case formatting.
      */
-    public static string formatString(string fieldValue, string formatType){
-        Integer endIndex = (Integer) Integer.valueOf(formatType.substringAfter('L:'));
-        endIndex = endIndex > fieldValue.length() ? fieldValue.length() : endIndex;             // endIndex must be less than value string length...
-        fieldValue = fieldValue.substring(0, endIndex);
+    public static String formatString(String fieldValue, String formatType) {
 
-        return fieldValue;
+        if (String.isBlank(fieldValue) || String.isBlank(formatType)) {
+            return fieldValue;
+        }
+
+        List<String> formats = formatType.replace('*', '').split(';');
+        String result = fieldValue;
+
+        for (String f : formats) {
+            f = f.trim().toUpperCase();
+            if (f.startsWithIgnoreCase('L:')) {
+                Integer endIndex = Integer.valueOf(f.substringAfter('L:'));
+                endIndex = Math.min(endIndex, result.length());
+                result = result.substring(0, endIndex);
+            }else if (f == 'UPPER') {
+                result = result.toUpperCase();
+            } else if (f == 'LOWER') {
+                result = result.toLowerCase();
+            } else if (f == 'TITLE') {
+                // Capitalize first letter of each word
+                List<String> words = result.toLowerCase().split(' ');
+                for (Integer i = 0; i < words.size(); i++) {
+                    if (!String.isEmpty(words[i])) {
+                        words[i] = words[i].substring(0, 1).toUpperCase() + words[i].substring(1);
+                    }
+                }
+                result = String.join(words, ' ');
+            } else if (f == 'SENTENCE') {
+                // Capitalize only first letter of the sentence
+                result = result.toLowerCase();
+                if (result.length() > 0) {
+                    result = result.substring(0, 1).toUpperCase() + result.substring(1);
+                }
+            }
+        }
+
+        return result;
     }
+
     /**
      * @description : formate Number, Precentage and Currecy fields.
      */
