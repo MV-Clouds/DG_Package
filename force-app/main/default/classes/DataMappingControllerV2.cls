@@ -291,12 +291,12 @@ public with sharing class DataMappingControllerV2 {
                                     for (SObject record : queryResult) {
                                         Object fieldValue = record.get(fieldName);
                                         if (fieldValue != null) {
-                                            collectedValues.add(String.valueOf(fieldValue));
+                                            collectedValues.add(formatString(String.valueOf(fieldValue), rawKey.substringBetween('*')));
                                         }
                                     }
 
                                     String finalValue = String.join(collectedValues, separator);
-                                    resolvedCustomKeyValues.put(rawKey, formatString(finalValue, rawKey.substringBetween('*')));
+                                    resolvedCustomKeyValues.put(rawKey, finalValue);
                                 }
                             } else if (rawKey.startsWith('{{@CKTABLE:' + keyName)) {
                                 String fieldSection = rawKey.substringAfter('{{@CKTABLE:' + keyName);
