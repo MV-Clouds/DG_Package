@@ -703,6 +703,64 @@ public with sharing class GoogleDocPreview {
         }
     }
 
+
+    /** 
+     * Method Name : fetchAllRecordIds 
+     * @description : This method is used to fetch all the record ids of the related object
+     */
+    @AuraEnabled
+    public static List<String> fetchAllRecordIds(String RelatedRecordId, String objectname, String relationshipName) {
+        try {
+            if (RelatedRecordId != null && objectname != null) {
+                List<String> recordIds = new List<String>();
+                String query = 'SELECT (SELECT ID FROM '+ relationshipName + ' LIMIT 20) FROM '+ objectname +' WHERE ID = \'' + RelatedRecordId + '\' WITH USER_MODE';
+                List<SObject> records = Database.query(query);
+                if (!records.isEmpty()) {
+                    SObject parentRecord = records[0];
+    
+                    // Access child records dynamically via getSObjects()
+                    List<SObject> children = parentRecord.getSObjects(relationshipName);
+                    if (children != null) {
+                        for (SObject child : children) {
+                            if (child.get('Id') != null) {
+                                recordIds.add((String)child.get('Id'));
+                            }
+                        }
+                    }
+                }
+                return recordIds;
+            }
+            return null;
+        } catch (Exception e) {
+            System.debug('Excetpion in fetchAllRecordIds method : ' + e.getMessage() + '\n' + 'Line Number :');
+            Log_Handler.store_exception(e, 'GoogleDocPreview', 'fetchAllRecordIds');
+            return null;
+        }
+    }
+
+
+    /** 
+     * Method Name : getFileNames 
+     * @description : Map to get all the file names of the related object
+     */
+    @AuraEnabled
+    public static Map<Id, String> getFileNames(List<Id> recordIds, String sObjectType) {
+        Map<Id, String> idNameMap = new Map<Id, String>();
+
+        if (recordIds == null || recordIds.isEmpty() || String.isBlank(sObjectType)) {
+            return idNameMap;
+        }
+        // Build dynamic SOQL
+        String query = 'SELECT Id, Name FROM ' + sObjectType + ' WHERE Id IN :recordIds WITH USER_MODE';
+
+        List<SObject> records = Database.query(query);
+        for (SObject rec : records) {
+            idNameMap.put((Id)rec.get('Id'), (String)rec.get('Name'));
+        }
+
+        return idNameMap;
+    }
+
     public class OriginalObjectWrapper {
         public String objApi;
         public String childRelation;

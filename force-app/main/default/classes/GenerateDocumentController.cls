@@ -492,6 +492,42 @@ public static void updateSetting(String clientId, String clientSecret) {
         }
     }
 
+/*
+*********************************************************
+@description     : Method is used to get the content version for generated content versions
+@param           : Id {List} -  Id of the Content version to get
+@return          : ContentFileWrapper {Wrapper} - wrapper containing with default data for the template
+********************************************************
+*/ 
+
+// @AuraEnabled(cacheable=false)
+// public static List<ContentFileWrapper> getContentFiles(List<Id> contentVersionIds) {
+//     try {
+//         List<ContentFileWrapper> results = new List<ContentFileWrapper>();
+    
+//             // Query directly using ContentVersion IDs
+//             List<ContentVersion> versions = [
+//                 SELECT Id, Title, FileExtension, VersionData
+//                 FROM ContentVersion
+//                 WHERE Id IN :contentVersionIds
+//                 WITH USER_MODE
+//             ];
+    
+//             for (ContentVersion cv : versions) {
+//                 if (cv != null){
+//                     String fileName = cv.Title + '.' + cv.FileExtension;
+//                     String base64Data = EncodingUtil.base64Encode(cv.VersionData);
+//                     results.add(new ContentFileWrapper(fileName, base64Data));
+//                 }
+//             }
+    
+//             return results;
+//     } catch (Exception e) {
+//         Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getContentFiles');
+//         return null;
+//     }
+// }
+
 // -=-=- Wrappers -=-=-
 
 /*
@@ -510,6 +546,23 @@ public static void updateSetting(String clientId, String clientSecret) {
         @AuraEnabled public Boolean isDropBoxIntegrated;
         @AuraEnabled public Boolean isUserWideAccessible;
     }
+
+/*
+*********************************************************
+@description     : wrapper containing fileName and base64Data of the file
+@param           : fileName String - To be used as file name
+@param           : base64Data String - To be used as base64 data
+********************************************************
+*/
+    // public class ContentFileWrapper {
+    //     @AuraEnabled public String fileName;
+    //     @AuraEnabled public String base64Data;
+
+    //     public ContentFileWrapper(String fileName, String base64Data) {
+    //         this.fileName = fileName;
+    //         this.base64Data = base64Data;
+    //     }
+    // }
 
 /*
 *********************************************************

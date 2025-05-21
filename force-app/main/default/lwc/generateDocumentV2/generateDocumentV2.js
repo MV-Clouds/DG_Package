@@ -10,6 +10,11 @@ import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.cr
 import {navigationComps, nameSpace, errorDebugger} from 'c/globalPropertiesV2';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import { CloseActionScreenEvent } from "lightning/actions";
+import fetchAllRecordIds from "@salesforce/apex/GoogleDocPreview.fetchAllRecordIds";
+import getFileNames from "@salesforce/apex/GoogleDocPreview.getFileNames";
+// import { loadScript } from 'lightning/platformResourceLoader';
+// import JSZip from '@salesforce/resourceUrl/JSZip';
+// import getContentFiles from '@salesforce/apex/GenerateDocumentController.getContentFiles';
 
 //CSV Generation methods
 import getTemplateData from '@salesforce/apex/GenerateDocumentController.getTemplateData';
@@ -36,6 +41,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
 
     //Data from record
+    parentId;
+    relationshipName;
+    parentObjName;
+    @track contentVersionIds = [];
+    namePlaceholder = '{Name}_';
+    @track nameMap = {};
+
     @api recordId;
     @api objectApiName;
 
@@ -121,6 +133,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     accessToken;
 
     @track isCSVOnly = false;
+    @track isRelatedList = false;
     @track isAllExceptCSV = false;
 
     //PDF - DOC
@@ -138,9 +151,11 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     //All files use
     @track showFolderSelection = false;
-    @track fileName;
+    @track fileName = '';
+    @track zipName = '';
     @track allFolders = [];
     @track selectedFolder;
+    @track recordIds;
 
     //Results
     succeeded = [];
@@ -285,6 +300,14 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     currentPageReference;
 
     connectedCallback() {
+        // loadScript(this, JSZip)
+        // .then(() => {
+        //     this.zipLibLoaded = true;
+        //     console.log('JSZip loaded');
+        // })
+        // .catch(error => {
+        //     console.error('Failed to load JSZip', error);
+        // });       
         this.showSpinner = true;
         try{
             if (typeof window !== 'undefined') {
@@ -292,12 +315,21 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             }
             this.hideHeader = this.calledFromWhere === 'defaults';
             let isAutoGeneration = this.currentPageReference.type !== "standard__quickAction" && this.calledFromWhere!="preview" && this.calledFromWhere!="defaults";
-            if(isAutoGeneration){
+            if(isAutoGeneration){                
                 this.internalObjectApiName = this.currentPageReference?.state?.c__objectApiName;
                 this.isCSVOnly = this.currentPageReference?.state?.c__isCSVOnly === 'true' ? true : false;
+                this.isRelatedList = this.currentPageReference?.state?.c__isRelatedList === 'true' ? true : false;
                 this.isDefaultGenerate = this.currentPageReference?.state?.c__isDefaultGenerate === 'true' ? true : false;
+                this.parentId = this.currentPageReference?.state?.c__parentId;
+                this.parentObjName = this.currentPageReference?.state?.c__parentObjName;
+                this.relationshipName = this.currentPageReference?.state?.c__relationshipName;
+                this.recordIds = this.currentPageReference?.state?.c__ids ? this.currentPageReference?.state?.c__ids.split(',') : [];
+                console.log(this.recordIds[0]);
+                
                 this.template.host.classList.add('pou-up-view');
                 this.selectedTemplate = this.currentPageReference?.state?.c__templateIdToGenerate;
+                console.log(this.selectedTemplate);
+                
             }
             Promise.resolve(this.internalObjectApiName)
             .then(() => {
@@ -313,6 +345,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 } else if(this.isCSVOnly){
                     this.handleEmailTemplateSelect({detail:[]});
                     this.showSpinner = false;
+                } else if (this.isRelatedList) {
+                    this.selectedTemplate = this.currentPageReference?.state?.c__templateIdToGenerate;
+                    this.handleCalledFromRelatedList();
                 } else if (isAutoGeneration) {
                     this.handleAutoGeneration();
                 } else if(this.currentPageReference.type === "standard__quickAction" && this.currentPageReference?.attributes?.apiName?.split('.')[1] !== 'DG_Generate_Document'){
@@ -475,6 +510,20 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     }
 
+    handleCalledFromRelatedList(){
+        console.log('inside handle called from related list'+this.templateIdFromParent);
+        console.log(this.selectedTemplate);
+        
+        this.handleSelectTemplate({ detail: [{ Id: this.selectedTemplate }] });
+        // this.fetchAllButtonNames()
+        //     .then(() => {
+        //         this.handleAutoGeneration();
+        //         this.showSpinner = false;
+        //     })
+        // this.handleEmailTemplateSelect({detail:[null]});
+        this.showSpinner = false;
+    }
+
     handleCalledFromPreview() {
         this.isCalledFromPreview = true;
         this.template.host.classList.add('pou-up-view');
@@ -528,6 +577,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     handleAutoGeneration() {
         this.showSpinner = true;
         try {
+            console.log('Fetching template default values');
             getTemplateDefaultValues({ templateId : this.selectedTemplate})
             .then((data) =>{
                 if(data){
@@ -746,9 +796,20 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.showSpinner = true;
             let result = event.detail[0]?.Id;
             this.selectedTemplate = result || null;
-            this.fileName = this.templateName?.slice(0,240);
+            if(!this.isRelatedList){
+                console.log('Inside file name 1');
+                
+                this.fileName = this.templateName?.slice(0,240);
+            }
+            else{
+                console.log(' Inside zip 2');
+                
+                this.zipName = this.templateName?.slice(0,240);
+            }
             this.csvDocumentTypes.forEach(dt => {dt.isSelected = false});
             this.generalDocumentTypes.forEach(dt => {dt.isSelected = false});
+            // console.log(this.isCSVOnly);
+            
             if (this.isCSVTemplate) {
                 this.csvDocumentTypes[0].isSelected = true;
                 this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = true;
@@ -756,6 +817,33 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.generalDocumentTypes[0].isSelected = true;
                 this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = false;
             }
+
+            // console.log(this.isRelatedList);
+            
+            if (this.isRelatedList) {
+                this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = true;
+                this.internalStorageOptions.find(item => item.name === 'Files').isDisabled = true;
+                this.internalStorageOptions.find(item => item.name === 'Chatter').isDisabled = true;
+                this.internalStorageOptions.find(item => item.name === 'Documents').isDisabled = true;
+                this.externalStorageOptions.find(item => item.name === 'One Drive').isDisabled = true;
+                this.externalStorageOptions.find(item => item.name === 'Google Drive').isDisabled = true;
+                this.externalStorageOptions.find(item => item.name === 'Dropbox').isDisabled = true;
+                this.externalStorageOptions.find(item => item.name === 'AWS').isDisabled = true;
+                this.outputChannels.find(item => item.name === 'Email').isDisabled = true;
+            }
+            else {
+                this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = false;
+                this.internalStorageOptions.find(item => item.name === 'Files').isDisabled = false;
+                this.internalStorageOptions.find(item => item.name === 'Chatter').isDisabled = false;
+                this.internalStorageOptions.find(item => item.name === 'Documents').isDisabled = false;
+                this.externalStorageOptions.find(item => item.name === 'One Drive').isDisabled = false;
+                this.externalStorageOptions.find(item => item.name === 'Google Drive').isDisabled = false;
+                this.externalStorageOptions.find(item => item.name === 'Dropbox').isDisabled = false;
+                this.externalStorageOptions.find(item => item.name === 'AWS').isDisabled = false;
+                this.outputChannels.find(item => item.name === 'Email').isDisabled = false;
+            }
+            // console.log(this.recordId);
+            // console.log(this.objectApiName);
         }catch(e){
             errorDebugger('generateDocumentV2', 'handleSelectTemplate', e, 'error');
         }finally{
@@ -984,7 +1072,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     handleTemplateSelection(event){
         try{
             this.selectedTemplate = event.currentTarget.dataset.value;
-            this.fileName = this.selectedTemplate?.slice(0,240);
+            if(!this.isRelatedList){                
+                this.fileName = this.selectedTemplate?.slice(0,240);
+            }
             this.handleSelectTemplate({detail:[{Id: this.selectedTemplate}]});
             this.backToGenerate();
         }catch(e){
@@ -1004,6 +1094,8 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     //Bottom Button Controls
 
     handleClose(){
+        console.log('INSIDE HANDLE CLOSE');
+        
         if (typeof window !== 'undefined') {
             window?.removeEventListener('message', this.simpleTempFileGenResponse);
             if(this.currentPageReference.type === "standard__quickAction"){
@@ -1011,6 +1103,8 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             }else if(this.isCalledFromPreview || this.isCalledFromDefaults){
                 this.dispatchEvent(new CustomEvent('close'));
             }else{
+                console.log('REPLACING LOCATION');
+                
                 location.replace(location.origin + '/lightning/o/' + this.internalObjectApiName + '/list' ,"_self");
             }
         }
@@ -1051,6 +1145,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
 
     handleGenerate() {
+        console.log('generating document');
         this.showSpinner = true;
     
         if (this.selectedChannels.length < 1) {
@@ -1073,7 +1168,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }
         this.activity.MVDG__DocGenius_Template__c = this.selectedTemplate;
         this.activity.MVDG__Selected_Channels__c = this.selectedChannels.join(',');
-        if(!this.fileName){
+        if(!this.fileName && !this.isRelatedList){
             let thisTemplate = this.allTemplates?.find(opt => opt.Id === this.selectedTemplate);
             this.fileName = thisTemplate?.MVDG__Template_Name__c?.slice(0,240) || "DG_Document";  
         }
@@ -1095,12 +1190,15 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 // Handle Google Doc template
                 if (this.templateType === 'Google Doc Template') {
                     this.showSpinner = true;
+                    console.log('Generating google doc template');
                     this.generateGoogleDoc();
                 }
             
                 // Handle Simple Template
                 if (this.templateType === 'Simple Template') {
                     this.showSpinner = true;
+                    console.log('Generating simple template');
+                    
                     this.generateSimpleTemplateFile();
                 }
             }else{
@@ -1109,6 +1207,8 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             }
         })
         .catch((e) => {
+            console.log('Error is e:: :' , e);
+            
             ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = e?.message);
             this.showWarningPopup('error', 'Something went wrong!', e);
                 this.isClosableError = true;
@@ -1564,39 +1664,68 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
 //-------------------------------------------------------PDF / DOC Generation Methods --------------------------------------------------------
 
+    
+    @track vfInks = [];
     // Simple template docGenerate...
     generateSimpleTemplateFile(){
         try{
-            this.simpleTemplate = false;
-            this.labelOfLoader = "Generating document...";
-            let previousSRC = this.vfGeneratePageSRC;
-            let paraData2 = {
-                'templateId' : this.selectedTemplate,
-                'recordId' : this.recordId,
-                'selectedExtension' : this.selectedExtension,
-                'selectedChannels' : this.selectedChannels.join(','),
-                'fileName' : this.fileName,
-                'selectedFolder' : this.selectedFolder,
-            }
-            let paraDataStringify2 = JSON.stringify(paraData2);
-            let newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
-
-            if(newSRC !== previousSRC){
-                this.vfGeneratePageSRC = newSRC;
-                this.simpleTemplate = true;
+            console.log(this.isRelatedList);
+            if (this.isRelatedList) {
+                console.log(this.recordIds);
+                
+                if (this.recordIds.length > 0) {
+                    getFileNames({ sObjectType: this.internalObjectApiName, recordIds: this.recordIds })
+                    .then((result) => {
+                        this.nameMap = result;
+                        this.generateMultipleDocuments();
+                    });
+                }
+                else{
+                    fetchAllRecordIds({ objectname: this.parentObjName, RelatedRecordId: this.parentId,relationshipName: this.relationshipName  })
+                    .then((result) => {
+                        this.recordIds = result;
+                        getFileNames({ sObjectType: this.internalObjectApiName, recordIds: this.recordIds })
+                        .then((result) => {
+                            this.nameMap = result;
+                            this.generateMultipleDocuments();
+                        })
+                    })
+                }
+                
             }
             else{
-                this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
-                this.customTimeout?.setCustomTimeoutMethod(() => {
+                this.simpleTemplate = false;
+                this.labelOfLoader = "Generating document...";
+                let previousSRC = this.vfGeneratePageSRC;
+                let paraData2 = {
+                    'templateId' : this.selectedTemplate,
+                    'recordId' : this.recordId,
+                    'selectedExtension' : this.selectedExtension,
+                    'selectedChannels' : this.selectedChannels.join(','),
+                    'fileName' : this.fileName,
+                    'selectedFolder' : this.selectedFolder,
+                }
+                let paraDataStringify2 = JSON.stringify(paraData2);
+                let newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
+
+                if(newSRC !== previousSRC){
+                    this.vfGeneratePageSRC = newSRC;
+                    this.simpleTemplate = true;
+                }
+                else{
+                    this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
+                    this.customTimeout?.setCustomTimeoutMethod(() => {
                         this.vfGeneratePageSRC = newSRC;
                         this.simpleTemplate = true;
-                  }, 300);
+                    }, 300);
 
-                // setTimeout(() => {
-                //     this.vfGeneratePageSRC = newSRC;
-                //     this.simpleTemplate = true;
-                // }, 300)
+                    // setTimeout(() => {
+                    //     this.vfGeneratePageSRC = newSRC;
+                    //     this.simpleTemplate = true;
+                    // }, 300)
+                }
             }
+            
         }
         catch(e){
             this.labelOfLoader = 'loading...';
@@ -1604,8 +1733,54 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }
     }
 
+    generateMultipleDocuments(){
+        try {
+                this.vfInks = [];
+                let timeout = 0;
+                this.showSpinner = true;
+                console.log('Going in for loop');
+                
+                this.labelOfLoader = 'Generating document...';
+                for (let i = 0; i < this.recordIds.length; i++) {                                    
+                    setTimeout(() => {
+                        let bool = false;
+                        bool = i === this.recordIds.length - 1 ? 'true' : 'false';
+                        console.log('for loop iteration' + i);
+                        let recordId = this.recordIds[i];
+                        this.simpleTemplate = true;
+                        this.labelOfLoader = "Generating document...";
+                        let name = this.nameMap[recordId]+'_'+this.fileName;
+                        let paraData2 = {
+                            'templateId' : this.selectedTemplate,
+                            'recordId' : recordId,
+                            'selectedExtension' : this.selectedExtension,
+                            'selectedChannels' : this.selectedChannels.join(','),
+                            'fileName' : name,
+                            'selectedFolder' : this.selectedFolder,
+                            'isLast': bool,
+                            'isBulk': 'true',
+                        }
+                        let paraDataStringify2 = JSON.stringify(paraData2);
+                        let newSRC = '/apex/DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
+                        this.vfInks.push(newSRC);
+        
+                    }, timeout);
+                    if(i == 0 || i == this.recordIds.length - 1){
+                        timeout += 1000;
+                    }
+                    timeout += 2000;
+                }
+        } catch (error) {
+            console.log(error);
+            
+            errorDebugger('generateDocumentV2', 'generateMultipleDocuments', error, 'error');
+        }    
+    }
+
     simpleTempFileGenResponse = (message) => {
         try{ 
+            console.log(message);
+            
             if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel === 'unknown'){
                 this.completedSimTempPros = this.selectedChannels.length;
                 ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error In File Generation => '+ message.data.error?.message);
@@ -1628,13 +1803,24 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 }else if(message.data.completedChannel === 'External Storage'){
                     let cvId = message.data.cvId;
                     if(cvId){
-                        this.resultPromises.push(this.createFilesChatterEmail(cvId));
-                        this.uploadToExternalStorage(cvId);
+                        if (message.data.isBulk == 'true') {
+                            this.contentVersionIds.push(cvId);
+                            deleteContentVersion({cvId: cvId});
+                            if(message.data.isLast == 'true'){
+                                this.generateZipFile();
+
+                            }
+                        }
+                        if (message.data.isBulk == 'false'){
+                            this.resultPromises.push(this.createFilesChatterEmail(cvId));
+                            this.uploadToExternalStorage(cvId);
+                            this.handleGenerationResult();
+                        }
                     }else{
                         ['Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = message.data.error?.message);
+                        this.handleGenerationResult();
                         this.showSpinner = false;
                     }
-                    this.handleGenerationResult();
                 }
             }
         }catch(e){
@@ -1650,6 +1836,30 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.handleGenerationResult();
         }
     }
+// ------------------------------------------------------- Generate Zip ---------------------------------------------------------------
+
+    generateZipFile(){
+        try {
+            console.log('cvids ----->'+this.contentVersionIds);
+            const baseUrl = '/sfc/servlet.shepherd/version/download/';
+            const fullUrl = baseUrl + this.contentVersionIds.join('/');
+        
+            const link = document.createElement('a');
+            link.href = fullUrl;
+            link.download = 'TEST.zip'; 
+            link.target = '_blank'; // Open in new tab if needed
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            this.succeeded.push('Download');
+            this.handleGenerationResult();
+        
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
+
 
 // ------------------------------------------------------- Folder Selection Methods ----------------------------------------------------
 
@@ -2012,6 +2222,8 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     handleGenerationResult() {
         try {
+            console.log('Calling generation result');
+            
             Promise.all(this.resultPromises)
                 .then(() => {
                     let combinedLists = {
@@ -2028,6 +2240,8 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         }
                     }
                     this.selectedChannels.forEach(channel => {
+                        console.log(channel);
+                        console.log(this.succeeded.includes(channel));
                         if (this.failed[channel] && !this.succeeded.includes(channel)){
                            combinedMaps.failed[channel] = this.failed[channel];
                         } else if(['Google Drive', 'AWS', 'One Drive', 'Dropbox'].includes(channel)){
