@@ -283,7 +283,7 @@ public with sharing class DataMappingControllerV2 {
                                 }
                             }else if (rawKey.startsWith('{{@CKLIST:' + keyName + '.')) {
                                 String fieldName = rawKey.substringBetween(keyName + '.', ':');
-                                String separator = rawKey.subStringAfter('{{@CKLIST:').substringBetween(':', '}}').subStringBefore('*').trim();
+                                String separator = rawKey.subStringAfter('{{@CKLIST:').substringBetween(':', '}}').subStringBefore('*');
 
                                 if (fieldName != null) {
                                     List<String> collectedValues = new List<String>();
