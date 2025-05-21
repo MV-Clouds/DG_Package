@@ -275,15 +275,15 @@ public with sharing class DataMappingControllerV2 {
 
                         for (String rawKey : customKeys) {
                             if (rawKey.startsWith('{{@CK:' + keyName + '.')) {
-                                String fieldName = rawKey.substringBetween(keyName + '.', '}}');
+                                String fieldName = rawKey.substringBetween(keyName + '.', '}}').subStringBefore('*').trim();
 
                                 if (fieldName != null) {
                                     Object fieldValue = queryResult[0].get(fieldName);
-                                    resolvedCustomKeyValues.put(rawKey, String.valueOf(fieldValue));
+                                    resolvedCustomKeyValues.put(rawKey, formatString(String.valueOf(fieldValue), rawKey.substringBetween('*')));
                                 }
                             }else if (rawKey.startsWith('{{@CKLIST:' + keyName + '.')) {
                                 String fieldName = rawKey.substringBetween(keyName + '.', ':');
-                                String separator = rawKey.subStringAfter('{{@CKLIST:').substringBetween(':', '}}');
+                                String separator = rawKey.subStringAfter('{{@CKLIST:').substringBetween(':', '}}').subStringBefore('*').trim();
 
                                 if (fieldName != null) {
                                     List<String> collectedValues = new List<String>();
@@ -296,7 +296,7 @@ public with sharing class DataMappingControllerV2 {
                                     }
 
                                     String finalValue = String.join(collectedValues, separator);
-                                    resolvedCustomKeyValues.put(rawKey, finalValue);
+                                    resolvedCustomKeyValues.put(rawKey, formatString(finalValue, rawKey.substringBetween('*')));
                                 }
                             } else if (rawKey.startsWith('{{@CKTABLE:' + keyName)) {
                                 String fieldSection = rawKey.substringAfter('{{@CKTABLE:' + keyName);
