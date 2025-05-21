@@ -578,7 +578,7 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                     const cellIndex = rowIndex + j * 2;
                     const cellInsert = {
                         insertText: {
-                            text: cellText,
+                            text: cellText || " ",
                             location: { index: cellIndex }
                         }
                     };
