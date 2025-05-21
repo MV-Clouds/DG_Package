@@ -72,7 +72,53 @@ public with sharing class DataMappingControllerV2 {
                 mapingKeyVsValuesGroup?.get('signatureImage')?.putAll(signatureImageCvId);
 
                 
-                Map<String,String> customKeys = collectCustomKeys(extractedKeyMap, mapingKeyVsValuesGroup?.get('objectNGeneral'));
+                Map<String,String> customKeys = collectCustomKeys(mapingKeyVsValuesGroup?.get('objectNGeneral'), queriedCustomKeys, fieldsInCustomKey, customKeys);
+                for (String key : new List<String>(customKeys.keySet())) {
+                    if (key.startsWith('{{@CKTABLE:')) {
+                        String json = customKeys.get(key);
+
+                        if (String.isNotBlank(json)) {
+                            try {
+                                // Correct static method call
+                                Map<String, Object> tableData = (Map<String, Object>) System.JSON.deserializeUntyped(json);
+                                List<Object> headers = (List<Object>) tableData.get('headers');
+                                List<Object> rows = (List<Object>) tableData.get('rows');
+                                String fontSize = (String) tableData.get('fontSize');
+
+                                String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:' + fontSize + 'px;">';
+                                tableHtml += '<thead><tr>';
+                                for (Object header : headers) {
+                                    tableHtml += '<th style="background-color:#fff;">' + String.valueOf(header) + '</th>';
+                                }
+                                tableHtml += '</tr></thead><tbody>';
+
+                                for (Object rowObj : rows) {
+                                    Map<String, Object> row = (Map<String, Object>) rowObj;
+                                    tableHtml += '<tr>';
+                                    for (Object header : headers) {
+                                        String col = String.valueOf(header);
+                                        String val = row.containsKey(col) ? String.valueOf(row.get(col)) : '';
+                                        tableHtml += '<td>' + val + '</td>';
+                                    }
+                                    tableHtml += '</tr>';
+                                }
+
+                                tableHtml += '</tbody></table>';
+
+                                // Replace JSON with the rendered table HTML
+                                customKeys.put(key, tableHtml);
+
+                            } catch (Exception ex) {
+                                System.debug('Error parsing CKTABLE JSON for key ' + key + ': ' + ex.getMessage());
+                                customKeys.put(key, '<p style="color:red;">Error rendering table for key: ' + key + '</p>');
+                            }
+                        } else {
+                            customKeys.put(key, '');
+                        }
+                    }
+                }
+
+
                 mapingKeyVsValuesGroup?.get('objectNGeneral')?.putAll(customKeys);
                 
 
@@ -269,16 +315,13 @@ public with sharing class DataMappingControllerV2 {
                                     // Split fields and font size by semicolon
                                     List<String> parts = fieldAndFontSection.split(';');
 
-                                    if (!parts.isEmpty()) {
-                                        // First part = field list (may be empty)
-                                        if (!String.isBlank(parts[0])) {
-                                            for (String field : parts[0].split(',')) {
-                                                field = field.trim();
-                                                if (field.equalsIgnoreCase('INDEX')) {
-                                                    includeIndex = true;
-                                                } else if (availableFields.contains(field)) {
-                                                    fieldNames.add(field);
-                                                }
+                                    if (!parts.isEmpty() && !String.isBlank(parts[0])) {
+                                        for (String field : parts[0].split(',')) {
+                                            field = field.trim();
+                                            if (field.equalsIgnoreCase('INDEX')) {
+                                                includeIndex = true;
+                                            } else if (availableFields.contains(field)) {
+                                                fieldNames.add(field);
                                             }
                                         }
                                     }
@@ -287,41 +330,42 @@ public with sharing class DataMappingControllerV2 {
                                     if (parts.size() > 1 && Pattern.matches('^[0-9]+$', parts[1].trim())) {
                                         fontSize = parts[1].trim();
                                     }
-                                }else if (fieldSection.startsWith(';')){
-                                    fontSize = fieldSection.subStringBetween(';','}}').trim();
+                                } else if (fieldSection.startsWith(';')) {
+                                    fontSize = fieldSection.substringBetween(';', '}}').trim();
                                 }
 
                                 if (fieldNames.isEmpty()) {
                                     fieldNames.addAll(availableFields);
                                 }
 
-                                // Build HTML table
-                                String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:' + fontSize + 'px;">';
-
-                                tableHtml += '<thead><tr>';
+                                List<String> headers = new List<String>();
                                 if (includeIndex) {
-                                    tableHtml += '<th style="background-color:#efefef;">Index</th>';
+                                    headers.add('No.');
                                 }
-                                for (String col : fieldNames) {
-                                    tableHtml += '<th style="background-color:#efefef;">' + col + '</th>';
-                                }
-                                tableHtml += '</tr></thead><tbody>';
+                                headers.addAll(fieldNames);
 
+                                List<Map<String, String>> rows = new List<Map<String, String>>();
                                 for (Integer idx = 0; idx < queryResult.size(); idx++) {
                                     SObject record = queryResult[idx];
-                                    tableHtml += '<tr>';
+                                    Map<String, String> rowMap = new Map<String, String>();
                                     if (includeIndex) {
-                                        tableHtml += '<td>' + String.valueOf(idx + 1) + '</td>';
+                                        rowMap.put('No.', String.valueOf(idx + 1));
                                     }
                                     for (String col : fieldNames) {
                                         Object val = record.get(col);
-                                        tableHtml += '<td>' + (val != null ? String.valueOf(val) : '') + '</td>';
+                                        rowMap.put(col, val != null ? String.valueOf(val) : '');
                                     }
-                                    tableHtml += '</tr>';
+                                    rows.add(rowMap);
                                 }
 
-                                tableHtml += '</tbody></table>';
-                                resolvedCustomKeyValues.put(rawKey, tableHtml);
+                                Map<String, Object> tableData = new Map<String, Object>();
+                                tableData.put('headers', headers);
+                                tableData.put('rows', rows);
+                                tableData.put('fontSize', fontSize);
+                                tableData.put('includeIndex', includeIndex);
+
+                                String jsonTable = JSON.serialize(tableData);
+                                resolvedCustomKeyValues.put(rawKey, jsonTable);
                             }
 
                         }
