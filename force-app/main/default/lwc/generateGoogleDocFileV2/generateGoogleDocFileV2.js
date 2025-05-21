@@ -160,6 +160,14 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
             }
             objectDetails.push({ objApi: "General Fields", fieldName: Array.from(generalFieldSet) });
 
+            // Get Custom key fields
+            let customKeysSet = new Set();
+            pattern = /\{\{(@CKLIST:([a-zA-Z0-9_.]+):([^{}]+)|@CK:([a-zA-Z0-9_.]+)\.([^{}]+)|@CKTABLE:([a-zA-Z0-9_.]+)|@CKTABLE:([a-zA-Z0-9_.]+)(:|;)([^{}]+))\}\}/g;
+            while ((matcher = pattern.exec(stringBody)) != null) {
+                customKeysSet.add(matcher[0]);
+            }
+            objectDetails.push({ objApi: "Custom Keys", fieldName: Array.from(customKeysSet) });
+
             // Get Signature Image
             let signatureImage = new Set();
             pattern = /{{Sign.DocGenius *Signature Key*}}/g;
@@ -185,10 +193,12 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
             mapFieldValues({ queryObject: JSON.stringify(objectDetails), objectApiName: this.objectname, recordId: this.recordId })
                 .then((result) => {
                     this.resultSet = result;
-                    
+
+                    let parentFieldValues = this.resultSet.find((el) => el[this.objectname] != null && el["Object Fields"] == true);
 
                     let signatureImageValues = this.resultSet.find((el) => el["Signature Image"] != null);
-                    
+                    let ckTablesList = [];
+                    let CKTABLE_REGEX = /\{\{(@CKTABLE:([a-zA-Z0-9_.]+)|@CKTABLE:([a-zA-Z0-9_.]+)(:|;)([^{}]+))\}\}/g;
                     content.forEach((element) => {
                         if (element.paragraph) {
                             // Replace all the signature anywhere texts with the content document image
@@ -202,6 +212,46 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                                         this.processSignatureImage(Number(e.startIndex) + Number(startIndex), signatureImageValues);
                                         stringBody = stringBody.replace(this.signatureKey, ' ');
                                     } 
+                                });
+                            } else if(stringBody.includes("{{@CKTABLE:")) {
+                                element.paragraph.elements.forEach(e => {
+                                    
+                                    let stringElement = JSON.stringify(e);
+                                    
+                                    const matches = stringElement.match(CKTABLE_REGEX);
+
+                                    
+                                    if (matches) {
+                                        matches.forEach(key => {
+                                            
+                                            // Get the actual value from the data map
+                                            let data = parentFieldValues.Contact[key] || "";
+                                            const parsed = data ? JSON.parse(data) : null;
+
+
+                                            if(!parsed) return;
+                                            const headers = parsed.headers || [];
+                                            const rows = parsed.rows || [];
+
+                                            // First row is headers, then each row is ordered by headers
+                                            const tableValues = [
+                                                headers,
+                                                ...rows.map(row => headers.map(h => row[h] ?? ""))
+                                            ];
+
+                                            // Get raw content string (we’ll assume there’s only one match per element for this index logic)
+                                            let content = this.substringBetween(stringElement, '"content":"', '",');
+                                            let startIndex = e.startIndex;
+                                            let endIndex = startIndex + key.length;
+
+                                            ckTablesList.push({
+                                                startIndex: startIndex + this.tableOffset,
+                                                endIndex: endIndex + this.tableOffset,
+                                                data: tableValues,
+                                                content: content
+                                            });
+                                        });
+                                    }
                                 });
                             }
                         } else if (element.table) {
@@ -325,14 +375,15 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                             }
                         }
                     });
-
-                    let actualStringBody = JSON.stringify(content);
-
-                    let parentFieldvalues = this.resultSet.find((el) => el[this.objectname] != null && el["Object Fields"] == true);
+                    ckTablesList?.reverse()?.forEach(table => {
+                        
+                        this.deleteContentRequest(table.startIndex, table.endIndex);
+                        this.changeRequests.push(...this.createRequestsForTable(table.startIndex, table.data)); 
+                    });                    
                     let generalFieldvalues = this.resultSet.find((el) => el["General Fields"] != null);
                     // Replace all the object and general fields
-                    if (parentFieldvalues) {
-                        this.createReplaceRequest(parentFieldvalues[this.objectname]);
+                    if (parentFieldValues) {
+                        this.createReplaceRequest(parentFieldValues[this.objectname]);
                     }
                     if (generalFieldvalues) {
                         this.createReplaceRequest(generalFieldvalues["General Fields"]);
@@ -514,6 +565,64 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
             errorDebugger("generateGoogleDocFileV2", "SignatureKeyReplaceRequest", error, 'Error', "Error in SignatureKeyReplaceRequest. Please try again.");
         }
     }
+
+    createRequestsForTable(startIndex, tableValues) {
+
+        const maxLen = Math.max(...tableValues.map(row => row.length));
+        let index = startIndex + 5;
+
+        const cellValues = tableValues.flatMap((row, i) => {
+                const rowIndex = index + (i === 0 ? 0 : 3) - 1;
+
+                const cells = row.map((cellText, j) => {
+                    const cellIndex = rowIndex + j * 2;
+                    const cellInsert = {
+                        insertText: {
+                            text: cellText,
+                            location: { index: cellIndex }
+                        }
+                    };
+                    const insertRequests = [cellInsert];
+                    index = cellIndex + 1;
+                    if(i == 0){
+                        insertRequests.push({
+                            updateTextStyle : {
+                                textStyle: {
+                                    bold: true
+                                },
+                                fields: "bold",
+                                range: {
+                                    startIndex: cellIndex,
+                                    endIndex: cellIndex + cellText.length
+                                }
+                            }
+                        });
+                    }
+                    return insertRequests;
+                });
+
+                if (row.length < maxLen) {
+                    index += (maxLen - row.length) * 2;
+                }
+
+                return cells;
+            })
+            .reverse();
+
+        const requests = [
+            {
+                insertTable: {
+                    rows: tableValues.length,
+                    columns: maxLen,
+                    location: { index: startIndex }
+                }
+            },
+            ...cellValues
+        ];
+
+        return requests;
+    }
+
 
     // Preview the result - make apex call to get body blob
     doPreview() {
