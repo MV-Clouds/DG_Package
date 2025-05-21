@@ -1548,30 +1548,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     generateGoogleDoc(){
         try{
-            console.log('Generating google doc template');
-            console.log(this.parentId);
-            if (this.isRelatedList == "true") {
-                fetchAllRecordIds({ objectname: this.internalObjectApiName, RelatedRecordId: this.parentId })
-                .then((result) => {
-                    console.log(result);
-                    this.recordIds = result;
-                    console.log(this.recordIds);
-                    let timeout = 200;
-                    this.showSpinner = true;
-                    this.resultPromises = [];
-                    this.labelOfLoader = 'Generating document...';
-                    for (let i = 0; i < this.recordIds.length; i++) {                                    
-                        setTimeout(() => {
-                            console.log('for loop iteration' + i);
-                            let recordId = this.recordIds[i];
-                            this.template.querySelector('c-generate-google-doc-file-v2')?.generateDocument(this.selectedTemplate, this.internalObjectApiName, recordId, this.selectedExtension);
-                            }, timeout);
-                    }
-                })
-                
-            }
-            
-
+            this.showSpinner = true;
+            this.resultPromises = [];
+            this.labelOfLoader = 'Generating document...';
+            this.template.querySelector('c-generate-google-doc-file-v2')?.generateDocument(this.selectedTemplate, this.internalObjectApiName, this.recordId, this.selectedExtension);
         }catch(e){
             errorDebugger('generateDocumentV2', 'generateGoogleDoc', e, 'error');
         }
