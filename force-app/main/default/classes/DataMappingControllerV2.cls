@@ -108,9 +108,9 @@ public with sharing class DataMappingControllerV2 {
                                 // Replace JSON with the rendered table HTML
                                 customKeys.put(key, tableHtml);
 
-                            } catch (Exception ex) {
-                                System.debug('Error parsing CKTABLE JSON for key ' + key + ': ' + ex.getMessage());
-                                customKeys.put(key, '<p style="color:red;">Error rendering table for key: ' + key + '</p>');
+                            } catch (Exception e) {
+                                customKeys.put(key, '');
+                                Log_Handler.store_Exception(e, 'DataMappingControllerV2', 'getMappingsKeyValues > Create Table Loop');
                             }
                         } else {
                             customKeys.put(key, '');
