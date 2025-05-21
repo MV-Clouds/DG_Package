@@ -245,7 +245,7 @@ public with sharing class DataMappingControllerV2 {
      * @param extractedKeyMap, Map of keyType vs list of keys in object form,
      * @description : extract and collect Custom Keys.
      */
-    public static Map<String, String> collectCustomKeys(Map<String, Object> extractedKeyMap,Map<String, Object> objectFieldValues) {
+    public static Map<String, String> collectCustomKeys(Map<String, Object> objectFieldValues, List<Custom_Key__c> queriedCustomKeys, Set<String> fieldsInCustomKey, Set<String> customKeys) {
         Map<String, String> resolvedCustomKeyValues = new Map<String, String>();
 
         try {
