@@ -322,8 +322,17 @@
                     const loadingInfo = document.querySelector('.loadingInfo');
                     const docIcon = intialLoading?.querySelector('svg');
                     const useMode = '{!JSENCODE(useMode)}';
+                    
 
-                    function sendInfoToLWC(completedChannel, status, error, cvId, errMsg) {
+                    function sendInfoToLWC(completedChannel, status, error, cvId, errMsg, isBulk, isLast) {
+                        console.log('inside sending info to lwc');
+                        console.log(useMode);
+                        console.log(isBulk);
+                        console.log(isLast);
+                        console.log(cvId);
+                        console.log(completedChannel);
+                        console.log(parentURL);
+                        
                         if(useMode === 'preview'){
                             loadingInfo && (loadingInfo.innerText = errMsg ?? 'Facing Issue While Generating Preview, Please Try Agian...');
                             docIcon?.classList.add('error');
@@ -345,6 +354,8 @@
                                 status: status,
                                 error: error,
                                 cvId : cvId,
+                                isBulk: isBulk,
+                                isLast: isLast,
                             };
                             parent.postMessage(message, parentURL);
                         }
@@ -370,6 +381,15 @@
                         let selectedExtension = '{!JSENCODE(selectedExtension)}';   
                         const selectedChannels = '{!JSENCODE(selectedChannels)}'; 
                         const selectedFolder = '{!JSENCODE(selectedFolder)}';
+                        const isBulk = '{!JSENCODE(isBulk)}';
+                        const isLast = '{!JSENCODE(isLast)}';
+
+                        console.log(selectedChannels);
+
+                        console.log(isBulk);
+                        console.log(isLast);
+                        
+                        
                         const domainURL = parentURL.replace('lightning.force.com/', 'my.salesforce.com');
     
                         // --- PDF page toolbar elements ----- ------
@@ -472,7 +492,7 @@
                         }
     
                         /**
-                         * Meyhod to fetch template and contetent version data from backend using remoteAction and Rest Api...
+                        * Meyhod to fetch template and contetent version data from backend using remoteAction and Rest Api...
                         */
                         function fetchData() {
                             let completedProcess = 0;
@@ -974,7 +994,7 @@
                                 const fileSizeInByte = (fileData.length / 4) * 3;
                             
                                 // ....Download doc file....
-                                if(selectedChannels.includes('Download')){
+                                if(selectedChannels.includes('Download') && isBulk != 'true'){
                                     let downloadLink = document.createElement("a");
                                     document.body.appendChild(downloadLink);
     
@@ -1010,16 +1030,21 @@
                                 if(fileSizeInByte < 37.5*1020*1020 && (selectedChannels.includes('Files') ||
                                     selectedChannels.includes('Chatter') || selectedChannels.includes('Email') ||
                                     selectedChannels.includes('Google Drive') || selectedChannels.includes('AWS') ||
-                                    selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox')))
+                                    selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox') ||
+                                    isBulk == 'true')){
                                 {
+                                    console.log('creating content version');
+                                    
                                     createContentVersion(fileData);
-                                }
+                                }}
                                 else if(selectedChannels.includes('Files') ||
                                         selectedChannels.includes('Chatter') || selectedChannels.includes('Email') ||
                                         selectedChannels.includes('Google Drive') || selectedChannels.includes('AWS') ||
-                                        selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox')){
+                                        selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox') || 
+                                        isBulk == 'true'){
                                     sendInfoToLWC('External Storage', false, {message : 'File Size Limit Exceeded!'});
                                 }
+                                
                             } catch (error) {
                                 // console.log('error in handleGeneratedFiles : ', error.stack);
                                 sendInfoToLWC('unknown', false, error);
@@ -1173,7 +1198,7 @@
         
                                         }
                                         else{
-                                            sendInfoToLWC('External Storage', true, null, result.id);
+                                            sendInfoToLWC('External Storage', true, null, result.id, null, isBulk, isLast);
                                         }
                                     })
                                 })

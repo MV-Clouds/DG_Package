@@ -8,6 +8,8 @@ global with sharing class DocGenerateController {
     public static String templateId {get; set;}
     public static String selectedFolder {get; set;}
     public static String useMode {get; set;}
+    public static String isLast {get; set;}
+    public static String isBulk {get; set;}
 
     public static String headerHtml {get; set;}
     public static String bodyHtml {get; set;}
@@ -68,6 +70,9 @@ global with sharing class DocGenerateController {
                     fileName = (String)rawData.get('fileName');
                     selectedFolder = (String)rawData.get('selectedFolder');
                     useMode = (String)rawData.get('useMode') != null ? (String)rawData.get('useMode') : 'generate';
+                    isLast = (String)rawData.get('isLast');
+                    isBulk = (String)rawData.get('isBulk');
+
     
                     templateId = (String)rawData.get('templateId');
                     recordId = (String)rawData.get('recordId');
