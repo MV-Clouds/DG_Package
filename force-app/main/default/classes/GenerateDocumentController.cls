@@ -74,7 +74,7 @@ public with sharing class GenerateDocumentController {
             List<MVDG__Google_Credentials__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
                 listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;
-            }
+            } 
             return listOfStatus;
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getIntegrationStatus');
