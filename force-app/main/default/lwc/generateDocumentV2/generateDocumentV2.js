@@ -32,13 +32,16 @@ import getTemplateDefaultValues from '@salesforce/apex/GenerateDocumentControlle
 //Delete content version if needed
 import deleteContentVersion from '@salesforce/apex/GenerateDocumentController.deleteContentVersion';
 
+import getFieldMappingKeys from '@salesforce/apex/KeyMappingController.getFieldMappingKeys';
+
 //Helper Js
 import {getDocumentTypes, getInternalStorages, getExternalStorages, getOutputChannels} from './generateDocumentHelper';
 export default class GenerateDocumentV2 extends NavigationMixin(LightningElement) {
 
     @track showSpinner = true;
     @track labelOfLoader = 'Loading...';
-
+    @track fieldLabelOptions = [];
+    @track selectedFieldLabels = [];
 
     //Data from record
     parentId;
@@ -190,6 +193,19 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
     customTimeout;
 
+    // @track fieldLabelOptions = [];
+    // @track selectedFieldLabels = []; 
+    @track fieldMappingsWithObj = [];
+    emailregex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    @track selectedEmailType = 'to';
+    @track emailTypeOptions = [
+        { label: 'To', value: 'to' },
+        { label: 'CC', value: 'cc' },
+        { label: 'BCC', value: 'bcc' }
+    ]; 
+
+    
+
     get showCloseButton(){
         return this.isCSVOnly || this.isDefaultGenerate || this.isCalledFromPreview;
     }
@@ -337,6 +353,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 ]);
             })
             .then(() => {
+                // console.log('internal obj'+this.internalObjectApiName);
+                this.fetchFieldMapping();
+
                 if (this.calledFromWhere === "preview") {
                     this.handleCalledFromPreview();
                 } else if (this.calledFromWhere === 'defaults') {
@@ -375,10 +394,51 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }
     }
 
+    fetchFieldMapping() {
+        try {
+            getFieldMappingKeys({ sourceObjectAPI: this.objectApiName, getParentFields: true })
+                .then(result => {
+                    if (result.isSuccess) {
+                        this.fieldMappingsWithObj = result.fieldMappingsWithObj[0];
+                        let fieldOptions = [];
+                        this.fieldMappingsWithObj.fieldMappings.forEach(field => {
+                            const transformedValue = field.key.replace(/{{#(.*)}}/, '$1');
+                            fieldOptions.push({
+                                label: field.label,
+                                value: transformedValue
+                            });
+                        });
+                        this.fieldLabelOptions = JSON.parse(JSON.stringify(fieldOptions)); 
+                    } else {
+                        // console.error('Error in getFieldMappingKeys:', result.returnMessage);
+                    }
+                })
+                .catch(error => {
+                    // console.error('Error fetching field mapping:', error);
+                });
+        } catch (error) {
+            // console.error('Exception in fetchFieldMapping:', error);
+        }
+    }
+
     disconnectedCallback(){
         if (typeof window !== 'undefined') {
             window.removeEventListener('message', this.simpleTempFileGenResponse);
         }
+    }
+
+    handleFieldLabelSelect(event) {
+        try {
+            const selectedValues = Array.isArray(event.detail) ? event.detail : []; 
+            this.selectedFieldLabels = selectedValues.map(item => item.replace(/{{#|}}|"|"/g, '')); 
+        } catch (error) { 
+            this.selectedFieldLabels = [];
+        }
+    }
+
+    handleEmailTypeChange(event) {
+        this.selectedEmailType = event.detail.value;
+         console.log('Selected Email Type:', this.selectedEmailType);
     }
 
     renderedCallback() {
@@ -573,7 +633,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     handleAutoGeneration() {
         this.showSpinner = true;
         try {
-            getTemplateDefaultValues({ templateId : this.selectedTemplate})
+            // console.log('template id'+this.selectedTemplate);
+            // console.log('record id'+this.recordId);
+            getTemplateDefaultValues({ templateId : this.selectedTemplate, recordId : this.recordId})
+
             .then((data) =>{
                 if(data){
                     if(!data.templateStatus && !this.isCalledFromDefaults){
@@ -607,6 +670,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()) : [];
                         this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()) : [];
                         this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()) : [];
+                        this.selectedFieldLabels = splitEmails[3] ? splitEmails[3].split(',').map(field => field.trim()) : [];
+                        this.selectedEmailType = splitEmails[4] ? splitEmails[4].trim() : '';
+                        this.handleFieldLabelSelect({ detail: this.selectedFieldLabels });
+                        
                     }
                     this.selectedEmailTemplate = data?.emailTemplate ? data?.emailTemplate : null;
                     this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
@@ -629,6 +696,14 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         this.showSpinner = true;
                         this.handleGenerate();
                     }
+                    
+                    this.verifiedEmails = [];
+                        if (data?.recordValues?.length > 0) {
+                            this.verifiedEmails = data.recordValues.filter(value => 
+                                typeof value === 'string' && this.emailregex.test(value.trim())
+                            );
+                        }
+                        console.log('Verified Emails in auto generation :', this.verifiedEmails);
                 }else{
                     this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
                     this.isClosableError = true;
@@ -903,7 +978,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             let enteredChar = event.key;
             let typeOfEmail = event.target.dataset.type;
             if(enteredChar === ',' || enteredChar === 'Enter' || enteredChar === ' ' || enteredChar === 'Tab'  || !enteredChar){
-                const emailValidator = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+                var emailValidator = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
                 emailString.toLowerCase().replaceAll(' ', ',').split(',').forEach((email)=>{
                     if(email){
                         if(emailValidator.test(email)){
@@ -940,6 +1015,41 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }catch (e) {
             errorDebugger('generateDocumentV2', 'handleRemoveAddedEmail', e, 'error');
         }finally{
+            this.showSpinner = false;
+        }
+    }
+
+    handleRemoveLabel(event) {
+        try {
+            this.showSpinner = true;
+            const index = event.currentTarget.dataset.index;
+            const removedLabel = this.selectedFieldLabels[index]; // Get the label being removed
+            console.log('Before remove:', JSON.stringify(this.selectedFieldLabels));
+
+            // Remove the label at the specified index
+            this.selectedFieldLabels = this.selectedFieldLabels.filter((_, i) => i !== parseInt(index));
+            console.log('After remove:', JSON.stringify(this.selectedFieldLabels));
+
+            // Update fieldLabelOptions to reflect the current selection state
+            this.fieldLabelOptions = this.fieldLabelOptions.map(option => ({
+                ...option,
+                isSelected: this.selectedFieldLabels.includes(option.value)
+            }));
+
+            // Dispatch change event to notify other components
+            this.dispatchEvent(new CustomEvent('change', {
+                detail: { value: this.selectedFieldLabels }
+            }));
+
+            // Call unselectOption on the combobox to update its UI
+            const combobox = this.template.querySelector('c-custom-combobox-v2.emailTempSelect');
+            if (combobox && removedLabel) {
+                combobox.unselectOption(removedLabel);
+            }
+
+        } catch (e) {
+            errorDebugger('componentName', 'handleRemoveLabel', e, 'error');
+        } finally {
             this.showSpinner = false;
         }
     }
@@ -2074,6 +2184,25 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     ccEmails: this.ccEmails,
                     bccEmails: this.bccEmails
                 }
+                 
+                
+                if (this.selectedEmailType === 'to') {
+                    allEmails.toEmails = this.toEmails.concat(this.verifiedEmails);
+                } else if (this.selectedEmailType === 'cc') {
+                    allEmails.ccEmails = this.ccEmails.concat(this.verifiedEmails);
+                } else if (this.selectedEmailType === 'bcc') {
+                    allEmails.bccEmails = this.bccEmails.concat(this.verifiedEmails);
+                } else { 
+                    allEmails.toEmails = this.toEmails.concat(this.verifiedEmails);
+                }
+                let emailData = {
+                    contentVersionId: cvId,
+                    emailSubject: this.emailSubject,
+                    emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue || this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).Body || '' : this.emailBody
+                };
+                console.log('selecrtred fields in auto generation',JSON.stringify(this.selectedFieldLabels));
+                console.log('verified when send email',JSON.stringify(this.verifiedEmails));
+                console.log('all emails',JSON.stringify(allEmails));
                 sendEmail({ allEmails:allEmails, emailData:emailData, activityId : this.activity.Id })
                 .then((result) => {
                     if(result === 'success'){
@@ -2301,7 +2430,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         this.showSpinner = true;
         try {
             let allEmailsString = '';
-            allEmailsString += (this.toEmails.length>0 ? this.toEmails.join(', ') : '') + '<|DGE|>' + (this.ccEmails.length>0 ? this.ccEmails.join(', ') : '') + '<|DGE|>' + (this.bccEmails.length>0 ? this.bccEmails.join(', '): '');
+            allEmailsString += (this.toEmails.length>0 ? this.toEmails.join(', ') : '') + '<|DGE|>' + (this.ccEmails.length>0 ? this.ccEmails.join(', ') : '') + '<|DGE|>' + (this.bccEmails.length>0 ? this.bccEmails.join(', '): '') + '<|DGE|>' + this.selectedFieldLabels + '<|DGE|>' + this.selectedEmailType;
+            console.log('allEmailString',allEmailsString);
+            // console.log('toEmails ',JSON.stringify(this.toEmails));
+            // console.log('ccEmails ',JSON.stringify(this.ccEmails));
+            // console.log('bccEmails ',JSON.stringify(this.bccEmails));
+            // console.log('selected field ',JSON.stringify(this.selectedFieldLabels));
+
             let iStorages = this.internalStorageOptions.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
             let eStorages = this.externalStorageOptions.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
             let oChannels = this.outputChannels.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
