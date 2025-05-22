@@ -66,14 +66,14 @@ public with sharing class GenerateDocumentController {
     public static IntegrationWrapper getIntegrationStatus(){
         try {
             IntegrationWrapper listOfStatus = new IntegrationWrapper();
-            listOfStatus.isGoogleDriveIntegrated = MVDG__Google_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isAWSIntegrated = MVDG__Aws_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isDropBoxIntegrated = MVDG__Dropbox_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isOneDriveIntegrated = MVDG__OneDrive_Credential__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            listOfStatus.isGoogleDriveIntegrated = Google_Credentials__c.getOrgDefaults().WorkingStatus__c;
+            listOfStatus.isAWSIntegrated = Aws_Credentials__c.getOrgDefaults().WorkingStatus__c;
+            listOfStatus.isDropBoxIntegrated = Dropbox_Credentials__c.getOrgDefaults().WorkingStatus__c;
+            listOfStatus.isOneDriveIntegrated = OneDrive_Credential__c.getOrgDefaults().WorkingStatus__c;
 
-            List<MVDG__Google_Credentials__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+            List<Google_Credentials__c> googleDriveSetting = [SELECT WorkingStatus__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
-                listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;
+                listOfStatus.isUserWideAccessible = googleDriveSetting[0].WorkingStatus__c;
             }
             return listOfStatus;
         } catch (Exception e) {
@@ -181,6 +181,8 @@ public with sharing class GenerateDocumentController {
 */
     @AuraEnabled
     public static String sendEmail(Map<String, List<String>> allEmails, Map<String,String> emailData, String activityId){
+        // System.debug('emaildata: '+emailData);
+        System.debug('allEmails at the time of fina send '+allEmails);
         try {
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             String[] attachments =  new String[] {};
@@ -192,11 +194,11 @@ public with sharing class GenerateDocumentController {
             mail.setHtmlBody(emailData.get('emailBody'));
             mail.setEntityAttachments(attachments);
 
-            Messaging.SendEmailResult[] result = Messaging.sendEmail(
-                new Messaging.SingleEmailMessage[] { mail });
-            if (!result[0].isSuccess() && !Test.isRunningTest()){
-                throw new AuraHandledException('Email send was unsuccessfull');
-            }
+            // Messaging.SendEmailResult[] result = Messaging.sendEmail(
+            //     new Messaging.SingleEmailMessage[] { mail });
+            // if (!result[0].isSuccess() && !Test.isRunningTest()){
+            //     throw new AuraHandledException('Email send was unsuccessfull');
+            // }
             return 'success';
         }catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'sendEmail', activityId);
@@ -215,8 +217,8 @@ public with sharing class GenerateDocumentController {
 public static String generateAccessToken() {
     String accessToken = null;
     try {
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE MVDG__Client_Id__c != null AND MVDG__Client_Secret__c != null WITH SECURITY_ENFORCED ];
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WHERE Client_Id__c != null AND Client_Secret__c != null WITH SECURITY_ENFORCED ];
         if (aps.size() > 0) {
             String endPointURL = URL.getOrgDomainUrl().toExternalForm() + '/services/oauth2/token';
             String requestBody = 'grant_type=client_credentials&client_id={0}&client_secret={1}';
@@ -224,7 +226,7 @@ public static String generateAccessToken() {
             HttpRequest req = new HttpRequest();
             req.setEndpoint(endPointURL);
             req.setMethod('POST');
-            req.setBody(String.format(requestBody ,new string[]{aps[0].MVDG__Client_Id__c,aps[0].MVDG__Client_Secret__c}));
+            req.setBody(String.format(requestBody ,new string[]{aps[0].Client_Id__c,aps[0].Client_Secret__c}));
             req.setTimeout(60000);
             Http http = new Http();
             HttpResponse res = http.send(req);
@@ -253,11 +255,11 @@ public static Map<String, String> getConnectedAppConfigs() {
         'accessToken' => null
     };
     try {
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE MVDG__Client_Id__c != null AND MVDG__Client_Secret__c != null WITH SECURITY_ENFORCED ];
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WHERE Client_Id__c != null AND Client_Secret__c != null WITH SECURITY_ENFORCED ];
         if (aps.size() > 0) {
-            mapOfData.put('clientId', aps[0].MVDG__Client_Id__c);
-            mapOfData.put('clientSecret', aps[0].MVDG__Client_Secret__c);
+            mapOfData.put('clientId', aps[0].Client_Id__c);
+            mapOfData.put('clientSecret', aps[0].Client_Secret__c);
             mapOfData.put('accessToken', generateAccessToken());
         }
     } catch (Exception e) {
@@ -278,12 +280,12 @@ public static Map<String, String> getConnectedAppConfigs() {
 public static void updateSetting(String clientId, String clientSecret) {
     try {
         
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE MVDG__Client_Id__c != null AND MVDG__Client_Secret__c != null WITH SECURITY_ENFORCED ];
-        MVDG__ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new MVDG__ConnectedAppIdAndSecret__c();
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WHERE Client_Id__c != null AND Client_Secret__c != null WITH SECURITY_ENFORCED ];
+        ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new ConnectedAppIdAndSecret__c();
         app.SetupOwnerId = UserInfo.getUserId();
-        app.MVDG__Client_Id__c = clientId;
-        app.MVDG__Client_Secret__c = clientSecret;
+        app.Client_Id__c = clientId;
+        app.Client_Secret__c = clientSecret;
         upsert as User app;
     } catch (Exception e) {
         Log_Handler.store_Exception(e, 'GenerateDocumentController', 'updateSetting');
@@ -416,7 +418,7 @@ public static void updateSetting(String clientId, String clientSecret) {
                              MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c 
                              FROM MVDG__Template__c WHERE Id = :templateId WITH SECURITY_ENFORCED];
             }
-            if(templates.size() > 0){
+            if (templates.size() > 0) {
                 ddw.templateId = templates[0].Id;
                 ddw.templateName = templates[0].MVDG__Template_Name__c;
                 ddw.templateStatus = templates[0].MVDG__Template_Status__c;
@@ -431,7 +433,7 @@ public static void updateSetting(String clientId, String clientSecret) {
                 ddw.emailSubject = templates[0].MVDG__Email_Subject__c;
                 ddw.emailBody = templates[0].MVDG__Email_Body__c;
                 ddw.templateType = templates[0].MVDG__Template_Type__c;
-                ddw.emailTemplate = templates[0].MVDG__Email_Template__c;
+                ddw.emailTemplate = templates[0].MVDG__Email_Template__c; 
 
                 List<String> fieldList = new List<String>();
                 String emailType = '';
@@ -489,11 +491,11 @@ public static void updateSetting(String clientId, String clientSecret) {
                 // System.debug('Returning ddw.recordValues:');
 
                 return ddw;
-            }else{
+            } else {
                 return null;
             }
         } catch (Exception e) {
-            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateDefaultValues');
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getTemplateDefaultValues'); 
             return null;
         }
     }
@@ -508,6 +510,7 @@ public static void updateSetting(String clientId, String clientSecret) {
 */  
     @AuraEnabled
     public static void setDefaultOptions(Map<String,String> defaultData){
+        // System.debug('defaultData: '+defaultData);
         try {
             MVDG__Template__c template = new MVDG__Template__c(
                 Id = defaultData.get('templateId'),
@@ -554,42 +557,6 @@ public static void updateSetting(String clientId, String clientSecret) {
         }
     }
 
-/*
-*********************************************************
-@description     : Method is used to get the content version for generated content versions
-@param           : Id {List} -  Id of the Content version to get
-@return          : ContentFileWrapper {Wrapper} - wrapper containing with default data for the template
-********************************************************
-*/ 
-
-// @AuraEnabled(cacheable=false)
-// public static List<ContentFileWrapper> getContentFiles(List<Id> contentVersionIds) {
-//     try {
-//         List<ContentFileWrapper> results = new List<ContentFileWrapper>();
-    
-//             // Query directly using ContentVersion IDs
-//             List<ContentVersion> versions = [
-//                 SELECT Id, Title, FileExtension, VersionData
-//                 FROM ContentVersion
-//                 WHERE Id IN :contentVersionIds
-//                 WITH USER_MODE
-//             ];
-    
-//             for (ContentVersion cv : versions) {
-//                 if (cv != null){
-//                     String fileName = cv.Title + '.' + cv.FileExtension;
-//                     String base64Data = EncodingUtil.base64Encode(cv.VersionData);
-//                     results.add(new ContentFileWrapper(fileName, base64Data));
-//                 }
-//             }
-    
-//             return results;
-//     } catch (Exception e) {
-//         Log_Handler.store_Exception(e, 'GenerateDocumentController', 'getContentFiles');
-//         return null;
-//     }
-// }
-
 // -=-=- Wrappers -=-=-
 
 /*
@@ -608,23 +575,6 @@ public static void updateSetting(String clientId, String clientSecret) {
         @AuraEnabled public Boolean isDropBoxIntegrated;
         @AuraEnabled public Boolean isUserWideAccessible;
     }
-
-/*
-*********************************************************
-@description     : wrapper containing fileName and base64Data of the file
-@param           : fileName String - To be used as file name
-@param           : base64Data String - To be used as base64 data
-********************************************************
-*/
-    // public class ContentFileWrapper {
-    //     @AuraEnabled public String fileName;
-    //     @AuraEnabled public String base64Data;
-
-    //     public ContentFileWrapper(String fileName, String base64Data) {
-    //         this.fileName = fileName;
-    //         this.base64Data = base64Data;
-    //     }
-    // }
 
 /*
 *********************************************************
