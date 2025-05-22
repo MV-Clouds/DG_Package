@@ -1,4 +1,4 @@
-import { LightningElement, api, track, wire } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import getRelatedRecords from '@salesforce/apex/RelatedListController.getRelatedRecords';
 
 export default class RelatedRecordList extends LightningElement {
@@ -6,7 +6,6 @@ export default class RelatedRecordList extends LightningElement {
     objectname;
     parentObj;
     relationshipName;
-    templateId;
 
     @track records = [];
     @track selectedIds = [];
@@ -46,23 +45,19 @@ export default class RelatedRecordList extends LightningElement {
     }
 
     connectedCallback() {
+        this.records = [];
+        this.selectedIds = [];
         const urlParams = new URLSearchParams(window.location.search);
         this.parentId = urlParams.get('c__parentId');
         this.objectname = urlParams.get('c__objectname');
         this.parentObj = urlParams.get('c__parentObj');
         this.relationshipName = urlParams.get('c__relationshipName');
-        this.templateId = urlParams.get('c__templateId');
 
         this.fetchRelatedRecords();
 
     }
 
-    fetchRelatedRecords() {
-        console.log(this.parentId);
-        console.log(this.relationshipName);
-        console.log(this.parentObj);
-        
-        
+    fetchRelatedRecords() {        
         getRelatedRecords({
             RelatedRecordId: this.parentId,
             objectname: this.parentObj,
@@ -97,9 +92,7 @@ export default class RelatedRecordList extends LightningElement {
             this.showLimitError = true;
             return;
         }
-
-        const url = `/lightning/cmp/c__generateDocumentV2?c__objectApiName=${this.objectname}&c__isRelatedList=true&c__isDefaultGenerate=true&c__templateIdToGenerate=${this.templateId}&c__parentId=${this.parentId}&c__relationshipName=${this.relationshipName}&c__parentObjName=${this.parentObj}&c__ids=${this.selectedIds.join(',')}`;
-        
-        window.open(url, '_blank');
+        const url = `/lightning/cmp/MVDG__generateDocumentV2?c__objectApiName=${this.objectname}&c__isRelatedList=true&c__isDefaultGenerate=true&c__parentId=${this.parentId}&c__relationshipName=${this.relationshipName}&c__parentObjName=${this.parentObj}&c__ids=${this.selectedIds.join(',')}`;
+        window.location.href = url;
     }
 }
