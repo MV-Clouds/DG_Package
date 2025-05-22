@@ -510,6 +510,23 @@ svg:not(.bottom-btn svg){
     padding: 0.125rem;
 }
 
+.dynamicFields {
+    display: flex;
+}
+
+.dynamicFields .emailTypeSelect {
+    width: 11%;
+    margin-right: 1%;
+}
+
+.dynamicFields .fieldSelectionBox {
+    width: 88%;
+}
+
+.selectedFields {
+    margin-top: 1%;
+}
+
 .email-element {
     display: flex;
     flex-direction: column;
