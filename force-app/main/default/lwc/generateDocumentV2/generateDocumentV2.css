@@ -521,7 +521,7 @@ svg:not(.bottom-btn svg){
 }
 
 .email-element span {
-    width: 3rem;
+    width: 5rem;
     text-align: start;
     display: flex;
     align-items: center;
