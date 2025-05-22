@@ -395,7 +395,7 @@ public static void updateSetting(String clientId, String clientSecret) {
         }
         return mapOfData;
     }
-
+ 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Used to set default generation options for the templates -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 /*
 *********************************************************
