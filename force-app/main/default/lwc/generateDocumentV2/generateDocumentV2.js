@@ -438,7 +438,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     handleEmailTypeChange(event) {
         this.selectedEmailType = event.detail.value;
-         console.log('Selected Email Type:', this.selectedEmailType);
+
     }
 
     renderedCallback() {
@@ -695,6 +695,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     if(!this.isCalledFromDefaults){
                         this.showSpinner = true;
                         this.handleGenerate();
+                    } 
+                    
+                    this.verifiedEmails = [];
+                        if (data?.recordValues?.length > 0) {
+                            this.verifiedEmails = data.recordValues.filter(value => 
+                                typeof value === 'string' && this.emailregex.test(value.trim())
+                            );
                     }
                     
                     this.verifiedEmails = [];
@@ -1024,11 +1031,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.showSpinner = true;
             const index = event.currentTarget.dataset.index;
             const removedLabel = this.selectedFieldLabels[index]; // Get the label being removed
-            console.log('Before remove:', JSON.stringify(this.selectedFieldLabels));
+
+            // console.log('Before remove:', JSON.stringify(this.selectedFieldLabels));
 
             // Remove the label at the specified index
             this.selectedFieldLabels = this.selectedFieldLabels.filter((_, i) => i !== parseInt(index));
-            console.log('After remove:', JSON.stringify(this.selectedFieldLabels));
+            // console.log('After remove:', JSON.stringify(this.selectedFieldLabels));
+
 
             // Update fieldLabelOptions to reflect the current selection state
             this.fieldLabelOptions = this.fieldLabelOptions.map(option => ({
@@ -2200,9 +2209,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     emailSubject: this.emailSubject,
                     emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue || this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).Body || '' : this.emailBody
                 };
-                console.log('selecrtred fields in auto generation',JSON.stringify(this.selectedFieldLabels));
-                console.log('verified when send email',JSON.stringify(this.verifiedEmails));
-                console.log('all emails',JSON.stringify(allEmails));
+
                 sendEmail({ allEmails:allEmails, emailData:emailData, activityId : this.activity.Id })
                 .then((result) => {
                     if(result === 'success'){
@@ -2431,7 +2438,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         try {
             let allEmailsString = '';
             allEmailsString += (this.toEmails.length>0 ? this.toEmails.join(', ') : '') + '<|DGE|>' + (this.ccEmails.length>0 ? this.ccEmails.join(', ') : '') + '<|DGE|>' + (this.bccEmails.length>0 ? this.bccEmails.join(', '): '') + '<|DGE|>' + this.selectedFieldLabels + '<|DGE|>' + this.selectedEmailType;
-            console.log('allEmailString',allEmailsString);
+
             // console.log('toEmails ',JSON.stringify(this.toEmails));
             // console.log('ccEmails ',JSON.stringify(this.ccEmails));
             // console.log('bccEmails ',JSON.stringify(this.bccEmails));

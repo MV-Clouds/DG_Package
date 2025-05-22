@@ -403,7 +403,7 @@ public static void updateSetting(String clientId, String clientSecret) {
 ********************************************************
 */  
     @AuraEnabled
-    public static DefaultDataWrapper getTemplateDefaultValues(String templateId){
+    public static DefaultDataWrapper getTemplateDefaultValues(String templateId, String recordId){
         try {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
@@ -475,9 +475,11 @@ public static void updateSetting(String clientId, String clientSecret) {
                             Object fieldValue = x.get(field.trim());
                             String fieldValueStr = fieldValue != null ? String.valueOf(fieldValue) : '';
                             recordValues.add(fieldValueStr);
-                            System.debug('Field: ' + field + ', Value: ' + fieldValueStr);
+
+                            // System.debug('Field: ' + field + ', Value: ' + fieldValueStr);
                         }
-                        System.debug('Final recordValues: ' + recordValues);
+                        // System.debug('Final recordValues: ' + recordValues);
+
                     } catch (QueryException qe) {
                         // System.debug('Query Error: ' + qe.getMessage());
                         recordValues = new List<String>();

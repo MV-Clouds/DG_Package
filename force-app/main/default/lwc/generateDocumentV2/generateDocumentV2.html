@@ -171,7 +171,9 @@
             </div>
             <div class="email-create-div">
                 <div class="email-element">
+
                     <span>Select Email Fields:</span>
+
                     <div class="dynamicFields">
                         <c-custom-combobox-v2
                             class="email-template-select emailTypeSelect"
@@ -180,13 +182,16 @@
                             placeholder="Select Email Type"
                             options={emailTypeOptions}
                             onselect={handleEmailTypeChange}
+
                             multiselect="false"
                         ></c-custom-combobox-v2>
                         <div class="fieldSelectionBox">
                             <c-custom-combobox-v2
                             class="email-template-select emailTempSelect"
                             value={selectedFieldLabels}
+
                             placeholder="Select Email Fields"
+
                             options={fieldLabelOptions}
                             onselect={handleFieldLabelSelect}
                             searchable="true"
