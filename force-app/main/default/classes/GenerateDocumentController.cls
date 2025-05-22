@@ -403,7 +403,7 @@ public static void updateSetting(String clientId, String clientSecret) {
 @param           : templateId {String} - Id of the template to generate
 @return          : DefaultDataWrapper {Wrapper} - wrapper containing with default data for the template
 ********************************************************
-*/  
+*/   
     @AuraEnabled
     public static DefaultDataWrapper getTemplateDefaultValues(String templateId, String recordId) {
         // System.debug('recordId: ' + recordId);
