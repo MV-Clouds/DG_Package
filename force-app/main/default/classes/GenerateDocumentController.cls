@@ -407,8 +407,12 @@ public static void updateSetting(String clientId, String clientSecret) {
         try {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
-            if(templateId != null){
-                templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Status__c,MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c FROM MVDG__Template__c WHERE Id=:templateId WITH SECURITY_ENFORCED];
+            if (templateId != null) {
+                templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Object_API_Name__c, MVDG__Template_Status__c, MVDG__Button_Label__c, 
+                             MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, 
+                             MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, 
+                             MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c 
+                             FROM MVDG__Template__c WHERE Id = :templateId WITH SECURITY_ENFORCED];
             }
             if(templates.size() > 0){
                 ddw.templateId = templates[0].Id;
@@ -426,6 +430,62 @@ public static void updateSetting(String clientId, String clientSecret) {
                 ddw.emailBody = templates[0].MVDG__Email_Body__c;
                 ddw.templateType = templates[0].MVDG__Template_Type__c;
                 ddw.emailTemplate = templates[0].MVDG__Email_Template__c;
+
+                List<String> fieldList = new List<String>();
+                String emailType = '';
+                if (String.isNotBlank(ddw.emailAddresses) && ddw.emailAddresses.contains('<|DGE|>')) {
+                    String[] splitResult = ddw.emailAddresses.split('<\\|DGE\\|>');
+                    if (splitResult.size() >= 4) { // Ensure there are at least 4 sections (to, cc, bcc, fields)
+                        // The second-to-last element is the field list
+                        String fieldListString = splitResult[splitResult.size() - 2];
+                        if (String.isNotBlank(fieldListString)) {
+                            List<String> tempFields = fieldListString.split(',');
+                            for (String field : tempFields) {
+                                if (String.isNotBlank(field)) {
+                                    fieldList.add(field.trim());
+                                }
+                            }
+                        }
+                        // The last element is the email type
+                        emailType = splitResult[splitResult.size() - 1]?.trim();
+                    }
+                }
+                ddw.emailType = emailType;
+                // System.debug('email address: ' + ddw.emailAddresses);
+                // System.debug('fieldList: ' + fieldList);
+
+                // Get object name and query record
+                List<String> recordValues = new List<String>();
+                String objectName = templates[0].MVDG__Object_API_Name__c;
+                // System.debug('recordid', recordId);
+                // System.debug('objectName', objectName);
+                if (recordId != null && String.isNotBlank(objectName) && !fieldList.isEmpty()) {
+                    List<String> sanitizedFields = new List<String>{'Id'};
+                    for (String field : fieldList) {
+                        if (String.isNotBlank(field)) {
+                            sanitizedFields.add(field.trim());
+                        }
+                    }
+                    try {
+                        String query = 'SELECT ' + String.join(sanitizedFields, ',') + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id = :recordId WITH SECURITY_ENFORCED';
+                        // System.debug('SOQL Query: ' + query);
+                        SObject x = Database.query(query);
+                        recordValues.add(String.valueOf(x.get('Id')));
+                        for (String field : fieldList) {
+                            Object fieldValue = x.get(field.trim());
+                            String fieldValueStr = fieldValue != null ? String.valueOf(fieldValue) : '';
+                            recordValues.add(fieldValueStr);
+                            // System.debug('Field: ' + field + ', Value: ' + fieldValueStr);
+                        }
+                        // System.debug('Final recordValues: ' + recordValues);
+                    } catch (QueryException qe) {
+                        // System.debug('Query Error: ' + qe.getMessage());
+                        recordValues = new List<String>();
+                    }
+                }
+                ddw.recordValues = recordValues;
+                // System.debug('Returning ddw.recordValues:');
+
                 return ddw;
             }else{
                 return null;
@@ -612,6 +672,8 @@ public static void updateSetting(String clientId, String clientSecret) {
         @AuraEnabled public String emailBody;
         @AuraEnabled public String templateType;
         @AuraEnabled public String emailTemplate;
+        @AuraEnabled public List<String> recordValues;
+        @AuraEnabled public String emailType ;
     }
 
 
