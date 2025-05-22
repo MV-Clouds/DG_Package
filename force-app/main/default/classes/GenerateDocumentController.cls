@@ -403,7 +403,9 @@ public static void updateSetting(String clientId, String clientSecret) {
 ********************************************************
 */  
     @AuraEnabled
-    public static DefaultDataWrapper getTemplateDefaultValues(String templateId){
+    public static DefaultDataWrapper getTemplateDefaultValues(String templateId, String recordId) {
+        // System.debug('recordId: ' + recordId);
+        // System.debug('template id '+templateId);
         try {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
