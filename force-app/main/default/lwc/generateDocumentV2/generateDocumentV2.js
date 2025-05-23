@@ -2176,11 +2176,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.showSpinner = true;
                 this.labelOfLoader = 'Sending email...';
         
-                let emailData = {
-                    contentVersionId: cvId,
-                    emailSubject: this.emailSubject,
-                    emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue || this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).Body || '' : this.emailBody
-                };
                 let allEmails = {
                     toEmails: this.toEmails,
                     ccEmails: this.ccEmails,
