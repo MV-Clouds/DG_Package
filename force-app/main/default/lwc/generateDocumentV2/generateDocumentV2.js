@@ -899,19 +899,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.externalStorageOptions.find(item => item.name === 'AWS').isDisabled = true;
                 // this.outputChannels.find(item => item.name === 'Email').isDisabled = true;
             }
-            else {
-                this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = false;
-                this.internalStorageOptions.find(item => item.name === 'Files').isDisabled = false;
-                this.internalStorageOptions.find(item => item.name === 'Chatter').isDisabled = false;
-                this.internalStorageOptions.find(item => item.name === 'Documents').isDisabled = false;
-                this.externalStorageOptions.find(item => item.name === 'One Drive').isDisabled = false;
-                this.externalStorageOptions.find(item => item.name === 'Google Drive').isDisabled = false;
-                this.externalStorageOptions.find(item => item.name === 'Dropbox').isDisabled = false;
-                this.externalStorageOptions.find(item => item.name === 'AWS').isDisabled = false;
-                // this.outputChannels.find(item => item.name === 'Email').isDisabled = false;
-            }
-            // console.log(this.recordId);
-            // console.log(this.objectApiName);
         }catch(e){
             errorDebugger('generateDocumentV2', 'handleSelectTemplate', e, 'error');
         }finally{
