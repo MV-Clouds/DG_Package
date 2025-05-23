@@ -417,6 +417,55 @@ public with sharing class GoogleDocPreview {
             jsObject = (List<OriginalObjectWrapper>) JSON.deserialize(queryObject, List<OriginalObjectWrapper>.class);
             Integer tableCount = 1;
             Boolean SignatureImagePresent = false;
+            // Check for Custom Keys first
+            Set<String> extractedKeys = new Set<String>();
+            Set<String> customKeyNames = new Set<String>();
+            Set<String> customKeys = new Set<String>();
+            List<MVDG__Custom_Key__c> queriedCustomKeys = new List<MVDG__Custom_Key__c>();
+
+
+            for (OriginalObjectWrapper obj : jsObject) {
+                if (obj.objApi == 'Custom Keys') {
+                    for (String key : obj.fieldName) {
+                        String keyStr = String.valueOf(key);
+                        customKeys.add(keyStr);
+                        String keyName;
+
+                        if (keyStr.startsWith('{{@CK:')) {
+                            keyName = keyStr.substringAfter('{{@CK:').substringBefore('.');
+                        } else if (keyStr.startsWith('{{@CKLIST:')) {
+                            keyName = keyStr.substringAfter('{{@CKLIST:').substringBefore('.');
+                        } else if (keyStr.startsWith('{{@CKTABLE:')) {
+                            String temp = keyStr.substringAfter('{{@CKTABLE:').substringBefore('}}').substringBefore(';').substringBefore(':');
+                            keyName = temp.contains(':') ? temp.substringBefore(':') : temp;
+                        }
+
+                        if (keyName != null) {
+                            customKeyNames.add(keyName.trim());
+                        }
+                    }
+                }
+            }
+
+            if (!customKeyNames.isEmpty()) {
+                queriedCustomKeys = [
+                    SELECT Id, MVDG__Custom_Key_Name__c, MVDG__Query__c
+                    FROM MVDG__Custom_Key__c
+                    WHERE MVDG__Custom_Key_Name__c IN :customKeyNames
+                ];
+
+                Pattern pattern = Pattern.compile('\\{\\{#(.*?)\\}\\}');
+
+                for (MVDG__Custom_Key__c key : queriedCustomKeys) {
+                    String queryTemplate = key.MVDG__Query__c;
+                    Matcher matcher = pattern.matcher(queryTemplate);
+
+                    while (matcher.find()) {
+                        extractedKeys.add('{{#' + matcher.group(1) + '}}');
+                    }
+                }
+            }
+
             for (OriginalObjectWrapper obj : jsObject) {
                 if (obj.objApi == 'General Fields') {
 
@@ -427,8 +476,11 @@ public with sharing class GoogleDocPreview {
                 } else if (obj.objApi == objectApiName && obj.tableNo == null) {
 
                     Map<String, Object> objectFieldValues = new Map<String, Object>();
-                    objectFieldValues.put(objectApiName, DataMappingControllerV2.getMappingKeyVsValue(obj.fieldName, objectApiName, recordId));
+                    if(extractedKeys.size() > 0) obj.fieldName.addAll(extractedKeys);
+                    Map<String,String> objMappingValues = DataMappingControllerV2.getMappingKeyVsValue(obj.fieldName, objectApiName, recordId);
                     objectFieldValues.put('Object Fields', true);
+                    objMappingValues.putAll(DataMappingControllerV2.collectCustomKeys(objMappingValues, queriedCustomKeys, extractedKeys, customKeys));
+                    objectFieldValues.put(objectApiName, objMappingValues);
                     returnList.add(objectFieldValues);
                     
                 } else if (obj.objApi == 'Signature Image') {

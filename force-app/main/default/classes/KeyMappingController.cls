@@ -718,6 +718,25 @@ public with sharing class KeyMappingController {
         timeFormatting.fieldMappings = mappingFields2;
         listOFformattingField.add(timeFormatting);
 
+        FormattingField textFormatting = new FormattingField();
+        Map<String, String> textFormats = new Map<String, String>{
+            'UPPER' => 'Upper Case (JOHN DOE)',
+            'LOWER' => 'Lower Case (john doe)',
+            'SENTENCE' => 'Sentence case (John doe)',
+            'TITLE' => 'Title Case (John Doe)'
+        };
+        textFormatting.formatType = 'TEXT';
+        List<MappingFields> mappingFields3 = new List<MappingFields>();
+        for (String formatType : textFormats.keySet()) {
+            MappingFields textFormat = new MappingFields();
+            textFormat.label = textFormats.get(formatType);
+            textFormat.name = formatType;
+            textFormat.formatKey = formattingKeys.replace('formatKey', formatType);
+            mappingFields3.add(textFormat);
+        }
+        textFormatting.fieldMappings = mappingFields3;
+        listOFformattingField.add(textFormatting);
+
         retrunWrapper.isSuccess = true;
         retrunWrapper.fieldFormatting = listOFformattingField;
         retrunWrapper.signatureKey = signatureKey;

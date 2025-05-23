@@ -89,6 +89,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
     @track clickedFieldName;
     @track dateFormatKeys = [];
     @track timeFormatKeys = [];
+    @track textFormatKeys = [];
     @track primeFormatKeys = [];
     @track subFormatKeys = [];
     @track isSubFormat = false;
@@ -244,7 +245,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             return 'Set Display text based on checkbox status';
         }  
         else if(this.clickedFieldType == 'TEXT'){
-            return 'Set Text Length by Character';
+            return 'Set Text Length and Text Case';
         }
         else if(this.clickedFieldType == 'CURRENCY' || this.clickedFieldType == 'NUMBER' || this.clickedFieldType == 'PERCENTAGE'){
             return `Format Options for ${this.clickedFieldType} field`;
@@ -497,6 +498,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     if(result.fieldFormatting && result.fieldFormatting.length){
                         this.dateFormatKeys = result.fieldFormatting.find(ele => ele.formatType == 'DATE').fieldMappings;
                         this.timeFormatKeys = result.fieldFormatting.find(ele => ele.formatType == 'TIME').fieldMappings;
+                        this.textFormatKeys = result.fieldFormatting.find(ele => ele.formatType == 'TEXT').fieldMappings;
                         this.signatureKey = result.signatureKey;
                     }
                 }
@@ -969,6 +971,13 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     ele.name = fieldName+' '+ele.formatKey;
                     ele['key'] = fieldKey.replace(fieldName, fieldName+' '+ele.formatKey);
                 });
+            }else if(this.clickedFieldType == 'TEXT'){
+                this.primeFormatKeys = JSON.parse(JSON.stringify(this.textFormatKeys));
+                this.primeFormatKeys.forEach(ele =>{
+                    ele['value'] = ele.name;
+                    ele.name = fieldName+' '+ele.formatKey;
+                    ele['key'] = fieldKey.replace(fieldName, fieldName+' '+ele.formatKey);
+                });
             }
             
             this.chosenFormat = JSON.parse(JSON.stringify(this.formatDefault));           // for Deep clone...
@@ -1017,6 +1026,43 @@ export default class KeyMappingContainerV2 extends LightningElement {
         }
     }
 
+    handleTextCase(event) {
+        try {
+            const caseVal = event.detail?.[0]?.trim();
+            let key = this.chosenFormat.key;
+
+            // Extract content between {{# and }}
+            const match = key.match(/{{#(.*?)}}/);
+            if (!match) return;
+
+            let inner = match[1];
+
+            // Extract or prepare formatting block
+            let innerParts = inner.split('*');
+            let base = innerParts[0].trim();
+            let formatRaw = innerParts.length > 1 ? innerParts[1] : '';
+            let formatParts = formatRaw.split(';').map(p => p.trim()).filter(p => !!p);
+
+            // Remove any existing case formats (anything not starting with L:)
+            formatParts = formatParts.filter(p => p.startsWith('L:'));
+
+            if (caseVal) {
+                formatParts.push(caseVal.toUpperCase());
+            }
+
+            // Build new key
+            let newInner = formatParts.length ? `${base} *${formatParts.join(';')}*` : base;
+            this.chosenFormat.key = `{{#${newInner}}}`;
+
+            if (this.isSubFormat) {
+                this.updateChosenFormat();
+            }
+
+        } catch (error) {
+            errorDebugger('FieldMappingKeyV2', 'handleTextCase', error, 'warn');
+        }
+    }
+    
     /**
      * Once user select ay format type, update existing mapping key bases on formate type.
      */
@@ -1073,26 +1119,36 @@ export default class KeyMappingContainerV2 extends LightningElement {
      * Set formatting into mapping key  for Text field.
      * @param {*} event 
      */
-    setTextFormat(event){
+    setTextFormat(event) {
         try {
-            
-            if(event.target.value <= 0){
-                event.target.value = '';
+            const length = event.target.value?.trim();
+            let key = this.chosenFormat.key;
+
+            // Extract content between {{# and }}
+            const match = key.match(/{{#(.*?)}}/);
+            if (!match) return;
+
+            let inner = match[1];
+
+            // Extract or prepare formatting block
+            let innerParts = inner.split('*');
+            let base = innerParts[0].trim();
+            let formatRaw = innerParts.length > 1 ? innerParts[1] : '';
+            let formatParts = formatRaw.split(';').map(p => p.trim()).filter(p => !!p);
+
+            // Remove any previous L: format
+            formatParts = formatParts.filter(p => !p.startsWith('L:'));
+
+            if (length && parseInt(length) > 0) {
+                formatParts.push(`L:${length}`);
             }
 
-            if(event.target.value != '' && event.target.value != null){
-                if(this.chosenFormat.key.includes('*')){
-                    this.chosenFormat.key = this.chosenFormat.key.replace(/(?<=\*)(.*?)(?=\*)/g,  `L:${event.target.value}`);
-                }
-                else{
-                    this.chosenFormat.key = this.chosenFormat.key.replace(this.chosenFormat.name, this.chosenFormat.name + ` *L:${event.target.value}*`);
-                }
-            }
-            else if(this.chosenFormat.key.includes('*')){
-                this.chosenFormat.key = this.formatDefault.key;
-            }
+            // Build new key
+            let newInner = formatParts.length ? `${base} *${formatParts.join(';')}*` : base;
+            this.chosenFormat.key = `{{#${newInner}}}`;
+            
         } catch (error) {
-            errorDebugger('FieldMappingKeyV2', 'setTextFormat', error ,'warn');            
+            errorDebugger('FieldMappingKeyV2', 'setTextFormat', error, 'warn');
         }
     }
 

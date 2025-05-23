@@ -695,6 +695,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     if(!this.isCalledFromDefaults){
                         this.showSpinner = true;
                         this.handleGenerate();
+                    } 
+                    
+                    this.verifiedEmails = [];
+                        if (data?.recordValues?.length > 0) {
+                            this.verifiedEmails = data.recordValues.filter(value => 
+                                typeof value === 'string' && this.emailregex.test(value.trim())
+                            );
                     }
                     
                     this.verifiedEmails = [];
@@ -1016,6 +1023,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             // Remove the label at the specified index
             this.selectedFieldLabels = this.selectedFieldLabels.filter((_, i) => i !== parseInt(index));
             console.log('After remove:', JSON.stringify(this.selectedFieldLabels));
+
 
             // Update fieldLabelOptions to reflect the current selection state
             this.fieldLabelOptions = this.fieldLabelOptions.map(option => ({
@@ -2416,6 +2424,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             let allEmailsString = '';
             allEmailsString += (this.toEmails.length>0 ? this.toEmails.join(', ') : '') + '<|DGE|>' + (this.ccEmails.length>0 ? this.ccEmails.join(', ') : '') + '<|DGE|>' + (this.bccEmails.length>0 ? this.bccEmails.join(', '): '') + '<|DGE|>' + this.selectedFieldLabels + '<|DGE|>' + this.selectedEmailType;
             console.log('allEmailString',allEmailsString);
+
             // console.log('toEmails ',JSON.stringify(this.toEmails));
             // console.log('ccEmails ',JSON.stringify(this.ccEmails));
             // console.log('bccEmails ',JSON.stringify(this.bccEmails));

@@ -72,7 +72,53 @@ public with sharing class DataMappingControllerV2 {
                 mapingKeyVsValuesGroup?.get('signatureImage')?.putAll(signatureImageCvId);
 
                 
-                Map<String,String> customKeys = collectCustomKeys(extractedKeyMap, mapingKeyVsValuesGroup?.get('objectNGeneral'));
+                Map<String,String> customKeys = collectCustomKeys(mapingKeyVsValuesGroup?.get('objectNGeneral'), queriedCustomKeys, fieldsInCustomKey, customKeys);
+                for (String key : new List<String>(customKeys.keySet())) {
+                    if (key.startsWith('{{@CKTABLE:')) {
+                        String json = customKeys.get(key);
+
+                        if (String.isNotBlank(json)) {
+                            try {
+                                // Correct static method call
+                                Map<String, Object> tableData = (Map<String, Object>) System.JSON.deserializeUntyped(json);
+                                List<Object> headers = (List<Object>) tableData.get('headers');
+                                List<Object> rows = (List<Object>) tableData.get('rows');
+                                String fontSize = (String) tableData.get('fontSize');
+
+                                String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:' + fontSize + 'px;">';
+                                tableHtml += '<thead><tr>';
+                                for (Object header : headers) {
+                                    tableHtml += '<th style="background-color:#fff;">' + String.valueOf(header) + '</th>';
+                                }
+                                tableHtml += '</tr></thead><tbody>';
+
+                                for (Object rowObj : rows) {
+                                    Map<String, Object> row = (Map<String, Object>) rowObj;
+                                    tableHtml += '<tr>';
+                                    for (Object header : headers) {
+                                        String col = String.valueOf(header);
+                                        String val = row.containsKey(col) ? String.valueOf(row.get(col)) : '';
+                                        tableHtml += '<td>' + val + '</td>';
+                                    }
+                                    tableHtml += '</tr>';
+                                }
+
+                                tableHtml += '</tbody></table>';
+
+                                // Replace JSON with the rendered table HTML
+                                customKeys.put(key, tableHtml);
+
+                            } catch (Exception e) {
+                                customKeys.put(key, '');
+                                Log_Handler.store_Exception(e, 'DataMappingControllerV2', 'getMappingsKeyValues > Create Table Loop');
+                            }
+                        } else {
+                            customKeys.put(key, '');
+                        }
+                    }
+                }
+
+
                 mapingKeyVsValuesGroup?.get('objectNGeneral')?.putAll(customKeys);
                 
 
@@ -199,7 +245,7 @@ public with sharing class DataMappingControllerV2 {
      * @param extractedKeyMap, Map of keyType vs list of keys in object form,
      * @description : extract and collect Custom Keys.
      */
-    public static Map<String, String> collectCustomKeys(Map<String, Object> extractedKeyMap,Map<String, Object> objectFieldValues) {
+    public static Map<String, String> collectCustomKeys(Map<String, Object> objectFieldValues, List<Custom_Key__c> queriedCustomKeys, Set<String> fieldsInCustomKey, Set<String> customKeys) {
         Map<String, String> resolvedCustomKeyValues = new Map<String, String>();
 
         try {
@@ -229,15 +275,15 @@ public with sharing class DataMappingControllerV2 {
 
                         for (String rawKey : customKeys) {
                             if (rawKey.startsWith('{{@CK:' + keyName + '.')) {
-                                String fieldName = rawKey.substringBetween(keyName + '.', '}}');
+                                String fieldName = rawKey.substringBetween(keyName + '.', '}}').subStringBefore('*').trim();
 
                                 if (fieldName != null) {
                                     Object fieldValue = queryResult[0].get(fieldName);
-                                    resolvedCustomKeyValues.put(rawKey, String.valueOf(fieldValue));
+                                    resolvedCustomKeyValues.put(rawKey, formatString(String.valueOf(fieldValue), rawKey.substringBetween('*')));
                                 }
                             }else if (rawKey.startsWith('{{@CKLIST:' + keyName + '.')) {
                                 String fieldName = rawKey.substringBetween(keyName + '.', ':');
-                                String separator = rawKey.subStringAfter('{{@CKLIST:').substringBetween(':', '}}');
+                                String separator = rawKey.subStringAfter('{{@CKLIST:').substringBetween(':', '}}').subStringBefore('*');
 
                                 if (fieldName != null) {
                                     List<String> collectedValues = new List<String>();
@@ -245,7 +291,7 @@ public with sharing class DataMappingControllerV2 {
                                     for (SObject record : queryResult) {
                                         Object fieldValue = record.get(fieldName);
                                         if (fieldValue != null) {
-                                            collectedValues.add(String.valueOf(fieldValue));
+                                            collectedValues.add(formatString(String.valueOf(fieldValue), rawKey.substringBetween('*')));
                                         }
                                     }
 
@@ -269,16 +315,13 @@ public with sharing class DataMappingControllerV2 {
                                     // Split fields and font size by semicolon
                                     List<String> parts = fieldAndFontSection.split(';');
 
-                                    if (!parts.isEmpty()) {
-                                        // First part = field list (may be empty)
-                                        if (!String.isBlank(parts[0])) {
-                                            for (String field : parts[0].split(',')) {
-                                                field = field.trim();
-                                                if (field.equalsIgnoreCase('INDEX')) {
-                                                    includeIndex = true;
-                                                } else if (availableFields.contains(field)) {
-                                                    fieldNames.add(field);
-                                                }
+                                    if (!parts.isEmpty() && !String.isBlank(parts[0])) {
+                                        for (String field : parts[0].split(',')) {
+                                            field = field.trim();
+                                            if (field.equalsIgnoreCase('INDEX')) {
+                                                includeIndex = true;
+                                            } else if (availableFields.contains(field)) {
+                                                fieldNames.add(field);
                                             }
                                         }
                                     }
@@ -287,41 +330,42 @@ public with sharing class DataMappingControllerV2 {
                                     if (parts.size() > 1 && Pattern.matches('^[0-9]+$', parts[1].trim())) {
                                         fontSize = parts[1].trim();
                                     }
-                                }else if (fieldSection.startsWith(';')){
-                                    fontSize = fieldSection.subStringBetween(';','}}').trim();
+                                } else if (fieldSection.startsWith(';')) {
+                                    fontSize = fieldSection.substringBetween(';', '}}').trim();
                                 }
 
                                 if (fieldNames.isEmpty()) {
                                     fieldNames.addAll(availableFields);
                                 }
 
-                                // Build HTML table
-                                String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:' + fontSize + 'px;">';
-
-                                tableHtml += '<thead><tr>';
+                                List<String> headers = new List<String>();
                                 if (includeIndex) {
-                                    tableHtml += '<th style="background-color:#efefef;">Index</th>';
+                                    headers.add('No.');
                                 }
-                                for (String col : fieldNames) {
-                                    tableHtml += '<th style="background-color:#efefef;">' + col + '</th>';
-                                }
-                                tableHtml += '</tr></thead><tbody>';
+                                headers.addAll(fieldNames);
 
+                                List<Map<String, String>> rows = new List<Map<String, String>>();
                                 for (Integer idx = 0; idx < queryResult.size(); idx++) {
                                     SObject record = queryResult[idx];
-                                    tableHtml += '<tr>';
+                                    Map<String, String> rowMap = new Map<String, String>();
                                     if (includeIndex) {
-                                        tableHtml += '<td>' + String.valueOf(idx + 1) + '</td>';
+                                        rowMap.put('No.', String.valueOf(idx + 1));
                                     }
                                     for (String col : fieldNames) {
                                         Object val = record.get(col);
-                                        tableHtml += '<td>' + (val != null ? String.valueOf(val) : '') + '</td>';
+                                        rowMap.put(col, val != null ? String.valueOf(val) : '');
                                     }
-                                    tableHtml += '</tr>';
+                                    rows.add(rowMap);
                                 }
 
-                                tableHtml += '</tbody></table>';
-                                resolvedCustomKeyValues.put(rawKey, tableHtml);
+                                Map<String, Object> tableData = new Map<String, Object>();
+                                tableData.put('headers', headers);
+                                tableData.put('rows', rows);
+                                tableData.put('fontSize', fontSize);
+                                tableData.put('includeIndex', includeIndex);
+
+                                String jsonTable = JSON.serialize(tableData);
+                                resolvedCustomKeyValues.put(rawKey, jsonTable);
                             }
 
                         }
@@ -1076,15 +1120,48 @@ public with sharing class DataMappingControllerV2 {
         return fieldValue;
     }
     /**
-     * @description : formate String (text) fields.
+     * @description : Format String (text) fields with length and case formatting.
      */
-    public static string formatString(string fieldValue, string formatType){
-        Integer endIndex = (Integer) Integer.valueOf(formatType.substringAfter('L:'));
-        endIndex = endIndex > fieldValue.length() ? fieldValue.length() : endIndex;             // endIndex must be less than value string length...
-        fieldValue = fieldValue.substring(0, endIndex);
+    public static String formatString(String fieldValue, String formatType) {
 
-        return fieldValue;
+        if (String.isBlank(fieldValue) || String.isBlank(formatType)) {
+            return fieldValue;
+        }
+
+        List<String> formats = formatType.replace('*', '').split(';');
+        String result = fieldValue;
+
+        for (String f : formats) {
+            f = f.trim().toUpperCase();
+            if (f.startsWithIgnoreCase('L:')) {
+                Integer endIndex = Integer.valueOf(f.substringAfter('L:'));
+                endIndex = Math.min(endIndex, result.length());
+                result = result.substring(0, endIndex);
+            }else if (f == 'UPPER') {
+                result = result.toUpperCase();
+            } else if (f == 'LOWER') {
+                result = result.toLowerCase();
+            } else if (f == 'TITLE') {
+                // Capitalize first letter of each word
+                List<String> words = result.toLowerCase().split(' ');
+                for (Integer i = 0; i < words.size(); i++) {
+                    if (!String.isEmpty(words[i])) {
+                        words[i] = words[i].substring(0, 1).toUpperCase() + words[i].substring(1);
+                    }
+                }
+                result = String.join(words, ' ');
+            } else if (f == 'SENTENCE') {
+                // Capitalize only first letter of the sentence
+                result = result.toLowerCase();
+                if (result.length() > 0) {
+                    result = result.substring(0, 1).toUpperCase() + result.substring(1);
+                }
+            }
+        }
+
+        return result;
     }
+
     /**
      * @description : formate Number, Precentage and Currecy fields.
      */
