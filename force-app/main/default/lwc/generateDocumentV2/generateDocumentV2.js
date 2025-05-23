@@ -438,7 +438,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     handleEmailTypeChange(event) {
         this.selectedEmailType = event.detail.value;
-
+         console.log('Selected Email Type:', this.selectedEmailType);
     }
 
     renderedCallback() {
@@ -906,19 +906,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.externalStorageOptions.find(item => item.name === 'AWS').isDisabled = true;
                 // this.outputChannels.find(item => item.name === 'Email').isDisabled = true;
             }
-            else {
-                this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = false;
-                this.internalStorageOptions.find(item => item.name === 'Files').isDisabled = false;
-                this.internalStorageOptions.find(item => item.name === 'Chatter').isDisabled = false;
-                this.internalStorageOptions.find(item => item.name === 'Documents').isDisabled = false;
-                this.externalStorageOptions.find(item => item.name === 'One Drive').isDisabled = false;
-                this.externalStorageOptions.find(item => item.name === 'Google Drive').isDisabled = false;
-                this.externalStorageOptions.find(item => item.name === 'Dropbox').isDisabled = false;
-                this.externalStorageOptions.find(item => item.name === 'AWS').isDisabled = false;
-                // this.outputChannels.find(item => item.name === 'Email').isDisabled = false;
-            }
-            // console.log(this.recordId);
-            // console.log(this.objectApiName);
         }catch(e){
             errorDebugger('generateDocumentV2', 'handleSelectTemplate', e, 'error');
         }finally{
@@ -1031,12 +1018,11 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.showSpinner = true;
             const index = event.currentTarget.dataset.index;
             const removedLabel = this.selectedFieldLabels[index]; // Get the label being removed
-
-            // console.log('Before remove:', JSON.stringify(this.selectedFieldLabels));
+            console.log('Before remove:', JSON.stringify(this.selectedFieldLabels));
 
             // Remove the label at the specified index
             this.selectedFieldLabels = this.selectedFieldLabels.filter((_, i) => i !== parseInt(index));
-            // console.log('After remove:', JSON.stringify(this.selectedFieldLabels));
+            console.log('After remove:', JSON.stringify(this.selectedFieldLabels));
 
 
             // Update fieldLabelOptions to reflect the current selection state
@@ -1821,11 +1807,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 if(newSRC !== previousSRC){
                     this.vfGeneratePageSRC = newSRC;
                     this.simpleTemplate = true;
+                    this.vfInks.push(newSRC);
                 }
                 else{
                     this.vfGeneratePageSRC = '/apex/MVDG__DocGeneratePage';
                     this.customTimeout?.setCustomTimeoutMethod(() => {
                         this.vfGeneratePageSRC = newSRC;
+                        this.vfInks.push(newSRC);
                         this.simpleTemplate = true;
                     }, 300);
 
@@ -2183,11 +2171,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.showSpinner = true;
                 this.labelOfLoader = 'Sending email...';
         
-                let emailData = {
-                    contentVersionId: cvId,
-                    emailSubject: this.emailSubject,
-                    emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue || this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).Body || '' : this.emailBody
-                };
                 let allEmails = {
                     toEmails: this.toEmails,
                     ccEmails: this.ccEmails,
@@ -2209,7 +2192,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     emailSubject: this.emailSubject,
                     emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue || this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).Body || '' : this.emailBody
                 };
-
+                console.log('selecrtred fields in auto generation',JSON.stringify(this.selectedFieldLabels));
+                console.log('verified when send email',JSON.stringify(this.verifiedEmails));
+                console.log('all emails',JSON.stringify(allEmails));
                 sendEmail({ allEmails:allEmails, emailData:emailData, activityId : this.activity.Id })
                 .then((result) => {
                     if(result === 'success'){
@@ -2438,6 +2423,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         try {
             let allEmailsString = '';
             allEmailsString += (this.toEmails.length>0 ? this.toEmails.join(', ') : '') + '<|DGE|>' + (this.ccEmails.length>0 ? this.ccEmails.join(', ') : '') + '<|DGE|>' + (this.bccEmails.length>0 ? this.bccEmails.join(', '): '') + '<|DGE|>' + this.selectedFieldLabels + '<|DGE|>' + this.selectedEmailType;
+            console.log('allEmailString',allEmailsString);
 
             // console.log('toEmails ',JSON.stringify(this.toEmails));
             // console.log('ccEmails ',JSON.stringify(this.ccEmails));
