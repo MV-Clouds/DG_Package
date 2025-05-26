@@ -74,7 +74,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
         },
         {   label: 'Custom Keys',     name: 'customKeys',
             helpText : 'Add Data From The Custom Keys Into The Template.',
-            showCombobox : true, comboboxPlaceholder : 'Select Custom Key...', showDescription : false,
+            showCombobox : true, comboboxPlaceholder : 'Select Custom Key...', showDescription : true,
             showSearchbar : true, searchBarPlaceHolder : 'Search Custom Key Field...', selected : false,
         }
     ];
@@ -341,7 +341,6 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.fetchAllContentVersionImages();
                 this.fetchFormatMappingKeys();
                 this.fetchSignatureInfo();
-                this.fetchCustomKeys();
             }
             if (typeof window !== 'undefined') {
                 window.addEventListener('resize', this.resizeFunction);
@@ -410,6 +409,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                         errorDebugger('FieldMappingKeyV2', 'fetchFieldMapping', null, 'warn', `error in getFieldMappingKeys apex call : ${result.returnMessage}`);
                         this.showMessagePopup('Error', 'Error While Fetching Field Mapping Data', result.returnMessage);
                     }
+                this.fetchCustomKeys();
             })
             .catch(error => {
                 this.isDataRefreshing = false;
@@ -598,6 +598,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     ...item,
                     label: item.MVDG__Custom_Key_Name__c,
                     value: item.MVDG__Custom_Key_Name__c,
+                    description: item.MVDG__Description__c,
                     parentFieldKeys: item.MVDG__Parent_Keys__c?.replaceAll(' ', '')?.split(','),
                     queriedFields: item.MVDG__Queried_Fields__c.split(',')
                         .map(field => {
