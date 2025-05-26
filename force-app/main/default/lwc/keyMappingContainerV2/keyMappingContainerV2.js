@@ -341,7 +341,6 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.fetchAllContentVersionImages();
                 this.fetchFormatMappingKeys();
                 this.fetchSignatureInfo();
-                this.fetchCustomKeys();
             }
             if (typeof window !== 'undefined') {
                 window.addEventListener('resize', this.resizeFunction);
@@ -410,6 +409,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                         errorDebugger('FieldMappingKeyV2', 'fetchFieldMapping', null, 'warn', `error in getFieldMappingKeys apex call : ${result.returnMessage}`);
                         this.showMessagePopup('Error', 'Error While Fetching Field Mapping Data', result.returnMessage);
                     }
+                this.fetchCustomKeys();
             })
             .catch(error => {
                 this.isDataRefreshing = false;
