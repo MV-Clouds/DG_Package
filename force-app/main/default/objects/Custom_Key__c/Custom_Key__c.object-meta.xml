@@ -155,8 +155,9 @@
     <externalSharingModel>Private</externalSharingModel>
     <label>DocGenius Custom Key</label>
     <nameField>
-        <label>Custom Key Name</label>
-        <type>Text</type>
+        <displayFormat>DG_Custom_Key-{000000}</displayFormat>
+        <label>DocGenius Custom Key Name</label>
+        <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Custom Keys</pluralLabel>
     <searchLayouts></searchLayouts>
