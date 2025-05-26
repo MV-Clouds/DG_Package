@@ -1354,6 +1354,88 @@ li {
     }
 }
 
+.switch {
+  position: relative;
+  height: 32px;
+  width: calc( 100% - 1rem );
+  background: #00aeff20;
+  border-radius: 32px;
+
+}
+.switch-label {
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+  float: left;
+  width: calc( 100% / 3 );
+  line-height: 32px;
+  font-size: 12px;
+  color: #000000cc;
+  text-align: center;
+  cursor: pointer;
+}
+
+.switch-input {
+  display: none;
+}
+
+.switch-input:checked + .switch-label {
+  color: #FFF;
+  transition: 0.15s ease-out;
+  transition-property: color, text-shadow;
+}
+
+.switch-input:checked + .switch-label-field ~ .switch-selector {
+  transform: translateX(0%);
+  background-color: #00aeff;
+}
+.switch-input:checked + .switch-label-list ~ .switch-selector {
+  transform: translateX(100%);
+  background-color: #00aeff;
+}
+.switch-input:checked + .switch-label-table ~ .switch-selector {
+  transform: translateX(200%);
+  background-color: #00aeff;
+}
+
+
+.switch-selector {
+  position: absolute;
+  z-index: 1;
+  top: 0px;
+  left: 0px;
+  display: block;
+  width: calc( 100% / 3 );
+  height: 32px;
+  border-radius: 32px;
+  transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.added-field {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    background-color: #00aeff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    user-select: text;
+    color: white;
+    cursor: grab;
+}
+
+.tile {
+  transition: margin 0.2s ease, opacity 0.2s ease;
+}
+.tile.dragging {
+  opacity: 0.5;
+}
+.gap-before {
+  /* adjust to your tile width + gap */
+  margin-left: 4rem;
+}
+.gap-after {
+  margin-right: 4rem;
+}
 
 /* ====== ========= ========= ========== Media Query ======== ======== ======= ========= ========= ========= ======== ======= */
 
