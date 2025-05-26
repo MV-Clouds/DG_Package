@@ -74,7 +74,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
         },
         {   label: 'Custom Keys',     name: 'customKeys',
             helpText : 'Add Data From The Custom Keys Into The Template.',
-            showCombobox : true, comboboxPlaceholder : 'Select Custom Key...', showDescription : false,
+            showCombobox : true, comboboxPlaceholder : 'Select Custom Key...', showDescription : true,
             showSearchbar : true, searchBarPlaceHolder : 'Search Custom Key Field...', selected : false,
         }
     ];
@@ -598,6 +598,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     ...item,
                     label: item.MVDG__Custom_Key_Name__c,
                     value: item.MVDG__Custom_Key_Name__c,
+                    description: item.MVDG__Description__c,
                     parentFieldKeys: item.MVDG__Parent_Keys__c?.replaceAll(' ', '')?.split(','),
                     queriedFields: item.MVDG__Queried_Fields__c.split(',')
                         .map(field => {
