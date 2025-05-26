@@ -51,6 +51,8 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     namePlaceholder = '{Name}_';
     @track nameMap = {};
     @track counter = 0;
+    isDownloadZip = false;
+    isExpanded = false;
 
     @api recordId;
     @api objectApiName;
@@ -892,8 +894,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.generalDocumentTypes[0].isSelected = true;
                 this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = false;
             }
-
-            // console.log(this.isRelatedList);
             
             if (this.isRelatedList) {
                 this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = true;
@@ -904,7 +904,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.externalStorageOptions.find(item => item.name === 'Google Drive').isDisabled = true;
                 this.externalStorageOptions.find(item => item.name === 'Dropbox').isDisabled = true;
                 this.externalStorageOptions.find(item => item.name === 'AWS').isDisabled = true;
-                // this.outputChannels.find(item => item.name === 'Email').isDisabled = true;
             }
         }catch(e){
             errorDebugger('generateDocumentV2', 'handleSelectTemplate', e, 'error');
@@ -927,6 +926,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     handleAdditionalInfo(event){
         this.isAdditionalInfo = event.target.checked;
+    }
+
+    handleDownloadZip(event){
+        this.isDownloadZip = event.target.checked;
     }
 
     //Navigate to respective template builder
@@ -1881,14 +1884,15 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             else if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel !== 'unknown'){
                 
                 if(message.data.completedChannel === 'Download' || message.data.completedChannel === 'Documents' || message.data.completedChannel === 'Notes & Attachments'){
-                    
-                    if(message.data.status){
-                        this.succeeded.push(message.data.completedChannel);
-                    }else{
-                        this.failed[message.data.completedChannel] = message.data.error?.message;
+                    if((message.data.isBulk == 'true' && this.recordIds?.length == this.counter) || (message.data.isBulk == 'false')){
+                        if(message.data.status){
+                            this.succeeded.push(message.data.completedChannel);
+                        }else{
+                            this.failed[message.data.completedChannel] = message.data.error?.message;
+                        }
+                        this.completedSimTempPros++;
+                        this.simpleTemplateFileDone();
                     }
-                    this.completedSimTempPros++;
-                    this.simpleTemplateFileDone();
                 }else if(message.data.completedChannel === 'External Storage'){
                     let cvId = message.data.cvId;
                     if(cvId){
@@ -1896,7 +1900,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                             this.contentVersionIds.push(cvId);
                             this.resultPromises.push(this.createFilesChatterEmail(cvId));
                             deleteContentVersion({cvId: cvId});
-                            if(this.recordIds.length == this.counter){
+                            console.log('this is download zip variable'+this.isDownloadZip);
+                            
+                            if(this.recordIds.length == this.counter && this.isDownloadZip){
                                 this.generateZipFile();
                             }
                         }

@@ -320,6 +320,11 @@
                 <div class="additional-info-div" if:true={isCSVTemplate}>
                     <input type="checkbox" checked={isAdditionalInfo} onchange={handleAdditionalInfo}><span>Add additional template details in file</span>
                 </div>
+                <div if:false={isExpanded}>
+                    <div class="additional-info-div" if:true={isRelatedList}>
+                        <input type="checkbox" checked={isDownloadZip} onchange={handleDownloadZip}><span>Download in Zip</span>
+                    </div>
+                </div>
                 <!-- <div class="file-name-input-div" if:true={isRelatedList} style="flex-grow: 1;">
                     <span>Zip file name</span>
                     <input type="text" maxlength="240" placeholder="Enter Zip file name" value={zipName} onkeyup={handleZipNameChange} onblur={handleZipNameChange}>

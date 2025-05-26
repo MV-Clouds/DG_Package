@@ -23,6 +23,7 @@ public with sharing class ButtonGeneratorController {
             combinedData.listViewButtonObj = getListViewButtonObj();
             combinedData.quickActionButtonObj = getQuickActionButtonObj(combinedData.allObjects);
             combinedData.basicPrintButtonObj = getBasicPrintButtonObj();
+            combinedData.relatedListButtonObj = getRelatedListButtonObj();
             combinedData.isSuccess = combinedData.listViewButtonObj != null && combinedData.quickActionButtonObj != null && combinedData.basicPrintButtonObj != null ? true : false;
         } catch (Exception e) {
             combinedData.isSuccess = false;
@@ -101,6 +102,29 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
         return null;
     }
 }
+
+/*
+*********************************************************
+@description     : Method is used to fetch all the objects that already have the Related List Button
+@param           : none
+@return          : {List<String>} - list of Related object labels
+********************************************************
+*/
+@AuraEnabled
+public static List<String> getRelatedListButtonObj(){
+    try {
+        List<String> objects = new List<String>();
+        List<WebLink> webLinks = [SELECT PageOrSobjectType FROM WebLink WHERE Name LIKE 'DG_RL%' WITH SECURITY_ENFORCED];
+        for (WebLink wl : webLinks) {
+            objects.add(wl.PageOrSobjectType);
+        }
+        return objects;
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getRelatedListButtonObj');
+        return null;
+    }
+}
+
 
 /*
 *********************************************************
@@ -241,6 +265,7 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
         @AuraEnabled public List<String> listViewButtonObj;
         @AuraEnabled public List<String> quickActionButtonObj;
         @AuraEnabled public List<String> basicPrintButtonObj;
+        @AuraEnabled public List<String> relatedListButtonObj;
         @AuraEnabled public Boolean isSuccess;
     }
 }

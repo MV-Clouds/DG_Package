@@ -10,6 +10,8 @@ global with sharing class DocGenerateController {
     public static String useMode {get; set;}
     public static String isLast {get; set;}
     public static String isBulk {get; set;}
+    public static String isZip {get; set;}
+
 
     public static String headerHtml {get; set;}
     public static String bodyHtml {get; set;}
@@ -72,6 +74,7 @@ global with sharing class DocGenerateController {
                     useMode = (String)rawData.get('useMode') != null ? (String)rawData.get('useMode') : 'generate';
                     isLast = (String)rawData.get('isLast');
                     isBulk = (String)rawData.get('isBulk');
+                    isZip = (String)rawData.get('isZip');
 
     
                     templateId = (String)rawData.get('templateId');
