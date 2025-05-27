@@ -53,6 +53,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     @track counter = 0;
     isDownloadZip = false;
     isExpanded = false;
+    totalNum = 0;
 
     @api recordId;
     @api objectApiName;
@@ -206,7 +207,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         { label: 'BCC', value: 'bcc' }
     ]; 
 
-    
+    get disableZipOption(){
+        return !this.selectedChannels.includes('Download');
+    }
 
     get showCloseButton(){
         return this.isCSVOnly || this.isDefaultGenerate || this.isCalledFromPreview;
@@ -398,7 +401,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     fetchFieldMapping() {
         try {
-            getFieldMappingKeys({ sourceObjectAPI: this.objectApiName, getParentFields: true })
+            console.log('LOGGING SOBJECT API NAME'+ this.objectApiName || this.internalObjectApiName);
+            console.log(this.internalObjectApiName);
+            console.log(this.objectApiName ? this.objectApiName : this.internalObjectApiName);
+            
+            
+            
+            getFieldMappingKeys({ sourceObjectAPI: this.objectApiName ? this.objectApiName : this.internalObjectApiName, getParentFields: true })
                 .then(result => {
                     if (result.isSuccess) {
                         this.fieldMappingsWithObj = result.fieldMappingsWithObj[0];
@@ -896,10 +905,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             }
             
             if (this.isRelatedList) {
-                this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = true;
-                this.internalStorageOptions.find(item => item.name === 'Files').isDisabled = true;
+                // this.internalStorageOptions.find(item => item.name === 'Notes & Attachments').isDisabled = true;
+                // this.internalStorageOptions.find(item => item.name === 'Files').isDisabled = true;
                 this.internalStorageOptions.find(item => item.name === 'Chatter').isDisabled = true;
-                this.internalStorageOptions.find(item => item.name === 'Documents').isDisabled = true;
+                // this.internalStorageOptions.find(item => item.name === 'Documents').isDisabled = true;
                 this.externalStorageOptions.find(item => item.name === 'One Drive').isDisabled = true;
                 this.externalStorageOptions.find(item => item.name === 'Google Drive').isDisabled = true;
                 this.externalStorageOptions.find(item => item.name === 'Dropbox').isDisabled = true;
@@ -929,7 +938,14 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
 
     handleDownloadZip(event){
-        this.isDownloadZip = event.target.checked;
+        if(this.selectedChannels.includes('Download')){
+            this.isDownloadZip = event.target.checked;
+        }
+        else{
+            this.isDownloadZip = false;
+        }
+        console.log(this.isDownloadZip);
+        
     }
 
     //Navigate to respective template builder
@@ -1144,6 +1160,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 !this.externalStorageOptions[index].isDisabled ? this.externalStorageOptions[index].isSelected = !this.externalStorageOptions[index].isSelected : undefined;
             }else if(section==='output'){
                 this.outputChannels[index].isSelected = !this.outputChannels[index].isSelected;
+                if(option === "Download" && this.isRelatedList && this.outputChannels[index].isSelected == false){
+                    this.isDownloadZip = false;
+                    console.log(this.isDownloadZip);
+                }
                 if(option==="Email"){
                     this.showEmailSection = this.outputChannels[index].isSelected;
                     this.template.querySelector('.email-create-div').style.display = this.showEmailSection ? 'unset' : 'none';
@@ -1216,6 +1236,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.showSimplePreview = true;
         }
 
+    }
+
+    handleDynamicName(){
+
+        this.isExpanded = !this.isExpanded;
+        const btns = this.template.querySelector('.control-btns');
+        btns.classList.toggle('expanded');    
     }
 
     generateActivity() {
@@ -1549,7 +1576,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.createContentVersion(btoa(unescape(encodeURIComponent(this.generatedCSVData))))
                 .then(cvId => {
                     this.labelOfLoader = 'Saving in Internal Storage...';
-                    this.resultPromises.push(this.createFilesChatterEmail(cvId));
+                    this.resultPromises.push(this.createFilesChatterEmail(cvId, this.recordId));
                     this.uploadToExternalStorage(cvId);
                     return Promise.all(this.resultPromises);
                 })
@@ -1704,7 +1731,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     this.createContentVersion(decodeURIComponent(this.googleDocData))
                     .then(cvId => {
                         this.labelOfLoader = 'Saving in Internal Storage...';
-                        this.resultPromises.push(this.createFilesChatterEmail(cvId));
+                        this.resultPromises.push(this.createFilesChatterEmail(cvId, this.recordId));
                         this.uploadToExternalStorage(cvId);
                         return Promise.all(this.resultPromises);
                     })
@@ -1836,6 +1863,19 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     generateMultipleDocuments(){
         try {
+                if(!this.recordIds || this.recordIds.length > 0){
+                    this.totalNum = this.recordIds.length;
+                }
+                const validChannels = ['Download', 'Notes & Attachments', 'Documents', 'Files'];
+                const multiplier = validChannels.filter(channel => this.selectedChannels.includes(channel)).length;
+            
+                console.log('Selected channels --->', this.selectedChannels);
+                console.log(multiplier);
+                
+                this.totalNum *= multiplier;
+                console.log('totalNum --->'+ this.totalNum);
+                    
+                
                 this.vfInks = [];
                 let timeout = 500;
                 this.showSpinner = true;
@@ -1857,6 +1897,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                             'selectedFolder' : this.selectedFolder,
                             'isLast': bool,
                             'isBulk': 'true',
+                            'isZip': JSON.stringify(this.isDownloadZip),
                         }
                         let paraDataStringify2 = JSON.stringify(paraData2);
                         let newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
@@ -1871,8 +1912,11 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
 
     simpleTempFileGenResponse = (message) => {
-        try{ 
+        try{             
             this.counter++;
+            console.log('counter->'+this.counter);
+            
+            
             if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel === 'unknown'){
                 this.completedSimTempPros = this.selectedChannels.length;
                 ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error In File Generation => '+ message.data.error?.message);
@@ -1884,7 +1928,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             else if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel !== 'unknown'){
                 
                 if(message.data.completedChannel === 'Download' || message.data.completedChannel === 'Documents' || message.data.completedChannel === 'Notes & Attachments'){
-                    if((message.data.isBulk == 'true' && this.recordIds?.length == this.counter) || (message.data.isBulk == 'false')){
+                    if((message.data.isBulk == 'true' && this.totalNum == this.counter) || (message.data.isBulk == 'false')){
                         if(message.data.status){
                             this.succeeded.push(message.data.completedChannel);
                         }else{
@@ -1897,17 +1941,24 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     let cvId = message.data.cvId;
                     if(cvId){
                         if (message.data.isBulk == 'true') {
+                            let recId = message.data.recordId;
                             this.contentVersionIds.push(cvId);
-                            this.resultPromises.push(this.createFilesChatterEmail(cvId));
-                            deleteContentVersion({cvId: cvId});
-                            console.log('this is download zip variable'+this.isDownloadZip);
+                            this.resultPromises.push(this.createFilesChatterEmail(cvId, recId));
+                            if(!(this.selectedChannels.includes('Files') || this.selectedChannels.includes('Chatter') || this.selectedChannels.includes('Email')) && (this.selectedChannels.includes('Dropbox') || this.selectedChannels.includes('One Drive') || this.selectedChannels.includes('Google Drive') || this.selectedChannels.includes('AWS'))){
+                                deleteContentVersion({cvId: cvId});
+                            }
                             
-                            if(this.recordIds.length == this.counter && this.isDownloadZip){
+                            if(this.totalNum == this.counter && this.isDownloadZip){
                                 this.generateZipFile();
                             }
+                            if (this.totalNum == this.counter && !this.isDownloadZip ){
+                                this.handleGenerationResult();
+                            }
                         }
-                        if (message.data.isBulk == 'false'){
-                            this.resultPromises.push(this.createFilesChatterEmail(cvId));
+                        if (message.data.isBulk != 'true'){
+                            console.log('record id in externalstorage'+this.recordId);
+                            
+                            this.resultPromises.push(this.createFilesChatterEmail(cvId, this.recordId));
                             this.uploadToExternalStorage(cvId);
                             this.handleGenerationResult();
                         }
@@ -1924,6 +1975,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
 
     simpleTemplateFileDone(){
+        console.log('this is completedsimtemppro ---> '+this.completedSimTempPros);
+        console.log('this is selected Channels -----> '+this.selectedChannels.length);
+        
+        
         if(this.selectedChannels.length === this.completedSimTempPros){
             this.showSpinner = false;
             this.simpleTemplate = false;
@@ -2092,14 +2147,16 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }
     }
 
-    addToFiles(cvId) {
+    addToFiles(cvId, recId) {
+        console.log('recordid in 2'+recId);
+        
         return new Promise((resolve) => {
             try {
                 this.showSpinner = true;
                 this.labelOfLoader = 'Saving in Internal Storage...';
         
                 if (!this.isCSVTemplate) {
-                    storeInFiles({ combinedData: {contentVersionId: cvId, recordId: this.recordId ? this.recordId : this.selectedTemplate, activityId : this.activity.Id} })
+                    storeInFiles({ combinedData: {contentVersionId: cvId, recordId: recId ? recId : this.selectedTemplate, activityId : this.activity.Id} })
                     .then((result) => {
                         if(result === 'success'){
                             this.succeeded.push('Files');
@@ -2282,14 +2339,21 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             });
     }
 
-    createFilesChatterEmail(contentVersionId) {
+    createFilesChatterEmail(contentVersionId, recId) {
         try {
             this.showSpinner = true;
     
             if (this.selectedChannels.includes('Chatter')) {
                 this.resultPromises.push(this.addToChatter(contentVersionId));
             } else if (this.selectedChannels.includes('Files')) {
-                this.resultPromises.push(this.addToFiles(contentVersionId));
+                console.log('recId in 1'+recId);
+                
+                if(!recId){
+                    recId = this.recordId;
+                }
+                console.log('recId in 1 --->'+recId);
+                
+                this.resultPromises.push(this.addToFiles(contentVersionId, recId));
             }
     
             if (this.selectedChannels.includes('Email')) {
@@ -2345,11 +2409,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         }
                     }
                     this.selectedChannels.forEach(channel => {
-                        if (this.failed[channel] && !this.succeeded.includes(channel)){
+                        if (this.failed[channel]){
                            combinedMaps.failed[channel] = this.failed[channel];
                         } else if(['Google Drive', 'AWS', 'One Drive', 'Dropbox'].includes(channel)){
                             combinedLists.inProgress.push(channel);
                             this.succeeded = this.succeeded.filter(item => !item.includes(channel));
+                        } else if(!this.succeeded.includes(channel) && this.isRelatedList){
+                            combinedLists.succeeded.push(channel);
                         } else if (!this.succeeded.includes(channel)) {
                             combinedMaps.failed[channel] = 'Internal Error';
                         }

@@ -10,6 +10,10 @@
     background: linear-gradient(269.86deg, #b3feeb 0%, #b3e7ff 100%);
     font-family: inherit;
     color : black;
+    font-weight: 650;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+
 }
 
 .slds-modal__content {
@@ -40,3 +44,13 @@
 .custom-datatable .slds-table tbody td {
     font-family: inherit;
 }
+
+.slds-modal__footer {
+    display: flex;
+    justify-content: center; /* Center-align the button */
+    align-items: center;     /* Optional: vertically center if needed */
+    background-color: white;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+

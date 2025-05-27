@@ -324,7 +324,7 @@
                     const useMode = '{!JSENCODE(useMode)}';
                     
 
-                    function sendInfoToLWC(completedChannel, status, error, cvId, errMsg, isBulk, isLast) {
+                    function sendInfoToLWC(completedChannel, status, error, cvId, errMsg, isBulk, isLast, recordId) {
                         console.log('inside sending info to lwc');
                         console.log(useMode);
                         console.log(isBulk);
@@ -356,6 +356,7 @@
                                 cvId : cvId,
                                 isBulk: isBulk,
                                 isLast: isLast,
+                                recordId: recordId,
                             };
                             parent.postMessage(message, parentURL);
                         }
@@ -1008,7 +1009,7 @@
                                     }
                                     document.body.removeChild(downloadLink);
     
-                                    sendInfoToLWC('Download', true, null, null, null, isBulk, isLast);
+                                    sendInfoToLWC('Download', true, null, null, null, isBulk, isLast, recordId);
                                 }
     
                                 // ... store file in Salesforce Document Object ....
@@ -1085,7 +1086,7 @@
                                     response.json()
                                     .then(result => {
                                         if (result.success) {
-                                            sendInfoToLWC('Documents', true, null);
+                                            sendInfoToLWC('Documents', true, null, null, null, isBulk, isLast, recordId);
                                         }
                                         else{
                                             sendInfoToLWC('Documents', false, result.error);
@@ -1143,7 +1144,7 @@
                                     response.json()
                                     .then(result => {
                                         if (result.success) {
-                                            sendInfoToLWC('Notes & Attachments', true, null);
+                                            sendInfoToLWC('Notes & Attachments', true, null, null, null, isBulk, isLast, recordId);
                                         }
                                         else{
                                             sendInfoToLWC('Notes & Attachments', false, result.error);
@@ -1199,7 +1200,7 @@
         
                                         }
                                         else{
-                                            sendInfoToLWC('External Storage', true, null, result.id, null, isBulk, isLast);
+                                            sendInfoToLWC('External Storage', true, null, result.id, null, isBulk, isLast, recordId);
                                         }
                                     })
                                 })
