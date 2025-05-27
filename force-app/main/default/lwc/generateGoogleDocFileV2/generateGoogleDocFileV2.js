@@ -225,7 +225,7 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                                         matches.forEach(key => {
                                             
                                             // Get the actual value from the data map
-                                            let data = parentFieldValues.Contact[key] || "";
+                                            let data = parentFieldValues[this.objectname][key] || "";
                                             const parsed = data ? JSON.parse(data) : null;
 
 
