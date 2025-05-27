@@ -364,7 +364,7 @@ public with sharing class DataMappingControllerV2 {
                                         rowMap.put('No.', String.valueOf(idx + 1));
                                     }
                                     for (String col : fieldNames) {
-                                        Object val = record.containsKey(col) ? record.get(col) : '';
+                                        Object val = record.isSet(col) ? record.get(col) : '';
                                         rowMap.put(col, val != null ? String.valueOf(val) : '');
                                     }
                                     rows.add(rowMap);
