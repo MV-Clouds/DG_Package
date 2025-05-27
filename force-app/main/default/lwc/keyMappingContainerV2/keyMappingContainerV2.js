@@ -223,6 +223,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
         else if(this.activeMappingTabName == 'generalFields'){
             return this.selectedGeneralFieldType;
         }
+        else if(this.activeMappingTabName == 'customKeys'){
+            return this.selectedCustomKey;
+        }
         return null;
     }
 
@@ -783,6 +786,8 @@ export default class KeyMappingContainerV2 extends LightningElement {
 
     handleCustomKeySelection(event){
         try {
+            this.selectedCustomKeyListField = null;
+            this.selectedCustomKeyTableFields = [];
             this.selectedCustomKey = event.detail[0];
         } catch (e) {
             errorDebugger('FieldMappingKeyV2', 'handleCustomKeySelection', e ,'warn');
