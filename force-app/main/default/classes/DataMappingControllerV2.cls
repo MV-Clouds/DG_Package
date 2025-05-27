@@ -198,8 +198,9 @@ public with sharing class DataMappingControllerV2 {
             }
             queriedCustomKeys = [
                 SELECT Id, MVDG__Custom_Key_Name__c, MVDG__Query__c, MVDG__Object_Name__c
-                FROM MVDG__Custom_Key__c 
+                FROM MVDG__Custom_Key__c
                 WHERE MVDG__Custom_Key_Name__c IN :customKeyNames
+                WITH SECURITY_ENFORCED
             ];
             Pattern pattern = Pattern.compile('\\{\\{#(.*?)\\}\\}');
 
@@ -291,6 +292,7 @@ public with sharing class DataMappingControllerV2 {
                                         String formattedValue = getFieldValue(fieldWithType[0], mapOfRecord);
                                         resolvedCustomKeyValues.put(rawKey, formattedValue);
                                     }
+                                    resolvedCustomKeyValues.put(rawKey, String.valueOf(fieldValue));
                                 }
                             }else if (rawKey.startsWith('{{@CKLIST:' + keyName + '.')) {
                                 String fieldName = rawKey.substringBetween(keyName + '.', ':');
