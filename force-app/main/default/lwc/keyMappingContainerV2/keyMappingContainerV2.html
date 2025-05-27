@@ -411,7 +411,7 @@
           </div>
         </div>
         <div class="nothing-selected-image slds-grid slds-grow slds-align--absolute-center slds-grid_vertical-align-center slds-panel_docked" if:false={selectedCustomKey}>
-          <img src="/resource/noResultImage" alt="Nothing Selected Image"/>
+          <img src="/resource/MVDG__noResultImage" alt="Nothing Selected Image"/>
         </div>
       </template>
     </div>
@@ -493,7 +493,7 @@
                 <div class="formatInputSection">
                   <div class="inputContainer" if:false={customKeyType.isList}>
                     <div class="inputContainerText">Text Length</div>
-                    <input type="number" placeholder="Set text length by character..." onkeyup={setTextFormat}/>
+                    <input type="number" placeholder="Set text length by character..." step="1" onkeyup={setTextFormat}/>
                   </div>
                   <div class="inputContainer">
                     <div class="inputContainerText">Text Case</div>

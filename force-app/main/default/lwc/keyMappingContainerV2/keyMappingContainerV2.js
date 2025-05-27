@@ -223,6 +223,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
         else if(this.activeMappingTabName == 'generalFields'){
             return this.selectedGeneralFieldType;
         }
+        else if(this.activeMappingTabName == 'customKeys'){
+            return this.selectedCustomKey;
+        }
         return null;
     }
 
@@ -600,9 +603,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     value: item.MVDG__Custom_Key_Name__c,
                     description: item.MVDG__Description__c,
                     parentFieldKeys: item.MVDG__Parent_Keys__c?.replaceAll(' ', '')?.split(','),
-                    queriedFields: item.MVDG__Queried_Fields__c.split(',')
+                    queriedFields: item.MVDG__Queried_Fields__c?.split(',')
                         .map(field => {
-                            let [label, name, type] = field.split(':').map(s => s.trim());
+                            let [label, name, type] = field?.split(':').map(s => s.trim());
                             let key = `{{@CK:${item.MVDG__Custom_Key_Name__c}.${name}}}`;
                             let value = name;
                             let description = name;
@@ -783,6 +786,8 @@ export default class KeyMappingContainerV2 extends LightningElement {
 
     handleCustomKeySelection(event){
         try {
+            this.selectedCustomKeyListField = null;
+            this.selectedCustomKeyTableFields = [];
             this.selectedCustomKey = event.detail[0];
         } catch (e) {
             errorDebugger('FieldMappingKeyV2', 'handleCustomKeySelection', e ,'warn');
@@ -1378,7 +1383,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             formatParts = formatParts.filter(p => !p.startsWith('L:'));
 
             if (length && parseInt(length) > 0) {
-                formatParts.push(`L:${length}`);
+                formatParts.push(`L:${parseInt(length)}`);
             }
 
             // Build new key
