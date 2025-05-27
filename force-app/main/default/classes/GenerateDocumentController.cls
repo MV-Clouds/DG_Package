@@ -541,14 +541,18 @@ public static void updateSetting(String clientId, String clientSecret) {
     @AuraEnabled
     public static void deleteContentVersion(String cvId){
         try {
-            Datetime timeToTrigger = System.now();
-            timeToTrigger = timeToTrigger.addMinutes(10);
-            String hour = String.valueOf(timeToTrigger.hour());
-            String min = String.valueOf(timeToTrigger.minute()); 
-            String ss = String.valueOf(timeToTrigger.second());
-            String deleteTimeCron = ss + ' ' + min + ' ' + hour + ' * * ?';
-            DeleteContentDocumentController deleteController = new DeleteContentDocumentController(cvId);
-            System.schedule('delete temp Content Version - ' + timeToTrigger, deleteTimeCron, deleteController);
+            Datetime now = Datetime.now();
+                Datetime runTime = now.addMinutes(2);
+                Integer day = runTime.day();
+                Integer month = runTime.month();
+                Integer year = runTime.year();
+                Integer hour = runTime.hour();
+                Integer minute = runTime.minute();
+                
+                String cronExp = String.format( '0 {0} {1} {2} {3} ? {4}', new List<String>{String.valueOf(minute), String.valueOf(hour), String.valueOf(day), String.valueOf(month), String.valueOf(year)});
+                DeleteContentDocumentController deleteController = new DeleteContentDocumentController(cvId);
+                String scheduleId = System.schedule('delete temp Content Version - ' + String.valueOf(System.now()) + ' ' + cvId, cronExp, deleteController);
+
         } catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'deleteContentVersion');
         }

@@ -73,6 +73,9 @@
 .basic-print-help:hover::before{
     content: "Create 'DG Basic Print' button, that can be used to generate the basic PDF document according to current page layout from the Record detail page.";
 }
+.related-list-help:hover::before{
+    content: "Create 'DG Related List' button, that can be used to generate the Bulk PDF/DOC document according to current page layout from the Record detail page.";
+}
 
 
 

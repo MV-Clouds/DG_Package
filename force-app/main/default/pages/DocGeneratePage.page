@@ -324,7 +324,7 @@
                     const useMode = '{!JSENCODE(useMode)}';
                     
 
-                    function sendInfoToLWC(completedChannel, status, error, cvId, errMsg, isBulk, isLast) {
+                    function sendInfoToLWC(completedChannel, status, error, cvId, errMsg, isBulk, isLast, recordId) {
                         console.log('inside sending info to lwc');
                         console.log(useMode);
                         console.log(isBulk);
@@ -356,6 +356,7 @@
                                 cvId : cvId,
                                 isBulk: isBulk,
                                 isLast: isLast,
+                                recordId: recordId,
                             };
                             parent.postMessage(message, parentURL);
                         }
@@ -383,6 +384,7 @@
                         const selectedFolder = '{!JSENCODE(selectedFolder)}';
                         const isBulk = '{!JSENCODE(isBulk)}';
                         const isLast = '{!JSENCODE(isLast)}';
+                        const isZip = '{!JSENCODE(isZip)}';
 
                         console.log(selectedChannels);
 
@@ -994,7 +996,7 @@
                                 const fileSizeInByte = (fileData.length / 4) * 3;
                             
                                 // ....Download doc file....
-                                if(selectedChannels.includes('Download') && isBulk != 'true'){
+                                if(selectedChannels.includes('Download') && (isBulk != 'true' || isZip == 'false')){
                                     let downloadLink = document.createElement("a");
                                     document.body.appendChild(downloadLink);
     
@@ -1007,7 +1009,7 @@
                                     }
                                     document.body.removeChild(downloadLink);
     
-                                    sendInfoToLWC('Download', true, null);
+                                    sendInfoToLWC('Download', true, null, null, null, isBulk, isLast, recordId);
                                 }
     
                                 // ... store file in Salesforce Document Object ....
@@ -1031,7 +1033,7 @@
                                     selectedChannels.includes('Chatter') || selectedChannels.includes('Email') ||
                                     selectedChannels.includes('Google Drive') || selectedChannels.includes('AWS') ||
                                     selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox') ||
-                                    isBulk == 'true')){
+                                    (isBulk == 'true'&& isZip == 'true'))){
                                 {
                                     console.log('creating content version');
                                     
@@ -1041,7 +1043,7 @@
                                         selectedChannels.includes('Chatter') || selectedChannels.includes('Email') ||
                                         selectedChannels.includes('Google Drive') || selectedChannels.includes('AWS') ||
                                         selectedChannels.includes('One Drive') || selectedChannels.includes('Dropbox') || 
-                                        isBulk == 'true'){
+                                        (isBulk == 'true' && isZip == 'true')){
                                     sendInfoToLWC('External Storage', false, {message : 'File Size Limit Exceeded!'});
                                 }
                                 
@@ -1084,7 +1086,7 @@
                                     response.json()
                                     .then(result => {
                                         if (result.success) {
-                                            sendInfoToLWC('Documents', true, null);
+                                            sendInfoToLWC('Documents', true, null, null, null, isBulk, isLast, recordId);
                                         }
                                         else{
                                             sendInfoToLWC('Documents', false, result.error);
@@ -1142,7 +1144,7 @@
                                     response.json()
                                     .then(result => {
                                         if (result.success) {
-                                            sendInfoToLWC('Notes & Attachments', true, null);
+                                            sendInfoToLWC('Notes & Attachments', true, null, null, null, isBulk, isLast, recordId);
                                         }
                                         else{
                                             sendInfoToLWC('Notes & Attachments', false, result.error);
@@ -1198,7 +1200,7 @@
         
                                         }
                                         else{
-                                            sendInfoToLWC('External Storage', true, null, result.id, null, isBulk, isLast);
+                                            sendInfoToLWC('External Storage', true, null, result.id, null, isBulk, isLast, recordId);
                                         }
                                     })
                                 })

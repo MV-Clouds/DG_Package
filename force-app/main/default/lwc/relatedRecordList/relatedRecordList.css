@@ -1,0 +1,56 @@
+.custom-modal {
+    font-family: Bahnschrift, 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.slds-modal__container {
+    max-width: 50rem;
+}
+
+.custom-modal-header {
+    background: linear-gradient(269.86deg, #b3feeb 0%, #b3e7ff 100%);
+    font-family: inherit;
+    color : black;
+    font-weight: 650;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+
+}
+
+.slds-modal__content {
+    height: 20rem;
+    overflow: auto;
+}
+
+.custom-button {
+    width: max-content;
+    min-width: 6rem;
+    height: 2.5rem;
+    border: none;
+    outline: none;
+    color: white;
+    background: #00aeff;
+    border-radius: 6px;
+    padding-inline: 1rem;
+    transition: all linear 0.1s;
+}
+
+.custom-datatable .slds-table thead th {
+    background-color: #e6f7ff;
+    color: #0078d4;
+    font-family: inherit;
+    font-weight: bold;
+}
+
+.custom-datatable .slds-table tbody td {
+    font-family: inherit;
+}
+
+.slds-modal__footer {
+    display: flex;
+    justify-content: center; /* Center-align the button */
+    align-items: center;     /* Optional: vertically center if needed */
+    background-color: white;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
