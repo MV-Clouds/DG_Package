@@ -316,11 +316,11 @@
             <p>Select any template to generate document.</p>
         </div>
         <div class="control-btns" if:false={isOtherModelOpen}>
-            <div if:false={isEditDisabled}>
+            <!-- <div if:false={isEditDisabled}>
                 <button class="close-btn control-btn dynamic-btn" onclick={handleDynamicName} if:true={isRelatedList}>
                     Dynamic Name
                 </button>
-            </div>
+            </div> -->
             <div class="file-info-div" if:false={isEditDisabled}>
                 <div class="additional-info-div" if:true={isCSVTemplate}>
                     <input type="checkbox" checked={isAdditionalInfo} onchange={handleAdditionalInfo}><span>Add additional template details in file</span>
