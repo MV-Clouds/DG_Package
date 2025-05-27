@@ -1866,6 +1866,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 if(!this.recordIds || this.recordIds.length > 0){
                     this.totalNum = this.recordIds.length;
                 }
+                this.counter = 0;
                 const validChannels = ['Download', 'Notes & Attachments', 'Documents', 'Files'];
                 const multiplier = validChannels.filter(channel => this.selectedChannels.includes(channel)).length;
             
@@ -2242,13 +2243,21 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                  
                 
                 if (this.selectedEmailType === 'to') {
-                    allEmails.toEmails = this.toEmails.concat(this.verifiedEmails);
+                    if(this.verifiedEmails != null){
+                        allEmails.toEmails = this.toEmails.concat(this.verifiedEmails);
+                    }
                 } else if (this.selectedEmailType === 'cc') {
-                    allEmails.ccEmails = this.ccEmails.concat(this.verifiedEmails);
+                    if(this.verifiedEmails != null){
+                        allEmails.ccEmails = this.ccEmails.concat(this.verifiedEmails);
+                    }
                 } else if (this.selectedEmailType === 'bcc') {
-                    allEmails.bccEmails = this.bccEmails.concat(this.verifiedEmails);
+                    if(this.verifiedEmails != null){
+                        allEmails.bccEmails = this.bccEmails.concat(this.verifiedEmails);
+                    }
                 } else { 
-                    allEmails.toEmails = this.toEmails.concat(this.verifiedEmails);
+                    if(this.verifiedEmails != null){
+                        allEmails.toEmails = this.toEmails.concat(this.verifiedEmails);
+                    }
                 }
                 let emailData = {
                     contentVersionId: cvId,
@@ -2388,6 +2397,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             }
         } catch (e) {
             errorDebugger('generateDocumentV2', 'uploadToExternalStorage', e, 'error');
+            this.showSpinner = false;
         }
     }
 
@@ -2416,6 +2426,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                             this.succeeded = this.succeeded.filter(item => !item.includes(channel));
                         } else if(!this.succeeded.includes(channel) && this.isRelatedList){
                             combinedLists.succeeded.push(channel);
+                            this.succeeded.push(channel);
                         } else if (!this.succeeded.includes(channel)) {
                             combinedMaps.failed[channel] = 'Internal Error';
                         }
