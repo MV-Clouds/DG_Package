@@ -291,8 +291,9 @@ public with sharing class DataMappingControllerV2 {
                                     if(!fieldWithType.isEmpty()) {
                                         String formattedValue = getFieldValue(fieldWithType[0], mapOfRecord);
                                         resolvedCustomKeyValues.put(rawKey, formattedValue);
+                                    }else{
+                                        resolvedCustomKeyValues.put(rawKey, String.valueOf(fieldValue));
                                     }
-                                    resolvedCustomKeyValues.put(rawKey, String.valueOf(fieldValue));
                                 }
                             }else if (rawKey.startsWith('{{@CKLIST:' + keyName + '.')) {
                                 String fieldName = rawKey.substringBetween(keyName + '.', ':');
