@@ -48,12 +48,22 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     relationshipName;
     parentObjName;
     @track contentVersionIds = [];
-    namePlaceholder = '{Name}_';
     @track nameMap = {};
     @track counter = 0;
     isDownloadZip = false;
-    isExpanded = false;
     totalNum = 0;
+    @track keyOptions = [
+        {
+            "label": "Parent Object Name",
+            "value": "{{#parentObjName}}"
+        },
+        {
+            "label": "Current Object Name",
+            "value": "{{#currentObjName}}"
+        },
+    ];
+    isExpand = false;
+
 
     @api recordId;
     @api objectApiName;
@@ -159,7 +169,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     //All files use
     @track showFolderSelection = false;
     @track fileName = '';
-    @track zipName = '';
     @track allFolders = [];
     @track selectedFolder;
     @track recordIds;
@@ -401,7 +410,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     fetchFieldMapping() {
         try {
-            console.log('LOGGING SOBJECT API NAME'+ this.objectApiName || this.internalObjectApiName);
             console.log(this.internalObjectApiName);
             console.log(this.objectApiName ? this.objectApiName : this.internalObjectApiName);
             
@@ -414,11 +422,18 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         let fieldOptions = [];
                         this.fieldMappingsWithObj.fieldMappings.forEach(field => {
                             const transformedValue = field.key.replace(/{{#(.*)}}/, '$1');
+                            const keyValue =  '{{#'+transformedValue+'}}';
                             fieldOptions.push({
                                 label: field.label,
                                 value: transformedValue
                             });
+                            this.keyOptions.push({
+                                label: field.label,
+                                value: keyValue
+                            })
                         });
+                        console.log(this.keyOptions);
+                        
                         this.fieldLabelOptions = JSON.parse(JSON.stringify(fieldOptions)); 
                     } else {
                         // console.error('Error in getFieldMappingKeys:', result.returnMessage);
@@ -679,6 +694,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     if(data?.emailAddresses?.includes('<|DGE|>')){
                         const splitEmails = data?.emailAddresses.split('<|DGE|>');
                         this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()) : [];
+                        console.log(this.toEmails);
                         this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()) : [];
                         this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()) : [];
                         this.selectedFieldLabels = splitEmails[3] ? splitEmails[3].split(',').map(field => field.trim()) : [];
@@ -707,13 +723,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         this.showSpinner = true;
                         this.handleGenerate();
                     } 
-                    
-                    this.verifiedEmails = [];
-                        if (data?.recordValues?.length > 0) {
-                            this.verifiedEmails = data.recordValues.filter(value => 
-                                typeof value === 'string' && this.emailregex.test(value.trim())
-                            );
-                    }
                     
                     this.verifiedEmails = [];
                         if (data?.recordValues?.length > 0) {
@@ -885,12 +894,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             let result = event.detail[0]?.Id;
             this.selectedTemplate = result || null;
             if(!this.isRelatedList){
-                
                 this.fileName = this.templateName?.slice(0,240);
             }
             else{
-                
-                this.zipName = this.templateName?.slice(0,240);
+                this.fileName = '{{#Name}}_'
             }
             this.csvDocumentTypes.forEach(dt => {dt.isSelected = false});
             this.generalDocumentTypes.forEach(dt => {dt.isSelected = false});
@@ -930,7 +937,14 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
 
     handleFileNameChange(event){
+        if(event.key == 'Enter' && this.isExpand == true){
+            this.isExpand = false;
+        }
         this.fileName = event.target.value;
+        if(this.fileName.length > 240){
+            this.fileName = this.fileName.slice(0, 240);
+            this.showToast('error', 'File name too Long!', 'Please use smaller name.', 5000);
+        }        
     }
 
     handleAdditionalInfo(event){
@@ -1186,6 +1200,29 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }
     }
 
+    handleKeyClick(event){
+        try {
+            let inputbox = this.template.querySelector('.file-input');
+            inputbox.value += event.target.dataset.value;
+
+            this.fileName = inputbox.value;
+            if(this.fileName.length > 240){
+                this.fileName = this.fileName.slice(0, 240);
+                inputbox.value = this.fileName;
+                this.showToast('error', 'File name too Long!', 'Please use smaller name.', 5000);
+            }
+            // To bring cursor to the end
+            const end = inputbox.value.length;
+            inputbox.setSelectionRange(end, end);
+            inputbox.focus();
+            console.log('inside handlekey click-->'+this.fileName);
+            
+        }
+        catch (e) {
+            errorDebugger('generateDocumentV2', 'handleKeyClick', e, 'error');
+        }
+    }
+
     handleTemplateSearch(event){
         this.templateSearchKey = event.target.value;
     }
@@ -1195,6 +1232,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             this.selectedTemplate = event.currentTarget.dataset.value;
             if(!this.isRelatedList){                
                 this.fileName = this.selectedTemplate?.slice(0,240);
+            }
+            else {
+                this.fileName = '{{#Name}}_';
             }
             this.handleSelectTemplate({detail:[{Id: this.selectedTemplate}]});
             this.backToGenerate();
@@ -1239,10 +1279,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
 
     handleDynamicName(){
-
-        this.isExpanded = !this.isExpanded;
-        const btns = this.template.querySelector('.control-btns');
-        btns.classList.toggle('expanded');    
+        this.isExpand = !this.isExpand;
     }
 
     generateActivity() {
@@ -1800,17 +1837,17 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         try{
             if (this.isRelatedList) {                
                 if (this.recordIds?.length > 0) {
-                    getFileNames({ sObjectType: this.internalObjectApiName, recordIds: this.recordIds })
+                    getFileNames({ sObjectType: this.internalObjectApiName, recordIds: this.recordIds, fileName: this.fileName, parentsObject: this.parentObjName })
                     .then((result) => {
                         this.nameMap = result;
                         this.generateMultipleDocuments();
                     });
                 }
                 else{
-                    fetchAllRecordIds({ objectname: this.parentObjName, RelatedRecordId: this.parentId,relationshipName: this.relationshipName  })
+                    fetchAllRecordIds({ objectname: this.parentObjName, RelatedRecordId: this.parentId,relationshipName: this.relationshipName, parentsObject: this.parentObjName})
                     .then((result) => {
                         this.recordIds = result;
-                        getFileNames({ sObjectType: this.internalObjectApiName, recordIds: this.recordIds })
+                        getFileNames({ sObjectType: this.internalObjectApiName, recordIds: this.recordIds, fileName: this.fileName })
                         .then((result) => {
                             this.nameMap = result;
                             this.generateMultipleDocuments();
@@ -1888,7 +1925,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                         let recordId = this.recordIds[i];
                         this.simpleTemplate = true;
                         this.labelOfLoader = "Generating document...";
-                        let name = this.nameMap[recordId]+'_'+this.fileName;
+                        let name = this.nameMap[recordId];
                         let paraData2 = {
                             'templateId' : this.selectedTemplate,
                             'recordId' : recordId,
@@ -1915,7 +1952,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     simpleTempFileGenResponse = (message) => {
         try{             
             this.counter++;
-            console.log('counter->'+this.counter);
             
             
             if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel === 'unknown'){
@@ -2240,7 +2276,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     ccEmails: this.ccEmails,
                     bccEmails: this.bccEmails
                 }
-                 
+                
                 
                 if (this.selectedEmailType === 'to') {
                     if(this.verifiedEmails != null){
@@ -2508,10 +2544,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             allEmailsString += (this.toEmails.length>0 ? this.toEmails.join(', ') : '') + '<|DGE|>' + (this.ccEmails.length>0 ? this.ccEmails.join(', ') : '') + '<|DGE|>' + (this.bccEmails.length>0 ? this.bccEmails.join(', '): '') + '<|DGE|>' + this.selectedFieldLabels + '<|DGE|>' + this.selectedEmailType;
             console.log('allEmailString',allEmailsString);
 
-            // console.log('toEmails ',JSON.stringify(this.toEmails));
-            // console.log('ccEmails ',JSON.stringify(this.ccEmails));
-            // console.log('bccEmails ',JSON.stringify(this.bccEmails));
-            // console.log('selected field ',JSON.stringify(this.selectedFieldLabels));
+            console.log('toEmails ',JSON.stringify(this.toEmails));
+            console.log('ccEmails ',JSON.stringify(this.ccEmails));
+            console.log('bccEmails ',JSON.stringify(this.bccEmails));
+            console.log('selected field ',JSON.stringify(this.selectedFieldLabels));
 
             let iStorages = this.internalStorageOptions.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
             let eStorages = this.externalStorageOptions.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
