@@ -745,21 +745,65 @@ public with sharing class GoogleDocPreview {
      * @description : Map to get all the file names of the related object
      */
     @AuraEnabled
-    public static Map<Id, String> getFileNames(List<Id> recordIds, String sObjectType) {
-        Map<Id, String> idNameMap = new Map<Id, String>();
+    public static Map<Id, String> getFileNames(List<Id> recordIds, String sObjectType, String fileName, String parentsObject) {
+        Map<Id, String> resultMap = new Map<Id, String>();
+
 
         if (recordIds == null || recordIds.isEmpty() || String.isBlank(sObjectType)) {
-            return idNameMap;
+            return resultMap;
         }
-        // Build dynamic SOQL
-        String query = 'SELECT Id, Name FROM ' + sObjectType + ' WHERE Id IN :recordIds WITH USER_MODE';
 
-        List<SObject> records = Database.query(query);
+        System.debug(fileName);
+        if (fileName == null || fileName == '') {
+            for (Id recordId : recordIds) {
+                resultMap.put(recordId, 'Untitled');
+            }
+            return resultMap;
+        }
+
+        Set<String> fieldNames = new Set<String>();
+        Pattern fieldPattern = Pattern.compile('\\{\\{#(.*?)\\}\\}');
+        Matcher matcher = fieldPattern.matcher(fileName);
+
+        while (matcher.find()) {
+            String field = matcher.group(1);
+            if (field == 'currentObjName') {
+                fileName = fileName.replace('{{#currentObjName}}', sObjectType);
+            } else if (field == 'parentObjName') {
+                fileName = fileName.replace('{{#parentObjName}}', parentsObject);
+            } else {
+                fieldNames.add(field);
+            }
+        }
+        
+        fieldNames.add('Id');
+        Boolean shouldTrim = fieldNames.size() > 5;
+
+
+        String soql = 'SELECT ' + String.join(new List<String>(fieldNames), ', ') +
+                  ' FROM ' + sObjectType + ' WHERE Id IN :recordIds WITH USER_MODE';
+
+        List<SObject> records = Database.query(soql);
+
+
         for (SObject rec : records) {
-            idNameMap.put((Id)rec.get('Id'), (String)rec.get('Name'));
+            String fileNames = fileName;
+            for (String fieldName : fieldNames) {
+                Object value = rec.get(fieldName);
+                String strValue = value != null ? String.valueOf(value) : '';
+                if (shouldTrim && strValue.length() > 3) {
+                    strValue = strValue.substring(0, 3);
+                }
+                fileNames = fileNames.replace('{{#' + fieldName + '}}', strValue);
+            }
+            if(fileNames.length() > 240) {
+                fileNames = fileNames.substring(0, 240);
+            }
+    
+            resultMap.put((Id)rec.get('Id'), fileNames);
         }
-
-        return idNameMap;
+    
+        return resultMap;
     }
 
     public class OriginalObjectWrapper {
