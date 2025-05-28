@@ -11,6 +11,7 @@ global with sharing class DocGenerateController {
     public static String isLast {get; set;}
     public static String isBulk {get; set;}
     public static String isZip {get; set;}
+    public static String parentId {get; set;}
 
 
     public static String headerHtml {get; set;}
@@ -75,6 +76,7 @@ global with sharing class DocGenerateController {
                     isLast = (String)rawData.get('isLast');
                     isBulk = (String)rawData.get('isBulk');
                     isZip = (String)rawData.get('isZip');
+                    parentId = (String)rawData.get('parentId');
 
     
                     templateId = (String)rawData.get('templateId');

@@ -385,6 +385,7 @@
                         const isBulk = '{!JSENCODE(isBulk)}';
                         const isLast = '{!JSENCODE(isLast)}';
                         const isZip = '{!JSENCODE(isZip)}';
+                        const parentId = '{!JSENCODE(parentId)}';
 
                         console.log(selectedChannels);
 
@@ -1122,13 +1123,23 @@
                                 const myHeaders = new Headers();
                                 myHeaders.append("Authorization", "Bearer " + accessToken);
                                 myHeaders.append("Content-Type", "application/json");
-                            
-                                const raw = JSON.stringify({
+                                
+                                if (parentId && parentId != '') {
+                                    const raw = JSON.stringify({
                                     "Name": fileName + selectedExtension,
-                                    "ParentId": recordId,
+                                    "ParentId": parentId,
                                     "contentType": contentType,
                                     "Body": fileData
-                                });
+                                    });
+                                }
+                                else{
+                                    const raw = JSON.stringify({
+                                        "Name": fileName + selectedExtension,
+                                        "ParentId": recordId,
+                                        "contentType": contentType,
+                                        "Body": fileData
+                                    });
+                                }
                             
                                 const requestOptions = {
                                     method: 'POST',

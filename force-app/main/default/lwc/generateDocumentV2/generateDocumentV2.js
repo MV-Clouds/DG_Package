@@ -63,6 +63,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         },
     ];
     isExpand = false;
+    isOnParent = false;
 
 
     @api recordId;
@@ -218,6 +219,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     get disableZipOption(){
         return !this.selectedChannels.includes('Download');
+    }
+
+    get disableParentOption(){
+        return !(this.selectedChannels.includes('Notes & Attachments') || this.selectedChannels.includes('Files'));
     }
 
     get showCloseButton(){
@@ -960,6 +965,15 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }
         console.log(this.isDownloadZip);
         
+    }
+
+    handleParentStorage(event){
+        if(this.selectedChannels.includes('Notes & Attachments') || this.selectedChannels.includes('Files')){
+            this.isOnParent = event.target.checked;
+        }
+        else{
+            this.isOnParent = false;
+        }
     }
 
     //Navigate to respective template builder
@@ -1936,6 +1950,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                             'isLast': bool,
                             'isBulk': 'true',
                             'isZip': JSON.stringify(this.isDownloadZip),
+                            'parentId' : this.parentId,
                         }
                         let paraDataStringify2 = JSON.stringify(paraData2);
                         let newSRC = '/apex/MVDG__DocGeneratePage?paraData=' + encodeURIComponent(paraDataStringify2);
@@ -2185,7 +2200,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
 
     addToFiles(cvId, recId) {
-        console.log('recordid in 2'+recId);
+        if(this.isOnParent){
+            recId = this.parentId;
+        }
         
         return new Promise((resolve) => {
             try {

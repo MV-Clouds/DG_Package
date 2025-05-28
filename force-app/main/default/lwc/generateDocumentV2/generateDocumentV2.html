@@ -340,8 +340,9 @@
                     <div class="additional-info-div" if:true={isCSVTemplate}>
                         <input type="checkbox" checked={isAdditionalInfo} onchange={handleAdditionalInfo}><span>Add additional template details in file</span>
                     </div>
-                    <!-- <div if:false={isExpanded}> -->
+                        <!-- <div if:false={isExpanded}> -->                            
                         <div class="additional-info-div" if:true={isRelatedList}>
+                            <input type="checkbox" checked={isOnParent} onchange={handleParentStorage} disabled={disableParentOption}><span>Store on parent</span>
                             <input type="checkbox" checked={isDownloadZip} onchange={handleDownloadZip} disabled={disableZipOption}><span>Download in Zip</span>
                         </div>
                     <!-- </div> -->
