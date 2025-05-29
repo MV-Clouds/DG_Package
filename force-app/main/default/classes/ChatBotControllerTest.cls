@@ -3,69 +3,64 @@ public class ChatBotControllerTest {
 
     @testSetup
     static void setupTestData() {
-        // Create necessary test data
-
-        // Create a MVDG__ChatBotData__c record for the running user
         MVDG__ChatBotData__c chatBotData = new MVDG__ChatBotData__c(MVDG__Chats__c = 'Initial chat data');
         insert chatBotData;
     }
 
     @isTest
     static void testStoreMessages() {
-        // Test storing messages
         Test.startTest();
         String message = 'Test chat message';
         String result = ChatBotController.storeMessages(message);
         Test.stopTest();
 
         MVDG__ChatBotData__c storedData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId()];
-        System.assertEquals(message, storedData.MVDG__Chats__c);
-        System.assertEquals(null, result);
+        System.assertEquals(message, storedData.MVDG__Chats__c, 'Stored message should match input message');
+        System.assertEquals(null, result, 'Result should be null');
     }
 
     @isTest
     static void testCheckOldChats() {
-        // Test retrieving old chats
         Test.startTest();
         String oldChats = ChatBotController.checkOldChats();
         Test.stopTest();
 
-        System.assertNotEquals(null, oldChats);
-        System.assertEquals('Initial chat data', oldChats);
+        System.assertNotEquals(null, oldChats, 'Old chats should not be null');
+        System.assertEquals('Initial chat data', oldChats, 'Old chats should match initial data');
     }
 
     @isTest
     static void testStoreMessagesElsePart() {
-        // Test storing messages when no existing MVDG__ChatBotData__c record
-            Test.startTest();
-            String message = 'Initial chat data';
-            String result = ChatBotController.storeMessages(message);
+        delete [SELECT Id FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId()];
 
-            System.assertEquals(message, 'Initial chat data', 'Chat data should be stored');
-            System.assertEquals(null, result, 'Result should be null');
-            Test.stopTest();
+        Test.startTest();
+        String message = 'New chat data';
+        String result = ChatBotController.storeMessages(message);
+        Test.stopTest();
+
+        MVDG__ChatBotData__c storedData = [SELECT MVDG__Chats__c FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId()];
+        System.assertEquals(message, storedData.MVDG__Chats__c, 'Stored message should match new chat data');
+        System.assertEquals(null, result, 'Result should be null');
     }
 
     @isTest
     static void testDeleteOldChats() {
-        // Test deleting old chats
         Test.startTest();
         ChatBotController.deleteOldChats();
         Test.stopTest();
 
         List<MVDG__ChatBotData__c> chatData = [SELECT Id FROM MVDG__ChatBotData__c WHERE CreatedById = :UserInfo.getUserId()];
-        System.assertEquals(0, chatData.size());
+        System.assertEquals(0, chatData.size(), 'Chat data should be deleted');
     }
 
     @isTest
     static void testGetJsonFaqs() {
-        // Test retrieving FAQ JSON
         Test.startTest();
         String faqs = ChatBotController.getJsonFaqs();
         Test.stopTest();
 
-        System.assertNotEquals(null, faqs);
-        System.assert(faqs.contains('"question": "Integration"'));
+        System.assertNotEquals(null, faqs, 'FAQ JSON should not be null');
+        System.assert(faqs.contains('"question": "Integration"'), 'FAQ JSON should contain Integration question');
     }
 
     @isTest
@@ -74,41 +69,75 @@ public class ChatBotControllerTest {
         String profileUrl = ChatBotController.getProfileUrl();
         Test.stopTest();
 
-        System.assertNotEquals('null', profileUrl);
+        System.assertNotEquals('null', profileUrl, 'Profile URL should not be null string');
+    }
+
+    @isTest
+    static void testGetProfileUrlNoPhoto() {
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Minimum Access - Salesforce' LIMIT 1];
+        User testUser = new User(
+            Alias = 'testu',
+            Email = 'testuser@example.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'Test',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            ProfileId = p.Id,
+            TimeZoneSidKey = 'America/Los_Angeles',
+            Username = 'testuser' + System.currentTimeMillis() + '@example.com'
+        );
+        insert testUser;
+
+        System.runAs(testUser) {
+            Test.startTest();
+            String profileUrl = ChatBotController.getProfileUrl();
+            Test.stopTest();
+
+            System.assertNotEquals('null', profileUrl, 'Profile URL should not be null string for user with no photo');
+        }
     }
 
     @isTest
     static void testSendEmailWithAttachment() {
-        // Test sending email with attachment
-
         Test.startTest();
         Map<String, Object> parameters = new Map<String, Object>();
         parameters.put('toAddress', 'tirth.s@mvclouds.com');
         parameters.put('subject', 'Test Subject');
         parameters.put('body', 'This is a test email.');
         parameters.put('replyTo', 'rachit.s@mvclouds.com');
-        List<Object> fileContents = new List<Object>();
+        List<String> fileNames = new List<String>{'TestFile1.txt'};
+        List<String> fileContents = new List<String>{EncodingUtil.base64Encode(Blob.valueOf('Test content'))};
 
-        Map<String, Object> file1 = new Map<String, Object>{
-            'name' => 'TestFile1.txt',
-            'path_display' => '/Test/TestFile1.txt'
-        };
-        
-        // Add the files to the list
-        fileContents.add(file1);
-        parameters.put('fileNames', fileContents);
+        parameters.put('fileNames', fileNames);
         parameters.put('fileContents', fileContents);
 
         ChatBotController.sendEmailWithAttachment(parameters);
-        System.assertEquals(1, Limits.getEmailInvocations());
+        System.assertEquals(1, Limits.getEmailInvocations(), 'One email should be sent');
         Test.stopTest();
+    }
 
-        // Verify the email was sent (mocking email sending in real scenarios)
+    @isTest
+    static void testSendEmailWithAttachmentInvalidEmail() {
+        Test.startTest();
+        Map<String, Object> parameters = new Map<String, Object>();
+        parameters.put('toAddress', 'invalid-email');
+        parameters.put('subject', 'Test Subject');
+        parameters.put('body', 'This is a test email.');
+        parameters.put('replyTo', 'rachit.s@mvclouds.com');
+        parameters.put('fileNames', new List<String>{'TestFile1.txt'});
+        parameters.put('fileContents', new List<String>{EncodingUtil.base64Encode(Blob.valueOf('Test content'))});
+
+        try {
+            ChatBotController.sendEmailWithAttachment(parameters);
+            System.assert(false, 'Expected AuraHandledException for invalid email');
+        } catch (AuraHandledException e) {
+            System.assertNotEquals(null, e.getMessage(), 'Exception message should not be null'); 
+        }
+        Test.stopTest();
     }
 
     @isTest
     static void testSendFeedbackEmail() {
-        // Test sending feedback email
         String toAddress = 'test@example.com';
         String key = '5';
         String feedback = 'Great chatbot!';
@@ -116,9 +145,7 @@ public class ChatBotControllerTest {
 
         Test.startTest();
         ChatBotController.sendFeedbackEmail(toAddress, key, feedback, chats);
-        System.assertEquals(1, Limits.getEmailInvocations());
+        System.assertEquals(1, Limits.getEmailInvocations(), 'One feedback email should be sent');
         Test.stopTest();
-
-        // Verify the email was sent (mocking email sending in real scenarios)
     }
 }
