@@ -2015,9 +2015,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                                 deleteContentVersion({cvId: cvId});
                             }
                             
-                            if((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && this.isDownloadZip){
-                                this.generateZipFile();
-                            }
+                            // if((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && this.isDownloadZip){
+                            //     this.generateZipFile();
+                            // }
                             if ((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && !this.isDownloadZip ){
                                 this.handleGenerationResult();
                             }
@@ -2049,7 +2049,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         console.log('this is bulkStatus ---> '+this.bulkStatus.length);
         
         
-        
+        if((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && this.isDownloadZip){
+            this.generateZipFile();
+        }
         
         if(this.selectedChannels.length === this.completedSimTempPros || this.bulkStatus.length === this.totalNum){
             this.showSpinner = false;
