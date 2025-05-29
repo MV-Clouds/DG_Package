@@ -198,7 +198,9 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
 
                     let signatureImageValues = this.resultSet.find((el) => el["Signature Image"] != null);
                     let ckTablesList = [];
-                    let CKTABLE_REGEX = /\{\{(@CKTABLE:([a-zA-Z0-9_.]+)|@CKTABLE:([a-zA-Z0-9_.]+)(:|;)([^{}]+))\}\}/g;
+                    const CKTABLE_REGEX = /\{\{(@CKTABLE:([a-zA-Z0-9_.]+)|@CKTABLE:([a-zA-Z0-9_.]+)(:|;)([^{}]+))\}\}/g;
+                    const IF_ELSE_REGEX = /\{\{@IF:([^{}]+)\|#\|([^{}]+)\|#\|([^{}]*)\}\}/g;
+                    const TOKEN_REGEX = /\{\{([^{}]+)\}\}/g;
                     content.forEach((element) => {
                         if (element.paragraph) {
                             // Replace all the signature anywhere texts with the content document image
@@ -212,6 +214,20 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                                         this.processSignatureImage(Number(e.startIndex) + Number(startIndex), signatureImageValues);
                                         stringBody = stringBody.replace(this.signatureKey, ' ');
                                     } 
+                                });
+                            } else if(stringBody.includes("{{@IF:")) {
+                                element.paragraph.elements.forEach(e => {
+                                    let stringElement = JSON.stringify(e)?.replace(TOKEN_REGEX, (_, token) => {
+                                        const key = `{{${token}}}`;
+                                        return parentFieldValues[this.objectname].hasOwnProperty(key) ? (key.includes('{{@CKTABLE:') ? key : parentFieldValues[this.objectname][key]) : '';
+                                    });
+                                    const matches = stringElement.match(IF_ELSE_REGEX);
+                                    if (matches) {
+                                        matches.forEach(key => {
+                                            let result = this.processIfElseExpressions(key);
+                                            parentFieldValues[this.objectname][key] = result;
+                                        })
+                                    }
                                 });
                             } else if(stringBody.includes("{{@CKTABLE:")) {
                                 element.paragraph.elements.forEach(e => {
@@ -423,6 +439,46 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
             errorDebugger("generateGoogleDocFileV2", "processSignatureImage", error, 'Error', "Error in processSignatureImage. Please try again later");
         }
     }
+
+    // Main replacer logic
+    processIfElseExpressions(text) {
+        const IF_ELSE_REGEX = /\{\{@IF:([^\|]+)\|#\|([^\|]+)\|#\|([^\|]*)\}\}/g;
+        return text.replace(IF_ELSE_REGEX, (_, condition, thenText, elseText) => {
+            const result = this.evaluateIfExpression(condition);
+            return result ? thenText : (elseText ?? '');
+        });
+    }
+
+    // Process a single IF expression
+    evaluateIfExpression(expression) {
+        // Match pattern like NV(value), GT(1,2), etc.
+        const functionPattern = /^(!)?([A-Z]+)\(([^()]*)\)$/i;
+        const match = functionPattern.exec(expression);
+        if (!match) return false;
+
+        const [, notSymbol, fnName, argsStr] = match;
+        const args = argsStr.split(',').map(s => s.trim());
+        let result = this.evaluateFunctionCall(fnName, args);
+        if (notSymbol) result = !result;
+
+        return result;
+    }
+
+    // Supported evaluation functions
+    evaluateFunctionCall(fnName, args) {
+        const [a, b] = args.map(v => (v ?? '').trim());
+        switch (fnName.toUpperCase()) {
+            case 'NV': return !!a && a !== 'null' && a !== 'undefined';
+            case 'GT': return parseFloat(a) > parseFloat(b);
+            case 'GE': return parseFloat(a) >= parseFloat(b);
+            case 'LT': return parseFloat(a) < parseFloat(b);
+            case 'LE': return parseFloat(a) <= parseFloat(b);
+            case 'EQ': return a === b;
+            case 'NE': return a !== b;
+            default: return false;
+        }
+    }
+
     // Creates find and replace requests
     createReplaceRequest(fieldMap) {
         try {
@@ -433,7 +489,7 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                             text: key,
                             matchCase: true
                         },
-                        replaceText: fieldMap[key] ? fieldMap[key] : " "
+                        replaceText: fieldMap[key] ? fieldMap[key] : ""
                     }
                 };
                 if (!this.allFields.includes(key)) {
