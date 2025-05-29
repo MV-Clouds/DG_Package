@@ -51,6 +51,11 @@ export default class KeyMappingContainerV2 extends LightningElement {
             showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : false,
             showSearchbar : true, searchBarPlaceHolder : 'Search Fields...', selected : true,
         },
+        {   label: 'Custom Keys',     name: 'customKeys',
+            helpText : 'Add Data From The Custom Keys Into The Template.',
+            showCombobox : true, comboboxPlaceholder : 'Select Custom Key...', showDescription : true,
+            showSearchbar : true, searchBarPlaceHolder : 'Search Custom Key Field...', selected : false,
+        },
         {   label: 'Related Lists',  name: 'relatedListFields',
             helpText : 'Insert Related Lists (Child Object Records) In Template as a Table Format.',
             showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : true , selected : false,
@@ -71,11 +76,6 @@ export default class KeyMappingContainerV2 extends LightningElement {
         },
         {   label: 'Signature',     name: 'signature',
             helpText : 'Add Signature into Your file by Mapping Signature Key in The Template.', selected : false,
-        },
-        {   label: 'Custom Keys',     name: 'customKeys',
-            helpText : 'Add Data From The Custom Keys Into The Template.',
-            showCombobox : true, comboboxPlaceholder : 'Select Custom Key...', showDescription : true,
-            showSearchbar : true, searchBarPlaceHolder : 'Search Custom Key Field...', selected : false,
         }
     ];
 
