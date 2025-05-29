@@ -64,6 +64,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     ];
     isExpand = false;
     isOnParent = false;
+    bulkStatus = [];
 
 
     @api recordId;
@@ -1966,7 +1967,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     simpleTempFileGenResponse = (message) => {
         try{             
+            console.log(message);
+            
             this.counter++;
+            console.log('COUNTER--->'+this.counter);
             
             
             if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel === 'unknown'){
@@ -1980,19 +1984,30 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             else if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel !== 'unknown'){
                 
                 if(message.data.completedChannel === 'Download' || message.data.completedChannel === 'Documents' || message.data.completedChannel === 'Notes & Attachments'){
-                    if((message.data.isBulk == 'true' && this.totalNum == this.counter) || (message.data.isBulk == 'false')){
                         if(message.data.status){
-                            this.succeeded.push(message.data.completedChannel);
+                            if((message.data.isBulk == 'true' && this.totalNum == this.counter) || (message.data.isBulk == 'false')){
+                                this.succeeded.push(message.data.completedChannel);
+                            }
                         }else{
                             this.failed[message.data.completedChannel] = message.data.error?.message;
                         }
-                        this.completedSimTempPros++;
+                        if(this.isRelatedList){
+                            this.bulkStatus.push(message.data.completedChannel);
+                        }
+                        else{
+                            this.completedSimTempPros++;
+                        }
                         this.simpleTemplateFileDone();
-                    }
                 }else if(message.data.completedChannel === 'External Storage'){
+                    
                     let cvId = message.data.cvId;
+                    console.log('Got cvid in external storage response ---> '+ cvId);
+                    
                     if(cvId){
                         if (message.data.isBulk == 'true') {
+                            if(this.selectedChannels.includes('Download') && this.isDownloadZip){
+                                this.bulkStatus.push('Download');
+                            }
                             let recId = message.data.recordId;
                             this.contentVersionIds.push(cvId);
                             this.resultPromises.push(this.createFilesChatterEmail(cvId, recId));
@@ -2000,12 +2015,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                                 deleteContentVersion({cvId: cvId});
                             }
                             
-                            if(this.totalNum == this.counter && this.isDownloadZip){
+                            if((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && this.isDownloadZip){
                                 this.generateZipFile();
                             }
-                            if (this.totalNum == this.counter && !this.isDownloadZip ){
+                            if ((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && !this.isDownloadZip ){
                                 this.handleGenerationResult();
                             }
+                            this.simpleTemplateFileDone();
                         }
                         if (message.data.isBulk != 'true'){
                             console.log('record id in externalstorage'+this.recordId);
@@ -2029,9 +2045,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     simpleTemplateFileDone(){
         console.log('this is completedsimtemppro ---> '+this.completedSimTempPros);
         console.log('this is selected Channels -----> '+this.selectedChannels.length);
+        console.log('this is totalNum ---> '+this.totalNum);
+        console.log('this is bulkStatus ---> '+this.bulkStatus.length);
         
         
-        if(this.selectedChannels.length === this.completedSimTempPros){
+        
+        
+        if(this.selectedChannels.length === this.completedSimTempPros || this.bulkStatus.length === this.totalNum){
             this.showSpinner = false;
             this.simpleTemplate = false;
             this.completedSimTempPros = 0;
@@ -2409,12 +2429,12 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.resultPromises.push(this.addToChatter(contentVersionId));
             } else if (this.selectedChannels.includes('Files')) {
                 console.log('recId in 1'+recId);
-                
+                if(this.isRelatedList){
+                    this.bulkStatus.push('Files');
+                }
                 if(!recId){
                     recId = this.recordId;
-                }
-                console.log('recId in 1 --->'+recId);
-                
+                }                
                 this.resultPromises.push(this.addToFiles(contentVersionId, recId));
             }
     
