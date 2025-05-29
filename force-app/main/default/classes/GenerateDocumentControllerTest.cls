@@ -100,10 +100,10 @@ public with sharing class GenerateDocumentControllerTest {
     @isTest
     static void testGetAccessToken_Success() {
 
-        MVDG__ConnectedAppIdAndSecret__c app = new MVDG__ConnectedAppIdAndSecret__c();
+        ConnectedAppIdAndSecret__c app = new ConnectedAppIdAndSecret__c();
         app.SetupOwnerId = UserInfo.getUserId();
-        app.MVDG__Client_Id__c = 'testClientId';
-        app.MVDG__Client_Secret__c = 'testClientSecret';
+        app.Client_Id__c = 'testClientId';
+        app.Client_Secret__c = 'testClientSecret';
 
         insert as user app;
         // Set the mock response
@@ -147,10 +147,11 @@ public with sharing class GenerateDocumentControllerTest {
 
     @isTest
     static void testGetTemplateDefaultValues(){
+        Id recordId=[SELECT Id FROM Account LIMIT 1].Id;
         MVDG__Template__c template = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Object_API_Name__c, MVDG__Description__c, MVDG__Template_Status__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true LIMIT 1];
         Test.startTest();
-        GenerateDocumentController.DefaultDataWrapper defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id);
-        GenerateDocumentController.getTemplateDefaultValues('123456789012345');
+        GenerateDocumentController.DefaultDataWrapper defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id,recordId);
+        GenerateDocumentController.getTemplateDefaultValues('123456789012345','123456789012345');
         Test.stopTest();
         System.assertEquals(template.MVDG__Template_Name__c,defaultValues.templateName, 'The name of the default data should match.');
     }
@@ -181,6 +182,84 @@ public with sharing class GenerateDocumentControllerTest {
         MVDG__Template__c newTemplate = [SELECT Id, MVDG__Document_Type__c  FROM MVDG__Template__c WHERE Id=:template.Id];
         System.assertEquals(defaultValues.get('docType'), newTemplate.MVDG__Document_Type__c, 'The template document type must be updated and should match.');
     }
+    
+    @isTest
+    static void testGetTemplateDefaultValuesComprehensive() {
+        // Retrieve test data created in TestSetup
+        Account a = [SELECT Id FROM Account LIMIT 1];
+        MVDG__Template__c template = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Object_API_Name__c, 
+                                    MVDG__Description__c, MVDG__Template_Status__c 
+                                    FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true LIMIT 1];
+
+        // Update template with emailAddresses containing <|DGE|> delimiter
+        template.MVDG__Email_Addresses__c = 'test@qwe123.com,other@qwe123.com<|DGE|>cc@qwe123.com<|DGE|>bcc@qwe123.com<|DGE|>Name,Description<|DGE|>dynamic';
+        template.MVDG__Button_Label__c = 'Test Button';
+        template.MVDG__Button_Api_Name__c = 'Test_Button';
+        template.MVDG__Document_Type__c = 'CSV';
+        template.MVDG__Internal_Storage__c = 'Files';
+        template.MVDG__Selected_Document_Folder__c = 'TestFolder';
+        template.MVDG__External_Storage__c = 'AWS';
+        template.MVDG__Output_Channel__c = 'Email';
+        template.MVDG__Email_Subject__c = 'Test Subject';
+        template.MVDG__Email_Body__c = 'Test Email Body';
+        template.MVDG__Email_Template__c = 'TestEmailTemplate';
+        update template;
+
+        Test.startTest();
+
+        // Test Case 1: Valid templateId and recordId
+        GenerateDocumentController.DefaultDataWrapper defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id, a.Id);
+        System.assertNotEquals(null, defaultValues, 'DefaultDataWrapper should not be null for valid inputs');
+        System.assertEquals(template.Id, defaultValues.templateId, 'Template ID should match');
+        System.assertEquals(template.MVDG__Template_Name__c, defaultValues.templateName, 'Template name should match');
+        System.assertEquals(template.MVDG__Template_Status__c, defaultValues.templateStatus, 'Template status should match');
+        System.assertEquals(template.MVDG__Button_Label__c, defaultValues.buttonLabel, 'Button label should match');
+        System.assertEquals(template.MVDG__Button_Api_Name__c, defaultValues.buttonName, 'Button API name should match');
+        System.assertEquals(template.MVDG__Document_Type__c, defaultValues.docType, 'Document type should match');
+        System.assertEquals(template.MVDG__Internal_Storage__c, defaultValues.iStorage, 'Internal storage should match');
+        System.assertEquals(template.MVDG__Selected_Document_Folder__c, defaultValues.folderId, 'Folder ID should match');
+        System.assertEquals(template.MVDG__External_Storage__c, defaultValues.eStorage, 'External storage should match');
+        System.assertEquals(template.MVDG__Output_Channel__c, defaultValues.oChannel, 'Output channel should match');
+        System.assertEquals(template.MVDG__Email_Addresses__c, defaultValues.emailAddresses, 'Email addresses should match');
+        System.assertEquals(template.MVDG__Email_Subject__c, defaultValues.emailSubject, 'Email subject should match');
+        System.assertEquals(template.MVDG__Email_Body__c, defaultValues.emailBody, 'Email body should match');
+        System.assertEquals(template.MVDG__Email_Template__c, defaultValues.emailTemplate, 'Email template should match');
+        System.assertEquals('dynamic', defaultValues.emailType, 'Email type should be "dynamic"');
+        System.assertNotEquals(null, defaultValues.recordValues, 'Record values should not be null');
+        System.assertEquals(3, defaultValues.recordValues.size(), 'Record values should include Id, Name, and Description');
+        System.assertEquals(a.Id, defaultValues.recordValues[0], 'Record ID should match');
+        System.assertEquals('Test Account', defaultValues.recordValues[1], 'Account Name should match');
+
+        // Test Case 2: Invalid templateId
+        defaultValues = GenerateDocumentController.getTemplateDefaultValues('123456789012345', a.Id);
+        System.assertEquals(null, defaultValues, 'DefaultDataWrapper should be null for invalid templateId');
+
+        // Test Case 3: Invalid recordId
+        defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id, '123456789012345');
+        System.assertNotEquals(null, defaultValues, 'DefaultDataWrapper should not be null for valid templateId');
+        System.assertEquals(0, defaultValues.recordValues.size(), 'Record values should be empty for invalid recordId');
+
+        // Test Case 4: Null templateId
+        defaultValues = GenerateDocumentController.getTemplateDefaultValues(null, a.Id);
+        System.assertEquals(null, defaultValues, 'DefaultDataWrapper should be null for null templateId');
+
+        // Test Case 5: Empty emailAddresses
+        template.MVDG__Email_Addresses__c = '';
+        update template;
+        defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id, a.Id);
+        System.assertNotEquals(null, defaultValues, 'DefaultDataWrapper should not be null for valid templateId');
+        System.assertEquals('', defaultValues.emailType, 'Email type should be empty when emailAddresses is empty');
+        System.assertEquals(0, defaultValues.recordValues.size(), 'Record values should be empty when no fields are specified');
+
+        // Test Case 6: Invalid emailAddresses format (insufficient splits)
+        template.MVDG__Email_Addresses__c = 'test@qwe123.com<|DGE|>cc@qwe123.com';
+        update template;
+        defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id, a.Id);
+        System.assertNotEquals(null, defaultValues, 'DefaultDataWrapper should not be null for valid templateId');
+        System.assertEquals('', defaultValues.emailType, 'Email type should be empty for invalid emailAddresses format');
+
+        Test.stopTest();
+    }
 
     @isTest
     static void testUpsertActivity(){
@@ -206,5 +285,4 @@ public with sharing class GenerateDocumentControllerTest {
             return res;
         }
     }
-    
 }
