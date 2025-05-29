@@ -1,6 +1,9 @@
 import { LightningElement, track } from 'lwc';
 import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.createListViewButtons';
 import getCombinedData from '@salesforce/apex/ButtonGeneratorController.getCombinedData';
+import getChildObjects from '@salesforce/apex/ButtonGeneratorController.getChildObjects';
+import getRelationshipsBetweenObjects from '@salesforce/apex/ButtonGeneratorController.getRelationshipsBetweenObjects';
+import createRelatedListButtons from '@salesforce/apex/ButtonGeneratorController.createRelatedListButtons';
 
 import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
 import { errorDebugger } from 'c/globalPropertiesV2'
@@ -10,22 +13,31 @@ export default class ButtonGeneratorV2 extends LightningElement {
     @track createdLVButtonObj = [];
     @track createdQAButtonObj = [];
     @track createdBPButtonObj = [];
+    @track createdRLButtonObj = [];
     @track isNoObjectsAlreadyCreated = true;
 
     @track allObjects = [];
     @track selectedLVObjects = [];
     @track selectedQAObjects = [];
     @track selectedBPObjects = [];
+    @track selectedRLObjects = [];
+    @track selectedROLObjects = [];
+    @track selectedCRObjects = [];
 
     @track showSpinner = false;
+    @track isRelatedListEnabled = false;
 
     @track isNoLVObjectCreated = true;
     @track isNoQAObjectCreated = true;
     @track isNoBPObjectCreated = true;
+    @track isNoRLObjectCreated = true;
 
     @track objOptionsForLVButton = [];
     @track objOptionsForQAButton = [];
     @track objOptionsForBPButton = [];
+    @track objOptionsForRLButton = [];
+    @track objOptionsForROLButton = [];
+    @track objOptionsForCRButton = [];
 
     @track showInitialButtonCreation = false;
     operationCounter = 0;
@@ -41,6 +53,18 @@ export default class ButtonGeneratorV2 extends LightningElement {
 
     get enableBPCreate(){
         return this.selectedBPObjects.length > 0;
+    }
+
+    get enableROList(){
+        return this.selectedROLObjects.length > 0;
+    }
+
+    get enableRList(){
+        return this.selectedRLObjects.length > 0;
+    }
+
+    get enableCRCreate(){
+        return this.selectedCRObjects.length > 0;
     }
     
     connectedCallback(){
@@ -71,10 +95,16 @@ export default class ButtonGeneratorV2 extends LightningElement {
                     let BasicPrintData = this.handleObjectSeparation(data.basicPrintButtonObj);
                     this.objOptionsForBPButton = BasicPrintData?.options;
                     this.createdBPButtonObj = BasicPrintData?.buttons;
+                    let RelatedListData = this.handleObjectSeparation(data.relatedListButtonObj);
+                    this.objOptionsForRLButton = RelatedListData?.options;
+                    console.log(this.objOptionsForRLButton);
+                    
+                    this.createdRLButtonObj = RelatedListData?.buttons;
 
                     this.isNoLVObjectCreated = this.createdLVButtonObj.length > 0 ? false : true;
                     this.isNoQAObjectCreated = this.createdQAButtonObj.length > 0 ? false : true;
                     this.isNoBPObjectCreated = this.createdBPButtonObj.length > 0 ? false : true;
+                    this.isNoRLObjectCreated = this.createdRLButtonObj.length > 0 ? false : true;
 
                     this.showInitialButtonCreation = !this.initialObjectsList.some(obj => [...this.createdLVButtonObj , ...this.createdBPButtonObj, ...this.createdQAButtonObj].includes(obj));
 
@@ -142,10 +172,49 @@ export default class ButtonGeneratorV2 extends LightningElement {
                 this.selectedQAObjects = event.detail;
             }else if(type === 'basicPrint'){
                 this.selectedBPObjects = event.detail;
+            }else if(type === 'relatedList'){
+                this.selectedRLObjects = event.detail;
+                console.log(this.selectedRLObjects);
+                this.fetchChildObjects();                
+                this.selectedROLObjects = [];
+                this.selectedCRObjects = [];
+            }else if(type === 'relatedObjList'){
+                this.selectedROLObjects = event.detail;
+                this.fetchChildRelations();        
+                this.selectedCRObjects = [];
+            }else if(type === 'relatedCRList'){
+                this.selectedCRObjects = event.detail;
             }
         }catch(e){
             errorDebugger('buttonGenerator', 'handleObjectSelection', e, 'warn');
         }
+    }
+
+    fetchChildObjects(){
+        getChildObjects({parentObjectApiName: this.selectedRLObjects[0]})
+        .then((data) => {
+            if(data.length > 0){
+                this.objOptionsForROLButton = data;
+            }
+        })
+        .catch((e) => {
+            errorDebugger('buttonGenerator', 'fetchChildObjects', e, 'warn');
+        })
+
+    }
+
+    fetchChildRelations(){
+        getRelationshipsBetweenObjects({parentObject: this.selectedRLObjects[0], childObject: this.selectedROLObjects[0]})
+        .then((data) => {
+            if(data.length > 0){
+                this.objOptionsForCRButton = data;
+                console.log('Data for relationships'+data);
+                
+            }
+        })
+        .catch((e) => {
+            errorDebugger('buttonGenerator', 'fetchChildObjects', e, 'warn');
+        })
     }
 
     handleCreate(event){
@@ -174,6 +243,14 @@ export default class ButtonGeneratorV2 extends LightningElement {
                     }
                     this.operationCounter++;
                     this.handleCreateWebLinkButton('basicPrint')
+                }
+                else if(type === 'relatedList'){
+                    if(this.selectedRLObjects.length < 1 || this.selectedROLObjects.length < 1 || this.selectedCRObjects.length < 1){
+                        this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 object.', 5000);
+                        return;
+                    }
+                    this.operationCounter++;
+                    this.handleCreateWebLinkButton('relatedList');
                 }
             }else{
                 this.showToast('error','Something went wrong!','Action Could not be performed, please try again...', 5000);
@@ -204,21 +281,47 @@ export default class ButtonGeneratorV2 extends LightningElement {
                 buttonData.buttonLabel = 'DG Basic Print';
                 buttonData.buttonName = 'DG_Basic_Print';
             }
-            createListViewButtons({objects: objects ,buttonData : buttonData})
-            .then((result)=>{
-                if(result !== 'success'){
+            else if(type === 'relatedList'){
+                objects = this.selectedROLObjects;
+                buttonData.buttonLabel = 'DG RL '+ this.selectedCRObjects[0];
+                buttonData.buttonName = 'DG_RL'+ this.selectedCRObjects[0];
+                buttonData.parentObject = this.selectedRLObjects[0];
+                buttonData.relationshipName = this.selectedCRObjects[0];
+            }
+            if(type != 'relatedList'){
+                createListViewButtons({objects: objects ,buttonData : buttonData})
+                .then((result)=>{
+                    if(result !== 'success'){
+                        this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
+                        errorDebugger('buttonGenerator', 'createListViewButtons > failure', result, 'warn');
+                    }
+                    this.operationCounter--;
+                    this.fetchAlreadyCreatedObjects();
+                })
+                .catch((e)=>{
                     this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
-                    errorDebugger('buttonGenerator', 'createListViewButtons > failure', result, 'warn');
-                }
-                this.operationCounter--;
-                this.fetchAlreadyCreatedObjects();
-            })
-            .catch((e)=>{
-                this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
-                errorDebugger('buttonGenerator', 'createListViewButtons', e, 'warn');
-                this.operationCounter--;
-                this.fetchAlreadyCreatedObjects();
-            })
+                    errorDebugger('buttonGenerator', 'createListViewButtons', e, 'warn');
+                    this.operationCounter--;
+                    this.fetchAlreadyCreatedObjects();
+                })
+            }
+            else {
+                createRelatedListButtons({objects: objects ,buttonData : buttonData})
+                .then((result)=>{
+                    if(result !== 'success'){
+                        this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
+                        errorDebugger('buttonGenerator', 'createRelatedListButtons > failure', result, 'warn');
+                    }
+                    this.operationCounter--;
+                    this.fetchAlreadyCreatedObjects();
+                })
+                .catch((e)=>{
+                    this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
+                    errorDebugger('buttonGenerator', 'createRelatedListButtons', e, 'warn');
+                    this.operationCounter--;
+                    this.fetchAlreadyCreatedObjects();
+                })
+            }
         } catch (e) {
             this.showSpinner = false;
             this.showToast('error', 'Something went wrong!','The button creation process could not be completed!', 5000);
@@ -300,6 +403,8 @@ export default class ButtonGeneratorV2 extends LightningElement {
             this.fetchAlreadyCreatedObjects();
         }
     }
+
+    
 
     showToast(status, title, message, duration){
         this.showSpinner = false;

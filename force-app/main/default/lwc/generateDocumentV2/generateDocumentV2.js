@@ -2015,9 +2015,6 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                                 deleteContentVersion({cvId: cvId});
                             }
                             
-                            // if((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && this.isDownloadZip){
-                            //     this.generateZipFile();
-                            // }
                             if ((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && !this.isDownloadZip ){
                                 this.handleGenerationResult();
                             }
@@ -2064,6 +2061,8 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     generateZipFile(){
         try {
+            console.log('Inside generate zip file');
+            
             const baseUrl = '/sfc/servlet.shepherd/version/download/';
             const fullUrl = baseUrl + this.contentVersionIds.join('/');
         

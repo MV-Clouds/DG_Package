@@ -220,6 +220,64 @@ public static List<String> getRelatedListButtonObj(){
             return e.getMessage();
         }
     }
+/*
+*********************************************************
+@description     : Method is used to create a related list button 
+@param           : objects - {List<String>} - name of objects
+@param           : buttonData - {Map<String, String>} - button data
+@return          : none
+********************************************************
+*/
+@AuraEnabled
+public static String createRelatedListButtons(List<String> objects,Map<String, String> buttonData){
+    try {
+        String buttonName = buttonData.get('buttonName');
+        String buttonLabel = buttonData.get('buttonLabel');
+        String buttonParent = buttonData.get('parentObject');
+        String buttonRelationShip = buttonData.get('relationshipName');
+        Integer batchSize = 10;
+        Integer totalSize = objects.size();
+
+        List<MetadataService.Metadata> webLinks = new List<MetadataService.Metadata>();
+        for (Integer i = 0; i < totalSize; i++) {
+            String obj = objects[i];
+            // /lightning/cmp/c__relatedRecordList?c__objectname=Contact&c__isRelatedList=true&c__isDefaultGenerate=true&c__parentId={!Account.Id}&c__relationshipName=Contacts&c__parentObj=Account
+
+            String buttonURL = '/lightning/cmp/MVDG__relatedRecordList?c__objectname='+obj+'&c__isRelatedList=true&c__isDefaultGenerate=true&c__parentId={!'+buttonParent+'.Id}&c__relationshipName='+buttonRelationShip+'&c__parentObj='+buttonParent;
+            String displayType = 'massActionButton';
+
+            String buttonApiName = buttonName;
+            MetadataService.WebLink webLink = new MetadataService.WebLink();
+            webLink.fullName = obj+'.'+buttonApiName;
+            webLink.availability = 'online';
+            webLink.displayType = displayType;
+            webLink.linkType = 'url';
+            webLink.url = buttonURL;
+            webLink.encodingKey = 'UTF-8';
+            webLink.masterLabel = buttonLabel;
+            webLink.openType = 'newWindow';
+            webLink.position = 'none'; 
+            webLink.width = 600;
+            webLink.height = 600;  
+            webLink.protected_x = false;
+            webLinks.add(weblink);
+            
+            if (webLinks.size() == batchSize || i == totalSize - 1) {
+                // Process the 10 webLinks
+                Boolean isSuccess = addButtons(webLinks);
+                if(!isSuccess && !Test.isRunningTest()){
+                    throw new AuraHandledException('Error Creating Button.');
+                }
+                // Clear the webLinks list for the next batch
+                webLinks.clear();
+            }
+        }
+        return 'success';
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'createListViewButtons');
+        return e.getMessage();
+    }
+}
     
 /*
 *********************************************************
@@ -247,6 +305,106 @@ public static List<String> getRelatedListButtonObj(){
             return false;
         }
     }
+
+/*
+*********************************************************
+@description     : Method is used to fetch related child records
+@param           : parentObjectApiName - {String}
+@return          : {List<Map<String, String>>} - returns list of map of child objects label and Name
+********************************************************
+*/
+
+@AuraEnabled
+public static List<Map<String, String>> getChildObjects(String parentObjectApiName) {
+    List<Map<String, String>> childObjects = new List<Map<String, String>>();
+    Set<String> addedChildObjectNames = new Set<String>();
+
+    try {
+        // Get the describe result for the parent object
+        Schema.SObjectType parentType = Schema.getGlobalDescribe().get(parentObjectApiName);
+
+        if (parentType != null) {
+            // Correct: getChildRelationships() returns a List
+            List<Schema.ChildRelationship> childRelationships = parentType.getDescribe().getChildRelationships();
+
+            for (Schema.ChildRelationship cr : childRelationships) {
+                Schema.SObjectType childSObject = cr.getChildSObject();
+
+                // Only include relationships that have a valid child SObject
+                if (childSObject != null) {
+                    Schema.DescribeSObjectResult childDescribe = childSObject.getDescribe();
+                    String apiName = childDescribe.getName();
+
+                    if (
+                        !addedChildObjectNames.contains(apiName) &&
+                        !childDescribe.isCustomSetting() &&
+                        !childDescribe.isDeprecatedAndHidden() &&
+                        !apiName.endsWith('ChangeEvent') &&
+                        !apiName.endsWith('__History') &&
+                        !apiName.endsWith('__Tag') &&
+                        !apiName.endsWith('__Share') &&
+                        !apiName.startsWith('sf') &&
+                        !apiName.startsWith('Auth') &&
+                        !apiName.startsWith('UserProv') &&
+                        !apiName.contains('Feed')
+                    ) {
+                        String label = childDescribe.getLabel();
+                        
+                        Map<String, String> childObj = new Map<String, String>{
+                            'label' => label,
+                            'value' => apiName
+                        };
+                        childObjects.add(childObj);
+                        addedChildObjectNames.add(apiName);
+                    }
+                }
+            }
+        }
+    } catch (Exception ex) {
+        System.debug('Error fetching child objects: ' + ex.getMessage());
+    }
+
+    return childObjects;
+}
+
+/*
+*********************************************************
+@description     : Method is used to fetch relationships between two objects
+@param           : parentObjectApiName - {String} 
+@param           : childObjectApiName - {String}
+@return          : {List<Map<String, String>>} - returns list of map of child objects label and Name
+********************************************************
+*/
+
+@AuraEnabled
+public static List<Map<String, String>> getRelationshipsBetweenObjects(String parentObject, String childObject) {
+    List<Map<String, String>> relationshipList = new List<Map<String, String>>();
+    try {
+        Schema.SObjectType parentType = Schema.getGlobalDescribe().get(parentObject);
+        Schema.SObjectType childType = Schema.getGlobalDescribe().get(childObject);
+        if (parentType != null && childType != null) {
+            Schema.DescribeSObjectResult parentDescribe = parentType.getDescribe();
+            Schema.DescribeSObjectResult childDescribe = childType.getDescribe();
+            for (Schema.ChildRelationship cr : parentDescribe.getChildRelationships()) {
+                if (cr.getChildSObject() == childType) {
+                    String relName = cr.getRelationshipName();
+                    String fieldName = cr.getField() != null ? cr.getField().getDescribe().getName() : 'UnknownField';
+                    Map<String, String> mapEntry = new Map<String, String>{
+                        'label' => relName + ' (' + fieldName + ')',
+                        'value' => relName
+                    };
+                    relationshipList.add(mapEntry);
+                }
+            }
+        }
+    } catch (Exception ex) {
+        System.debug('Error: ' + ex.getMessage());
+    }
+    return relationshipList;
+}
+
+
+
 
 
 // -------------------------------------------------------------- Wrapper Classes ------------------------------------------------------------ //
