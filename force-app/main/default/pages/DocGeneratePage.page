@@ -697,6 +697,9 @@
                             footerElement.innerHTML = footerElement.innerHTML.replaceAll(signatureKey, signatureValue);
 
                             // document.body.appendChild(bodyElement);
+                            bodyElement.innerHTML = processIfElseExpressions(bodyElement.innerHTML);
+                            headerElement.innerHTML = processIfElseExpressions(headerElement.innerHTML);
+                            footerElement.innerHTML = processIfElseExpressions(footerElement.innerHTML);
     
                             const promises = [];
                             //  ==== Convert URL src into base64 =======
@@ -715,6 +718,45 @@
                                 generateFile(bodyElement, headerElement, footerElement);
                             })
                         }
+                        // Supported evaluation functions
+                        function evaluateFunctionCall(fnName, args) {
+                            const [a, b] = args.map(v => (v ?? '').trim());
+                            switch (fnName.toUpperCase()) {
+                                case 'NV': return !!a && a !== 'null' && a !== 'undefined';
+                                case 'GT': return parseFloat(a) > parseFloat(b);
+                                case 'GE': return parseFloat(a) >= parseFloat(b);
+                                case 'LT': return parseFloat(a) < parseFloat(b);
+                                case 'LE': return parseFloat(a) <= parseFloat(b);
+                                case 'EQ': return a === b;
+                                case 'NE': return a !== b;
+                                default: return false;
+                            }
+                        }
+
+                        // Process a single IF expression
+                        function evaluateIfExpression(expression) {
+                            // Match pattern like NV(value), GT(1,2), etc.
+                            const functionPattern = /^(!)?([A-Z]+)\(([^()]*)\)$/i;
+                            const match = functionPattern.exec(expression);
+                            if (!match) return false;
+
+                            const [, notSymbol, fnName, argsStr] = match;
+                            const args = argsStr.split(',').map(s => s.trim());
+                            let result = evaluateFunctionCall(fnName, args);
+                            if (notSymbol) result = !result;
+
+                            return result;
+                        }
+
+                        // Main replacer logic
+                        function processIfElseExpressions(html) {
+                            const IF_ELSE_REGEX = /\{\{@IF:([^{}|]+)\|#\|([^{}|]+)\|#\|([^{}]*)\}\}/g;
+                            return html.replace(IF_ELSE_REGEX, (_, condition, thenText, elseText) => {
+                                const result = evaluateIfExpression(condition);
+                                return result ? thenText : (elseText ?? '');
+                            });
+                        }
+
     
     
                         // ========= ========= File Generation Methods -- START --- ============== =============
