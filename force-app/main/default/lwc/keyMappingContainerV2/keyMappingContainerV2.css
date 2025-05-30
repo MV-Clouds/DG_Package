@@ -1437,6 +1437,14 @@ li {
   margin-right: 4rem;
 }
 
+.replace-value-into-group-key{
+    background-color: #00aeff30;
+    color: #00aeff;
+    font-weight: bold;
+    border-radius: 0.25rem;
+    padding: 0.12rem 0.25rem;
+}
+
 /* ====== ========= ========= ========== Media Query ======== ======== ======= ========= ========= ========= ======== ======= */
 
 @media only screen and (max-width: 1350px) {
