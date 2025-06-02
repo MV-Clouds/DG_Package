@@ -133,6 +133,77 @@
                 No basic print generation buttons have been created for any object yet.
             </div>
         </div>
+        <div class="single-btn-generator">
+            <div class="title-div">Add Related List Button
+                <div class="help-text-div related-list-help">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#00aeff" viewBox="0 0 14 14" height="16" width="16"><path d="M7.00018 0.000488281C3.13436 0.000488281 0.000488281 3.13436 0.000488281 7.00018c0 3.86582 3.133871719 6.99972 6.999691719 6.99972 3.86582 0 6.99972 -3.1339 6.99972 -6.99972S10.866 0.000488281 7.00018 0.000488281ZM1.25049 7.00018c0 -3.17547 2.57422 -5.74969 5.74969 -5.74969 3.17542 0 5.74972 2.57422 5.74972 5.74969 0 3.17552 -2.5743 5.74972 -5.74972 5.74972 -3.17547 0 -5.74969 -2.5742 -5.74969 -5.74972ZM7 4.125c-0.62132 0 -1.125 0.50368 -1.125 1.125 0 0.34518 -0.27982 0.625 -0.625 0.625s-0.625 -0.27982 -0.625 -0.625c0 -1.31168 1.06332 -2.375 2.375 -2.375S9.375 3.93832 9.375 5.25c0 1.09537 -0.74154 2.01755 -1.75 2.2919V8c0 0.34518 -0.27982 0.625 -0.625 0.625S6.375 8.34518 6.375 8V7c0 -0.34518 0.27982 -0.625 0.625 -0.625 0.62132 0 1.125 -0.50368 1.125 -1.125S7.62132 4.125 7 4.125Zm0 5c0.48325 0 0.875 0.39175 0.875 0.875 0 0.4832 -0.39175 0.875 -0.875 0.875s-0.875 -0.3918 -0.875 -0.875c0 -0.48325 0.39175 -0.875 0.875 -0.875Z" stroke-width="1"></path></svg>
+                </div>
+            </div>
+            <div class="selection-creation-div">
+                <div class="object-select-div" style="display: flex; gap: 1rem;">
+                    <c-custom-combobox-v2
+                        data-type="relatedList"
+                        class="object-select-combobox basic-print-generator"
+                        label="Select Objects"
+                        options={objOptionsForRLButton}
+                        onselect={handleObjectSelection}
+                        multiselect="false"
+                        searchable="true"
+                        placeholder="Select objects"
+                        dropdown-position="right"
+                        style="flex-grow: 1;"
+                        no-opt-label="No objects remain to create Related List buttons"
+                    ></c-custom-combobox-v2>
+                    <c-custom-combobox-v2
+                        data-type="relatedObjList"
+                        class="object-select-combobox basic-print-generator"
+                        label="Select Related Object"
+                        options={objOptionsForROLButton}
+                        onselect={handleObjectSelection}
+                        multiselect="false"
+                        searchable="true"
+                        placeholder="Select related objects"
+                        dropdown-position="right"
+                        style="flex-grow: 1;"
+                        no-opt-label="No objects remain to create Related List buttons"
+                        if:true={enableRList}
+                    ></c-custom-combobox-v2>
+                    <c-custom-combobox-v2
+                        data-type="relatedCRList"
+                        class="object-select-combobox basic-print-generator"
+                        label="Select Relationship"
+                        options={objOptionsForCRButton}
+                        onselect={handleObjectSelection}
+                        multiselect="false"
+                        searchable="true"
+                        placeholder="Select relationship"
+                        dropdown-position="right"
+                        style="flex-grow: 1;"
+                        no-opt-label="No relationship available"
+                        if:true={enableROList}
+                    ></c-custom-combobox-v2>
+                </div>
+                <div class="btn-div">
+                    <button data-type="relatedList" class="create-btn related-list-btn" onclick={handleCreate}>
+                        <svg class={enableCRCreate} data-type="relatedList" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-0.5 -0.5 24 24" height="24" width="24">
+                            <path data-type="relatedList" fill="#fff" d="M3.354166666666667 17.25C2.9708333333333337 17.25 2.635416666666667 17.106250000000003 2.347916666666667 16.81875C2.060416666666667 16.53125 1.9166666666666667 16.195833333333333 1.9166666666666667 15.8125V7.1875C1.9166666666666667 6.804166666666666 2.060416666666667 6.46875 2.347916666666667 6.18125C2.635416666666667 5.893750000000001 2.9708333333333337 5.75 3.354166666666667 5.75H19.645833333333336C20.029166666666665 5.75 20.364583333333336 5.893750000000001 20.652083333333334 6.18125C20.939583333333335 6.46875 21.083333333333336 6.804166666666666 21.083333333333336 7.1875V15.8125C21.083333333333336 16.195833333333333 20.939583333333335 16.53125 20.652083333333334 16.81875C20.364583333333336 17.106250000000003 20.029166666666665 17.25 19.645833333333336 17.25H3.354166666666667ZM6.876041666666667 14.375H8.05V12.098958333333334H10.326041666666667V10.901041666666668H8.05V8.625H6.876041666666667V10.901041666666668H4.6V12.098958333333334H6.876041666666667V14.375Z" stroke-width="1"></path>
+                        </svg>
+                        Create Button
+                    </button>
+                </div>
+            </div>
+            <div class="generated-object-div" if:false={isNoRLObjectCreated}>
+                <div class="title-text">Below listed child object are already having Related List buttons</div>
+                <div class="already-created-object-div">
+                    <template for:each={createdRLButtonObj} for:item="object" for:index="i">
+                        <div key={object} class="added-object">{object}</div>
+                    </template>
+                </div>            
+            </div>
+            <div class="generated-object-div is-no-object-div" if:true={isNoRLObjectCreated}>
+                No related list buttons have been created for any object yet.
+            </div>
+        </div>
     </div>
     <c-message-popup-v2></c-message-popup-v2>
     <c-document-loader-v2 display={showSpinner} full-size="true"></c-document-loader-v2>
