@@ -184,6 +184,7 @@
                             onselect={handleEmailTypeChange}
 
                             multiselect="false"
+                            show-clear-button="false"
                         ></c-custom-combobox-v2>
                         <div class="fieldSelectionBox">
                             <c-custom-combobox-v2
@@ -197,15 +198,6 @@
                             searchable="true"
                             multiselect="true"
                             ></c-custom-combobox-v2> 
-                            <div class="added-emails-div selectedFields">
-                                <template for:each={selectedFieldLabels} for:item="label" for:index="i">
-                                    <div key={label} class="added-mail">{label}
-                                        <div data-index={i} class="remove-mail-btn">
-                                            <svg xmlns="http://www.w3.org/2000/svg" data-type="to" data-index={i} onclick={handleRemoveLabel} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -218,6 +210,15 @@
                             <div key={email} class="added-mail">{email}
                                 <div data-index={i} class="remove-mail-btn">
                                     <svg xmlns="http://www.w3.org/2000/svg" data-type="to" data-index={i} onclick={handleRemoveAddedEmail} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="added-emails-div selectedFields">
+                        <template for:each={toFields} for:item="label" for:index="i">
+                            <div key={label} class="selected-Fileds">{label}
+                                <div data-index={i} class="remove-mail-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" data-type="to" data-index={i} data-label={label} onclick={handleRemoveLabel} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
                                 </div>
                             </div>
                         </template>
@@ -235,7 +236,16 @@
                         <template for:each={ccEmails} for:item="email" for:index="i">
                             <div key={email} class="added-mail">{email}
                                 <div data-index={i} class="remove-mail-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" data-type="cc" data-index={i} onclick={handleRemoveAddedEmail} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" data-type="cc" data-index={i}  onclick={handleRemoveAddedEmail} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="added-emails-div selectedFields">
+                        <template for:each={ccFields} for:item="label" for:index="i">
+                            <div key={label} class="selected-Fileds">{label}
+                                <div data-index={i} class="remove-mail-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" data-type="cc" data-index={i} data-label={label} onclick={handleRemoveLabel} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
                                 </div>
                             </div>
                         </template>
@@ -254,6 +264,15 @@
                             </div>
                         </template>
                     </div>
+                        <div class="added-emails-div selectedFields">
+                            <template for:each={bccFields} for:item="label" for:index="i">
+                                <div key={label} class="selected-Fileds">{label}
+                                    <div data-index={i} class="remove-mail-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" data-type="bcc" data-index={i} data-label={label} onclick={handleRemoveLabel} viewBox="0 0 512 512" fill="white"><path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/></svg>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
                 </div>
                 <div class="subject-div email-element">
                     <span>Subject:</span>

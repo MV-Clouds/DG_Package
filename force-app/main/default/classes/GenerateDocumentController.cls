@@ -430,59 +430,71 @@ public static void updateSetting(String clientId, String clientSecret) {
                 ddw.emailBody = templates[0].MVDG__Email_Body__c;
                 ddw.templateType = templates[0].MVDG__Template_Type__c;
                 ddw.emailTemplate = templates[0].MVDG__Email_Template__c;
+                String objectName = templates[0].MVDG__Object_API_Name__c;
+                
+                List<String> toFields = new List<String>();
+                List<String> ccFields = new List<String>();
+                List<String> bccFields = new List<String>();
 
                 List<String> fieldList = new List<String>();
                 String emailType = '';
                 if (String.isNotBlank(ddw.emailAddresses) && ddw.emailAddresses.contains('<|DGE|>')) {
                     String[] splitResult = ddw.emailAddresses.split('<\\|DGE\\|>');
-                    if (splitResult.size() >= 4) { // Ensure there are at least 4 sections (to, cc, bcc, fields)
-                        // The second-to-last element is the field list
-                        String fieldListString = splitResult[splitResult.size() - 2];
-                        if (String.isNotBlank(fieldListString)) {
-                            List<String> tempFields = fieldListString.split(',');
-                            for (String field : tempFields) {
-                                if (String.isNotBlank(field)) {
-                                    fieldList.add(field.trim());
-                                }
+                    Integer splitSize = splitResult.size();
+                    
+                    if (splitSize >= 3) {
+                        if (String.isNotBlank(splitResult[splitSize - 1])) {
+                            bccFields = splitResult[splitSize - 1].split(',').clone();
+                            for (Integer i = 0; i < bccFields.size(); i++) {
+                                bccFields[i] = bccFields[i].trim();
                             }
                         }
-                        // The last element is the email type
-                        emailType = splitResult[splitResult.size() - 1]?.trim();
+                        if (String.isNotBlank(splitResult[splitSize - 2])) {
+                            ccFields = splitResult[splitSize - 2].split(',').clone();
+                            for (Integer i = 0; i < ccFields.size(); i++) {
+                                ccFields[i] = ccFields[i].trim();
+                                }
+                            }
+                        if (String.isNotBlank(splitResult[splitSize - 3])) {
+                            toFields = splitResult[splitSize - 3].split(',').clone();
+                            for (Integer i = 0; i < toFields.size(); i++) {
+                                toFields[i] = toFields[i].trim();
                     }
                 }
                 ddw.emailType = emailType;
                 // System.debug('email address: ' + ddw.emailAddresses);
                 // System.debug('fieldList: ' + fieldList);
 
-                // Get object name and query record
-                List<String> recordValues = new List<String>();
-                String objectName = templates[0].MVDG__Object_API_Name__c;
-                // System.debug('recordid', recordId);
-                // System.debug('objectName', objectName);
-                if (recordId != null && String.isNotBlank(objectName) && !fieldList.isEmpty()) {
-                    List<String> sanitizedFields = new List<String>{'Id'};
-                    for (String field : fieldList) {
-                        if (String.isNotBlank(field)) {
-                            sanitizedFields.add(field.trim());
-                        }
-                    }
+                ddw.toValues = new List<String>();
+                ddw.ccValues = new List<String>();
+                ddw.bccValues = new List<String>();
+
+                if (String.isNotBlank(recordId) && String.isNotBlank(objectName)) {
+                    List<String> allFields = new List<String>{'Id'};
+                    allFields.addAll(toFields);
+                    allFields.addAll(ccFields);
+                    allFields.addAll(bccFields);
+                    allFields = new List<String>(new Set<String>(allFields)); 
+
                     try {
-                        String query = 'SELECT ' + String.join(sanitizedFields, ',') + ' FROM ' + String.escapeSingleQuotes(objectName) + ' WHERE Id = :recordId WITH SECURITY_ENFORCED';
-                        // System.debug('SOQL Query: ' + query);
-                        SObject x = Database.query(query);
-                        recordValues.add(String.valueOf(x.get('Id')));
-                        for (String field : fieldList) {
-                            Object fieldValue = x.get(field.trim());
-                            String fieldValueStr = fieldValue != null ? String.valueOf(fieldValue) : '';
-                            recordValues.add(fieldValueStr);
-
-                            // System.debug('Field: ' + field + ', Value: ' + fieldValueStr);
+                        Map<String, Object> record = queryRecord(objectName, recordId, allFields);
+                        ddw.toValues.add(String.valueOf(record.get('Id')));
+                        for (String field : toFields) {
+                            Object fieldValue = record.get(field);
+                            ddw.toValues.add(fieldValue != null ? String.valueOf(fieldValue) : '');
                         }
-                        // System.debug('Final recordValues: ' + recordValues);
-
+                        for (String field : ccFields) {
+                            Object fieldValue = record.get(field);
+                            ddw.ccValues.add(fieldValue != null ? String.valueOf(fieldValue) : '');
+                        }
+                        for (String field : bccFields) {
+                            Object fieldValue = record.get(field);
+                            ddw.bccValues.add(fieldValue != null ? String.valueOf(fieldValue) : '');
+                        }
                     } catch (QueryException qe) {
-                        // System.debug('Query Error: ' + qe.getMessage());
-                        recordValues = new List<String>();
+                        ddw.toValues = new List<String>();
+                        ddw.ccValues = new List<String>();
+                        ddw.bccValues = new List<String>();
                     }
                 }
                 ddw.recordValues = recordValues;
@@ -497,6 +509,21 @@ public static void updateSetting(String clientId, String clientSecret) {
             return null;
         }
     }
+
+    @AuraEnabled
+    public static Map<String, Object> queryRecord(String objectName, String recordId, List<String> fields) {
+        try {
+            String query = 'SELECT ' + String.join(fields, ',') + ' FROM ' + 
+                          String.escapeSingleQuotes(objectName) + ' WHERE Id = :recordId WITH SECURITY_ENFORCED';
+            // System.debug('SOQL Query: ' + query);
+            SObject record = Database.query(query);
+            return record.getPopulatedFieldsAsMap();
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'queryRecord');
+            throw new AuraHandledException('Error executing query: ' + e.getMessage());
+        }
+    }
+
 
 
 /*
@@ -678,8 +705,9 @@ public static void updateSetting(String clientId, String clientSecret) {
         @AuraEnabled public String emailBody;
         @AuraEnabled public String templateType;
         @AuraEnabled public String emailTemplate;
-        @AuraEnabled public List<String> recordValues;
-        @AuraEnabled public String emailType ;
+        @AuraEnabled public List<String> toValues;
+        @AuraEnabled public List<String> ccValues;
+        @AuraEnabled public List<String> bccValues;
     }
 
 
