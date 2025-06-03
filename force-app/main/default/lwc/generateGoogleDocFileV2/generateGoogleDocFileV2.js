@@ -200,7 +200,7 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                     let ckTablesList = [];
                     let textBasedConditions = {};
                     const CKTABLE_REGEX = /\{\{(@CKTABLE:([a-zA-Z0-9_.]+)|@CKTABLE:([a-zA-Z0-9_.]+)(:|;)([^{}]+))\}\}/g;
-                    const IF_ELSE_REGEX = /\{\{@IF:([^\|]+)\|#\|([^\|]*)\|#\|([^\|||n]*)\}\}/g;
+                    const IF_ELSE_REGEX = /\{\{@IF:([^{}]+)\|#\|([^{}]+)\|#\|([^{}]*)\}\}/g;
                     const IF_ELSE_FOR_TABLE_REGEX = /\{\{@IF:([^\|\n]+)\|#\|([^\|\n]+)\|#\|([^\|:]*)\}\}/g;
                     const TOKEN_REGEX = /\{\{([^{}]+)\}\}/g;
                     content.forEach((element) => {
@@ -223,7 +223,7 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                                     
                                     // Capture original IF expressions BEFORE replacement
                                     const originalIfMatches = rawText.match(IF_ELSE_FOR_TABLE_REGEX) || [];
-                                    let stringElement = JSON.stringify(e)?.replace(TOKEN_REGEX, (_, token) => {
+                                    let stringElement = rawText?.replace(TOKEN_REGEX, (_, token) => {
                                         const key = `{{${token}}}`;
                                         return parentFieldValues[this.objectname].hasOwnProperty(key) ? (key.includes('{{#') ? parentFieldValues[this.objectname][key] : key) : '';
                                     });
@@ -530,14 +530,14 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
     createReplaceRequest(fieldMap) {
         try {
             Object.keys(fieldMap).forEach((key) => {
-                let valueToShow = key.includes('{{@CKTABLE:') ? '' : (fieldMap[key] ? fieldMap[key] : "");
+                // let valueToShow = fieldMap[key]?.includes('{{@CKTABLE:');
                 let tabrequest = {
                     replaceAllText: {
                         containsText: {
                             text: key,
                             matchCase: true
                         },
-                        replaceText: valueToShow
+                        replaceText: fieldMap[key] ?? ""
                     }
                 };
                 if (!this.allFields.includes(key)) {
