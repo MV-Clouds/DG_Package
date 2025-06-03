@@ -98,7 +98,7 @@ export default class RelatedRecordList extends LightningElement {
         //     this.showLimitError = true;
         //     return;
         // }
-        const url = `/lightning/cmp/MVDG__generateDocumentV2?c__objectApiName=${this.objectname}&c__isRelatedList=true&c__isDefaultGenerate=true&c__parentId=${this.parentId}&c__relationshipName=${this.relationshipName}&c__parentObjName=${this.parentObj}&c__ids=${this.selectedIds.join(',')}`;
+        const url = `/lightning/cmp/c__generateDocumentV2?c__objectApiName=${this.objectname}&c__isRelatedList=true&c__isDefaultGenerate=true&c__parentId=${this.parentId}&c__relationshipName=${this.relationshipName}&c__parentObjName=${this.parentObj}&c__ids=${this.selectedIds.join(',')}`;
         window.location.href = url;
     }
 
@@ -109,5 +109,11 @@ export default class RelatedRecordList extends LightningElement {
             variant: variant,
         });
         this.dispatchEvent(event);
+    }
+
+    handleClose(){        
+        if (typeof window !== 'undefined') {
+                location.replace(location.origin + '/lightning/o/' + this.objectname + '/list' ,"_self");
+        }
     }
 }
