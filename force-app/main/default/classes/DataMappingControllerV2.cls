@@ -303,7 +303,7 @@ public with sharing class DataMappingControllerV2 {
                                     List<String> collectedValues = new List<String>();
 
                                     for (SObject record : queryResult) {
-                                        Map<String, Object> mapOfRecord = queryResult[0].getPopulatedFieldsAsMap();
+                                        Map<String, Object> mapOfRecord = record.getPopulatedFieldsAsMap();
                                         Object fieldValue = mapOfRecord.containsKey(fieldName) ? mapOfRecord.get(fieldName) : '';
                                         if (fieldValue != '') {
                                             collectedValues.add(formatString(String.valueOf(fieldValue), rawKey.substringBetween('*')));
