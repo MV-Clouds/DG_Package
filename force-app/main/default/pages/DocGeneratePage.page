@@ -750,7 +750,7 @@
 
                         // Main replacer logic
                         function processIfElseExpressions(html) {
-                            const IF_ELSE_REGEX = /\{\{@IF:([^{}|]+)\|#\|([^{}|]+)\|#\|([^{}]*)\}\}/g;
+                            const IF_ELSE_REGEX = /\{\{@IF:([^{}|]+)\|#\|([^{}|]*)\|#\|([^{}]*)\}\}/g;
                             return html.replace(IF_ELSE_REGEX, (_, condition, thenText, elseText) => {
                                 const result = evaluateIfExpression(condition);
                                 return result ? thenText : (elseText ?? '');
