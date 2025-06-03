@@ -24,6 +24,7 @@ public with sharing class ButtonGeneratorController {
             combinedData.quickActionButtonObj = getQuickActionButtonObj(combinedData.allObjects);
             combinedData.basicPrintButtonObj = getBasicPrintButtonObj();
             combinedData.relatedListButtonObj = getRelatedListButtonObj();
+            combinedData.defaultProcessButtonObj = getDefaultProcessObj(combinedData.allObjects);
             combinedData.isSuccess = combinedData.listViewButtonObj != null && combinedData.quickActionButtonObj != null && combinedData.basicPrintButtonObj != null ? true : false;
         } catch (Exception e) {
             combinedData.isSuccess = false;
@@ -77,6 +78,36 @@ public with sharing class ButtonGeneratorController {
 
 /*
 *********************************************************
+@description     : Method is used to fetch all the objects that already have the Default Process Button
+@param           : none
+@return          : {List<String>} - list of object labels
+********************************************************
+*/
+@AuraEnabled
+public static List<String> getDefaultProcessObj(List<Map<String,String>> allObjects){
+    try {
+        List<String> objects = new List<String>();
+        if(allObjects.size() > 0){
+            for (Map<String,String> ow : allObjects) {
+                List<QuickAction.DescribeAvailableQuickActionResult> result1 = QuickAction.DescribeAvailableQuickActions(ow.get('value'));  
+                for(QuickAction.DescribeAvailableQuickActionResult action : result1){
+                    if(action.getType() == 'LightningWebComponent' && action.getName().contains('.DGP_')){
+                        objects.add(ow.get('value'));
+                    }
+                }
+            }
+        }
+        return objects;
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'ButtonGeneratorController', 'getQuickActionButtonObj');
+        return null;
+    }
+}
+    
+
+
+/*
+*********************************************************
 @description     : Method is used to fetch all the objects that already have the Quick Action button
 @param           : none
 @return          : {List<String>} - list of object labels
@@ -114,9 +145,9 @@ public static List<String> getQuickActionButtonObj(List<Map<String,String>> allO
 public static List<String> getRelatedListButtonObj(){
     try {
         List<String> objects = new List<String>();
-        List<WebLink> webLinks = [SELECT PageOrSobjectType FROM WebLink WHERE Name LIKE 'DG_RL%' WITH SECURITY_ENFORCED];
+        List<WebLink> webLinks = [SELECT description, PageOrSobjectType FROM WebLink WHERE Name LIKE 'DG_RL%' WITH SECURITY_ENFORCED];
         for (WebLink wl : webLinks) {
-            objects.add(wl.PageOrSobjectType);
+            objects.add(wl.description);
         }
         return objects;
     } catch (Exception e) {
@@ -260,6 +291,7 @@ public static String createRelatedListButtons(List<String> objects,Map<String, S
             webLink.width = 600;
             webLink.height = 600;  
             webLink.protected_x = false;
+            webLink.description = buttonParent+' '+buttonRelationShip+' - '+(obj);
             webLinks.add(weblink);
             
             if (webLinks.size() == batchSize || i == totalSize - 1) {
@@ -329,12 +361,14 @@ public static List<Map<String, String>> getChildObjects(String parentObjectApiNa
 
             for (Schema.ChildRelationship cr : childRelationships) {
                 Schema.SObjectType childSObject = cr.getChildSObject();
+                String relationshipName = cr.getRelationshipName();
 
-                // Only include relationships that have a valid child SObject
-                if (childSObject != null) {
+                // Ensure the child SObject and relationship name are valid
+                if (childSObject != null && String.isNotBlank(relationshipName)) {
                     Schema.DescribeSObjectResult childDescribe = childSObject.getDescribe();
                     String apiName = childDescribe.getName();
 
+                    // Apply filters
                     if (
                         !addedChildObjectNames.contains(apiName) &&
                         !childDescribe.isCustomSetting() &&
@@ -349,7 +383,6 @@ public static List<Map<String, String>> getChildObjects(String parentObjectApiNa
                         !apiName.contains('Feed')
                     ) {
                         String label = childDescribe.getLabel();
-                        
                         Map<String, String> childObj = new Map<String, String>{
                             'label' => label,
                             'value' => apiName
@@ -424,6 +457,7 @@ public static List<Map<String, String>> getRelationshipsBetweenObjects(String pa
         @AuraEnabled public List<String> quickActionButtonObj;
         @AuraEnabled public List<String> basicPrintButtonObj;
         @AuraEnabled public List<String> relatedListButtonObj;
+        @AuraEnabled public List<String> defaultProcessButtonObj;
         @AuraEnabled public Boolean isSuccess;
     }
 }
