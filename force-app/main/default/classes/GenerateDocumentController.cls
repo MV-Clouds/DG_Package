@@ -510,12 +510,12 @@ public static void updateSetting(String clientId, String clientSecret) {
     public static DefaultDataWrapper fetchProcessDefinedData(String apiName){
         try {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
-            List<MVDG__StoreProcess__c> templates = new List<MVDG__StoreProcess__c>();
+            List<MVDG__Default_Process__c> templates = new List<MVDG__Default_Process__c>();
             if(apiName != null){
-                templates = [SELECT Id, Name, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Email_Template__c FROM MVDG__StoreProcess__c WHERE Name=:apiName WITH SECURITY_ENFORCED];
+                templates = [SELECT Id, Name,MVDG__ButtonName__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Email_Template__c FROM MVDG__Default_Process__c WHERE Name=:apiName WITH SECURITY_ENFORCED];
             }
             if(templates.size() > 0){
-                ddw.buttonName = templates[0].Name;
+                ddw.buttonName = templates[0].MVDG__ButtonName__c;
                 ddw.docType = templates[0].MVDG__Document_Type__c;
                 ddw.iStorage = templates[0].MVDG__Internal_Storage__c;
                 ddw.folderId = templates[0].MVDG__Selected_Document_Folder__c;
@@ -578,8 +578,8 @@ public static void updateSetting(String clientId, String clientSecret) {
 @AuraEnabled
 public static void storeDefaultProcesses(Map<String,String> defaultData){
     try {
-        MVDG__StoreProcess__c process = new MVDG__StoreProcess__c(
-            MVDG__Name  = defaultData.get('Name'),
+        MVDG__Default_Process__c process = new MVDG__Default_Process__c(
+            MVDG__ButtonName__c  = defaultData.get('Name'),
             MVDG__Document_Type__c = defaultData.get('docType'),
             MVDG__Internal_Storage__c  = defaultData.get('iStorage'),
             MVDG__Selected_Document_Folder__c = defaultData.get('folderId'),
