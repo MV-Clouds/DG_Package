@@ -66,14 +66,14 @@ public with sharing class GenerateDocumentController {
     public static IntegrationWrapper getIntegrationStatus(){
         try {
             IntegrationWrapper listOfStatus = new IntegrationWrapper();
-            listOfStatus.isGoogleDriveIntegrated = MVDG__Google_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isAWSIntegrated = MVDG__Aws_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isDropBoxIntegrated = MVDG__Dropbox_Credentials__c.getOrgDefaults().MVDG__WorkingStatus__c;
-            listOfStatus.isOneDriveIntegrated = MVDG__OneDrive_Credential__c.getOrgDefaults().MVDG__WorkingStatus__c;
+            listOfStatus.isGoogleDriveIntegrated = Google_Credentials__c.getOrgDefaults().WorkingStatus__c;
+            listOfStatus.isAWSIntegrated = Aws_Credentials__c.getOrgDefaults().WorkingStatus__c;
+            listOfStatus.isDropBoxIntegrated = Dropbox_Credentials__c.getOrgDefaults().WorkingStatus__c;
+            listOfStatus.isOneDriveIntegrated = OneDrive_Credential__c.getOrgDefaults().WorkingStatus__c;
 
-            List<MVDG__Google_Credentials__c> googleDriveSetting = [SELECT MVDG__WorkingStatus__c FROM MVDG__Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
+            List<Google_Credentials__c> googleDriveSetting = [SELECT WorkingStatus__c FROM Google_Credentials__c WHERE SetupOwnerId =: UserInfo.getUserId() WITH SECURITY_ENFORCED];
             if(googleDriveSetting.size() > 0){
-                listOfStatus.isUserWideAccessible = googleDriveSetting[0].MVDG__WorkingStatus__c;
+                listOfStatus.isUserWideAccessible = googleDriveSetting[0].WorkingStatus__c;
             } 
             return listOfStatus;
         } catch (Exception e) {
@@ -182,6 +182,7 @@ public with sharing class GenerateDocumentController {
     @AuraEnabled
     public static String sendEmail(Map<String, List<String>> allEmails, Map<String,String> emailData, String activityId){
         try {
+            // System.debug('allEmails in final email send apex: '+allEmails);
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             String[] attachments =  new String[] {};
             attachments.add(emailData.get('contentVersionId'));
@@ -197,6 +198,7 @@ public with sharing class GenerateDocumentController {
             if (!result[0].isSuccess() && !Test.isRunningTest()){
                 throw new AuraHandledException('Email send was unsuccessfull');
             }
+            // System.debug('mail is sent please check to'+allEmails);
             return 'success';
         }catch (Exception e) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'sendEmail', activityId);
@@ -215,8 +217,8 @@ public with sharing class GenerateDocumentController {
 public static String generateAccessToken() {
     String accessToken = null;
     try {
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE MVDG__Client_Id__c != null AND MVDG__Client_Secret__c != null WITH SECURITY_ENFORCED ];
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WHERE Client_Id__c != null AND Client_Secret__c != null WITH SECURITY_ENFORCED ];
         if (aps.size() > 0) {
             String endPointURL = URL.getOrgDomainUrl().toExternalForm() + '/services/oauth2/token';
             String requestBody = 'grant_type=client_credentials&client_id={0}&client_secret={1}';
@@ -224,7 +226,7 @@ public static String generateAccessToken() {
             HttpRequest req = new HttpRequest();
             req.setEndpoint(endPointURL);
             req.setMethod('POST');
-            req.setBody(String.format(requestBody ,new string[]{aps[0].MVDG__Client_Id__c,aps[0].MVDG__Client_Secret__c}));
+            req.setBody(String.format(requestBody ,new string[]{aps[0].Client_Id__c,aps[0].Client_Secret__c}));
             req.setTimeout(60000);
             Http http = new Http();
             HttpResponse res = http.send(req);
@@ -253,11 +255,11 @@ public static Map<String, String> getConnectedAppConfigs() {
         'accessToken' => null
     };
     try {
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE MVDG__Client_Id__c != null AND MVDG__Client_Secret__c != null WITH SECURITY_ENFORCED ];
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WHERE Client_Id__c != null AND Client_Secret__c != null WITH SECURITY_ENFORCED ];
         if (aps.size() > 0) {
-            mapOfData.put('clientId', aps[0].MVDG__Client_Id__c);
-            mapOfData.put('clientSecret', aps[0].MVDG__Client_Secret__c);
+            mapOfData.put('clientId', aps[0].Client_Id__c);
+            mapOfData.put('clientSecret', aps[0].Client_Secret__c);
             mapOfData.put('accessToken', generateAccessToken());
         }
     } catch (Exception e) {
@@ -278,12 +280,12 @@ public static Map<String, String> getConnectedAppConfigs() {
 public static void updateSetting(String clientId, String clientSecret) {
     try {
         
-        List<MVDG__ConnectedAppIdAndSecret__c> aps = new List<MVDG__ConnectedAppIdAndSecret__c>();
-        aps = [SELECT Id, MVDG__Client_Id__c, MVDG__Client_Secret__c FROM MVDG__ConnectedAppIdAndSecret__c WHERE MVDG__Client_Id__c != null AND MVDG__Client_Secret__c != null WITH SECURITY_ENFORCED ];
-        MVDG__ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new MVDG__ConnectedAppIdAndSecret__c();
+        List<ConnectedAppIdAndSecret__c> aps = new List<ConnectedAppIdAndSecret__c>();
+        aps = [SELECT Id, Client_Id__c, Client_Secret__c FROM ConnectedAppIdAndSecret__c WHERE Client_Id__c != null AND Client_Secret__c != null WITH SECURITY_ENFORCED ];
+        ConnectedAppIdAndSecret__c app = aps.size() > 0 ? aps[0] : new ConnectedAppIdAndSecret__c();
         app.SetupOwnerId = UserInfo.getUserId();
-        app.MVDG__Client_Id__c = clientId;
-        app.MVDG__Client_Secret__c = clientSecret;
+        app.Client_Id__c = clientId;
+        app.Client_Secret__c = clientSecret;
         upsert as User app;
     } catch (Exception e) {
         Log_Handler.store_Exception(e, 'GenerateDocumentController', 'updateSetting');
@@ -402,19 +404,25 @@ public static void updateSetting(String clientId, String clientSecret) {
 @return          : DefaultDataWrapper {Wrapper} - wrapper containing with default data for the template
 ********************************************************
 */  
+
     @AuraEnabled
-    public static DefaultDataWrapper getTemplateDefaultValues(String templateId, String recordId){
+    public static DefaultDataWrapper getTemplateDefaultValues(String templateId, String recordId) {
+
         try {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Template__c> templates = new List<MVDG__Template__c>();
-            if (templateId != null) {
-                templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Object_API_Name__c, MVDG__Template_Status__c, MVDG__Button_Label__c, 
-                             MVDG__Button_Api_Name__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, 
-                             MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, 
+            if (String.isNotBlank(templateId)) {
+                templates = [SELECT Id, MVDG__Template_Name__c, MVDG__Object_API_Name__c, MVDG__Template_Status__c, 
+                             MVDG__Button_Label__c, MVDG__Button_Api_Name__c, MVDG__Document_Type__c, 
+                             MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, MVDG__External_Storage__c, 
+                             MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, 
                              MVDG__Email_Body__c, MVDG__Template_Type__c, MVDG__Email_Template__c 
-                             FROM MVDG__Template__c WHERE Id = :templateId WITH SECURITY_ENFORCED];
+                             FROM MVDG__Template__c 
+                             WHERE Id = :templateId WITH SECURITY_ENFORCED];
             }
-            if(templates.size() > 0){
+            // System.debug('templates: ' + templates);
+            
+            if (!templates.isEmpty()) {
                 ddw.templateId = templates[0].Id;
                 ddw.templateName = templates[0].MVDG__Template_Name__c;
                 ddw.templateStatus = templates[0].MVDG__Template_Status__c;
@@ -435,9 +443,7 @@ public static void updateSetting(String clientId, String clientSecret) {
                 List<String> toFields = new List<String>();
                 List<String> ccFields = new List<String>();
                 List<String> bccFields = new List<String>();
-
-                List<String> fieldList = new List<String>();
-                String emailType = '';
+                
                 if (String.isNotBlank(ddw.emailAddresses) && ddw.emailAddresses.contains('<|DGE|>')) {
                     String[] splitResult = ddw.emailAddresses.split('<\\|DGE\\|>');
                     Integer splitSize = splitResult.size();
@@ -453,12 +459,13 @@ public static void updateSetting(String clientId, String clientSecret) {
                             ccFields = splitResult[splitSize - 2].split(',').clone();
                             for (Integer i = 0; i < ccFields.size(); i++) {
                                 ccFields[i] = ccFields[i].trim();
-                                }
                             }
+                        }
                         if (String.isNotBlank(splitResult[splitSize - 3])) {
                             toFields = splitResult[splitSize - 3].split(',').clone();
                             for (Integer i = 0; i < toFields.size(); i++) {
                                 toFields[i] = toFields[i].trim();
+
                     }
                 }
                     }
@@ -493,11 +500,13 @@ public static void updateSetting(String clientId, String clientSecret) {
                             Object fieldValue = record.get(field);
                             ddw.bccValues.add(fieldValue != null ? String.valueOf(fieldValue) : '');
                         }
-                    
                 }
 
+                // System.debug('toValues: ' + ddw.toValues);
+                // System.debug('ccValues: ' + ddw.ccValues);
+                // System.debug('bccValues: ' + ddw.bccValues);
                 return ddw;
-            }else{
+            } else {
                 return null;
             }
         } catch (Exception e) {
@@ -770,7 +779,7 @@ public static void storeDefaultProcesses(Map<String,String> defaultData){
         @AuraEnabled public List<String> toValues;
         @AuraEnabled public List<String> ccValues;
         @AuraEnabled public List<String> bccValues;
-    }
+     }
 
 
 /*

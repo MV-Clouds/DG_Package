@@ -147,10 +147,11 @@ public with sharing class GenerateDocumentControllerTest {
 
     @isTest
     static void testGetTemplateDefaultValues(){
+        Id recordId=[SELECT Id FROM Account LIMIT 1].Id;
         MVDG__Template__c template = [SELECT Id, MVDG__Template_Name__c, MVDG__Template_Type__c, MVDG__Object_API_Name__c, MVDG__Description__c, MVDG__Template_Status__c FROM MVDG__Template__c WHERE MVDG__Template_Status__c = true LIMIT 1];
-        Test.startTest();
-        GenerateDocumentController.DefaultDataWrapper defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id);
-        GenerateDocumentController.getTemplateDefaultValues('123456789012345');
+        Test.startTest(); 
+        GenerateDocumentController.DefaultDataWrapper defaultValues = GenerateDocumentController.getTemplateDefaultValues(template.Id,recordId);
+        GenerateDocumentController.getTemplateDefaultValues('123456789012345','123456789012345');
         Test.stopTest();
         System.assertEquals(template.MVDG__Template_Name__c,defaultValues.templateName, 'The name of the default data should match.');
     }
