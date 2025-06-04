@@ -1134,58 +1134,101 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 fetchProcessDefinedData({ apiName: this.currentPageReference?.attributes?.apiName?.split('.')[1]})
                 .then((data) => {
                     if(data){
-                        if(data?.docType){
-                            this.documentTypes.forEach(dt => {dt.isSelected = false});
+                        if (data?.docType) {
+                        this.documentTypes.forEach(dt => { dt.isSelected = false; });
                             this.documentTypes.find(item => item.name === data?.docType).isSelected = true;
                         }
                         this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
                         this.template.querySelector('.email-create-div').style.display = this.showEmailSection ? 'unset' : 'none';
-                        data?.iStorage?.split(', ')?.forEach((option) => {this.internalStorageOptions.find(item => item.name === option).isSelected = true});
-                        if(this.internalStorageOptions.find(item => item.name === 'Documents')?.isSelected){
+                        data?.iStorage?.split(', ')?.forEach((option) => {
+                            this.internalStorageOptions.find(item => item.name === option).isSelected = true;
+                        });
+                        if (this.internalStorageOptions.find(item => item.name === 'Documents')?.isSelected) {
                             this.selectedFolder = data?.folderId;
-                            if(this.isCalledFromDefaults && !this.allFolders.find(item => item.value === this.selectedFolder)){
+                            if (this.isCalledFromDefaults && !this.allFolders.find(item => item.value === this.selectedFolder)) {
                                 this.showWarningPopup('info', 'Folder not found!', 'The folder you selected to save documents does not exist, please select the folder.');
                                 this.selectedFolder = null;
                             }
                             this.showFolderSelection = true;
                         } 
                         data?.eStorage?.split(', ')?.forEach((option) => {
-                            const storageOption = this.externalStorageOptions.find(item => item.name === option);
+                            let storageOption = this.externalStorageOptions.find(item => item.name === option);
                             if (storageOption) storageOption.isSelected = !storageOption.isDisabled;
                         });
-                        data?.oChannel?.split(', ')?.forEach((option) => {this.outputChannels.find(item => item.name === option).isSelected = true});
-                        if(data?.emailAddresses?.includes('<|DGE|>')){
-                            const splitEmails = data?.emailAddresses.split('<|DGE|>');
-                            this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()) : [];
-                            console.log(this.toEmails);
-                            this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()) : [];
-                            this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()) : [];
-                            this.selectedFieldLabels = splitEmails[3] ? splitEmails[3].split(',').map(field => field.trim()) : [];
-                            this.selectedEmailType = splitEmails[4] ? splitEmails[4].trim() : '';
-                            this.handleFieldLabelSelect({ detail: this.selectedFieldLabels });
-                            
+                        data?.oChannel?.split(', ')?.forEach((option) => {
+                            this.outputChannels.find(item => item.name === option).isSelected = true;
+                        });
+                        if (data?.emailAddresses?.includes('<|DGE|>')) {
+                            let splitEmails = data.emailAddresses.split('<|DGE|>');
+                            this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()).filter(email => email !== '') : [];
+                            this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()).filter(email => email !== '') : [];
+                            this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()).filter(email => email !== '') : [];
+                            this.toFields = splitEmails[3] ? splitEmails[3].split(',').map(field => field.trim()).filter(field => field !== '') : [];
+                            this.ccFields = splitEmails[4] ? splitEmails[4].split(',').map(field => field.trim()).filter(field => field !== '') : [];
+                            this.bccFields = splitEmails[5] ? splitEmails[5].split(',').map(field => field.trim()).filter(field => field !== '') : [];
+                            this.selectedFieldLabels = this.bccFields ? [...this.bccFields] : [];
+                            this.fieldLabelOptions = this.fieldLabelOptions.map(option => ({
+                                ...option,
+                                isSelected: this.selectedFieldLabels.includes(option.value)
+                            })); 
+                            this.dispatchEvent(new CustomEvent('change', {
+                                detail: { value: this.selectedFieldLabels }
+                            }));   
+                            if (this.toFields.length > 0) {
+                                this.selectedEmailType = 'to';
+                                this.handleFieldLabelSelect({ detail: this.toFields });
+                            }
+                            if (this.ccFields.length > 0) {
+                                this.selectedEmailType = 'cc';
+                                this.handleFieldLabelSelect({ detail: this.ccFields });
+                            }
+                            if (this.bccFields.length > 0) {
+                                this.selectedEmailType = 'bcc';
+                                this.handleFieldLabelSelect({ detail: this.bccFields });
+                            } 
                         }
-                        this.selectedEmailTemplate = data?.emailTemplate ? data?.emailTemplate : null;
-                        this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
-                        this.emailSubject = data?.emailSubject ? data?.emailSubject : '';
-                        this.emailBody = data?.emailBody ? data?.emailBody : '';
-                        this.fileName = this.templateName?.slice(0,240);
+                        this.selectedEmailTemplate = data?.emailTemplate ? data.emailTemplate : null;
+                        this.handleEmailTemplateSelect({ detail: [this.selectedEmailTemplate] });
+                        this.emailSubject = data?.emailSubject ? data.emailSubject : '';
+                        this.emailBody = data?.emailBody ? data.emailBody : '';
+                        this.buttonLabel = data?.buttonLabel ? data.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent.length > 80 ? this.templateNameFromParent.slice(0, 80) : this.templateNameFromParent : '');
+                    this.buttonName = data?.buttonName || null;
+                        if (this.buttonName && this.allButtons.includes(this.buttonName)) {
+                        this.isOldButton = true;
+                        this.bottomBtnLabel = 'Update Defaults';
+                        } else {
+                        this.buttonName = null;
+                    }
+                        this.fileName = this.templateName?.slice(0, 240);
                         this.showCC = this.ccEmails.length > 0 ? true : false;
                         this.showBCC = this.bccEmails.length > 0 ? true : false;
                         this.isAdditionalInfo = true;
-                        this.showSpinner = false;
-                        if(!this.isCalledFromDefaults){
+                        if (!this.isCalledFromDefaults) {
                             this.showSpinner = true;
-                            this.handleGenerate();
-                        } 
-
-                        this.verifiedEmails = [];
-                            if (data?.recordValues?.length > 0) {
-                                this.verifiedEmails = data.recordValues.filter(value => 
+                            // Wait for handleGenerate to finish before hiding spinner
+                            Promise.resolve(this.handleGenerate()).finally(() => {
+                                this.showSpinner = false;
+                            });
+                        } else {
+                            this.showSpinner = false;
+                        }
+                        
+                        if (data?.toValues?.length > 0) {
+                            this.toverified = data.toValues.filter(value =>
                                     typeof value === 'string' && this.emailregex.test(value.trim())
                                 );
                             }
-                        console.log('Verified Emails in auto generation :', this.verifiedEmails);
+                        if (data?.ccValues?.length > 0) {
+                            this.ccverified = data.ccValues.filter(value =>
+                                typeof value === 'string' && this.emailregex.test(value.trim())
+                            );
+                        }
+                        if (data?.bccValues?.length > 0) {
+                            this.bccverified = data.bccValues.filter(value =>
+                                typeof value === 'string' && this.emailregex.test(value.trim())
+                            );
+                        } 
+                    
                     }else{
                         this.showSpinner = false;
                         this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
