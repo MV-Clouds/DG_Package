@@ -43,7 +43,19 @@ export default class KeyMappingContainerV2 extends LightningElement {
     @track selectedCustomKeyType = 'Field';
     @track selectedCustomKeyListField = '';
     @track selectedCustomKeyTableFields = [];
+    @track selectedConditionalOperator = 'NV';
+    @track isInverseCondition = false;
     @track selectedChildObjAPI;
+
+    conditionalOperators = [
+        { label: 'Not Void', value: 'NV' },
+        { label: 'Equals', value: 'EQ' },
+        { label: 'Not Equals', value: 'NE' },
+        { label: 'Greater Than', value: 'GT' },
+        { label: 'Greater Than or Equal To', value: 'GE' },
+        { label: 'Less Than', value: 'LT' },
+        { label: 'Less Than or Equal To', value: 'LE' }
+    ];
 
     mappingTypeTabs = [
         {   label: 'Object Fields',        name: 'objectFields',
@@ -64,6 +76,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
             helpText : 'Insert & Add Document Creation Date, Document Creation User Info, Organization Info, etc... In Template',
             showCombobox : true, comboboxPlaceholder : 'Select Object...',  showDescription : false,
             showSearchbar : true, searchBarPlaceHolder : 'Search General Fields...', selected : false,
+        },
+        {   label: 'Conditional Data',     name: 'conditionalData',
+            helpText : 'Add Conditions into your template to display data dynamically based on conditions.', selected : false,
         },
         {   label: 'Merge Templates',      name: 'mergeTemplates',
             helpText : 'Merge Other Templates Into The Current Template',
@@ -152,6 +167,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             sfImages            :   this.activeMappingTabName == 'sfImages' ? true : false,
             signature           :   this.activeMappingTabName == 'signature' ? true : false,
             customKeys          :   this.activeMappingTabName == 'customKeys' ? true : false,
+            conditionalData     :   this.activeMappingTabName == 'conditionalData' ? true : false,
         }
     }
 
@@ -333,6 +349,10 @@ export default class KeyMappingContainerV2 extends LightningElement {
         let fontSizeString = !isNaN(this.selectedFontSize) && this.selectedFontSize > 0 && !this.isGoogleDocTemplate ? `;${parseInt(this.selectedFontSize)}` : '';
         fields.push([...this.selectedCustomKeyTableFields]);
         return `{{@CKTABLE:${this.selectedCustomKey}:${fields.join(',')}${fontSizeString}}}`;
+    }
+
+    get conditionalDataKey(){
+        return `{{@IF:${this.isInverseCondition ? '!' : ''}${this.selectedConditionalOperator}(${this.selectedConditionalOperator == 'NV' ? '[Value To Check]' : '[Value To Check],[Expected Value]'})|#|[Value If True]|#|[Value If False]}}`;
     }
 
     connectedCallback(){
@@ -791,7 +811,19 @@ export default class KeyMappingContainerV2 extends LightningElement {
             this.selectedCustomKey = event.detail[0];
         } catch (e) {
             errorDebugger('FieldMappingKeyV2', 'handleCustomKeySelection', e ,'warn');
-            
+        }
+    }
+
+    handleConditionConfig(event){
+        try {
+            let type = event?.target?.dataset?.type;
+            if(type == 'operator'){
+                this.selectedConditionalOperator = event.detail[0] ?? this.selectedConditionalOperator;
+            }else if(type == 'inverse'){
+                this.isInverseCondition = event?.target?.checked;
+            }
+        } catch (e) {
+            errorDebugger('FieldMappingKeyV2', 'handleConditionConfig', e ,'warn');
         }
     }
 

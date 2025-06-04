@@ -528,6 +528,43 @@ public static void updateSetting(String clientId, String clientSecret) {
 
 /*
 *********************************************************
+@description     : Method is used to fetch the Stored process values for the document generation
+@param           : templateId {String} - Id of the template to generate
+@return          : DefaultDataWrapper {Wrapper} - wrapper containing with default data for the template
+********************************************************
+*/  
+    @AuraEnabled
+    public static DefaultDataWrapper fetchProcessDefinedData(String apiName){
+        try {
+            DefaultDataWrapper ddw = new DefaultDataWrapper();
+            List<MVDG__Default_Process__c> templates = new List<MVDG__Default_Process__c>();
+            if(apiName != null){
+                templates = [SELECT Id, Name,MVDG__ButtonName__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Email_Template__c FROM MVDG__Default_Process__c WHERE Name=:apiName WITH SECURITY_ENFORCED];
+            }
+            if(templates.size() > 0){
+                ddw.buttonName = templates[0].MVDG__ButtonName__c;
+                ddw.docType = templates[0].MVDG__Document_Type__c;
+                ddw.iStorage = templates[0].MVDG__Internal_Storage__c;
+                ddw.folderId = templates[0].MVDG__Selected_Document_Folder__c;
+                ddw.eStorage = templates[0].MVDG__External_Storage__c;
+                ddw.oChannel = templates[0].MVDG__Output_Channel__c;
+                ddw.emailAddresses = templates[0].MVDG__Email_Addresses__c;
+                ddw.emailSubject = templates[0].MVDG__Email_Subject__c;
+                ddw.emailBody = templates[0].MVDG__Email_Body__c;
+                ddw.emailTemplate = templates[0].MVDG__Email_Template__c;
+                return ddw;
+            }else{
+                return null;
+            }
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'GenerateDocumentController', 'fetchProcessDefinedData');
+            return null;
+        }
+    }
+
+
+/*
+*********************************************************
 @description     : Method is used to store the default values for the generation options
 @param          : defaultData {Map<String,String>} - map containing with default data for the template
 @return           : void - won't return anything
@@ -556,6 +593,35 @@ public static void updateSetting(String clientId, String clientSecret) {
             Log_Handler.store_Exception(e, 'GenerateDocumentController', 'setDefaultOptions');
         }
     }
+
+
+/*
+*********************************************************
+@description     : Method is used to store the default process values for the generation options
+@param          : defaultData {Map<String,String>} - map containing with default data for the template
+@return           : void - won't return anything
+********************************************************
+*/  
+@AuraEnabled
+public static void storeDefaultProcesses(Map<String,String> defaultData){
+    try {
+        MVDG__Default_Process__c process = new MVDG__Default_Process__c(
+            MVDG__ButtonName__c  = defaultData.get('Name'),
+            MVDG__Document_Type__c = defaultData.get('docType'),
+            MVDG__Internal_Storage__c  = defaultData.get('iStorage'),
+            MVDG__Selected_Document_Folder__c = defaultData.get('folderId'),
+            MVDG__External_Storage__c  = defaultData.get('eStorage'),
+            MVDG__Output_Channel__c  = defaultData.get('oChannel'),
+            MVDG__Email_Addresses__c  = defaultData.get('emailAddresses'),
+            MVDG__Email_Subject__c  = defaultData.get('emailSubject'),
+            MVDG__Email_Body__c  = defaultData.get('emailBody'),
+            MVDG__Email_Template__c = defaultData.get('emailTemplate')
+        );
+        insert as User process;
+    } catch (Exception e) {
+        Log_Handler.store_Exception(e, 'GenerateDocumentController', 'storeDefaultProcesses');
+    }
+}
 
 
 /*
