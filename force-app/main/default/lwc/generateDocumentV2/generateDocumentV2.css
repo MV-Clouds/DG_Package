@@ -7,8 +7,8 @@
     --max-height-of-email-body-div : 100%;
     --max-height-for-email-preview-div : fit-content;
 
-    --display-for-email-body-div : flex;
-    --display-for-email-preview-div : flex;
+    --display-for-email-body-div: flex;
+    --display-for-email-preview-div: none;
 
 
     --display-of-the-rich-text : unset;
@@ -646,6 +646,17 @@ svg:not(.bottom-btn svg){
     gap: 0.5rem;
     align-items: center;
     background-color: #00aeff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    user-select: text;
+    color: white;
+}
+
+.selected-Fileds {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    background-color: #24b46e;
     padding: 0.2rem 0.5rem;
     border-radius: 0.5rem;
     user-select: text;

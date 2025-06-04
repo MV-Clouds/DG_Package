@@ -1771,9 +1771,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     this.showWarningPopup('error', 'Something went wrong!', errorMsg);
                 this.isClosableError = true;
         })
-                .finally(() => {
-                    this.showSpinner = false;
-                });
+                
         };
 
         if (!isQuickAction && !isAutoGeneration) {
