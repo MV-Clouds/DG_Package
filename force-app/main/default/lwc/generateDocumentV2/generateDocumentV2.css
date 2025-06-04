@@ -1157,6 +1157,12 @@ c-custom-combobox-v2.folder-select {
     transform: scale(1.1);
 }
 
+.clicked-effect {
+    background-color: #d8ffd7 !important;
+    transition: background-color 0.1s ease, transform 0.4s ease;
+    border-radius: 6px;
+}
+
 
 
 

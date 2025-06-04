@@ -1341,6 +1341,12 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     handleKeyClick(event){
         try {
+            let selectedComponent = event.target.closest('.key-option-item');
+            selectedComponent.classList.add('clicked-effect');
+            setTimeout(() => {
+                selectedComponent.classList.remove('clicked-effect');
+            }, 1000);
+
             let inputbox = this.template.querySelector('.file-input');
             inputbox.value += event.target.dataset.value;
 
