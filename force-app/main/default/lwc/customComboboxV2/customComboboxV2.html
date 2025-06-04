@@ -46,6 +46,9 @@
                       <button if:true={showClearButton} class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" onclick={clearSelection} title="Clear the text input">
                         <lightning-icon class="" icon-name="utility:close" alternative-text="Clear" title="Clear" size="x-small" ></lightning-icon>
                       </button>
+                      <button if:false={showClearButton} class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title="Show Options" onclick={handleShowDropDown}>
+                        <lightning-icon class="" icon-name="utility:down" alternative-text="Show Options" title="Show Options" size="x-small" ></lightning-icon>
+                      </button>
                     </div>
                   </template>
                 </template>
