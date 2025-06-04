@@ -478,7 +478,7 @@ public static void updateSetting(String clientId, String clientSecret) {
                     allFields.addAll(bccFields);
                     allFields = new List<String>(new Set<String>(allFields)); 
 
-                    try {
+                    
                         Map<String, Object> record = queryRecord(objectName, recordId, allFields);
                         ddw.toValues.add(String.valueOf(record.get('Id')));
                         for (String field : toFields) {
@@ -493,11 +493,7 @@ public static void updateSetting(String clientId, String clientSecret) {
                             Object fieldValue = record.get(field);
                             ddw.bccValues.add(fieldValue != null ? String.valueOf(fieldValue) : '');
                         }
-                    } catch (QueryException qe) {
-                        ddw.toValues = new List<String>();
-                        ddw.ccValues = new List<String>();
-                        ddw.bccValues = new List<String>();
-                    }
+                    
                 }
 
                 return ddw;
