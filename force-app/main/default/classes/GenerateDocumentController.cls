@@ -461,9 +461,11 @@ public static void updateSetting(String clientId, String clientSecret) {
                                 toFields[i] = toFields[i].trim();
                     }
                 }
-                ddw.emailType = emailType;
-                // System.debug('email address: ' + ddw.emailAddresses);
-                // System.debug('fieldList: ' + fieldList);
+                    }
+                }
+                // System.debug('toFields: ' + toFields);
+                // System.debug('ccFields: ' + ccFields);
+                // System.debug('bccFields: ' + bccFields);
 
                 ddw.toValues = new List<String>();
                 ddw.ccValues = new List<String>();
@@ -497,8 +499,6 @@ public static void updateSetting(String clientId, String clientSecret) {
                         ddw.bccValues = new List<String>();
                     }
                 }
-                ddw.recordValues = recordValues;
-                // System.debug('Returning ddw.recordValues:');
 
                 return ddw;
             }else{
