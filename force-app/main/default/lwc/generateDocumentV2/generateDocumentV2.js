@@ -2179,7 +2179,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 
                 if(message.data.completedChannel === 'Download' || message.data.completedChannel === 'Documents' || message.data.completedChannel === 'Notes & Attachments'){
                         if(message.data.status){
-                            if((message.data.isBulk == 'true' && this.totalNum == this.counter) || (message.data.isBulk == 'false')){
+                            if((message.data?.isBulk == 'true' && (this.totalNum == this.counter && this.totalNum != 0)) || (message.data?.isBulk != 'true')){
                                 this.succeeded.push(message.data.completedChannel);
                             }
                         }else{
@@ -2198,7 +2198,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     console.log('Got cvid in external storage response ---> '+ cvId);
                     
                     if(cvId){
-                        if (message.data.isBulk == 'true') {
+                        if (message.data?.isBulk == 'true') {
                             if(this.selectedChannels.includes('Download') && this.isDownloadZip){
                                 this.bulkStatus.push('Download');
                             }
@@ -2209,13 +2209,13 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                                 deleteContentVersion({cvId: cvId});
                             }
                             
-                            if ((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && !this.isDownloadZip ){
+                            if (((this.totalNum == this.counter && this.totalNum != 0) || this.bulkStatus.filter(item => item === 'Download').length == this.recordIds.length) && !this.isDownloadZip ){
                                 this.handleGenerationResult();
                             }
                             this.simpleTemplateFileDone();
                         }
-                        if (message.data.isBulk != 'true'){
-                            console.log('record id in externalstorage'+this.recordId);
+                        if (message.data?.isBulk != 'true'){
+                            // console.log('record id in externalstorage'+this.recordId);
                             
                             this.resultPromises.push(this.createFilesChatterEmail(cvId, this.recordId));
                             this.uploadToExternalStorage(cvId);
@@ -2240,11 +2240,12 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         console.log('this is bulkStatus ---> '+this.bulkStatus?.length);
         
         
-        if((this.totalNum == this.counter || this.bulkStatus.filter(item => item === 'Download')?.length == this.recordIds?.length) && this.isDownloadZip && this.isRelatedList){
+        
+        if(((this.totalNum == this.counter && this.totalNum != 0) || this.bulkStatus.filter(item => item === 'Download')?.length == this.recordIds?.length) && this.isDownloadZip && this.isRelatedList){
             this.generateZipFile();
         }
         
-        if(this.selectedChannels?.length === this.completedSimTempPros || this.bulkStatus?.length === this.totalNum){
+        if(this.selectedChannels?.length === this.completedSimTempPros || (this.bulkStatus?.length === this.totalNum && this.totalNum != 0)){
             this.showSpinner = false;
             this.simpleTemplate = false;
             this.completedSimTempPros = 0;
