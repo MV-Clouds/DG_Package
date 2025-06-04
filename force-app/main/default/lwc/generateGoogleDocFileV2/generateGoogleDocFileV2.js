@@ -200,8 +200,8 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                     let ckTablesList = [];
                     let textBasedConditions = {};
                     const CKTABLE_REGEX = /\{\{(@CKTABLE:([a-zA-Z0-9_.]+)|@CKTABLE:([a-zA-Z0-9_.]+)(:|;)([^{}]+))\}\}/g;
-                    const IF_ELSE_REGEX = /\{\{@IF:([^{}]+)\|#\|([^{}]+)\|#\|([^{}]*)\}\}/g;
-                    const IF_ELSE_FOR_TABLE_REGEX = /\{\{@IF:([^\|\n]+)\|#\|([^\|\n]+)\|#\|([^\|:]*)\}\}/g;
+                    const IF_ELSE_REGEX = /\{\{@IF:([^\|]+)\|#\|([^\|]*)\|#\|([^\|]*)\}\}/g;
+                    const IF_ELSE_FOR_TABLE_REGEX = /\{\{@IF:([^\|]+)\|#\|([^\|]+)\|#\|([^\|]*)\}\}/g;
                     const TOKEN_REGEX = /\{\{([^{}]+)\}\}/g;
                     content.forEach((element) => {
                         if (element.paragraph) {
@@ -250,10 +250,6 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                                             const matches = originalIfMatches[index]?.match(CKTABLE_REGEX);
                                             if (!matches) return;
                                             matches.forEach(key => {
-
-                                                const tableData = this.getCKTableData(key, parentFieldValues?.[this.objectname]);
-                                                if (!tableData) return;
-
                                                 let startIndex = e.startIndex;
                                                 let charStart = startIndex + rawText?.indexOf('{{@IF');
 
@@ -265,7 +261,9 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                                                 let startIndexTable = charStart + this.tableOffset + result.indexOf('{{@CKTABLE:');
                                                 this.tableOffset -= endIndexText - startIndexText;
                                                 this.tableOffset += replacementMap[originalIfMatches[index]]?.length;
-                                                
+                                                const tableData = this.getCKTableData(key, parentFieldValues?.[this.objectname]);
+                                                if (!tableData) return; 
+
                                                 ckTablesList.push({
                                                     startIndex: startIndexTable,
                                                     endIndex: startIndexTable + key?.length,
@@ -453,12 +451,12 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
             const parsed = JSON.parse(data);
             if (!parsed) return null;
 
-            const headers = parsed.headers || [];
-            const rows = parsed.rows || [];
+            const headers = parsed?.headers || [];
+            const rows = parsed?.rows || [];
 
             return [
                 headers,
-                ...rows.map(row => headers.map(h => row[h] ?? ""))
+                ...rows?.map(row => headers?.map(h => row[h] ?? ""))
             ];
         } catch {
             return null;
@@ -489,7 +487,7 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
 
     // Main replacer logic
     processIfElseExpressions(text) {
-        const IF_ELSE_REGEX = /\{\{@IF:([^\|]+)\|#\|([^\|]+)\|#\|([^\|]*)\}\}/g;
+        const IF_ELSE_REGEX = /\{\{@IF:([^\|]+)\|#\|([^\|]*)\|#\|([^\|]*)\}\}/g;
         return text.replace(IF_ELSE_REGEX, (_, condition, thenText, elseText) => {
             const result = this.evaluateIfExpression(condition);
             return result ? thenText : (elseText ?? '');
