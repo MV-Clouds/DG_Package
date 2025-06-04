@@ -6,6 +6,7 @@ import postToChatter from '@salesforce/apex/GenerateDocumentController.postToCha
 import sendEmail from '@salesforce/apex/GenerateDocumentController.sendEmail';
 import upsertActivity from '@salesforce/apex/GenerateDocumentController.upsertActivity';
 import getButtonNames from '@salesforce/apex/GenerateDocumentController.getButtonNames';
+import queryRecord from '@salesforce/apex/GenerateDocumentController.queryRecord';
 import createListViewButtons from '@salesforce/apex/ButtonGeneratorController.createListViewButtons';
 import {navigationComps, nameSpace, errorDebugger} from 'c/globalPropertiesV2';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
@@ -218,9 +219,23 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     @track selectedEmailType = 'to';
     @track emailTypeOptions = [
         { label: 'To', value: 'to' },
-        { label: 'CC', value: 'cc' },
-        { label: 'BCC', value: 'bcc' }
+        { label: 'Cc', value: 'cc' },
+        { label: 'Bcc', value: 'bcc' }
     ]; 
+
+    //dynamic email 
+    @track toFields = [];
+    @track ccFields = [];
+    @track bccFields = [];
+
+    //for dynamic email verified email address from records fields
+    @track toverified = [];
+    @track ccverified = [];
+    @track bccverified = [];
+
+    @track originalFieldLabelOptions = [];
+
+    
 
     get disableZipOption(){
         return !this.selectedChannels.includes('Download');
@@ -462,19 +477,18 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     fetchFieldMapping() {
         try {
-            console.log(this.internalObjectApiName);
-            console.log(this.objectApiName ? this.objectApiName : this.internalObjectApiName);
-            
-            
-            
             getFieldMappingKeys({ sourceObjectAPI: this.objectApiName ? this.objectApiName : this.internalObjectApiName, getParentFields: true })
                 .then(result => {
                     if (result.isSuccess) {
                         this.fieldMappingsWithObj = result.fieldMappingsWithObj[0];
                         let fieldOptions = [];
-                        this.fieldMappingsWithObj.fieldMappings.forEach(field => {
-                            const transformedValue = field.key.replace(/{{#(.*)}}/, '$1');
-                            const keyValue =  '{{#'+transformedValue+'}}';
+                    this.keyOptions = [];
+                    let allowedTypes = ['STRING', 'PICKLIST', 'TEXTAREA', 'URL'];
+                    this.fieldMappingsWithObj.fieldMappings
+                        .filter(field => allowedTypes.includes(field.type))
+                        .forEach(field => {
+                            let transformedValue = field.key.replace(/{{#(.*)}}/, '$1');
+                            let keyValue = '{{#' + transformedValue + '}}';
                             fieldOptions.push({
                                 label: field.label,
                                 value: transformedValue
@@ -482,21 +496,47 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                             this.keyOptions.push({
                                 label: field.label,
                                 value: keyValue
-                            })
+                            });
                         });
-                        console.log(this.keyOptions);
-                        
-                        this.fieldLabelOptions = JSON.parse(JSON.stringify(fieldOptions)); 
-                    } else {
-                        // console.error('Error in getFieldMappingKeys:', result.returnMessage);
+                    this.originalFieldLabelOptions = JSON.parse(JSON.stringify(fieldOptions));
+                    this.fieldLabelOptions = this.updateAvailableOptions(); // Initialize with filtered options
                     }
                 })
                 .catch(error => {
-                    // console.error('Error fetching field mapping:', error);
+                this.showSpinner = false;
+                errorDebugger('generateDocumentV2', 'fetchFieldMapping', error, 'error');
                 });
         } catch (error) {
-            // console.error('Exception in fetchFieldMapping:', error);
+            this.showSpinner = false;
+            errorDebugger('generateDocumentV2', 'fetchFieldMapping', error, 'error');
         }
+    }
+
+    updateAvailableOptions() {
+        let fieldsToExclude = [];
+        if (this.selectedEmailType === 'to') {
+            fieldsToExclude = [...this.ccFields, ...this.bccFields];
+        } else if (this.selectedEmailType === 'cc') {
+            fieldsToExclude = [...this.toFields, ...this.bccFields];
+        } else if (this.selectedEmailType === 'bcc') {
+            fieldsToExclude = [...this.toFields, ...this.ccFields];
+        }
+
+        let currentFields = [];
+        if (this.selectedEmailType === 'to') {
+            currentFields = this.toFields;
+        } else if (this.selectedEmailType === 'cc') {
+            currentFields = this.ccFields;
+        } else if (this.selectedEmailType === 'bcc') {
+            currentFields = this.bccFields;
+        }
+
+        return this.originalFieldLabelOptions
+            .filter(option => !fieldsToExclude.includes(option.value))
+            .map(option => ({
+                ...option,
+                isSelected: currentFields.includes(option.value)
+            }));
     }
 
     disconnectedCallback(){
@@ -509,14 +549,86 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         try {
             const selectedValues = Array.isArray(event.detail) ? event.detail : []; 
             this.selectedFieldLabels = selectedValues.map(item => item.replace(/{{#|}}|"|"/g, '')); 
+
+            if (this.selectedEmailType === 'to') {
+                this.toFields = [...new Set(this.selectedFieldLabels)];
+                this.ccFields = this.ccFields.filter(f => !this.selectedFieldLabels.includes(f));
+                this.bccFields = this.bccFields.filter(f => !this.selectedFieldLabels.includes(f));
+            } else if (this.selectedEmailType === 'cc') {
+                this.ccFields = [...new Set(this.selectedFieldLabels)];
+                this.toFields = this.toFields.filter(f => !this.selectedFieldLabels.includes(f));
+                this.bccFields = this.bccFields.filter(f => !this.selectedFieldLabels.includes(f));
+            } else if (this.selectedEmailType === 'bcc') {
+                this.bccFields = [...new Set(this.selectedFieldLabels)];
+                this.toFields = this.toFields.filter(f => !this.selectedFieldLabels.includes(f));
+                this.ccFields = this.ccFields.filter(f => !this.selectedFieldLabels.includes(f));
+            }  
+
+            this.previousFieldLabels = [...this.selectedFieldLabels];
+            this.fieldLabelOptions = this.updateAvailableOptions();
+
+            let combobox = this.template.querySelector('c-custom-combobox-v2.emailTempSelect');
+            if (combobox) {
+                combobox.value = this.selectedFieldLabels;
+            }
+
+            this.dispatchEvent(new CustomEvent('change', {
+                detail: { value: this.selectedFieldLabels }
+            }));
+
+            this.validateToEmails();
         } catch (error) { 
+            console.error('Error processing field labels:', error);
+            errorDebugger('generateDocumentV2', 'handleFieldLabelSelect', error, 'error');
             this.selectedFieldLabels = [];
+            this.previousFieldLabels = [];
         }
     }
 
     handleEmailTypeChange(event) {
-        this.selectedEmailType = event.detail.value;
-         console.log('Selected Email Type:', this.selectedEmailType);
+        try {
+            let selectedValue = Array.isArray(event.detail) && event.detail.length > 0 ? event.detail[0] : '';
+            this.selectedEmailType = selectedValue;
+            // console.log('Selected Email Type:', this.selectedEmailType);
+
+            if (this.selectedEmailType === 'cc') {
+                this.showCC = true;
+            } else if (this.selectedEmailType === 'bcc') {
+                this.showBCC = true;
+            }
+
+            let combobox = this.template.querySelector('c-custom-combobox-v2.emailTempSelect');
+            if (combobox) {
+                combobox.clearValue();
+            } else {
+                console.error('Combobox element not found');
+            }
+
+            this.selectedFieldLabels = [];
+            this.previousFieldLabels = [];
+
+            if (this.selectedEmailType === 'to') {
+                this.selectedFieldLabels = [...(this.toFields || [])];
+            } else if (this.selectedEmailType === 'cc') {
+                this.selectedFieldLabels = [...(this.ccFields || [])];
+            } else if (this.selectedEmailType === 'bcc') {
+                this.selectedFieldLabels = [...(this.bccFields || [])];
+            }
+            // console.log('Updated selectedFieldLabels:', JSON.stringify(this.selectedFieldLabels));
+
+            this.fieldLabelOptions = this.updateAvailableOptions();
+
+            if (combobox) {
+                combobox.value = this.selectedFieldLabels;
+            }
+
+            this.dispatchEvent(new CustomEvent('change', {
+                detail: { value: this.selectedFieldLabels }
+            }));
+        } catch (error) {
+            console.error('Error in handleEmailTypeChange:', error);
+            errorDebugger('generateDocumentV2', 'handleEmailTypeChange', error, 'error');
+        }
     }
 
     renderedCallback() {
@@ -717,93 +829,129 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     handleAutoGeneration() {
         this.showSpinner = true;
         try {
-            // console.log('template id'+this.selectedTemplate);
-            // console.log('record id'+this.recordId);
-            getTemplateDefaultValues({ templateId : this.selectedTemplate, recordId : this.recordId})
-
-            .then((data) =>{
-                if(data){
-                    if(!data.templateStatus && !this.isCalledFromDefaults){
+            // console.log('template id: ' + this.selectedTemplate);
+            // console.log('record id: ' + this.recordId);
+            getTemplateDefaultValues({ templateId: this.selectedTemplate, recordId: this.recordId })
+                .then((data) => {
+                    if (data) {
+                        if (!data.templateStatus && !this.isCalledFromDefaults) {
                         this.showSpinner = false;
                         this.showWarningPopup('error', 'Inactive Template', 'The template you are trying to generate document from is inactive, please make it active to generate document.');
                         this.isClosableError = true;
                         return;
                     }
-                    if(data?.docType){
-                        this.documentTypes.forEach(dt => {dt.isSelected = false});
+                        if (data?.docType) {
+                            this.documentTypes.forEach(dt => { dt.isSelected = false; });
                         this.documentTypes.find(item => item.name === data?.docType).isSelected = true;
                     }
                     this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
                     this.template.querySelector('.email-create-div').style.display = this.showEmailSection ? 'unset' : 'none';
-                    data?.iStorage?.split(', ')?.forEach((option) => {this.internalStorageOptions.find(item => item.name === option).isSelected = true});
-                    if(this.internalStorageOptions.find(item => item.name === 'Documents')?.isSelected){
+                        data?.iStorage?.split(', ')?.forEach((option) => {
+                            this.internalStorageOptions.find(item => item.name === option).isSelected = true;
+                        });
+                        if (this.internalStorageOptions.find(item => item.name === 'Documents')?.isSelected) {
                         this.selectedFolder = data?.folderId;
-                        if(this.isCalledFromDefaults && !this.allFolders.find(item => item.value === this.selectedFolder)){
+                            if (this.isCalledFromDefaults && !this.allFolders.find(item => item.value === this.selectedFolder)) {
                             this.showWarningPopup('info', 'Folder not found!', 'The folder you selected to save documents does not exist, please select the folder.');
                             this.selectedFolder = null;
                         }
                         this.showFolderSelection = true;
                     } 
                     data?.eStorage?.split(', ')?.forEach((option) => {
-                        const storageOption = this.externalStorageOptions.find(item => item.name === option);
+                            let storageOption = this.externalStorageOptions.find(item => item.name === option);
                         if (storageOption) storageOption.isSelected = !storageOption.isDisabled;
                     });
-                    data?.oChannel?.split(', ')?.forEach((option) => {this.outputChannels.find(item => item.name === option).isSelected = true});
-                    if(data?.emailAddresses?.includes('<|DGE|>')){
-                        const splitEmails = data?.emailAddresses.split('<|DGE|>');
-                        this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()) : [];
-                        console.log(this.toEmails);
-                        this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()) : [];
-                        this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()) : [];
-                        this.selectedFieldLabels = splitEmails[3] ? splitEmails[3].split(',').map(field => field.trim()) : [];
-                        this.selectedEmailType = splitEmails[4] ? splitEmails[4].trim() : '';
-                        this.handleFieldLabelSelect({ detail: this.selectedFieldLabels });
-                        
+                        data?.oChannel?.split(', ')?.forEach((option) => {
+                            this.outputChannels.find(item => item.name === option).isSelected = true;
+                        });
+                        if (data?.emailAddresses?.includes('<|DGE|>')) {
+                            let splitEmails = data.emailAddresses.split('<|DGE|>');
+                            this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()).filter(email => email !== '') : [];
+                            this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()).filter(email => email !== '') : [];
+                            this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()).filter(email => email !== '') : [];
+                            this.toFields = splitEmails[3] ? splitEmails[3].split(',').map(field => field.trim()).filter(field => field !== '') : [];
+                            this.ccFields = splitEmails[4] ? splitEmails[4].split(',').map(field => field.trim()).filter(field => field !== '') : [];
+                            this.bccFields = splitEmails[5] ? splitEmails[5].split(',').map(field => field.trim()).filter(field => field !== '') : [];
+                            this.selectedFieldLabels = this.bccFields ? [...this.bccFields] : [];
+                            this.fieldLabelOptions = this.fieldLabelOptions.map(option => ({
+                                ...option,
+                                isSelected: this.selectedFieldLabels.includes(option.value)
+                            })); 
+                            this.dispatchEvent(new CustomEvent('change', {
+                                detail: { value: this.selectedFieldLabels }
+                            }));   
+                            if (this.toFields.length > 0) {
+                                this.selectedEmailType = 'to';
+                                this.handleFieldLabelSelect({ detail: this.toFields });
+                            }
+                            if (this.ccFields.length > 0) {
+                                this.selectedEmailType = 'cc';
+                                this.handleFieldLabelSelect({ detail: this.ccFields });
+                            }
+                            if (this.bccFields.length > 0) {
+                                this.selectedEmailType = 'bcc';
+                                this.handleFieldLabelSelect({ detail: this.bccFields });
+                            } 
                     }
-                    this.selectedEmailTemplate = data?.emailTemplate ? data?.emailTemplate : null;
-                    this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
-                    this.emailSubject = data?.emailSubject ? data?.emailSubject : '';
-                    this.emailBody = data?.emailBody ? data?.emailBody : '';
-                    this.buttonLabel = data?.buttonLabel ? data?.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent.length > 80 ? this.templateNameFromParent.slice(0, 80) : this.templateNameFromParent : '');
+                        this.selectedEmailTemplate = data?.emailTemplate ? data.emailTemplate : null;
+                        this.handleEmailTemplateSelect({ detail: [this.selectedEmailTemplate] });
+                        this.emailSubject = data?.emailSubject ? data.emailSubject : '';
+                        this.emailBody = data?.emailBody ? data.emailBody : '';
+                        this.buttonLabel = data?.buttonLabel ? data.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent.length > 80 ? this.templateNameFromParent.slice(0, 80) : this.templateNameFromParent : '');
                     this.buttonName = data?.buttonName || null;
-                    if(this.buttonName && this.allButtons.includes(this.buttonName)){
+                        if (this.buttonName && this.allButtons.includes(this.buttonName)) {
                         this.isOldButton = true;
                         this.bottomBtnLabel = 'Update Defaults';
-                    }else{
+                        } else {
                         this.buttonName = null;
                     }
-                    this.fileName = this.templateName?.slice(0,240);
+                        this.fileName = this.templateName?.slice(0, 240);
                     this.showCC = this.ccEmails.length > 0 ? true : false;
                     this.showBCC = this.bccEmails.length > 0 ? true : false;
                     this.isAdditionalInfo = true;
-                    this.showSpinner = false;
-                    if(!this.isCalledFromDefaults){
+                        if (!this.isCalledFromDefaults) {
                         this.showSpinner = true;
-                        this.handleGenerate();
-                    } 
-                    
-                    this.verifiedEmails = [];
-                        if (data?.recordValues?.length > 0) {
-                            this.verifiedEmails = data.recordValues.filter(value => 
+                            // Wait for handleGenerate to finish before hiding spinner
+                            Promise.resolve(this.handleGenerate()).finally(() => {
+                                this.showSpinner = false;
+                            });
+                        } else {
+                            this.showSpinner = false;
+                        }
+                        
+                        if (data?.toValues?.length > 0) {
+                            this.toverified = data.toValues.filter(value =>
                                 typeof value === 'string' && this.emailregex.test(value.trim())
                             );
                         }
-                        console.log('Verified Emails in auto generation :', this.verifiedEmails);
-                }else{
+                        if (data?.ccValues?.length > 0) {
+                            this.ccverified = data.ccValues.filter(value =>
+                                typeof value === 'string' && this.emailregex.test(value.trim())
+                            );
+                        }
+                        if (data?.bccValues?.length > 0) {
+                            this.bccverified = data.bccValues.filter(value =>
+                                typeof value === 'string' && this.emailregex.test(value.trim())
+                            );
+                        } 
+                        // console.log('toVerified Emails:', this.toverified);
+                        // console.log('ccVerified Emails:', this.ccverified);
+                        // console.log('bccVerified Emails:', this.bccverified);
+                    } else {
                     this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
                     this.isClosableError = true;
                 }
             })
-            .catch((e) =>{
+                .catch((e) => {
                 errorDebugger('generateDocumentV2', 'getTemplateDefaultValues', e, 'error');
-                if(e.body.message.includes('Insufficient permissions')){
+                    if (e.body.message.includes('Insufficient permissions')) {
                     this.showSpinner = false;
                     this.showWarningPopup('error', 'Insufficient permissions', 'Please check the permissions to access the data...');
                     this.isClosableError = true;
-                }else{
+                    } else {
                     this.showToast('error', 'Something went Wrong!', 'Couldn\'t get default values, please try again...', 5000);
                 }
-            })
+                });
         } catch (e) {
             this.showSpinner = false;
             errorDebugger('generateDocumentV2', 'handleAutoGeneration', e, 'error');
@@ -986,58 +1134,101 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 fetchProcessDefinedData({ apiName: this.currentPageReference?.attributes?.apiName?.split('.')[1]})
                 .then((data) => {
                     if(data){
-                        if(data?.docType){
-                            this.documentTypes.forEach(dt => {dt.isSelected = false});
+                        if (data?.docType) {
+                        this.documentTypes.forEach(dt => { dt.isSelected = false; });
                             this.documentTypes.find(item => item.name === data?.docType).isSelected = true;
                         }
                         this.showEmailSection = data?.oChannel?.includes('Email') ? true : false;
                         this.template.querySelector('.email-create-div').style.display = this.showEmailSection ? 'unset' : 'none';
-                        data?.iStorage?.split(', ')?.forEach((option) => {this.internalStorageOptions.find(item => item.name === option).isSelected = true});
-                        if(this.internalStorageOptions.find(item => item.name === 'Documents')?.isSelected){
+                        data?.iStorage?.split(', ')?.forEach((option) => {
+                            this.internalStorageOptions.find(item => item.name === option).isSelected = true;
+                        });
+                        if (this.internalStorageOptions.find(item => item.name === 'Documents')?.isSelected) {
                             this.selectedFolder = data?.folderId;
-                            if(this.isCalledFromDefaults && !this.allFolders.find(item => item.value === this.selectedFolder)){
+                            if (this.isCalledFromDefaults && !this.allFolders.find(item => item.value === this.selectedFolder)) {
                                 this.showWarningPopup('info', 'Folder not found!', 'The folder you selected to save documents does not exist, please select the folder.');
                                 this.selectedFolder = null;
                             }
                             this.showFolderSelection = true;
                         } 
                         data?.eStorage?.split(', ')?.forEach((option) => {
-                            const storageOption = this.externalStorageOptions.find(item => item.name === option);
+                            let storageOption = this.externalStorageOptions.find(item => item.name === option);
                             if (storageOption) storageOption.isSelected = !storageOption.isDisabled;
                         });
-                        data?.oChannel?.split(', ')?.forEach((option) => {this.outputChannels.find(item => item.name === option).isSelected = true});
-                        if(data?.emailAddresses?.includes('<|DGE|>')){
-                            const splitEmails = data?.emailAddresses.split('<|DGE|>');
-                            this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()) : [];
-                            console.log(this.toEmails);
-                            this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()) : [];
-                            this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()) : [];
-                            this.selectedFieldLabels = splitEmails[3] ? splitEmails[3].split(',').map(field => field.trim()) : [];
-                            this.selectedEmailType = splitEmails[4] ? splitEmails[4].trim() : '';
-                            this.handleFieldLabelSelect({ detail: this.selectedFieldLabels });
-                            
+                        data?.oChannel?.split(', ')?.forEach((option) => {
+                            this.outputChannels.find(item => item.name === option).isSelected = true;
+                        });
+                        if (data?.emailAddresses?.includes('<|DGE|>')) {
+                            let splitEmails = data.emailAddresses.split('<|DGE|>');
+                            this.toEmails = splitEmails[0] ? splitEmails[0].split(',').map(email => email.trim()).filter(email => email !== '') : [];
+                            this.ccEmails = splitEmails[1] ? splitEmails[1].split(',').map(email => email.trim()).filter(email => email !== '') : [];
+                            this.bccEmails = splitEmails[2] ? splitEmails[2].split(',').map(email => email.trim()).filter(email => email !== '') : [];
+                            this.toFields = splitEmails[3] ? splitEmails[3].split(',').map(field => field.trim()).filter(field => field !== '') : [];
+                            this.ccFields = splitEmails[4] ? splitEmails[4].split(',').map(field => field.trim()).filter(field => field !== '') : [];
+                            this.bccFields = splitEmails[5] ? splitEmails[5].split(',').map(field => field.trim()).filter(field => field !== '') : [];
+                            this.selectedFieldLabels = this.bccFields ? [...this.bccFields] : [];
+                            this.fieldLabelOptions = this.fieldLabelOptions.map(option => ({
+                                ...option,
+                                isSelected: this.selectedFieldLabels.includes(option.value)
+                            })); 
+                            this.dispatchEvent(new CustomEvent('change', {
+                                detail: { value: this.selectedFieldLabels }
+                            }));   
+                            if (this.toFields.length > 0) {
+                                this.selectedEmailType = 'to';
+                                this.handleFieldLabelSelect({ detail: this.toFields });
+                            }
+                            if (this.ccFields.length > 0) {
+                                this.selectedEmailType = 'cc';
+                                this.handleFieldLabelSelect({ detail: this.ccFields });
+                            }
+                            if (this.bccFields.length > 0) {
+                                this.selectedEmailType = 'bcc';
+                                this.handleFieldLabelSelect({ detail: this.bccFields });
+                            } 
                         }
-                        this.selectedEmailTemplate = data?.emailTemplate ? data?.emailTemplate : null;
-                        this.handleEmailTemplateSelect({detail:[this.selectedEmailTemplate]});
-                        this.emailSubject = data?.emailSubject ? data?.emailSubject : '';
-                        this.emailBody = data?.emailBody ? data?.emailBody : '';
-                        this.fileName = this.templateName?.slice(0,240);
+                        this.selectedEmailTemplate = data?.emailTemplate ? data.emailTemplate : null;
+                        this.handleEmailTemplateSelect({ detail: [this.selectedEmailTemplate] });
+                        this.emailSubject = data?.emailSubject ? data.emailSubject : '';
+                        this.emailBody = data?.emailBody ? data.emailBody : '';
+                        this.buttonLabel = data?.buttonLabel ? data.buttonLabel : (this.templateNameFromParent ? this.templateNameFromParent.length > 80 ? this.templateNameFromParent.slice(0, 80) : this.templateNameFromParent : '');
+                    this.buttonName = data?.buttonName || null;
+                        if (this.buttonName && this.allButtons.includes(this.buttonName)) {
+                        this.isOldButton = true;
+                        this.bottomBtnLabel = 'Update Defaults';
+                        } else {
+                        this.buttonName = null;
+                    }
+                        this.fileName = this.templateName?.slice(0, 240);
                         this.showCC = this.ccEmails.length > 0 ? true : false;
                         this.showBCC = this.bccEmails.length > 0 ? true : false;
                         this.isAdditionalInfo = true;
-                        this.showSpinner = false;
-                        if(!this.isCalledFromDefaults){
+                        if (!this.isCalledFromDefaults) {
                             this.showSpinner = true;
-                            this.handleGenerate();
-                        } 
-
-                        this.verifiedEmails = [];
-                            if (data?.recordValues?.length > 0) {
-                                this.verifiedEmails = data.recordValues.filter(value => 
+                            // Wait for handleGenerate to finish before hiding spinner
+                            Promise.resolve(this.handleGenerate()).finally(() => {
+                                this.showSpinner = false;
+                            });
+                        } else {
+                            this.showSpinner = false;
+                        }
+                        
+                        if (data?.toValues?.length > 0) {
+                            this.toverified = data.toValues.filter(value =>
                                     typeof value === 'string' && this.emailregex.test(value.trim())
                                 );
                             }
-                        console.log('Verified Emails in auto generation :', this.verifiedEmails);
+                        if (data?.ccValues?.length > 0) {
+                            this.ccverified = data.ccValues.filter(value =>
+                                typeof value === 'string' && this.emailregex.test(value.trim())
+                            );
+                        }
+                        if (data?.bccValues?.length > 0) {
+                            this.bccverified = data.bccValues.filter(value =>
+                                typeof value === 'string' && this.emailregex.test(value.trim())
+                            );
+                        } 
+                    
                     }else{
                         this.showSpinner = false;
                         this.showWarningPopup('error', 'Something went wrong!', 'The Template Couldn\'t be found or does not exist!');
@@ -1086,7 +1277,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         else{
             this.isDownloadZip = false;
         }
-        console.log(this.isDownloadZip);
+        // console.log(this.isDownloadZip);
         
     }
 
@@ -1186,34 +1377,44 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     handleRemoveLabel(event) {
         try {
             this.showSpinner = true;
-            const index = event.currentTarget.dataset.index;
-            const removedLabel = this.selectedFieldLabels[index]; // Get the label being removed
-            console.log('Before remove:', JSON.stringify(this.selectedFieldLabels));
+            const index = parseInt(event.currentTarget.dataset.index);
+            const emailType = event.currentTarget.dataset.type;
+            const removedLabel = event.currentTarget.dataset.label;
 
-            // Remove the label at the specified index
-            this.selectedFieldLabels = this.selectedFieldLabels.filter((_, i) => i !== parseInt(index));
-            console.log('After remove:', JSON.stringify(this.selectedFieldLabels));
+            if (!removedLabel) {
+                console.error('No label found for removal:', { index, emailType });
+                return;
+            }
 
+            this.selectedFieldLabels = this.selectedFieldLabels.filter(label => label !== removedLabel);
 
-            // Update fieldLabelOptions to reflect the current selection state
-            this.fieldLabelOptions = this.fieldLabelOptions.map(option => ({
-                ...option,
-                isSelected: this.selectedFieldLabels.includes(option.value)
-            }));
+            if (emailType === 'to') {
+                this.toFields = this.toFields.filter(field => field !== removedLabel);
+            } else if (emailType === 'cc') {
+                this.ccFields = this.ccFields.filter(field => field !== removedLabel);
+            } else if (emailType === 'bcc') {
+                this.bccFields = this.bccFields.filter(field => field !== removedLabel);
+            } else {
+                console.error('Invalid email type:', emailType);
+                return;
+            }
 
-            // Dispatch change event to notify other components
+            this.previousFieldLabels = [...this.selectedFieldLabels];
+            this.fieldLabelOptions = this.updateAvailableOptions(); 
+
             this.dispatchEvent(new CustomEvent('change', {
                 detail: { value: this.selectedFieldLabels }
             }));
 
-            // Call unselectOption on the combobox to update its UI
-            const combobox = this.template.querySelector('c-custom-combobox-v2.emailTempSelect');
+            let combobox = this.template.querySelector('c-custom-combobox-v2.emailTempSelect');
             if (combobox && removedLabel) {
                 combobox.unselectOption(removedLabel);
             }
 
-        } catch (e) {
-            errorDebugger('componentName', 'handleRemoveLabel', e, 'error');
+            // console.log('Removed label:', removedLabel, 'from', emailType, 'Updated selectedFieldLabels:', JSON.stringify(this.selectedFieldLabels));
+        } catch (error) {
+            console.error('Error in handleRemoveLabel:', error);
+            errorDebugger('generateDocumentV2', 'handleRemoveLabel', error, 'error');
         } finally {
             this.showSpinner = false;
         }
@@ -1221,7 +1422,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     validateToEmails(){
         try{
-            let hasRecipients = this.toEmails.length > 0;
+            let hasRecipients = this.toEmails.length > 0 || this.toFields.length > 0; 
             this.template.querySelector(".to-input").classList.toggle("input-error-border", !hasRecipients)
             this.template.querySelector(".to-error-div").innerText = hasRecipients ? '' : 'There must be at least one recipient..';
             this.template.querySelector(".to-error-div").classList.toggle("not-display-div", hasRecipients);
@@ -1315,7 +1516,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.outputChannels[index].isSelected = !this.outputChannels[index].isSelected;
                 if(option === "Download" && this.isRelatedList && this.outputChannels[index].isSelected == false){
                     this.isDownloadZip = false;
-                    console.log(this.isDownloadZip);
+                    // console.log(this.isDownloadZip);
                 }
                 if(option==="Email"){
                     this.showEmailSection = this.outputChannels[index].isSelected;
@@ -1360,7 +1561,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             const end = inputbox.value.length;
             inputbox.setSelectionRange(end, end);
             inputbox.focus();
-            console.log('inside handlekey click-->'+this.fileName);
+            // console.log('inside handlekey click-->'+this.fileName);
             
         }
         catch (e) {
@@ -1523,7 +1724,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             return;
         }
     
-        if (this.showEmailSection && this.toEmails.length < 1) {
+        if (this.showEmailSection && this.toEmails.length < 1 && this.toFields.length < 1) {
             this.validateToEmails();
             this.showToast('error', 'Something Went Wrong!', 'Please select at least one recipient to send email.', 5000);
             this.showSpinner = false;
@@ -1531,52 +1732,87 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         }
     
         if (this.selectedChannels.includes('Documents') && !this.selectedFolder) {
-            this.showSpinner = false;
             this.showToast('error', 'Something Went Wrong!', 'Please select folder to save document.', 5000);
+            this.showSpinner = false;
             return;
         }
+
         this.activity.MVDG__DocGenius_Template__c = this.selectedTemplate;
         this.activity.MVDG__Selected_Channels__c = this.selectedChannels.join(',');
-        if(!this.fileName && !this.isRelatedList){
-            let thisTemplate = this.allTemplates?.find(opt => opt.Id === this.selectedTemplate);
-            this.fileName = thisTemplate?.MVDG__Template_Name__c?.slice(0,240) || "DG_Document";  
+        if (!this.fileName && !this.isRelatedList) {
+            const thisTemplate = this.allTemplates?.find(opt => opt.Id === this.selectedTemplate);
+            this.fileName = thisTemplate?.MVDG__Template_Name__c?.slice(0, 240) || "DG_Document";
         }
         this.activity.MVDG__File_Name__c = this.fileName + this.selectedExtension;
         this.activity.MVDG__Related_Record_Id__c = this.isCSVTemplate ? null : this.recordId;
+
+        const isQuickAction = this.currentPageReference?.type === "standard__quickAction";
+        const isAutoGeneration = !isQuickAction && this.calledFromWhere !== "preview" && 
+                                this.calledFromWhere !== "defaults" && !this.isCSVOnly && !this.isRelatedList;
+
+        const processGeneration = () => {
         this.generateActivity()
-        .then((result) => {
-            if(result){
-                // Handle CSV template
-                if (this.isCSVTemplate) {
-                    this.showSpinner = true;
-                    this.handleGenerateCSVData()
-                    .catch((e) => {
-                        ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = 'Error in Creating File => '+ e?.message || e?.body?.message || JSON.stringify(e) || 'Unknown Error');
-                        this.handleGenerationResult();
-                    })
-                }
-            
-                // Handle Google Doc template
-                if (this.templateType === 'Google Doc Template') {
-                    this.showSpinner = true;
+                .then(result => {
+                    if (!result) {
+                        throw new Error('The activity couldn\'t be created for generation.');
+                    }
+                    if (this.isCSVTemplate) {
+                        return this.handleGenerateCSVData();
+                    } else if (this.templateType === 'Google Doc Template') {
                     this.generateGoogleDoc();
-                }
-            
-                // Handle Simple Template
-                if (this.templateType === 'Simple Template') {
-                    this.showSpinner = true;                    
+                    } else if (this.templateType === 'Simple Template') {
                     this.generateSimpleTemplateFile();
                 }
-            }else{
-                this.showWarningPopup('error', 'Something went wrong!', 'The activity couldn\'t be created for generation, please go back and try again...');
+                })
+                .catch(e => {
+                    const errorMsg = e?.message || e?.body?.message || 'Unknown Error';
+                    ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox']
+                        .forEach(key => this.failed[key] = errorMsg);
+                    this.showWarningPopup('error', 'Something went wrong!', errorMsg);
                 this.isClosableError = true;
+        })
+                .finally(() => {
+                    this.showSpinner = false;
+                });
+        };
+
+        if (!isQuickAction && !isAutoGeneration) {
+            const allFields = [...new Set([...this.toFields, ...this.ccFields, ...this.bccFields])];
+            if (allFields.length > 0 && this.internalObjectApiName && this.recordId) {
+                queryRecord({
+                    objectName: this.internalObjectApiName,
+                    recordId: this.recordId,
+                    fields: allFields
+                })
+                .then(result => {
+                    this.toverified = this.toFields
+                        .map(field => result[field])
+                        .filter(value => typeof value === 'string' && this.emailregex.test(value.trim()));
+                    this.ccverified = this.ccFields
+                        .map(field => result[field])
+                        .filter(value => typeof value === 'string' && this.emailregex.test(value.trim()));
+                    this.bccverified = this.bccFields
+                        .map(field => result[field])
+                        .filter(value => typeof value === 'string' && this.emailregex.test(value.trim()));
+                    
+                    // console.log('toVerified Emails:', this.toverified);
+                    // console.log('ccVerified Emails:', this.ccverified);
+                    // console.log('bccVerified Emails:', this.bccverified);
+                    
+                    processGeneration();
+                })
+                .catch(e => {
+                    errorDebugger('generateDocumentV2', 'handleGenerate > queryRecord', e, 'error');
+                    this.showWarningPopup('error', 'Something went wrong!', 'Could not fetch field values: ' + e.body.message);
+                    this.isClosableError = true;
+                    this.showSpinner = false;
+                });
+            } else {
+                processGeneration();
             }
-        })
-        .catch((e) => {            
-            ['Download', 'Notes & Attachments', 'Documents', 'Files', 'Chatter', 'Email', 'Google Drive', 'AWS', 'One Drive', 'Dropbox'].forEach(key => this.failed[key] = e?.message);
-            this.showWarningPopup('error', 'Something went wrong!', e);
-                this.isClosableError = true;
-        })
+        } else {
+            processGeneration();
+        }
     }
 
     //Back to generate
@@ -2116,11 +2352,11 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 const validChannels = ['Download', 'Notes & Attachments', 'Documents', 'Files'];
                 const multiplier = validChannels.filter(channel => this.selectedChannels.includes(channel)).length;
             
-                console.log('Selected channels --->', this.selectedChannels);
-                console.log(multiplier);
+                // console.log('Selected channels --->', this.selectedChannels);
+                // console.log(multiplier);
                 
                 this.totalNum *= multiplier;
-                console.log('totalNum --->'+ this.totalNum);
+                // console.log('totalNum --->'+ this.totalNum);
                     
                 
                 this.vfInks = [];
@@ -2161,10 +2397,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
 
     simpleTempFileGenResponse = (message) => {
         try{             
-            console.log(message);
+            // console.log(message);
             
             this.counter++;
-            console.log('COUNTER--->'+this.counter);
+            // console.log('COUNTER--->'+this.counter);
             
             
             if(message.data.messageFrom === 'docGenerate' && message.data.completedChannel === 'unknown'){
@@ -2195,7 +2431,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 }else if(message.data.completedChannel === 'External Storage'){
                     
                     let cvId = message.data.cvId;
-                    console.log('Got cvid in external storage response ---> '+ cvId);
+                    // console.log('Got cvid in external storage response ---> '+ cvId);
                     
                     if(cvId){
                         if (message.data?.isBulk == 'true') {
@@ -2214,7 +2450,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                             }
                             this.simpleTemplateFileDone();
                         }
+
                         if (message.data?.isBulk != 'true'){
+
                             // console.log('record id in externalstorage'+this.recordId);
                             
                             this.resultPromises.push(this.createFilesChatterEmail(cvId, this.recordId));
@@ -2234,10 +2472,12 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
     }
 
     simpleTemplateFileDone(){
+
         console.log('this is completedsimtemppro ---> '+this.completedSimTempPros);
         console.log('this is selected Channels -----> '+this.selectedChannels?.length);
         console.log('this is totalNum ---> '+this.totalNum);
         console.log('this is bulkStatus ---> '+this.bulkStatus?.length);
+
         
         
         
@@ -2510,32 +2750,19 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     bccEmails: this.bccEmails
                 }
                 
+                allEmails.toEmails=allEmails.toEmails.concat(this.toverified);
+                allEmails.ccEmails=allEmails.ccEmails.concat(this.ccverified);
+                allEmails.bccEmails=allEmails.bccEmails.concat(this.bccverified);
                 
-                if (this.selectedEmailType === 'to') {
-                    if(this.verifiedEmails != null){
-                        allEmails.toEmails = this.toEmails.concat(this.verifiedEmails);
-                    }
-                } else if (this.selectedEmailType === 'cc') {
-                    if(this.verifiedEmails != null){
-                        allEmails.ccEmails = this.ccEmails.concat(this.verifiedEmails);
-                    }
-                } else if (this.selectedEmailType === 'bcc') {
-                    if(this.verifiedEmails != null){
-                        allEmails.bccEmails = this.bccEmails.concat(this.verifiedEmails);
-                    }
-                } else { 
-                    if(this.verifiedEmails != null){
-                        allEmails.toEmails = this.toEmails.concat(this.verifiedEmails);
-                    }
-                }
+
+                 
                 let emailData = {
                     contentVersionId: cvId,
                     emailSubject: this.emailSubject,
                     emailBody: this.selectedEmailTemplate ? this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).HtmlValue || this.allEmailTemplates.find(item => item.Id === this.selectedEmailTemplate).Body || '' : this.emailBody
                 };
-                console.log('selecrtred fields in auto generation',JSON.stringify(this.selectedFieldLabels));
-                console.log('verified when send email',JSON.stringify(this.verifiedEmails));
-                console.log('all emails',JSON.stringify(allEmails));
+                // console.log('selecrtred fields in auto generation',JSON.stringify(this.selectedFieldLabels));
+                // console.log('all emails',JSON.stringify(allEmails));
                 sendEmail({ allEmails:allEmails, emailData:emailData, activityId : this.activity.Id })
                 .then((result) => {
                     if(result === 'success'){
@@ -2624,7 +2851,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             if (this.selectedChannels.includes('Chatter')) {
                 this.resultPromises.push(this.addToChatter(contentVersionId));
             } else if (this.selectedChannels.includes('Files')) {
-                console.log('recId in 1'+recId);
+                // console.log('recId in 1'+recId);
                 if(this.isRelatedList){
                     this.bulkStatus.push('Files');
                 }
@@ -2748,7 +2975,8 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                 this.showToast('error', 'Something Went Wrong!', 'Please select at least 1 storage or output channel.', 5000);
                 return;
             }
-            if(this.showEmailSection && this.toEmails.length < 1){
+            
+            if(this.showEmailSection && this.toEmails.length < 1 && this.toFields.length < 1){
                 this.validateToEmails();
                 this.showToast('error', 'Something Went Wrong!', 'Please select at least one recipient to send email.', 5000);
                 return;
@@ -2774,13 +3002,9 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
         this.showSpinner = true;
         try {
             let allEmailsString = '';
-            allEmailsString += (this.toEmails.length>0 ? this.toEmails.join(', ') : '') + '<|DGE|>' + (this.ccEmails.length>0 ? this.ccEmails.join(', ') : '') + '<|DGE|>' + (this.bccEmails.length>0 ? this.bccEmails.join(', '): '') + '<|DGE|>' + this.selectedFieldLabels + '<|DGE|>' + this.selectedEmailType;
-            console.log('allEmailString',allEmailsString);
+            allEmailsString += (this.toEmails.length>0 ? this.toEmails.join(', ') : '') + '<|DGE|>' + (this.ccEmails.length>0 ? this.ccEmails.join(', ') : '') + '<|DGE|>' + (this.bccEmails.length>0 ? this.bccEmails.join(', '): '') + '<|DGE|>' + this.toFields + '<|DGE|>' + this.ccFields + '<|DGE|>' + this.bccFields;
+            // console.log('allEmailString',allEmailsString);
 
-            console.log('toEmails ',JSON.stringify(this.toEmails));
-            console.log('ccEmails ',JSON.stringify(this.ccEmails));
-            console.log('bccEmails ',JSON.stringify(this.bccEmails));
-            console.log('selected field ',JSON.stringify(this.selectedFieldLabels));
 
             let iStorages = this.internalStorageOptions.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
             let eStorages = this.externalStorageOptions.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');

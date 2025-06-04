@@ -449,9 +449,10 @@ public with sharing class GoogleDocPreview {
 
             if (!customKeyNames.isEmpty()) {
                 queriedCustomKeys = [
-                    SELECT Id, MVDG__Custom_Key_Name__c, MVDG__Query__c
+                    SELECT Id, MVDG__Custom_Key_Name__c, MVDG__Query__c, MVDG__Object_Name__c
                     FROM MVDG__Custom_Key__c
                     WHERE MVDG__Custom_Key_Name__c IN :customKeyNames
+                    WITH SECURITY_ENFORCED
                 ];
 
                 Pattern pattern = Pattern.compile('\\{\\{#(.*?)\\}\\}');

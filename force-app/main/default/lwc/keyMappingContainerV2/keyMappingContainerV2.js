@@ -7,6 +7,7 @@ import getChildObjects from '@salesforce/apex/KeyMappingController.getChildObjec
 import formattingFieldKeys from '@salesforce/apex/KeyMappingController.formattingFieldKeys';
 import getSignatureInfo from '@salesforce/apex/KeyMappingController.getSignatureInfo';
 import updateSignatureInfo from '@salesforce/apex/KeyMappingController.updateSignatureInfo';
+import getCustomKeys from '@salesforce/apex/KeyMappingController.getCustomKeys';
 import { errorDebugger } from 'c/globalPropertiesV2';
 
 export default class KeyMappingContainerV2 extends LightningElement {
@@ -38,13 +39,34 @@ export default class KeyMappingContainerV2 extends LightningElement {
 
     @track relatedChildObjects = [];
     @track selectedChildObjectName;
+    @track selectedCustomKey;
+    @track selectedCustomKeyType = 'Field';
+    @track selectedCustomKeyListField = '';
+    @track selectedCustomKeyTableFields = [];
+    @track selectedConditionalOperator = 'NV';
+    @track isInverseCondition = false;
     @track selectedChildObjAPI;
+
+    conditionalOperators = [
+        { label: 'Not Void', value: 'NV' },
+        { label: 'Equals', value: 'EQ' },
+        { label: 'Not Equals', value: 'NE' },
+        { label: 'Greater Than', value: 'GT' },
+        { label: 'Greater Than or Equal To', value: 'GE' },
+        { label: 'Less Than', value: 'LT' },
+        { label: 'Less Than or Equal To', value: 'LE' }
+    ];
 
     mappingTypeTabs = [
         {   label: 'Object Fields',        name: 'objectFields',
             helpText : 'Insert Base Object and Lookup (Related) Object\'s Fields in Template.',
             showCombobox : true, comboboxPlaceholder : 'Select Object...', showDescription : false,
             showSearchbar : true, searchBarPlaceHolder : 'Search Fields...', selected : true,
+        },
+        {   label: 'Custom Keys',     name: 'customKeys',
+            helpText : 'Add Data From The Custom Keys Into The Template.',
+            showCombobox : true, comboboxPlaceholder : 'Select Custom Key...', showDescription : true,
+            showSearchbar : true, searchBarPlaceHolder : 'Search Custom Key Field...', selected : false,
         },
         {   label: 'Related Lists',  name: 'relatedListFields',
             helpText : 'Insert Related Lists (Child Object Records) In Template as a Table Format.',
@@ -54,6 +76,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
             helpText : 'Insert & Add Document Creation Date, Document Creation User Info, Organization Info, etc... In Template',
             showCombobox : true, comboboxPlaceholder : 'Select Object...',  showDescription : false,
             showSearchbar : true, searchBarPlaceHolder : 'Search General Fields...', selected : false,
+        },
+        {   label: 'Conditional Data',     name: 'conditionalData',
+            helpText : 'Add Conditions into your template to display data dynamically based on conditions.', selected : false,
         },
         {   label: 'Merge Templates',      name: 'mergeTemplates',
             helpText : 'Merge Other Templates Into The Current Template',
@@ -66,7 +91,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
         },
         {   label: 'Signature',     name: 'signature',
             helpText : 'Add Signature into Your file by Mapping Signature Key in The Template.', selected : false,
-        },
+        }
     ];
 
     @track activeMappingTabName = 'objectFields';
@@ -76,6 +101,13 @@ export default class KeyMappingContainerV2 extends LightningElement {
     @track generalFieldsToDisplay = [];
     @track otherActiveTempList = [];
     @track contentVersionImages = [];
+    @track keysOfAllObjectsForTemplate = [];
+    @track allCustomKeys = [];
+    @track customKeysToDisplay = [];
+    @track customKeyListOrTable = "";
+    @track customKeyListSeparator = ', ';
+    @track showIndexForTable = true;
+    @track selectedFontSize = 12;
     @track cvIdVsImageSRC = {};
     @track contentVersionToDisplay = [];
     @track isExceedRelatedListLimit = false;
@@ -105,6 +137,10 @@ export default class KeyMappingContainerV2 extends LightningElement {
     savedSignatureSize = this.signatureSize;
     customTimeout;
 
+    dragIndex;
+    lastGapTarget;
+    lastPosition;
+
     /**
      * boolean to set showFulbrightButtonFor based on template type.
      */
@@ -130,6 +166,8 @@ export default class KeyMappingContainerV2 extends LightningElement {
             mergeTemplates      :   this.activeMappingTabName == 'mergeTemplates' ? true : false,
             sfImages            :   this.activeMappingTabName == 'sfImages' ? true : false,
             signature           :   this.activeMappingTabName == 'signature' ? true : false,
+            customKeys          :   this.activeMappingTabName == 'customKeys' ? true : false,
+            conditionalData     :   this.activeMappingTabName == 'conditionalData' ? true : false,
         }
     }
 
@@ -144,7 +182,8 @@ export default class KeyMappingContainerV2 extends LightningElement {
      * Getter for determining if the search bar should be shown based on the active mapping tab.
      */
     get showSearchBar(){
-        return this.mappingTypeTabs?.find(ele => ele.name === this.activeMappingTabName)?.showSearchbar;
+        let isNotCustomKeyField = this.activeMappingTabName == 'customKeys' && !this.customKeyType.isField ? false : true;
+        return this.mappingTypeTabs?.find(ele => ele.name === this.activeMappingTabName)?.showSearchbar && isNotCustomKeyField;
     }
 
     /**
@@ -181,6 +220,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
         else if(this.activeMappingTabName == 'generalFields'){
             return this.generalFieldTypes;
         }
+        else if(this.activeMappingTabName == 'customKeys'){
+            return this.customKeysToDisplay;
+        }
         return [];
     }
 
@@ -196,6 +238,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
         }
         else if(this.activeMappingTabName == 'generalFields'){
             return this.selectedGeneralFieldType;
+        }
+        else if(this.activeMappingTabName == 'customKeys'){
+            return this.selectedCustomKey;
         }
         return null;
     }
@@ -274,6 +319,42 @@ export default class KeyMappingContainerV2 extends LightningElement {
         return this.showMaxSizeLimit.includes(this.templateType);
     }
 
+
+    get isGoogleDocTemplate(){
+        return this.templateType === 'Google Doc Template';
+    }
+
+    get customKeyFields(){
+        let keysToDisplay = this.customKeysToDisplay.find(ele => ele.value == this.selectedCustomKey)?.queriedFields || [];
+        if(!this.selectedCustomKeyListField) this.selectedCustomKeyListField = keysToDisplay ? keysToDisplay[0]?.value : '';
+        if(!this.selectedCustomKeyTableFields.length) this.selectedCustomKeyTableFields = keysToDisplay ? keysToDisplay.map(ele => ele.value) : [];
+        let searchKey =  this.customKeyType.isField ? this.searchFieldValue?.trim().toLowerCase() : '';
+        return searchKey ? keysToDisplay.filter(ele => ele?.name?.toLowerCase()?.includes(searchKey) || ele?.label?.toLowerCase()?.includes(searchKey)) : keysToDisplay;
+    }
+
+    get customKeyType(){
+        return {
+            isField: this.selectedCustomKeyType === 'Field' ? true : false,
+            isList: this.selectedCustomKeyType === 'List' ? true : false,
+            isTable: this.selectedCustomKeyType === 'Table' ? true : false
+        }
+    }
+
+    get customKeyListField(){
+        return `{{@CKLIST:${this.selectedCustomKey}.${this.selectedCustomKeyListField}:${this.customKeyListSeparator}}}`;
+    }
+
+    get customKeyTableField(){
+        let fields = this.showIndexForTable ? ['INDEX'] : [];
+        let fontSizeString = !isNaN(this.selectedFontSize) && this.selectedFontSize > 0 && !this.isGoogleDocTemplate ? `;${parseInt(this.selectedFontSize)}` : '';
+        fields.push([...this.selectedCustomKeyTableFields]);
+        return `{{@CKTABLE:${this.selectedCustomKey}:${fields.join(',')}${fontSizeString}}}`;
+    }
+
+    get conditionalDataKey(){
+        return `{{@IF:${this.isInverseCondition ? '!' : ''}${this.selectedConditionalOperator}(${this.selectedConditionalOperator == 'NV' ? '[Value To Check]' : '[Value To Check],[Expected Value]'})|#|[Value If True]|#|[Value If False]}}`;
+    }
+
     connectedCallback(){
         try {
             if(this.templateId){
@@ -325,6 +406,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
         try {
             getFieldMappingKeys({sourceObjectAPI : this.objectName, getParentFields : true})
             .then(result => {
+                this.keysOfAllObjectsForTemplate = result.fieldMappingsWithObj.flatMap(obj => obj.fieldMappings.map(field => field.key));
                 this.isDataRefreshing = false;
                 // console.log('getFieldMappingKeys result  : ', result);
                     if(result.isSuccess){
@@ -350,6 +432,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
                         errorDebugger('FieldMappingKeyV2', 'fetchFieldMapping', null, 'warn', `error in getFieldMappingKeys apex call : ${result.returnMessage}`);
                         this.showMessagePopup('Error', 'Error While Fetching Field Mapping Data', result.returnMessage);
                     }
+                this.fetchCustomKeys();
             })
             .catch(error => {
                 this.isDataRefreshing = false;
@@ -528,6 +611,39 @@ export default class KeyMappingContainerV2 extends LightningElement {
     }
 
     /**
+     * Method to fetch all the custom keys available
+     */
+    fetchCustomKeys(){
+        try {
+            getCustomKeys()
+            .then(result => {
+                this.allCustomKeys = result.map(item => ({
+                    ...item,
+                    label: item.MVDG__Custom_Key_Name__c,
+                    value: item.MVDG__Custom_Key_Name__c,
+                    description: item.MVDG__Description__c,
+                    parentFieldKeys: item.MVDG__Parent_Keys__c?.replaceAll(' ', '')?.split(','),
+                    queriedFields: item.MVDG__Queried_Fields__c?.split(',')
+                        .map(field => {
+                            let [label, name, type] = field?.split(':').map(s => s.trim());
+                            let key = `{{@CK:${item.MVDG__Custom_Key_Name__c}.${name}}}`;
+                            let value = name;
+                            let description = name;
+                            let isFormatReq = (['DATE','DATETIME','TIME','BOOLEAN','STRING','INTEGER','DOUBLE','CURRENCY','PERCENT'].includes(type)) ? true : false;
+                            return { label, name, value, description, key, type, isFormatReq };
+                        })
+                }));
+                this.customKeysToDisplay = this.allCustomKeys.filter(ck => !ck?.parentFieldKeys?.length || ck?.parentFieldKeys?.every(key => this.keysOfAllObjectsForTemplate.includes(key)));
+            })
+            .catch(error => {
+                errorDebugger('FieldMappingKeyV2', 'fetchCustomKeys > getCustomKeys', error ,'warn');
+            })
+        } catch (error) {
+            errorDebugger('FieldMappingKeyV2', 'fetchCustomKeys', error ,'warn');
+        }
+    }
+
+    /**
      * Sets the active mapping tab based on the user click triggered.
      * Adds 'selected' class to the active tab and removes it from other tabs to set Css of active tab.
      * Calls handleKeySearch method after updating the active tab.
@@ -561,6 +677,56 @@ export default class KeyMappingContainerV2 extends LightningElement {
         }
     }
 
+    handleCustomKeyToggle(event){
+        try {
+            this.selectedCustomKeyType = event.currentTarget.name;
+        } catch (e) {
+            errorDebugger('FieldMappingKeyV2', 'handleCustomKeyToggle', e ,'warn');
+        }
+    }
+
+    handleCustomKeyListSeparator(){
+        try {
+            this.customKeyListSeparator = this.customKeyListSeparator ? this.customKeyListSeparator : ', ';
+        } catch (e) {
+            errorDebugger('FieldMappingKeyV2', 'handleCustomKeyListSeparator', e ,'warn');
+        }
+    }
+
+    handleCustomKeyListField(event){
+        try {
+            let type = event?.currentTarget?.dataset?.type;
+            if(type == 'field'){
+                this.selectedCustomKeyListField = event?.detail[0];
+            } else if( type == 'separator'){
+                this.customKeyListSeparator = event?.currentTarget?.value;
+            }
+        } catch (e) {
+            errorDebugger('FieldMappingKeyV2', 'handleCustomKeyListField', e ,'warn');
+        }
+    }
+
+    handleCustomKeyTableField(event){
+        try {
+            let type = event?.currentTarget?.dataset?.type;
+            let previousValue = this.selectedCustomKeyTableFields[0];
+            if(type == 'field'){
+                if(event?.detail?.length > 0){
+                    this.selectedCustomKeyTableFields = event?.detail;
+                }else{
+                    this.selectedCustomKeyTableFields = [previousValue];
+                    this.showMessageToast('Warning', 'You are making table empty!', 'There should be at least one column to display in table.');
+                }
+            } else if( type == 'index'){
+                this.showIndexForTable = event?.currentTarget?.checked;
+            } else if( type == 'fontSize'){
+                this.selectedFontSize = event?.currentTarget?.value;
+            }
+        } catch (e) {
+            errorDebugger('FieldMappingKeyV2', 'handleCustomKeyTableField', e ,'warn');
+        }
+    }
+
     /**
      * Generic method to call when user select any option from Object fields, child objects or general Field,
      * Set Mapping keys to display based on selection
@@ -576,6 +742,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
             }
             else if(this.activeMappingTabName == 'generalFields'){
                 this.handleGeneralFieldTypeSelection(event);
+            }
+            else if(this.activeMappingTabName == 'customKeys'){
+                this.handleCustomKeySelection(event);
             }
         } catch (error) {
             errorDebugger('FieldMappingKeyV2', 'handleOptionSelect', error ,'warn');
@@ -632,6 +801,115 @@ export default class KeyMappingContainerV2 extends LightningElement {
             this.setGeneralFieldsToDisplay();
         } catch (error) {
             errorDebugger('FieldMappingKeyV2', 'handleGeneralFieldTypeSelection', error ,'warn');
+        }
+    }
+
+    handleCustomKeySelection(event){
+        try {
+            this.selectedCustomKeyListField = null;
+            this.selectedCustomKeyTableFields = [];
+            this.selectedCustomKey = event.detail[0];
+        } catch (e) {
+            errorDebugger('FieldMappingKeyV2', 'handleCustomKeySelection', e ,'warn');
+        }
+    }
+
+    handleConditionConfig(event){
+        try {
+            let type = event?.target?.dataset?.type;
+            if(type == 'operator'){
+                this.selectedConditionalOperator = event.detail[0] ?? this.selectedConditionalOperator;
+            }else if(type == 'inverse'){
+                this.isInverseCondition = event?.target?.checked;
+            }
+        } catch (e) {
+            errorDebugger('FieldMappingKeyV2', 'handleConditionConfig', e ,'warn');
+        }
+    }
+
+    handleDragStart(evt) {
+        this.dragIndex = parseInt(evt.currentTarget.dataset.index, 10);
+        evt.currentTarget.classList.add('dragging');
+    }
+
+    handleDragEnd(evt) {
+        this.clearGap();
+        evt.currentTarget.classList.remove('dragging');
+    }
+
+    handleDragOver(evt) {
+        evt.preventDefault();
+        const x = evt.clientX;
+        const y = evt.clientY;
+
+        // find all non-dragging tiles
+        const tiles = Array.from(this.template.querySelectorAll('.tile:not(.dragging)'));
+        if (!tiles.length) { this.clearGap(); return; }
+
+        // 1) pick closest row
+        let minRowDist = Infinity, rowTiles = [];
+        tiles.forEach(tile => {
+        const r = tile.getBoundingClientRect();
+        const rowDist = Math.abs(y - (r.top + r.height/2));
+        if (rowDist < minRowDist - 5) {
+            minRowDist = rowDist;
+            rowTiles = [tile];
+        } else if (Math.abs(rowDist - minRowDist) <= 5) {
+            rowTiles.push(tile);
+        }
+        });
+
+        // 2) among those, pick closest horizontally
+        let closest = { el: null, dist: Infinity };
+        rowTiles.forEach(tile => {
+        const r = tile.getBoundingClientRect();
+        const dist = Math.abs(x - (r.left + r.width/2));
+        if (dist < closest.dist) {
+            closest = { el: tile, dist };
+        }
+        });
+        const target = closest.el;
+        if (!target) { this.clearGap(); return; }
+
+        // decide before/after by comparing to its midpoint
+        const rect = target.getBoundingClientRect();
+        const pos = (x < rect.left + rect.width/2) ? 'before' : 'after';
+
+        if (target !== this.lastGapTarget || pos !== this.lastPosition) {
+        this.clearGap();
+        this.lastGapTarget = target;
+        this.lastPosition = pos;
+        target.classList.add(pos === 'before' ? 'gap-before' : 'gap-after');
+        }
+    }
+
+    handleDrop(evt) {
+        evt.preventDefault();
+        if (this.lastGapTarget && this.lastPosition != null) {
+        // get source index
+        const from = this.dragIndex;
+        // get drop target index
+        const to = parseInt(this.lastGapTarget.dataset.index, 10)
+                    + (this.lastPosition === 'after' ? 1 : 0);
+
+        // avoid no-ops
+        if (from !== to && from + 1 !== to) {
+            const arr = [...this.selectedCustomKeyTableFields];
+            const [moved] = arr.splice(from, 1);
+            // adjust insertion index if we removed earlier in array
+            const insertAt = (to > from) ? to - 1 : to;
+            arr.splice(insertAt, 0, moved);
+            this.selectedCustomKeyTableFields = arr;
+        }
+        }
+        this.clearGap();
+    }
+
+    clearGap() {
+        if (this.lastGapTarget) {
+        this.lastGapTarget.classList.remove('gap-before','gap-after');
+        this.lastGapTarget = null;
+        this.lastPosition = null;
         }
     }
 
@@ -1031,15 +1309,14 @@ export default class KeyMappingContainerV2 extends LightningElement {
             const caseVal = event.detail?.[0]?.trim();
             let key = this.chosenFormat.key;
 
-            // Extract content between {{# and }}
-            const match = key.match(/{{#(.*?)}}/);
+            // Extract content between {{ and }}
+            const match = key.match(/{{(.*?)}}/);
             if (!match) return;
 
             let inner = match[1];
 
             // Extract or prepare formatting block
             let innerParts = inner.split('*');
-            let base = innerParts[0].trim();
             let formatRaw = innerParts.length > 1 ? innerParts[1] : '';
             let formatParts = formatRaw.split(';').map(p => p.trim()).filter(p => !!p);
 
@@ -1051,8 +1328,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             }
 
             // Build new key
-            let newInner = formatParts.length ? `${base} *${formatParts.join(';')}*` : base;
-            this.chosenFormat.key = `{{#${newInner}}}`;
+            this.chosenFormat.key = key.split('}}')[0]?.split('*')[0] + (formatParts.join(';') ? `*${formatParts.join(';')}*}}` : '}}');
 
             if (this.isSubFormat) {
                 this.updateChosenFormat();
@@ -1062,7 +1338,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
             errorDebugger('FieldMappingKeyV2', 'handleTextCase', error, 'warn');
         }
     }
-    
+
     /**
      * Once user select ay format type, update existing mapping key bases on formate type.
      */
@@ -1124,15 +1400,14 @@ export default class KeyMappingContainerV2 extends LightningElement {
             const length = event.target.value?.trim();
             let key = this.chosenFormat.key;
 
-            // Extract content between {{# and }}
-            const match = key.match(/{{#(.*?)}}/);
+            // Extract content between {{ and }}
+            const match = key.match(/{{(.*?)}}/);
             if (!match) return;
 
             let inner = match[1];
 
             // Extract or prepare formatting block
             let innerParts = inner.split('*');
-            let base = innerParts[0].trim();
             let formatRaw = innerParts.length > 1 ? innerParts[1] : '';
             let formatParts = formatRaw.split(';').map(p => p.trim()).filter(p => !!p);
 
@@ -1140,13 +1415,11 @@ export default class KeyMappingContainerV2 extends LightningElement {
             formatParts = formatParts.filter(p => !p.startsWith('L:'));
 
             if (length && parseInt(length) > 0) {
-                formatParts.push(`L:${length}`);
+                formatParts.push(`L:${parseInt(length)}`);
             }
 
             // Build new key
-            let newInner = formatParts.length ? `${base} *${formatParts.join(';')}*` : base;
-            this.chosenFormat.key = `{{#${newInner}}}`;
-            
+            this.chosenFormat.key = key.split('}}')[0]?.split('*')[0] + (formatParts.join(';') ? `*${formatParts.join(';')}*}}` : '}}');
         } catch (error) {
             errorDebugger('FieldMappingKeyV2', 'setTextFormat', error, 'warn');
         }
@@ -1435,6 +1708,19 @@ export default class KeyMappingContainerV2 extends LightningElement {
     handleSave(){
         this.dispatchEvent(new CustomEvent('save'));
         this.updateSignatureSize();
+    }
+
+    // Generic Method to test Message Toast
+    showMessageToast(Status, Title, Message, Duration){
+        const messageContainer = this.template.querySelector('c-message-popup-v2')
+        if(messageContainer){
+            messageContainer.showMessageToast({
+                status: Status,
+                title: Title,
+                message : Message,
+                duration : 5000
+            });
+        }
     }
 
     /**

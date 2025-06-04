@@ -197,9 +197,10 @@ public with sharing class DataMappingControllerV2 {
                 }
             }
             queriedCustomKeys = [
-                SELECT Id, MVDG__Custom_Key_Name__c, MVDG__Query__c 
-                FROM MVDG__Custom_Key__c 
+                SELECT Id, MVDG__Custom_Key_Name__c, MVDG__Query__c, MVDG__Object_Name__c
+                FROM MVDG__Custom_Key__c
                 WHERE MVDG__Custom_Key_Name__c IN :customKeyNames
+                WITH SECURITY_ENFORCED
             ];
             Pattern pattern = Pattern.compile('\\{\\{#(.*?)\\}\\}');
 
@@ -256,17 +257,23 @@ public with sharing class DataMappingControllerV2 {
                     Object value = objectFieldValues.get(placeholder);
                     String replacement = (value instanceof String) ? '\'' + String.valueOf(value) + '\'': String.valueOf(value);
 
+                    if(replacement == null){
+                        Continue;
+                    }
                     if (queryTemplate.contains(placeholder)) {
                         queryTemplate = queryTemplate.replace(placeholder, replacement);
                     }
                 }
-                finalQueries.add(queryTemplate);
+                if(!queryTemplate.contains('{{')){
+                    finalQueries.add(queryTemplate);
+                }
             }
 
             for (Integer i = 0; i < finalQueries.size(); i++) {
                 String finalQuery = finalQueries[i];
                 MVDG__Custom_Key__c currentKey = queriedCustomKeys[i];
                 String keyName = currentKey.MVDG__Custom_Key_Name__c;
+                String objectName = currentKey.MVDG__Object_Name__c;
 
                 try {
                     List<SObject> queryResult = Database.query(finalQuery);
@@ -278,8 +285,15 @@ public with sharing class DataMappingControllerV2 {
                                 String fieldName = rawKey.substringBetween(keyName + '.', '}}').subStringBefore('*').trim();
 
                                 if (fieldName != null) {
-                                    Object fieldValue = queryResult[0].get(fieldName);
-                                    resolvedCustomKeyValues.put(rawKey, formatString(String.valueOf(fieldValue), rawKey.substringBetween('*')));
+                                    Map<String, Object> mapOfRecord = queryResult[0].getPopulatedFieldsAsMap();
+                                    Object fieldValue = mapOfRecord.containsKey(fieldName) ? queryResult[0].get(fieldName) : '';
+                                    List<ExtractedKeys> fieldWithType = getValidKeys(new List<String>{rawKey}, objectName, '@CK:');
+                                    if(!fieldWithType.isEmpty()) {
+                                        String formattedValue = getFieldValue(fieldWithType[0], mapOfRecord);
+                                        resolvedCustomKeyValues.put(rawKey, formattedValue);
+                                    }else{
+                                        resolvedCustomKeyValues.put(rawKey, String.valueOf(fieldValue));
+                                    }
                                 }
                             }else if (rawKey.startsWith('{{@CKLIST:' + keyName + '.')) {
                                 String fieldName = rawKey.substringBetween(keyName + '.', ':');
@@ -289,8 +303,9 @@ public with sharing class DataMappingControllerV2 {
                                     List<String> collectedValues = new List<String>();
 
                                     for (SObject record : queryResult) {
-                                        Object fieldValue = record.get(fieldName);
-                                        if (fieldValue != null) {
+                                        Map<String, Object> mapOfRecord = record.getPopulatedFieldsAsMap();
+                                        Object fieldValue = mapOfRecord.containsKey(fieldName) ? mapOfRecord.get(fieldName) : '';
+                                        if (fieldValue != '') {
                                             collectedValues.add(formatString(String.valueOf(fieldValue), rawKey.substringBetween('*')));
                                         }
                                     }
@@ -303,7 +318,7 @@ public with sharing class DataMappingControllerV2 {
                                 Set<String> fieldNames = new Set<String>();
                                 Boolean includeIndex = false;
                                 Set<String> availableFields = new Set<String>();
-                                String fontSize = '12'; // default font size
+                                String fontSize = '12';
 
                                 if (!queryResult.isEmpty()) {
                                     availableFields = queryResult[0].getPopulatedFieldsAsMap().keySet();
@@ -352,7 +367,7 @@ public with sharing class DataMappingControllerV2 {
                                         rowMap.put('No.', String.valueOf(idx + 1));
                                     }
                                     for (String col : fieldNames) {
-                                        Object val = record.get(col);
+                                        Object val = record.isSet(col) ? record.get(col) : '';
                                         rowMap.put(col, val != null ? String.valueOf(val) : '');
                                     }
                                     rows.add(rowMap);
@@ -922,6 +937,7 @@ public with sharing class DataMappingControllerV2 {
                         String formateType = '';
                         if(subString.contains('*')){
                             fieldAPI = subString.substringBefore('*').trim();
+                            fieldAPI = (startingSymbol == '@CK:') ? fieldAPI.subStringAfter('.') : fieldAPI;
                             formateType = subString.substringBetween('*').trim();
                         }
                         else{

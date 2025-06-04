@@ -198,7 +198,11 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
 
                     let signatureImageValues = this.resultSet.find((el) => el["Signature Image"] != null);
                     let ckTablesList = [];
-                    let CKTABLE_REGEX = /\{\{(@CKTABLE:([a-zA-Z0-9_.]+)|@CKTABLE:([a-zA-Z0-9_.]+)(:|;)([^{}]+))\}\}/g;
+                    let textBasedConditions = {};
+                    const CKTABLE_REGEX = /\{\{(@CKTABLE:([a-zA-Z0-9_.]+)|@CKTABLE:([a-zA-Z0-9_.]+)(:|;)([^{}]+))\}\}/g;
+                    const IF_ELSE_REGEX = /\{\{@IF:([^\|]+)\|#\|([^\|]*)\|#\|([^\|]*)\}\}/g;
+                    const IF_ELSE_FOR_TABLE_REGEX = /\{\{@IF:([^\|]+)\|#\|([^\|]+)\|#\|([^\|]*)\}\}/g;
+                    const TOKEN_REGEX = /\{\{([^{}]+)\}\}/g;
                     content.forEach((element) => {
                         if (element.paragraph) {
                             // Replace all the signature anywhere texts with the content document image
@@ -213,45 +217,85 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                                         stringBody = stringBody.replace(this.signatureKey, ' ');
                                     } 
                                 });
-                            } else if(stringBody.includes("{{@CKTABLE:")) {
+                            } else if(stringBody.includes("{{@IF:")) {
                                 element.paragraph.elements.forEach(e => {
+                                    const rawText = e?.textRun?.content || '';
                                     
-                                    let stringElement = JSON.stringify(e);
-                                    
-                                    const matches = stringElement.match(CKTABLE_REGEX);
-
-                                    
+                                    // Capture original IF expressions BEFORE replacement
+                                    const originalIfMatches = rawText.match(IF_ELSE_FOR_TABLE_REGEX) || [];
+                                    let stringElement = rawText?.replace(TOKEN_REGEX, (_, token) => {
+                                        const key = `{{${token}}}`;
+                                        return parentFieldValues[this.objectname].hasOwnProperty(key) ? (key.includes('{{#') ? parentFieldValues[this.objectname][key] : key) : '';
+                                    });
+                                    const matches = stringElement.match(IF_ELSE_REGEX);
                                     if (matches) {
                                         matches.forEach(key => {
-                                            
-                                            // Get the actual value from the data map
-                                            let data = parentFieldValues.Contact[key] || "";
-                                            const parsed = data ? JSON.parse(data) : null;
-
-
-                                            if(!parsed) return;
-                                            const headers = parsed.headers || [];
-                                            const rows = parsed.rows || [];
-
-                                            // First row is headers, then each row is ordered by headers
-                                            const tableValues = [
-                                                headers,
-                                                ...rows.map(row => headers.map(h => row[h] ?? ""))
-                                            ];
-
-                                            // Get raw content string (we’ll assume there’s only one match per element for this index logic)
-                                            let content = this.substringBetween(stringElement, '"content":"', '",');
-                                            let startIndex = e.startIndex;
-                                            let endIndex = startIndex + key.length;
-
-                                            ckTablesList.push({
-                                                startIndex: startIndex + this.tableOffset,
-                                                endIndex: endIndex + this.tableOffset,
-                                                data: tableValues,
-                                                content: content
-                                            });
-                                        });
+                                            if(key.includes('{{@CKTABLE:')) return;
+                                            let result = this.processIfElseExpressions(key);
+                                            parentFieldValues[this.objectname][key] = result;
+                                        })
                                     }
+                                    
+                                    const tableMatches = stringElement.match(IF_ELSE_FOR_TABLE_REGEX);
+                                    if (!tableMatches) return;
+                                    tableMatches.forEach((evaluatedKey, index) => {
+                                        let result = this.processIfElseExpressions(evaluatedKey);
+
+                                        // Check if CKTable is present in the result
+                                        if (!result.includes('{{@CKTABLE:')) {
+                                            textBasedConditions[originalIfMatches[index]] = result;
+                                        }else{
+                                            let replacementMap = {};
+                                            replacementMap[originalIfMatches[index]] = result;
+                                            const matches = originalIfMatches[index]?.match(CKTABLE_REGEX);
+                                            if (!matches) return;
+                                            matches.forEach(key => {
+                                                let startIndex = e.startIndex;
+                                                let charStart = startIndex + rawText?.indexOf('{{@IF');
+
+                                                let startIndexText = charStart +this.tableOffset;
+                                                let endIndexText = startIndexText + originalIfMatches[index]?.length;
+                                                this.deleteContentRequest(startIndexText, endIndexText);
+                                                this.createRowUpdateRequest(startIndexText, originalIfMatches[index], replacementMap)
+                                                
+                                                let startIndexTable = charStart + this.tableOffset + result.indexOf('{{@CKTABLE:');
+                                                this.tableOffset -= endIndexText - startIndexText;
+                                                this.tableOffset += replacementMap[originalIfMatches[index]]?.length;
+                                                const tableData = this.getCKTableData(key, parentFieldValues?.[this.objectname]);
+                                                if (!tableData) return; 
+
+                                                ckTablesList.push({
+                                                    startIndex: startIndexTable,
+                                                    endIndex: startIndexTable + key?.length,
+                                                    data: tableData,
+                                                    content: rawText
+                                                });
+                                            });
+                                        }
+                                    });
+                                });
+                            } else if(stringBody.includes("{{@CKTABLE:")) {
+                                element.paragraph.elements.forEach(e => {
+                                    const rawText = e?.textRun?.content || '';
+                                    const matches = rawText.match(CKTABLE_REGEX);
+                                    if (!matches) return;
+
+                                    const startIndex = e.startIndex;
+
+                                    matches.forEach(key => {
+                                        const tableData = this.getCKTableData(key, parentFieldValues?.[this.objectname]);
+                                        if (!tableData) return;
+
+                                        const keyStartOffset = rawText.indexOf(key); // this ensures we find the match offset in case of multiple keys
+                                        if (keyStartOffset === -1) return;
+
+                                        ckTablesList.push({
+                                            startIndex: startIndex + keyStartOffset + this.tableOffset,
+                                            endIndex: startIndex + keyStartOffset + key.length + this.tableOffset,
+                                            data: tableData,
+                                            content: rawText
+                                        });
+                                    });
                                 });
                             }
                         } else if (element.table) {
@@ -376,21 +420,19 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                         }
                     });
                     ckTablesList?.reverse()?.forEach(table => {
-                        
                         this.deleteContentRequest(table.startIndex, table.endIndex);
                         this.changeRequests.push(...this.createRequestsForTable(table.startIndex, table.data)); 
                     });                    
                     let generalFieldvalues = this.resultSet.find((el) => el["General Fields"] != null);
                     // Replace all the object and general fields
-                    if (parentFieldValues) {
-                        this.createReplaceRequest(parentFieldValues[this.objectname]);
-                    }
-                    if (generalFieldvalues) {
-                        this.createReplaceRequest(generalFieldvalues["General Fields"]);
-                    }
-                    this.SignatureKeyReplaceRequest();
+                    const allReplacements = {
+                    ...textBasedConditions,
+                    ...(parentFieldValues?.[this.objectname] || {}),
+                    ...(generalFieldvalues?.["General Fields"] || {})
+                    };
 
-                    
+                    this.createReplaceRequest(allReplacements);
+                    this.SignatureKeyReplaceRequest();
                     this.doPreview();
                 })
                 .catch((error) => {
@@ -402,6 +444,25 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
             this.dispatchEvent(new CustomEvent("internalerror", { detail: { title: "Error", message: error, desc: "Something went wrong. Please refresh the page and try again" } }));
         }
     }
+
+    getCKTableData(key, dataMap = {}) {
+        const data = dataMap?.[key] || "";
+        try {
+            const parsed = JSON.parse(data);
+            if (!parsed) return null;
+
+            const headers = parsed?.headers || [];
+            const rows = parsed?.rows || [];
+
+            return [
+                headers,
+                ...rows?.map(row => headers?.map(h => row[h] ?? ""))
+            ];
+        } catch {
+            return null;
+        }
+    }
+
 
     // Replaces the image with the signature image
     processSignatureImage(element, signatureImageValues) {
@@ -423,17 +484,58 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
             errorDebugger("generateGoogleDocFileV2", "processSignatureImage", error, 'Error', "Error in processSignatureImage. Please try again later");
         }
     }
+
+    // Main replacer logic
+    processIfElseExpressions(text) {
+        const IF_ELSE_REGEX = /\{\{@IF:([^\|]+)\|#\|([^\|]*)\|#\|([^\|]*)\}\}/g;
+        return text.replace(IF_ELSE_REGEX, (_, condition, thenText, elseText) => {
+            const result = this.evaluateIfExpression(condition);
+            return result ? thenText : (elseText ?? '');
+        });
+    }
+
+    // Process a single IF expression
+    evaluateIfExpression(expression) {
+        // Match pattern like NV(value), GT(1,2), etc.
+        const functionPattern = /^(!)?([A-Z]+)\(([^()]*)\)$/i;
+        const match = functionPattern.exec(expression);
+        if (!match) return false;
+
+        const [, notSymbol, fnName, argsStr] = match;
+        const args = argsStr.split(',').map(s => s.trim());
+        let result = this.evaluateFunctionCall(fnName, args);
+        if (notSymbol) result = !result;
+
+        return result;
+    }
+
+    // Supported evaluation functions
+    evaluateFunctionCall(fnName, args) {
+        const [a, b] = args.map(v => (v ?? '').trim());
+        switch (fnName.toUpperCase()) {
+            case 'NV': return !!a && a !== 'null' && a !== 'undefined';
+            case 'GT': return parseFloat(a) > parseFloat(b);
+            case 'GE': return parseFloat(a) >= parseFloat(b);
+            case 'LT': return parseFloat(a) < parseFloat(b);
+            case 'LE': return parseFloat(a) <= parseFloat(b);
+            case 'EQ': return a === b;
+            case 'NE': return a !== b;
+            default: return false;
+        }
+    }
+
     // Creates find and replace requests
     createReplaceRequest(fieldMap) {
         try {
             Object.keys(fieldMap).forEach((key) => {
+                // let valueToShow = fieldMap[key]?.includes('{{@CKTABLE:');
                 let tabrequest = {
                     replaceAllText: {
                         containsText: {
                             text: key,
                             matchCase: true
                         },
-                        replaceText: fieldMap[key] ? fieldMap[key] : " "
+                        replaceText: fieldMap[key] ?? ""
                     }
                 };
                 if (!this.allFields.includes(key)) {

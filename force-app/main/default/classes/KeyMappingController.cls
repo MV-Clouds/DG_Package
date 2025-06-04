@@ -119,6 +119,22 @@ public with sharing class KeyMappingController {
             return null;
         }
     }
+    /**
+     * Method Name : getCustomKeys
+     * @param none
+     * @return List<MVDG__Custom_Key__c> class
+     * @description : Get All Available Custom Keys
+     */
+    @AuraEnabled
+    public static List<MVDG__Custom_Key__c> getCustomKeys() {
+        List<MVDG__Custom_Key__c> customKeys = new List<MVDG__Custom_Key__c>();
+        try {
+            customKeys = [SELECT Id, MVDG__Custom_Key_Name__c, MVDG__Parent_Keys__c, MVDG__Queried_Fields__c, MVDG__Description__c FROM MVDG__Custom_Key__c WITH SECURITY_ENFORCED];
+        } catch (Exception e) {
+            Log_Handler.store_Exception(e, 'KeyMappingController', 'getCustomKeys');
+        }
+        return customKeys;
+    }
 
     /**
      * Method Name : createMappingObj
