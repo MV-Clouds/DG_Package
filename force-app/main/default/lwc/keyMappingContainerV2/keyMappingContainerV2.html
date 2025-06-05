@@ -276,7 +276,7 @@
       </template>
       <template lwc:if={mappingTypeTabArea.customKeys}>
         <div class="main-custom-key-container slds-grid slds-size--1-of-1 slds-grid--vertical" if:true={selectedCustomKey}>
-          <div class="custom-key-toggle slds-border--bottom slds-border--top slds-grid slds-size--1-of-1 slds-p-around--xx-small slds-m-bottom--small" if:true={selectedCustomKey}>
+          <div class="custom-key-toggle slds-border--bottom slds-border--top slds-grid slds-size--1-of-1 slds-p-around--xx-small slds-m-bottom--x-small" if:true={selectedCustomKey}>
             <div class="switch slds-align--absolute-center">
               <input id="switch-field" name="Field" type="radio" class="switch-input" onchange={handleCustomKeyToggle} checked={customKeyType.isField}/>
               <label for="switch-field" class="switch-label switch-label-field">Field</label>
@@ -320,20 +320,22 @@
           <div class="add_list_field slds-size--1-of-1" if:true={customKeyType.isList}>
             <div class="custom-key-list-type" if:true={customKeyFields.length}>
               <div class="field-select-container slds-p-bottom--small slds-grid slds-size--1-of-1 slds-grid--align-spread slds-p-horizontal--medium">
-                <c-custom-combobox-v2 
-                  class="customCombobox slds-grow slds-p-top--xxx-small"
-                  label="Select Field To Join In List"
-                  placeholder="Select Field To Show in List..." 
-                  options={customKeyFields}
-                  multiselect="false"
-                  searchable="true"
-                  value={selectedCustomKeyListField}
-                  dropdown-position="center"
-                  data-type="field"
-                  show-description="true"
-                  show-clear-button="false"
-                  onselect={handleCustomKeyListField}
-                ></c-custom-combobox-v2>
+                <div class="slds-grow slds-p-top--xx-small">
+                  <label class="slds-text-color--weak">Select Field To Join In List</label>
+                  <c-custom-combobox-v2 
+                    class="customCombobox slds-grow slds-p-top--xxx-small"
+                    placeholder="Select Field To Show in List..." 
+                    options={customKeyFields}
+                    multiselect="false"
+                    searchable="true"
+                    value={selectedCustomKeyListField}
+                    dropdown-position="center"
+                    data-type="field"
+                    show-description="true"
+                    show-clear-button="false"
+                    onselect={handleCustomKeyListField}
+                  ></c-custom-combobox-v2>
+                </div>
                 <lightning-input 
                   class="slds-p-left--medium"
                   type="text"
@@ -363,10 +365,10 @@
           </div>
           <div class="add_as_table" if:true={customKeyType.isTable}>
             <div class="custom-key-list-type" if:true={customKeyFields.length}>
-              <div class="field-select-container slds-p-bottom--small slds-grid slds-size--1-of-1 slds-grid--align-spread slds-p-horizontal--medium">
+              <div class="field-select-container slds-p-bottom--small slds-grid slds-grid--vertical slds-size--1-of-1 slds-grid--align-spread slds-p-horizontal--medium">
+                <label>Select Columns For Table</label>
                 <c-custom-combobox-v2 
-                  class="customCombobox slds-grow slds-p-top--xxx-small"
-                  label="Select Columns For Table"
+                  class="customCombobox slds-grow"
                   placeholder="Select Columns For Table..." 
                   options={customKeyFields}
                   multiselect="true"
@@ -391,9 +393,13 @@
               </div>
               <div class="table-config">
                 <p class="slds-text-align--center slds-border--top slds-border--bottom slds-p-around--xx-small"><b>Table Configurations</b></p>
-                <div class="table-config-inputs slds-grid slds-p-horizontal--medium slds-p-vertical--x-small slds-grid--vertical-align-center">
-                  <lightning-input class="slds-grow slds-p-right--small" type="number" label="Font Size(px)" value={selectedFontSize} step="1" data-type="fontSize" onchange={handleCustomKeyTableField} if:false={isGoogleDocTemplate}></lightning-input>
-                  <lightning-input type="toggle" message-toggle-active="" message-toggle-inactive="" label="Show Row Index" data-type="index" onchange={handleCustomKeyTableField} checked={showIndexForTable}></lightning-input>
+                <div class="table-config-inputs slds-grid slds-p-horizontal--medium slds-p-top--xx-small slds-p-bottom--x-small">
+                  <lightning-input class="slds-grow slds-p-right--small" type="text" label="No Data Message(Optional)" value={emptyStateMessage} data-type="emptyState" onchange={handleCustomKeyTableField}></lightning-input>
+                  <lightning-input class="slds-p-right--small slds-size--1-of-4" type="number" label="Font Size(px)" value={selectedFontSize} step="1" data-type="fontSize" onchange={handleCustomKeyTableField} if:false={isGoogleDocTemplate}></lightning-input>
+                  <div class="slds-p-top--xx-small">
+                    <label class="slds-text-color--weak">Show Row Index</label>
+                    <lightning-input type="toggle" message-toggle-active="" message-toggle-inactive="" label="Show Row Index" data-type="index" variant="label-hidden" onchange={handleCustomKeyTableField} checked={showIndexForTable}></lightning-input>
+                  </div>
                 </div>
                 <p class="slds-p-horizontal--medium slds-p-vertical--xx-small" if:true={isGoogleDocTemplate}><b>Note:</b> To apply text-based style on table, add desired style on the key.</p>
               </div>

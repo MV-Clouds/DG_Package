@@ -108,6 +108,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
     @track customKeyListSeparator = ', ';
     @track showIndexForTable = true;
     @track selectedFontSize = 12;
+    @track emptyStateMessage = '';
     @track cvIdVsImageSRC = {};
     @track contentVersionToDisplay = [];
     @track isExceedRelatedListLimit = false;
@@ -347,8 +348,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
     get customKeyTableField(){
         let fields = this.showIndexForTable ? ['INDEX'] : [];
         let fontSizeString = !isNaN(this.selectedFontSize) && this.selectedFontSize > 0 && !this.isGoogleDocTemplate ? `;${parseInt(this.selectedFontSize)}` : '';
+        let message = this.emptyStateMessage ? `;${this.emptyStateMessage}` : '';
         fields.push([...this.selectedCustomKeyTableFields]);
-        return `{{@CKTABLE:${this.selectedCustomKey}:${fields.join(',')}${fontSizeString}}}`;
+        return `{{@CKTABLE:${this.selectedCustomKey}:${fields.join(',')}${fontSizeString}${message}}}`;
     }
 
     get conditionalDataKey(){
@@ -725,6 +727,8 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 this.showIndexForTable = event?.currentTarget?.checked;
             } else if( type == 'fontSize'){
                 this.selectedFontSize = event?.currentTarget?.value;
+            } else if( type == 'emptyState'){
+                this.emptyStateMessage = event?.currentTarget?.value;
             }
         } catch (e) {
             errorDebugger('FieldMappingKeyV2', 'handleCustomKeyTableField', e ,'warn');
