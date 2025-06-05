@@ -88,7 +88,7 @@ public with sharing class DataMappingControllerV2 {
                                 String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:' + fontSize + 'px;">';
                                 tableHtml += '<thead><tr>';
                                 for (Object header : headers) {
-                                    tableHtml += '<th style="background-color:#fff;">' + String.valueOf(header) + '</th>';
+                                    tableHtml += '<th style="background-color:#fff;text-align:center;">' + String.valueOf(header) + '</th>';
                                 }
                                 tableHtml += '</tr></thead><tbody>';
 

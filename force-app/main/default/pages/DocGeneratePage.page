@@ -667,6 +667,9 @@
                                 footerElement.innerHTML = footerElement.innerHTML.replaceAll(tableHtml, modifiedTable);
                             }
 
+                            // Create tables with empty message for the tables with no data and empty message
+                            handleEmptyStatesOfTables(mappingKeyVsMappingValues);
+
                             // ...replace object field key and general field key with actual value...
                             for(let key in mappingKeyVsMappingValues){
                                 bodyElement.innerHTML = bodyElement.innerHTML.replaceAll(key, mappingKeyVsMappingValues[key]);
@@ -719,6 +722,31 @@
                             Promise.all(promises).then(() => {
                                 // All images have been converted to base64
                                 generateFile(bodyElement, headerElement, footerElement);
+                            })
+                        }
+
+                        // Function to create the tables with the empty message
+                        function handleEmptyStatesOfTables(mappedKeys){
+                            Object.entries(mappedKeys)?.forEach(([key,value])=> {
+                                if(key.includes('{{@CKTABLE') && !value){
+                                    let keyParts = key?.split('{{@CKTABLE:')[1]?.split(':')[1]?.replace('}}','')?.split(';');
+                                    let headers = keyParts[0]?.replace('INDEX', 'No.')?.split(',');
+                                    let fontSize = 12;
+                                    fontSize = keyParts.length > 1 && !isNaN(keyParts[1]) ? keyParts[1] : 12;
+                                    let emptyStateMessage = keyParts.length > 2 ? keyParts[2] : (keyParts.length > 1 && isNaN(keyParts[1]) ? keyParts[1] : '');
+
+                                    if(emptyStateMessage){
+                                        let tableString = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:' + fontSize + 'px;">';
+                                        tableString += '<thead><tr>';
+                                        headers.forEach((header) => {
+                                            tableString += '<th style="background-color:#fff;text-align:center;">'+ header +'</th>' 
+                                        })
+                                        tableString += '</tr></thead><tbody>';
+                                        tableString += '<tr><td colspan="' +headers.length+ '" style="text-align:center;">'+ emptyStateMessage +'</td></tr></tbody>'
+                                        tableString += '</table>';
+                                        mappingKeyVsMappingValues[key] = tableString;
+                                    }
+                                }
                             })
                         }
                         // Supported evaluation functions

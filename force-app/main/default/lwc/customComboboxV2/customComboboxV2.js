@@ -140,6 +140,7 @@ export default class CustomComboboxV2 extends LightningElement {
     set options(value){
         try {
             this.optionsToSet = value;
+            this.selectedItems = [];
             this.setDisplayOptions();
         } catch (error) {
             errorDebugger('CustomComboboxV2', 'get/set options', error, 'warn');
