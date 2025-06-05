@@ -715,7 +715,11 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     this.selectedCustomKeyTableFields = event?.detail;
                 }else{
                     this.selectedCustomKeyTableFields = [previousValue];
-                    this.showMessageToast('Warning', 'You are making table empty!', 'There should be at least one column to display in table.');
+                    this.dispatchEvent(new CustomEvent('showtoast',{ detail: {
+                        status: 'warning',
+                        title: 'Table can\'t be empty!',
+                        message: 'There should be at least one column to display in table.'
+                    }}))
                 }
             } else if( type == 'index'){
                 this.showIndexForTable = event?.currentTarget?.checked;
@@ -1710,18 +1714,6 @@ export default class KeyMappingContainerV2 extends LightningElement {
         this.updateSignatureSize();
     }
 
-    // Generic Method to test Message Toast
-    showMessageToast(Status, Title, Message, Duration){
-        const messageContainer = this.template.querySelector('c-message-popup-v2')
-        if(messageContainer){
-            messageContainer.showMessageToast({
-                status: Status,
-                title: Title,
-                message : Message,
-                duration : 5000
-            });
-        }
-    }
 
     /**
      * API Method to Stop Generation.
