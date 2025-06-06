@@ -4,6 +4,7 @@ import getCombinedData from '@salesforce/apex/ButtonGeneratorController.getCombi
 import getChildObjects from '@salesforce/apex/ButtonGeneratorController.getChildObjects';
 import getRelationshipsBetweenObjects from '@salesforce/apex/ButtonGeneratorController.getRelationshipsBetweenObjects';
 import createRelatedListButtons from '@salesforce/apex/ButtonGeneratorController.createRelatedListButtons';
+import fetchFieldOptionsForRL from '@salesforce/apex/ButtonGeneratorController.fetchFieldOptionsForRL';
 
 import generateAccessToken from '@salesforce/apex/GenerateDocumentController.generateAccessToken';
 import { errorDebugger } from 'c/globalPropertiesV2'
@@ -25,6 +26,7 @@ export default class ButtonGeneratorV2 extends LightningElement {
     @track selectedROLObjects = [];
     @track selectedCRObjects = [];
     @track selectedDPObjects = [];
+    @track selectedFieldsForRL = [];
 
     @track showSpinner = false;
 
@@ -41,12 +43,20 @@ export default class ButtonGeneratorV2 extends LightningElement {
     @track objOptionsForROLButton = [];
     @track objOptionsForCRButton = [];
     @track objOptionsForDPButton = [];
+    @track fieldOptionsForRL = [];
 
     @track showInitialButtonCreation = false;
     operationCounter = 0;
     isChooseChannel = false;
+    isChooseFields = false;
     isDefaultProcess = false;
+    isInitialized = false;
+
     initialObjectsList = ['Account' , 'Contact' , 'Lead', 'Opportunity', 'Case', 'Contract'];
+    dragIndex;
+    lastGapTarget;
+    lastPosition;
+
 
     get selectedDPObject(){
         if(this.selectedDPObjects.length > 0){
@@ -76,9 +86,29 @@ export default class ButtonGeneratorV2 extends LightningElement {
     }
 
     get enableCRCreate(){
+        if(this.selectedCRObjects.length > 0 && !this.isInitialized){
+                this.isChooseFields = true;
+                this.isInitialized = true;
+                fetchFieldOptionsForRL({childObject :this.selectedROLObjects[0]})
+                    .then((data) => {
+                        console.log(data);
+                        
+                        this.fieldOptionsForRL = data;
+                        
+                    }).catch((e) => {
+                        errorDebugger('buttonGenerator', 'fetchFieldOptionsForRL', e, 'warn');
+                    });
+                
+        }
+        else if(this.selectedCRObjects.length < 1 && this.isInitialized){
+            this.isChooseFields = false;
+            this.isInitialized = false;
+        }
+
         return this.selectedCRObjects.length > 0;
     }
 
+    
     get enableDPCreate(){
         if(!(this.selectedDPObjects.length > 0)){
             this.isChooseChannel = false;
@@ -93,6 +123,92 @@ export default class ButtonGeneratorV2 extends LightningElement {
         }catch(e){
             this.showSpinner = false;
             errorDebugger('buttonGenerator', 'connectedCallback', e, 'warn');
+        }
+    }
+
+    handleDragStart(evt) {
+        this.dragIndex = parseInt(evt.currentTarget.dataset.index, 10);
+        evt.currentTarget.classList.add('dragging');
+    }
+
+    handleDragEnd(evt) {
+        this.clearGap();
+        evt.currentTarget.classList.remove('dragging');
+    }
+
+    handleDragOver(evt) {
+        evt.preventDefault();
+        const x = evt.clientX;
+        const y = evt.clientY;
+
+        // find all non-dragging tiles
+        const tiles = Array.from(this.template.querySelectorAll('.tile:not(.dragging)'));
+        if (!tiles.length) { this.clearGap(); return; }
+
+        // 1) pick closest row
+        let minRowDist = Infinity, rowTiles = [];
+        tiles.forEach(tile => {
+        const r = tile.getBoundingClientRect();
+        const rowDist = Math.abs(y - (r.top + r.height/2));
+        if (rowDist < minRowDist - 5) {
+            minRowDist = rowDist;
+            rowTiles = [tile];
+        } else if (Math.abs(rowDist - minRowDist) <= 5) {
+            rowTiles.push(tile);
+        }
+        });
+
+        // 2) among those, pick closest horizontally
+        let closest = { el: null, dist: Infinity };
+        rowTiles.forEach(tile => {
+        const r = tile.getBoundingClientRect();
+        const dist = Math.abs(x - (r.left + r.width/2));
+        if (dist < closest.dist) {
+            closest = { el: tile, dist };
+        }
+        });
+        const target = closest.el;
+        if (!target) { this.clearGap(); return; }
+
+        // decide before/after by comparing to its midpoint
+        const rect = target.getBoundingClientRect();
+        const pos = (x < rect.left + rect.width/2) ? 'before' : 'after';
+
+        if (target !== this.lastGapTarget || pos !== this.lastPosition) {
+        this.clearGap();
+        this.lastGapTarget = target;
+        this.lastPosition = pos;
+        target.classList.add(pos === 'before' ? 'gap-before' : 'gap-after');
+        }
+    }
+
+    handleDrop(evt) {
+        evt.preventDefault();
+        if (this.lastGapTarget && this.lastPosition != null) {
+        // get source index
+        const from = this.dragIndex;
+        // get drop target index
+        const to = parseInt(this.lastGapTarget.dataset.index, 10)
+                    + (this.lastPosition === 'after' ? 1 : 0);
+
+        // avoid no-ops
+        if (from !== to && from + 1 !== to) {
+            const arr = [...this.selectedFieldsForRL];
+            const [moved] = arr.splice(from, 1);
+            // adjust insertion index if we removed earlier in array
+            const insertAt = (to > from) ? to - 1 : to;
+            arr.splice(insertAt, 0, moved);
+            this.selectedFieldsForRL = arr;
+        }
+        }
+        this.clearGap();
+    }
+
+    clearGap() {
+        if (this.lastGapTarget) {
+        this.lastGapTarget.classList.remove('gap-before','gap-after');
+        this.lastGapTarget = null;
+        this.lastPosition = null;
         }
     }
 
@@ -215,11 +331,25 @@ export default class ButtonGeneratorV2 extends LightningElement {
                 this.selectedCRObjects = event.detail;
             }else if(type === 'defaultProcess'){
                 this.selectedDPObjects = event.detail;
+            }else if(type === 'objectFields'){  
+                if(event.detail.length > 3){
+                    this.showToast('error', 'Something Went Wrong!', 'Please select only 3 fields.', 5000);
+                    const arr = [...this.selectedFieldsForRL];
+                    this.selectedFieldsForRL = [];
+                    this.selectedFieldsForRL = JSON.parse(JSON.stringify(arr));
+                    return;
+                }
+                else{
+                    this.selectedFieldsForRL = event.detail;
+                }
+                console.log(this.selectedFieldsForRL);
+                
             }
         }catch(e){
             errorDebugger('buttonGenerator', 'handleObjectSelection', e, 'warn');
         }
     }
+    
 
     fetchChildObjects(){
         getChildObjects({parentObjectApiName: this.selectedRLObjects[0]})
@@ -260,7 +390,7 @@ export default class ButtonGeneratorV2 extends LightningElement {
     }
 
     handleCreate(event){
-        this.showSpinner = true;
+        // this.showSpinner = true;
         try {
             let type = event.target.dataset.type;
             if(type){
@@ -357,12 +487,17 @@ export default class ButtonGeneratorV2 extends LightningElement {
                 buttonData.buttonLabel = 'DG Basic Print';
                 buttonData.buttonName = 'DG_Basic_Print';
             }
-            else if(type === 'relatedList'){                
+            else if(type === 'relatedList'){           
                 objects = this.selectedROLObjects;
                 buttonData.buttonLabel = 'DG RL '+ this.selectedCRObjects[0];
                 buttonData.buttonName = 'DG_RL'+ this.selectedRLObjects[0].replaceAll('__', '_') +this.selectedCRObjects[0].replaceAll('__', '_');
                 buttonData.parentObject = this.selectedRLObjects[0];
                 buttonData.relationshipName = this.selectedCRObjects[0];
+                console.log(this.selectedFieldsForRL);
+                
+                buttonData.fields = JSON.stringify(this.selectedFieldsForRL);
+                console.log(buttonData.fields);
+                
             }
             if(type != 'relatedList'){
                 createListViewButtons({objects: objects ,buttonData : buttonData})
@@ -407,6 +542,7 @@ export default class ButtonGeneratorV2 extends LightningElement {
             type === 'relatedList' ? this.selectedROLObjects = [] : null;
             type === 'relatedList' ? this.selectedRLObjects = [] : null;
             type === 'relatedList' ? this.selectedCRObjects = [] : null;
+            type === 'relatedList' ? this.selectedFieldsForRL = [] : null;
         }
     }
 

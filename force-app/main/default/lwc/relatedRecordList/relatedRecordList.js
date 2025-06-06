@@ -9,6 +9,7 @@ export default class RelatedRecordList extends LightningElement {
     objectname;
     parentObj;
     relationshipName;
+    fields = [];
 
     @track records = [];
     @track selectedIds = [];
@@ -22,12 +23,6 @@ export default class RelatedRecordList extends LightningElement {
             type: 'number',
             initialWidth: 80, // smaller width
             cellAttributes: { alignment: 'center' } // center alignment
-        },
-        {
-            label: 'Name',
-            fieldName: 'Name',
-            type: 'text',
-            cellAttributes: { alignment: 'center' } // center alignment
         }
     ];
 
@@ -40,10 +35,16 @@ export default class RelatedRecordList extends LightningElement {
     }
 
     get indexedRecords() {
+        console.log(this.records.map((record, idx) => ({
+            ...record,
+            index: idx + 1
+        })));
+        
         return this.records.map((record, idx) => ({
             ...record,
             index: idx + 1
         }));
+
     }
 
     @wire(CurrentPageReference)
@@ -57,7 +58,23 @@ export default class RelatedRecordList extends LightningElement {
             this.objectname = state.c__objectname || null;
             this.parentObj = state.c__parentObj || null;
             this.relationshipName = state.c__relationshipName || null;
-
+            this.fields = JSON.parse(state.c__fields) || null;
+            console.log(this.fields);
+            if(this.fields === null || this.fields.length === 0){
+                this.fields = ['Name']; // Default field if none provided
+            }
+            let dynamicColumns = this.fields.map(field => {
+                return {
+                    label: field, 
+                    fieldName: field,
+                    type: 'text', 
+                    cellAttributes: { alignment: 'center' }
+                };
+            });
+        
+            this.columns = [...this.columns, ...dynamicColumns];
+            console.log(this.columns);
+            
             this.fetchRelatedRecords();
         }
     }
@@ -66,12 +83,15 @@ export default class RelatedRecordList extends LightningElement {
         getRelatedRecords({
             RelatedRecordId: this.parentId,
             objectname: this.parentObj,
-            relationshipName: this.relationshipName
+            relationshipName: this.relationshipName,
+            fieldList: this.fields
+            
         })
         .then((data) => {
             console.log({data});
-            
             this.records = data;
+            console.log(data);
+            
             this.selectedIds = [];
         })
         .catch((error) => {

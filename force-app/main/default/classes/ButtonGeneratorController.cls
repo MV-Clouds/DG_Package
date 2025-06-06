@@ -266,6 +266,7 @@ public static String createRelatedListButtons(List<String> objects,Map<String, S
         String buttonLabel = buttonData.get('buttonLabel');
         String buttonParent = buttonData.get('parentObject');
         String buttonRelationShip = buttonData.get('relationshipName');
+        String fields = buttonData.get('fields');
         Integer batchSize = 10;
         Integer totalSize = objects.size();
 
@@ -274,7 +275,7 @@ public static String createRelatedListButtons(List<String> objects,Map<String, S
             String obj = objects[i];
             // /lightning/cmp/c__relatedRecordList?c__objectname=Contact&c__isRelatedList=true&c__isDefaultGenerate=true&c__parentId={!Account.Id}&c__relationshipName=Contacts&c__parentObj=Account
 
-            String buttonURL = '/lightning/cmp/MVDG__relatedRecordList?c__objectname='+obj+'&c__isRelatedList=true&c__isDefaultGenerate=true&c__parentId={!'+buttonParent+'.Id}&c__relationshipName='+buttonRelationShip+'&c__parentObj='+buttonParent;
+            String buttonURL = '/lightning/cmp/MVDG__relatedRecordList?c__objectname='+obj+'&c__isRelatedList=true&c__isDefaultGenerate=true&c__parentId={!'+buttonParent+'.Id}&c__relationshipName='+buttonRelationShip+'&c__parentObj='+buttonParent+'&c__fields='+fields;
             String displayType = 'massActionButton';
 
             String buttonApiName = buttonName;
@@ -437,7 +438,46 @@ public static List<Map<String, String>> getRelationshipsBetweenObjects(String pa
 }
 
 
+/*
+*********************************************************
+@description     : Method is used to fetch Fields of child objects
+@param           : childObject - {String} 
+@return          : {List<Map<String, String>>} - returns list of map of child objects Fields label and Name
+********************************************************
+*/
 
+@AuraEnabled
+public static List<Map<String, String>> fetchFieldOptionsForRL(String childObject) {
+    List<Map<String, String>> fieldList = new List<Map<String, String>>();
+        try {
+            Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
+            
+            if (!schemaMap.containsKey(childObject)) {
+                throw new IllegalArgumentException('Invalid object API name: ' + childObject);
+            }
+            System.debug(childObject);
+
+            Schema.SObjectType sObjectType = schemaMap.get(childObject);
+            Schema.DescribeSObjectResult describeResult = sObjectType.getDescribe();
+
+            // Get fields map
+            Map<String, Schema.SObjectField> fieldsMap = describeResult.fields.getMap();
+            // Loop through fields
+            for (String fieldApiName : fieldsMap.keySet()) {
+                Schema.DescribeFieldResult fieldDescribe = fieldsMap.get(fieldApiName).getDescribe();
+                Map<String, String> fieldInfo = new Map<String, String>();
+                fieldInfo.put('label', fieldDescribe.getLabel());
+                fieldInfo.put('value', fieldDescribe.getName());
+                fieldList.add(fieldInfo);
+                System.debug(fieldInfo);
+            }
+        } catch (Exception ex) {
+            System.debug('Error fetching fields: ' + ex.getMessage());
+            // optionally rethrow or return empty list
+        }
+        System.debug(fieldList);
+        return fieldList;
+}
 
 
 // -------------------------------------------------------------- Wrapper Classes ------------------------------------------------------------ //
