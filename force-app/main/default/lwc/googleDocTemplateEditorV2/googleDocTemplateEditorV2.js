@@ -589,33 +589,19 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
                     
                     this.isSpinner = false;
                     this.loaderLabel = 'Loading... Please wait a while';
-                    const popup = this.template.querySelector("c-message-popup-v2");
 
                     if (result) {
                         this.previousTemplateData = JSON.parse(JSON.stringify(this.templateRecord));
-                        popup.showMessageToast({
-                            title: "Template Data Saved",
-                            message: "Template data saved to backend succesfully.",
-                            status: "success"
-                        });
+                        this.showMessageToast('success', 'Template Data Saved', 'Template data saved to backend successfully.');
                         this.warning = 'save';
                     } else {
-                        popup.showMessageToast({
-                            title: "Error Saving Template",
-                            message: "Error saving template data to backend. Please try again later.",
-                            status: "error"
-                        });
+                        this.showMessageToast('error', 'Error Saving Template', 'Error saving template data to backend. Please try again later');
                     }
                 })
                 .catch((error) => {
                     this.isSpinner = false;
                     this.loaderLabel = 'Loading... Please wait a while';
-                    const popup = this.template.querySelector("c-message-popup-v2");
-                    popup.showMessageToast({
-                        title: "Error Saving Template",
-                        message: "Error saving template data to backend. Please try again later.",
-                        status: "error"
-                    });
+                    this.showMessageToast('error', 'Error Saving Template', 'Error saving template data to backend. Please try again later');
                     errorDebugger('googleDocTemplateEditorV2','editTemplateDetails', error, 'error', 'Error in editTemplateDetails. Please try again later');
                 });
         } catch (error) {
@@ -643,5 +629,17 @@ export default class GoogleDocTemplateEditorV2 extends NavigationMixin(Lightning
         } catch (error) {
             errorDebugger('googleDocTemplateEditorV2','cancelEditTemplate', error, 'error', 'Error in cancelEditTemplate. Please try again later');
         }
+    }
+
+    handleKeyMappingToast(event){
+        this.showMessageToast(event?.detail?.status, event?.detail?.title, event?.detail?.message);
+    }
+
+    // Generic Show toast method
+    showMessageToast(status, title, message){
+        const popup = this.template.querySelector("c-message-popup-v2");
+        popup.showMessageToast({
+            title, status, message
+        });
     }
 }
