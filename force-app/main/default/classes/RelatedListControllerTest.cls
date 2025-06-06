@@ -5,6 +5,8 @@ public class RelatedListControllerTest {
         // Create test data
         Account acc = new Account(Name = 'Test Account');
         insert acc;
+        List<String> flist = new List<String>{'Name', 'Id'};
+
 
         Contact con1 = new Contact(FirstName = 'Test', LastName = 'Contact1', AccountId = acc.Id);
         Contact con2 = new Contact(FirstName = 'Test', LastName = 'Contact2', AccountId = acc.Id);
@@ -15,7 +17,8 @@ public class RelatedListControllerTest {
         List<SObject> relatedContacts = RelatedListController.getRelatedRecords(
             acc.Id,               // Parent Record ID
             'Account',            // Parent Object API Name
-            'Contacts'            // Child Relationship Name (as per relationship API name)
+            'Contacts',            // Child Relationship Name (as per relationship API name)
+            flist
         );
         Test.stopTest();
 
@@ -33,10 +36,11 @@ public class RelatedListControllerTest {
     static void testWithInvalidRelationship() {
         Account acc = new Account(Name = 'Invalid Test');
         insert acc;
+        List<String> flist = new List<String>{'Name', 'Id'};
 
         Test.startTest();
         // Intentionally pass wrong relationship name to test exception handling
-        List<SObject> result = RelatedListController.getRelatedRecords(acc.Id, 'Account', 'InvalidRelation');
+        List<SObject> result = RelatedListController.getRelatedRecords(acc.Id, 'Account', 'InvalidRelation', flist);
         Test.stopTest();
 
         // Should return null due to exception
