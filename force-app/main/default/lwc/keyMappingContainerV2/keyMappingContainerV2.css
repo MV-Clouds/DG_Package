@@ -762,6 +762,12 @@
     fill: black;
 }
 
+.fieldKeyText.full-key-visible{
+    overflow: hidden;
+    word-break: break-all;
+    display: initial;
+}
+
 .formatCopy {
     margin-right: 0.25rem;
 }
@@ -1417,7 +1423,7 @@ li {
     border-radius: 0.5rem;
     user-select: text;
     color: white;
-    cursor: grab;
+    cursor: move;
 }
 
 .tile {
