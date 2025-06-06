@@ -76,6 +76,9 @@
 .related-list-help:hover::before{
     content: "Create 'DG Related List' button, that can be used to generate the Bulk PDF/DOC document according to current page layout from the Record detail page.";
 }
+.default-process-help:hover::before{
+    content: "Create 'DG Default Process' button, that can be used to generate the documents using Simple Template and Google Doc Template and process is Pre Defined.";
+}
 
 
 
