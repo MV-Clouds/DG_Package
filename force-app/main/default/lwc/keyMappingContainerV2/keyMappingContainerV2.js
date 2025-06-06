@@ -108,6 +108,7 @@ export default class KeyMappingContainerV2 extends LightningElement {
     @track customKeyListSeparator = ', ';
     @track showIndexForTable = true;
     @track selectedFontSize = 12;
+    @track emptyStateMessage = '';
     @track cvIdVsImageSRC = {};
     @track contentVersionToDisplay = [];
     @track isExceedRelatedListLimit = false;
@@ -347,8 +348,9 @@ export default class KeyMappingContainerV2 extends LightningElement {
     get customKeyTableField(){
         let fields = this.showIndexForTable ? ['INDEX'] : [];
         let fontSizeString = !isNaN(this.selectedFontSize) && this.selectedFontSize > 0 && !this.isGoogleDocTemplate ? `;${parseInt(this.selectedFontSize)}` : '';
+        let message = this.emptyStateMessage ? `;${this.emptyStateMessage}` : '';
         fields.push([...this.selectedCustomKeyTableFields]);
-        return `{{@CKTABLE:${this.selectedCustomKey}:${fields.join(',')}${fontSizeString}}}`;
+        return `{{@CKTABLE:${this.selectedCustomKey}:${fields.join(',')}${fontSizeString}${message}}}`;
     }
 
     get conditionalDataKey(){
@@ -715,12 +717,18 @@ export default class KeyMappingContainerV2 extends LightningElement {
                     this.selectedCustomKeyTableFields = event?.detail;
                 }else{
                     this.selectedCustomKeyTableFields = [previousValue];
-                    this.showMessageToast('Warning', 'You are making table empty!', 'There should be at least one column to display in table.');
+                    this.dispatchEvent(new CustomEvent('showtoast',{ detail: {
+                        status: 'warning',
+                        title: 'Table can\'t be empty!',
+                        message: 'There should be at least one column to display in table.'
+                    }}))
                 }
             } else if( type == 'index'){
                 this.showIndexForTable = event?.currentTarget?.checked;
             } else if( type == 'fontSize'){
                 this.selectedFontSize = event?.currentTarget?.value;
+            } else if( type == 'emptyState'){
+                this.emptyStateMessage = event?.currentTarget?.value;
             }
         } catch (e) {
             errorDebugger('FieldMappingKeyV2', 'handleCustomKeyTableField', e ,'warn');
@@ -1489,6 +1497,12 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 else{
                     delete this.numberFormat['rM'];
                 }
+            }else if(action == 'addPrefix'){
+                if(event.target.value){
+                    this.numberFormat['pF'] = event.target.value;
+                }else{
+                    delete this.numberFormat['pF'];
+                }
             }
 
             // ... Update mapping Key ...
@@ -1710,18 +1724,6 @@ export default class KeyMappingContainerV2 extends LightningElement {
         this.updateSignatureSize();
     }
 
-    // Generic Method to test Message Toast
-    showMessageToast(Status, Title, Message, Duration){
-        const messageContainer = this.template.querySelector('c-message-popup-v2')
-        if(messageContainer){
-            messageContainer.showMessageToast({
-                status: Status,
-                title: Title,
-                message : Message,
-                duration : 5000
-            });
-        }
-    }
 
     /**
      * API Method to Stop Generation.

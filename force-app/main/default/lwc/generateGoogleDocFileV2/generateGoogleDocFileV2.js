@@ -420,6 +420,8 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
                         }
                     });
                     ckTablesList?.reverse()?.forEach(table => {
+                        if(!table?.data) return;
+                        
                         this.deleteContentRequest(table.startIndex, table.endIndex);
                         this.changeRequests.push(...this.createRequestsForTable(table.startIndex, table.data)); 
                     });                    
@@ -446,19 +448,35 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
     }
 
     getCKTableData(key, dataMap = {}) {
-        const data = dataMap?.[key] || "";
         try {
-            const parsed = JSON.parse(data);
-            if (!parsed) return null;
+            const data = dataMap?.[key] || "";
+            if(data){
+                const parsed = JSON.parse(data);
+                if (!parsed) return null;
 
-            const headers = parsed?.headers || [];
-            const rows = parsed?.rows || [];
+                const headers = parsed?.headers || [];
+                const rows = parsed?.rows || [];
 
-            return [
-                headers,
-                ...rows?.map(row => headers?.map(h => row[h] ?? ""))
-            ];
-        } catch {
+                return [
+                    headers,
+                    ...rows?.map(row => headers?.map(h => row[h] ?? ""))
+                ];
+            }else{
+                let keyParts = key?.split('{{@CKTABLE:')[1]?.split(':')[1]?.replace('}}','')?.split(';');
+                let headers = keyParts[0]?.replace('INDEX', 'No.')?.split(',');
+                let emptyStateMessage = keyParts.length > 1 ? keyParts[1] : '';
+
+                if(emptyStateMessage){
+                    return [
+                        headers,
+                        emptyStateMessage
+                    ]
+                }else{
+                    return null;
+                }
+            }
+        } catch(e) {
+            errorDebugger("generateGoogleDocFileV2", "getCKTableData", e, 'Error', "Error in generating table data.");
             return null;
         }
     }
@@ -669,60 +687,118 @@ export default class GenerateGoogleDocFileV2 extends LightningElement {
     }
 
     createRequestsForTable(startIndex, tableValues) {
+        try {
+            const maxLen = Math.max(...tableValues?.map(row => Array.isArray(row) ? row.length : 1));
+            let index = startIndex + 5;
 
-        const maxLen = Math.max(...tableValues.map(row => row.length));
-        let index = startIndex + 5;
+            const cellValues = tableValues
+                ?.flatMap((row, i) => {
+                    const isMergedRow = typeof row === 'string';
+                    const rowIndex = index + (i === 0 ? 0 : 3) - 1;
 
-        const cellValues = tableValues.flatMap((row, i) => {
-                const rowIndex = index + (i === 0 ? 0 : 3) - 1;
+                    if (isMergedRow) {
+                        const cellIndex = rowIndex;
+                        const text = row || " ";
 
-                const cells = row.map((cellText, j) => {
-                    const cellIndex = rowIndex + j * 2;
-                    const cellInsert = {
-                        insertText: {
-                            text: cellText || " ",
-                            location: { index: cellIndex }
-                        }
-                    };
-                    const insertRequests = [cellInsert];
-                    index = cellIndex + 1;
-                    if(i == 0){
-                        insertRequests.push({
-                            updateTextStyle : {
-                                textStyle: {
-                                    bold: true
-                                },
-                                fields: "bold",
-                                range: {
-                                    startIndex: cellIndex,
-                                    endIndex: cellIndex + cellText.length
+                        index = cellIndex + 1;
+
+                        return [
+                            {
+                                mergeTableCells: {
+                                    tableRange: {
+                                        tableCellLocation: {
+                                            tableStartLocation: { index: startIndex + 1 },
+                                            rowIndex: i,
+                                            columnIndex: 0
+                                        },
+                                        rowSpan: 1,
+                                        columnSpan: maxLen
+                                    }
                                 }
-                            }
-                        });
+                            },{
+                                updateParagraphStyle: {
+                                    paragraphStyle: {
+                                        alignment: "CENTER"
+                                    },
+                                    fields: "alignment",
+                                    range: {
+                                        startIndex: cellIndex,
+                                        endIndex: cellIndex + text.length
+                                    }
+                                }
+                            },{
+                                insertText: {
+                                    text: text,
+                                    location: { index: cellIndex }
+                                }
+                            },
+                        ];
                     }
-                    return insertRequests;
-                });
 
-                if (row.length < maxLen) {
-                    index += (maxLen - row.length) * 2;
-                }
+                    // Regular row (array)
+                    const cells = row.map((cellText, j) => {
+                        const cellIndex = rowIndex + j * 2;
+                        let insertRequests = [{
+                            insertText: {
+                                text: cellText || " ",
+                                location: { index: cellIndex }
+                            }
+                        }];
 
-                return cells;
-            })
-            .reverse();
+                        if (i === 0) {
+                            insertRequests.push(
+                                {
+                                    updateTextStyle: {
+                                        textStyle: { bold: true },
+                                        fields: "bold",
+                                        range: {
+                                            startIndex: cellIndex,
+                                            endIndex: cellIndex + cellText.length
+                                        }
+                                    }
+                                },
+                                {
+                                    updateParagraphStyle: {
+                                        paragraphStyle: {
+                                            alignment: "CENTER"
+                                        },
+                                        fields: "alignment",
+                                        range: {
+                                            startIndex: cellIndex,
+                                            endIndex: cellIndex + cellText.length
+                                        }
+                                    }
+                                }
+                            );
+                        }
 
-        const requests = [
-            {
-                insertTable: {
-                    rows: tableValues.length,
-                    columns: maxLen,
-                    location: { index: startIndex }
-                }
-            },
-            ...cellValues
-        ];
+                        index = cellIndex + 1;
+                        return insertRequests.reverse();
+                    });
 
-        return requests;
+                    if (row.length < maxLen) {
+                        index += (maxLen - row.length) * 2;
+                    }
+
+                    return cells.flat();
+                })
+                .reverse();
+
+            const requests = [
+                {
+                    insertTable: {
+                        rows: tableValues.length,
+                        columns: maxLen,
+                        location: { index: startIndex }
+                    }
+                },
+                ...cellValues
+            ];
+
+            return requests;
+        } catch (e) {
+            errorDebugger("generateGoogleDocFileV2", "createRequestsForTable", e, 'Error', 'Error in createRequestsForTable.');
+        }
     }
 
 

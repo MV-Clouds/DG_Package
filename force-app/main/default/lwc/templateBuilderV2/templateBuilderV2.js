@@ -1505,6 +1505,9 @@ export default class TemplateBuilderV2 extends NavigationMixin(LightningElement)
     }
 
 
+    handleKeyMappingToast(event){
+        this.showMessageToast(event?.detail?.status, event?.detail?.title, event?.detail?.message, 5000);
+    }
     // ====== ======= ======== ======= ======= ====== GENERIC Method ====== ======= ======== ======= ======= ======
      // Generic Method to test Message Popup and Toast
         showMessagePopup(Status, Title, Message, doneBtnLabel){

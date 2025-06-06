@@ -88,7 +88,7 @@ public with sharing class DataMappingControllerV2 {
                                 String tableHtml = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-size:' + fontSize + 'px;">';
                                 tableHtml += '<thead><tr>';
                                 for (Object header : headers) {
-                                    tableHtml += '<th style="background-color:#fff;">' + String.valueOf(header) + '</th>';
+                                    tableHtml += '<th style="background-color:#fff;text-align:center;">' + String.valueOf(header) + '</th>';
                                 }
                                 tableHtml += '</tr></thead><tbody>';
 
@@ -1186,6 +1186,7 @@ public with sharing class DataMappingControllerV2 {
         String format = formatType.substringBetween('F:', ',');
         String decimalPlaces = formatType.substringBetween('dP:', ',');
         String roundMode = formatType.substringBetween('rM:', ',');
+        String prefix = formatType.substringBetween('pF:', ',');
 
         if(decimalPlaces != null){
             if(roundMode != null){
@@ -1218,6 +1219,10 @@ public with sharing class DataMappingControllerV2 {
         }
         else{
             fieldValue = String.valueOf(val);
+        }
+
+        if(prefix != null && fieldValue != null){
+            fieldValue = prefix + fieldValue;
         }
 
         return fieldValue;
