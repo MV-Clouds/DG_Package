@@ -99,6 +99,31 @@
     width: 100%;
 }
 
+.tile {
+    transition: margin 0.2s ease, opacity 0.2s ease;
+}
+.tile.dragging {
+  opacity: 0.5;
+}
+.gap-before {
+  /* adjust to your tile width + gap */
+  margin-left: 4rem;
+}
+.gap-after {
+  margin-right: 4rem;
+}
+.added-field {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  background-color: #00aeff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  user-select: text;
+  color: white;
+  cursor: grab;
+}
+
 .object-select-combobox{
     --inputAreaBorderWidth: 1px;
     --inputAreaBorderColor: black;
