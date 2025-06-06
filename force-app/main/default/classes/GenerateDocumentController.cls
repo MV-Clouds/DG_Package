@@ -439,7 +439,9 @@ public static void updateSetting(String clientId, String clientSecret) {
                 List<String> fieldList = new List<String>();
                 String emailType = '';
                 if (String.isNotBlank(ddw.emailAddresses) && ddw.emailAddresses.contains('<|DGE|>')) {
-                    String[] splitResult = ddw.emailAddresses.split('<\\|DGE\\|>');
+                    String[] splitResult = ddw.emailAddresses.split('<\\|DGE\\|>', -1);
+
+                    //System.debug('splitResult: ' + splitResult);
                     Integer splitSize = splitResult.size();
                     
                     if (splitSize >= 3) {
