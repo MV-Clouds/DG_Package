@@ -138,8 +138,8 @@ export default class ButtonGeneratorV2 extends LightningElement {
                     this.template.querySelector('.list-view-generator').value = this.selectedLVObjects?.length > 0 ? this.selectedLVObjects : null;
                     this.template.querySelector('.quick-action-generator').value = this.selectedQAObjects?.length > 0 ? this.selectedQAObjects : null;
                     this.template.querySelector('.basic-print-generator').value = this.selectedBPObjects?.length > 0 ? this.selectedBPObjects : null;
-                    this.template.querySelector('.related-list-generator').value = this.selectedRLObjects?.length > 0 ? this.selectedRLObjects : null;
-                    this.template.querySelector('.default-process-generator').value = this.selectedDPObjects?.length > 0 ? this.selectedDPObjects : null;
+                    this.template.querySelector('.related-list-generator').value = this.selectedRLObjects?.length > 0 ? this.selectedRLObjects : [];
+                    this.template.querySelector('.default-process-generator').value = this.selectedDPObjects?.length > 0 ? this.selectedDPObjects : [];
                 }else{
                     errorDebugger('buttonGenerator', 'getCombinedData > not success', 'Error in Getting Combined Data.', 'warn');
                     this.showToast('error', 'Something went wrong!', 'Error fetching all required data, please try again!', 5000);
@@ -357,10 +357,10 @@ export default class ButtonGeneratorV2 extends LightningElement {
                 buttonData.buttonLabel = 'DG Basic Print';
                 buttonData.buttonName = 'DG_Basic_Print';
             }
-            else if(type === 'relatedList'){
+            else if(type === 'relatedList'){                
                 objects = this.selectedROLObjects;
                 buttonData.buttonLabel = 'DG RL '+ this.selectedCRObjects[0];
-                buttonData.buttonName = 'DG_RL'+ this.selectedCRObjects[0];
+                buttonData.buttonName = 'DG_RL'+ this.selectedRLObjects[0].replaceAll('__', '_') +this.selectedCRObjects[0].replaceAll('__', '_');
                 buttonData.parentObject = this.selectedRLObjects[0];
                 buttonData.relationshipName = this.selectedCRObjects[0];
             }
@@ -432,12 +432,12 @@ export default class ButtonGeneratorV2 extends LightningElement {
                 if(this.isDefaultProcess){
                     requestBodyExpanded = this.selectedDPObjects.map(obj => ({
                         Metadata: {
-                            label: "DGP_"+obj,
+                            label: "DGP_"+obj.replaceAll('__', '_'),
                             optionsCreateFeedItem: false,
                             type: "LightningWebComponent",
                             lightningWebComponent: "generateDocumentV2"
                         },
-                        FullName: `${obj}.DGP_${obj}`
+                        FullName: `${obj}.DGP_${obj.replaceAll('__', '_')}`
                     }));
                 }else{
                     requestBodyExpanded = this.selectedQAObjects.map(obj => ({

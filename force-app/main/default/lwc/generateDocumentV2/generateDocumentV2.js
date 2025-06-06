@@ -482,8 +482,7 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
                     if (result.isSuccess) {
                         this.fieldMappingsWithObj = result.fieldMappingsWithObj[0];
                         let fieldOptions = [];
-                    this.keyOptions = [];
-                    let allowedTypes = ['STRING', 'PICKLIST', 'TEXTAREA', 'URL'];
+                    let allowedTypes = ['STRING', 'PICKLIST', 'TEXTAREA', 'URL','EMAIL'];
                     this.fieldMappingsWithObj.fieldMappings
                         .filter(field => allowedTypes.includes(field.type))
                         .forEach(field => {
@@ -1647,8 +1646,10 @@ export default class GenerateDocumentV2 extends NavigationMixin(LightningElement
             let iStorages = this.internalStorageOptions.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
             let eStorages = this.externalStorageOptions.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
             let oChannels = this.outputChannels.filter(item => item.isSelected === true).map(item => {return item.name}).join(', ');
+            console.log(JSON.stringify(this.internalObjectApiName).replace('__', '_'));
+            
             let defaults = {
-                Name : 'DGP_'+this.internalObjectApiName,
+                Name : 'DGP_'+this.internalObjectApiName.replace('__', '_'),
                 docType : this.selectedExtension?.slice(1,).toUpperCase(),
                 iStorage : iStorages,
                 folderId: this.selectedFolder,

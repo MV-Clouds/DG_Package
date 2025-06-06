@@ -535,7 +535,7 @@ public static void updateSetting(String clientId, String clientSecret) {
             DefaultDataWrapper ddw = new DefaultDataWrapper();
             List<MVDG__Default_Process__c> templates = new List<MVDG__Default_Process__c>();
             if(apiName != null){
-                templates = [SELECT Id, Name,MVDG__ButtonName__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Email_Template__c FROM MVDG__Default_Process__c WHERE Name=:apiName WITH SECURITY_ENFORCED];
+                templates = [SELECT Id, Name,MVDG__ButtonName__c, MVDG__Document_Type__c, MVDG__Internal_Storage__c, MVDG__Selected_Document_Folder__c, MVDG__External_Storage__c, MVDG__Output_Channel__c, MVDG__Email_Addresses__c, MVDG__Email_Subject__c, MVDG__Email_Body__c, MVDG__Email_Template__c FROM MVDG__Default_Process__c WHERE MVDG__ButtonName__c=:apiName WITH SECURITY_ENFORCED];
             }
             if(templates.size() > 0){
                 ddw.buttonName = templates[0].MVDG__ButtonName__c;
