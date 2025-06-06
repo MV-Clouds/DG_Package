@@ -1186,6 +1186,7 @@ public with sharing class DataMappingControllerV2 {
         String format = formatType.substringBetween('F:', ',');
         String decimalPlaces = formatType.substringBetween('dP:', ',');
         String roundMode = formatType.substringBetween('rM:', ',');
+        String prefix = formatType.substringBetween('pF:', ',');
 
         if(decimalPlaces != null){
             if(roundMode != null){
@@ -1218,6 +1219,10 @@ public with sharing class DataMappingControllerV2 {
         }
         else{
             fieldValue = String.valueOf(val);
+        }
+
+        if(prefix != null && fieldValue != null){
+            fieldValue = prefix + fieldValue;
         }
 
         return fieldValue;

@@ -1497,6 +1497,12 @@ export default class KeyMappingContainerV2 extends LightningElement {
                 else{
                     delete this.numberFormat['rM'];
                 }
+            }else if(action == 'addPrefix'){
+                if(event.target.value){
+                    this.numberFormat['pF'] = event.target.value;
+                }else{
+                    delete this.numberFormat['pF'];
+                }
             }
 
             // ... Update mapping Key ...

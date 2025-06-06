@@ -577,35 +577,47 @@
                 </div>
               </template>
               <template lwc:if={formateOptions.isNumberFormat}>
-                <div class="slds-form-element">
-                  <label class="slds-checkbox_toggle slds-grid">
-                    <span class="slds-form-element__label slds-m-bottom_none toggleLabel">Format {clickedFieldType}: </span>
-                    <input type="checkbox" name="checkbox-toggle-15" value="checkbox-toggle-15" data-action="format" onchange={setNumberFormat}/>
-                    <span id="checkbox-toggle-15" class="slds-checkbox_faux_container">
-                      <span class="slds-checkbox_faux"></span>
-                        <span class="slds-checkbox_on"> Yes</span>
-                        <span class="slds-checkbox_off"> No</span>
-                    </span>
-                  </label>
-                </div>
-                <div class="formatInputSection decimalInput">
-                  <div class="inputContainer">
-                    <div class="inputContainerText">Decimal Places</div>
-                    <input type="number" placeholder="Decimal Places" data-action="decimalPlaces" onkeyup={setNumberFormat}/>
+                <div class="slds-grid slds-grid--vertical">
+                  <div class="slds-grid">
+                    <div class="formatInputSection decimalInput slds-p-right--x-small">
+                      <div class="inputContainer">
+                        <div class="inputContainerText">Decimal Places</div>
+                        <input type="number" placeholder="Decimal Places" data-action="decimalPlaces" onkeyup={setNumberFormat}/>
+                      </div>
+                    </div>
+                    <div class="formatInputSection decimalInput slds-p-left--x-small">
+                      <div class="inputContainer">
+                        <div class="inputContainerText roundMode" data-text="roundMode">Rounding Mode</div>
+                        <select data-action="roundMode" disabled onchange={setNumberFormat}>
+                          <option value="none">-- None --</option>
+                          <option value="CEILING">CEILING (towards positive infinity)</option>
+                          <option value="FLOOR">FLOOR (towards negative infinity)</option>
+                          <option value="HALF_UP">HALF UP (towards the nearest integers, but 5.5 = 6)</option>
+                          <option value="HALF_DOWN">HALF DOWN (towards the nearest integers, but 5.5 = 5)</option>
+                          <option value="UP">UP (towards zero)</option>
+                          <option value="DOWN">DOWN (away from zero)</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div class="formatInputSection decimalInput">
-                  <div class="inputContainer">
-                    <div class="inputContainerText roundMode" data-text="roundMode">Rounding Mode</div>
-                    <select data-action="roundMode" disabled onchange={setNumberFormat}>
-                      <option value="none">-- None --</option>
-                      <option value="CEILING">CEILING (towards positive infinity)</option>
-                      <option value="FLOOR">FLOOR (towards negative infinity)</option>
-                      <option value="HALF_UP">HALF UP (towards the nearest integers, but 5.5 = 6)</option>
-                      <option value="HALF_DOWN">HALF DOWN (towards the nearest integers, but 5.5 = 5)</option>
-                      <option value="UP">UP (towards zero)</option>
-                      <option value="DOWN">DOWN (away from zero)</option>
-                    </select>
+                  <div class="slds-grid slds-p-top--large">
+                    <div class="formatInputSection decimalInput slds-p-right--x-small slds-grow">
+                      <div class="inputContainer">
+                        <div class="inputContainerText">Add Prefix</div>
+                        <input type="text" placeholder="Eg. $/USD/₹/Rs." data-action="addPrefix" onkeyup={setNumberFormat}/>
+                      </div>
+                    </div>
+                    <div class="slds-form-element slds-p-left--x-small">
+                      <label class="slds-checkbox_toggle slds-grid">
+                        <span class="slds-m-bottom_none toggleLabel">Format {clickedFieldType}: </span>
+                        <input type="checkbox" name="checkbox-toggle-15" value="checkbox-toggle-15" data-action="format" onchange={setNumberFormat}/>
+                        <span id="checkbox-toggle-15" class="slds-checkbox_faux_container">
+                          <span class="slds-checkbox_faux"></span>
+                            <span class="slds-checkbox_on"> Yes</span>
+                            <span class="slds-checkbox_off"> No</span>
+                        </span>
+                      </label>
+                    </div>
                   </div>
                 </div>
               </template>

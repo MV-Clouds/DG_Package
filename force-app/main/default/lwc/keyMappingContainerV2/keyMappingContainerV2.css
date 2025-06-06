@@ -1319,6 +1319,7 @@ li {
     color: #44aae6;
     font-size: 12px;
     text-transform: capitalize;
+    margin-top: -2px;
 }
 
 .inputContainer input,
@@ -1334,10 +1335,6 @@ li {
 .inputContainer select:focus-visible {
     border: 1px solid rgb(49, 193, 255);
     outline: 1px rgb(49, 193, 255);
-}
-
-.decimalInput {
-    width: 30%;
 }
 
 .roundMode {
