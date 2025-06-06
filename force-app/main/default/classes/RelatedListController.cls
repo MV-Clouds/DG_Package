@@ -6,8 +6,8 @@ public with sharing class RelatedListController {
             System.debug(relationshipName);
             System.debug(objectname);
             System.debug(RelatedRecordId);
-            System.debug(fieldList)
-            if(fieldList == null || fieldList.isEmpty()) {
+            System.debug(fieldList);
+            if (fieldList == null || fieldList.isEmpty()) {
                 fieldList = new List<String>{'Name'}; 
             }
             String subFields = String.join(fieldList, ', ');
